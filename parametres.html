@@ -8,15 +8,15 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        /* Variables de thèmes */
         :root {
             --bg-page: #000;
             --text-main: #eee;
             --header-bg: #000;
-            --border-color: #222;
-            --card-bg: #e5e7eb;
-            --card-text: #111827;
-            --card-sub: #374151;
+            --border-color: #1f2937;
+            --card-bg: #111; 
+            --card-text: #eee;
+            --card-sub: #9ca3af;
+            --btn-back-bg: #1f2937;
         }
 
         .light-mode {
@@ -27,6 +27,7 @@
             --card-bg: #ffffff;
             --card-text: #111827;
             --card-sub: #4b5563;
+            --btn-back-bg: #e5e7eb;
         }
 
         body { 
@@ -39,6 +40,8 @@
         }
         
         header { background: var(--header-bg); border-bottom: 1px solid var(--border-color); }
+
+        #btn-retour { background-color: var(--btn-back-bg); }
 
         .tab-btn { 
             padding: 12px 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; 
@@ -59,6 +62,7 @@
             padding: 15px; 
             margin-bottom: 15px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
         }
         
         .tile-config { 
@@ -71,7 +75,8 @@
         }
         
         .color-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); transition: all 0.2s; }
-        .color-dot.active { border-color: black; transform: scale(1.2); box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 10; }
+        .color-dot.active { border-color: white; transform: scale(1.2); box-shadow: 0 0 5px rgba(255,255,255,0.2); z-index: 10; }
+        .light-mode .color-dot.active { border-color: black; }
         
         .btn-nav { font-weight: 900; padding: 14px 4px; border-radius: 50px; font-size: 10px; text-align: center; text-transform: uppercase; }
         
@@ -87,13 +92,14 @@
         }
         
         .card-info p, .card-info li { color: var(--card-sub); }
-        .card-info strong { color: #000; }
+        .card-info h3 { color: var(--text-main); }
         
         #theme-toggle {
             width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             background: #222; border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.3s;
+            font-size: 1.25rem;
         }
         .light-mode #theme-toggle { background: #eee; border-color: #ddd; }
     </style>
@@ -102,24 +108,19 @@
     <div class="max-w-md mx-auto">
         
         <header class="flex items-center justify-between p-4 sticky top-0 z-50">
-            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-lg bg-gray-800 border border-white/10 active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-lg border border-white/10 active:scale-90">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
             <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
             
-            <button id="theme-toggle" onclick="toggleTheme()" class="active:scale-90 transition-transform">
-                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 hidden" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
-                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 5.106a.75.75 0 011.06 0l1.591 1.591a.75.75 0 11-1.06 1.06l-1.591-1.591a.75.75 0 010-1.06zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 010 1.06l-1.591 1.591a.75.75 0 11-1.06-1.06l1.591-1.591a.75.75 0 011.06 0zM12 18.75a.75.75 0 01.75.75V21.75a.75.75 0 01-1.5 0V19.5a.75.75 0 01.75-.75zM5.106 18.894a.75.75 0 011.06 0l1.591 1.591a.75.75 0 11-1.06 1.06L5.106 19.954a.75.75 0 010-1.06zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm2.106-6.894a.75.75 0 010 1.06L3.515 7.757a.75.75 0 11-1.06-1.06l1.591-1.591a.75.75 0 011.06 0z" />
-                </svg>
+            <button id="theme-toggle" onclick="toggleTheme()" class="active:scale-90 transition-transform no-select">
+                <span id="theme-icon">☀️</span>
             </button>
         </header>
 
-        <div class="flex border-b border-gray-800 sticky top-[73px] bg-inherit z-40" id="tabs-nav">
+        <div class="flex border-b border-gray-800 sticky top-[73px] bg-[var(--bg-page)] z-40" id="tabs-nav">
             <button class="tab-btn active" onclick="openTab(event, 'emploi')">Mode d'emploi</button>
             <button class="tab-btn" onclick="openTab(event, 'perso')">Couleurs</button>
             <button class="tab-btn" onclick="openTab(event, 'propos')">À Propos</button>
@@ -130,7 +131,7 @@
                 <div class="card-info">
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-lg">✨</span>
-                        <h3 class="font-black text-xs uppercase text-black">Interface</h3>
+                        <h3 class="font-black text-xs uppercase">Interface</h3>
                     </div>
                     <p class="text-xs leading-relaxed">
                         Utilisez le bouton en haut à droite pour basculer entre le mode clair et le mode sombre instantanément.
@@ -139,13 +140,13 @@
 
                 <div class="card-info">
                     <div class="flex items-center gap-2 mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                         </svg>
-                        <h3 class="font-black text-xs uppercase text-black">Organisation de l'accueil</h3>
+                        <h3 class="font-black text-xs uppercase">Organisation de l'accueil</h3>
                     </div>
                     <p class="text-xs leading-relaxed mb-3">Vous pouvez changer l'ordre des rubriques sur la page d'accueil.</p>
-                    <div class="bg-white/50 rounded-lg p-3 border border-black/10 flex items-center gap-4">
+                    <div class="bg-black/20 rounded-lg p-3 border border-white/5 flex items-center gap-4">
                         <div class="flex flex-col items-center gap-1">
                              <div class="handle-preview">
                                 <div class="handle-dot"></div><div class="handle-dot"></div><div class="handle-dot"></div>
@@ -154,7 +155,7 @@
                              </div>
                              <span class="text-[7px] text-gray-500 uppercase font-bold">Poignée</span>
                         </div>
-                        <p class="text-[11px] text-gray-800 leading-snug">
+                        <p class="text-[11px] leading-snug">
                             Maintenez votre doigt ou votre souris appuyé sur les <strong>petites poignées</strong> situées en haut à droite de chaque tuile.
                         </p>
                     </div>
@@ -204,7 +205,7 @@
                 <div class="card-info flex flex-col items-center">
                     <img src="logo-ecole-jean-rostand-v2-006.png" class="w-32 h-auto mb-6 drop-shadow-lg" alt="Logo">
                     <p class="text-sm font-bold">Conçu par Nicolas B. avec l'aide de Gemini</p>
-                    <div class="h-[1px] bg-gray-300 w-full my-6"></div>
+                    <div class="h-[1px] bg-gray-700 w-full my-6"></div>
                     <p class="text-[10px] text-gray-500 uppercase">École Jean Rostand - Chambéry</p>
                 </div>
             </div>
@@ -212,7 +213,6 @@
     </div>
 
     <script>
-        // Gestion du Thème
         function toggleTheme() {
             const isLight = document.body.classList.toggle('light-mode');
             localStorage.setItem('theme_pref', isLight ? 'light' : 'dark');
@@ -220,15 +220,17 @@
         }
 
         function updateThemeIcons(isLight) {
-            document.getElementById('sun-icon').classList.toggle('hidden', isLight);
-            document.getElementById('moon-icon').classList.toggle('hidden', !isLight);
+            document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+            const svgRetour = document.querySelector('#btn-retour svg');
+            if (svgRetour) svgRetour.style.color = isLight ? '#111' : '#fff';
         }
 
-        // Chargement du thème au démarrage
         const savedTheme = localStorage.getItem('theme_pref');
         if (savedTheme === 'light') {
             document.body.classList.add('light-mode');
             updateThemeIcons(true);
+        } else {
+            updateThemeIcons(false);
         }
 
         const mapCouleurs = {

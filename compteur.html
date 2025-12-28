@@ -7,8 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        :root { --primary: #0ea5e9; --bg-dark: #000000; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); margin: 0; padding: 10px; min-height: 100vh; color: white; touch-action: manipulation; }
+        
+        :root { 
+            --primary: #0ea5e9; 
+            --bg-page: #000000; 
+            --text-main: #ffffff;
+            --card-student: #ffffff;
+        }
+
+        /* Mode Clair */
+        body.light-mode {
+            --bg-page: #f3f4f6;
+            --text-main: #111827;
+            --card-student: #ffffff;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            margin: 0; 
+            padding: 10px; 
+            min-height: 100vh; 
+            color: var(--text-main); 
+            touch-action: manipulation; 
+            transition: background 0.3s, color 0.3s;
+        }
 
         .header-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 500px; margin: 10px auto 20px auto; padding: 0 10px; }
         #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
@@ -18,7 +41,7 @@
         .level-group { margin-bottom: 1px; }
 
         .student-item { 
-            background-color: #ffffff; 
+            background-color: var(--card-student); 
             padding: 6px 10px; 
             display: flex; 
             justify-content: space-between; 
@@ -27,6 +50,12 @@
             border-radius: 50px; 
             margin-bottom: 3px; 
             transition: all 0.1s;
+            border: 1.5px solid transparent;
+        }
+
+        /* Bordure sombre en mode clair sur les noms */
+        body.light-mode .student-item {
+            border-color: #374151;
         }
 
         .text-girl { color: #db2777; } 
@@ -67,7 +96,9 @@
             </svg>
         </a>
         <h1 id="mainTitle">Suivi du comportement</h1>
-        <div style="width: 40px;"></div>
+        <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center text-xl no-select">
+            <span id="theme-icon">🌙</span>
+        </button>
     </header>
 
     <div id="mainContent" class="columns-container"></div>
@@ -93,6 +124,18 @@
             "CM1": "#ef4444", "CM2": "#22c55e", "AUTRE": "#a855f7"
         };
 
+        // GESTION DU THÈME
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('compt_theme_mode', isLight ? 'light' : 'dark');
+            updateThemeUI(isLight);
+        }
+
+        function updateThemeUI(isLight) {
+            document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+        }
+
         function appliquerTheme() {
             const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
             const nomCouleur = prefs['compt'] || 'sky';
@@ -101,6 +144,12 @@
             const btnRetour = document.getElementById('btn-retour');
             if (titre) titre.style.color = couleurHexa;
             if (btnRetour) btnRetour.style.backgroundColor = couleurHexa;
+
+            // Charger le mode sombre/clair sauvegardé
+            if (localStorage.getItem('compt_theme_mode') === 'light') {
+                document.body.classList.add('light-mode');
+                updateThemeUI(true);
+            }
         }
 
         function formatNameDisplay(fullName) {
@@ -225,7 +274,6 @@
                 levelWrapper.className = "level-group";
                 const couleurNiveau = paletteNiveaux[niv] || couleursDecidees[niv] || '#ffffff';
                 
-                // MODIFICATION ICI : Retrait des classes border-b et padding
                 levelWrapper.innerHTML = `<h2 style="color:${couleurNiveau}" class="text-[11px] font-black uppercase tracking-widest text-center mb-2">${niv}</h2>`;
                 
                 const list = document.createElement('div');
