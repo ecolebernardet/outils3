@@ -8,22 +8,59 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
+        /* Variables de Thème */
+        :root {
+            --bg-page: #000;
+            --text-page: #eee;
+            --card-bg: #e5e7eb;
+            --card-text: #111827;
+            --result-bg: #ffffff;
+            --result-border: #9ca3af;
+        }
+
+        body.light-mode {
+            --bg-page: #f3f4f6;
+            --text-page: #111827;
+            --card-bg: #ffffff;
+            --card-text: #111827;
+            --result-bg: #f9fafb;
+            --result-border: #d1d5db;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000;
-            color: #eee;
+            background-color: var(--bg-page);
+            color: var(--text-page);
             margin: 0;
             padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .light-card { background: #e5e7eb; color: #111827; border-radius: 1.5rem; width: 100%; max-width: 400px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; margin-top: 20px; margin-bottom: 20px; }
+        /* Bordure sombre pour les noms en mode clair uniquement */
+        body.light-mode .student-item {
+            border: 1.5px solid #374151; /* Gris sombre/anthracite */
+        }
+
+        .light-card { 
+            background: var(--card-bg); 
+            color: var(--card-text); 
+            border-radius: 1.5rem; 
+            width: 100%; 
+            max-width: 400px; 
+            padding: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            text-align: center; 
+            margin-top: 20px; 
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
         
         .result-box { 
-            background: #ffffff; 
-            border: 1px solid #9ca3af; 
+            background: var(--result-bg); 
+            border: 1px solid var(--result-border); 
             color: #111827; 
             border-radius: 0.75rem; 
             height: 60px;
@@ -79,7 +116,7 @@
             text-decoration: line-through;
             opacity: 0.7;
             transform: scale(0.9);
-            border-color: #333;
+            border-color: #333 !important; /* Force la bordure sombre même en mode clair quand tiré */
         }
 
         .main-btn {
@@ -110,7 +147,9 @@
         <h1 id="page-title" class="font-black text-lg tracking-normal uppercase">
             Tirage au sort
         </h1>
-        <div class="w-10"></div> 
+        <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center text-xl">
+            <span id="theme-icon">🌙</span>
+        </button>
     </div>
 
     <div class="w-full max-w-md" id="listeContainer"></div>
@@ -126,6 +165,17 @@
     </div>
 
     <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('tirage_theme_mode', isLight ? 'light' : 'dark');
+            updateThemeUI(isLight);
+        }
+
+        function updateThemeUI(isLight) {
+            document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+        }
+
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const couleurTirage = themePrefs.tirage || 'pink';
 
@@ -136,19 +186,16 @@
             const btnRetour = document.getElementById('btn-retour');
 
             title.classList.add(`text-${couleurTirage}-500`);
-
-            if (btnRetour) {
-                btnRetour.classList.add(`bg-${couleurTirage}-600`, `border`, `border-${couleurTirage}-400/30`);
-            }
+            if (btnRetour) btnRetour.classList.add(`bg-${couleurTirage}-600`, `border`, `border-${couleurTirage}-400/30`);
 
             btn.classList.add(`bg-${couleurTirage}-600`);
-            if(['yellow', 'lime', 'amber', 'cyan'].includes(couleurTirage)) {
-                btn.classList.add('text-black');
-            } else {
-                btn.classList.add('text-white');
-            }
-
+            btn.classList.add(['yellow', 'lime', 'amber', 'cyan'].includes(couleurTirage) ? 'text-black' : 'text-white');
             display.classList.add(`text-${couleurTirage}-600`);
+
+            if (localStorage.getItem('tirage_theme_mode') === 'light') {
+                document.body.classList.add('light-mode');
+                updateThemeUI(true);
+            }
         }
 
         function formatName(fullName) {
@@ -166,17 +213,7 @@
         function renderList() {
             const container = document.getElementById('listeContainer');
             container.innerHTML = "";
-
-            // Couleurs demandées
-            const couleursFixes = {
-                "CP": "#ec4899",    // Rose
-                "CE1": "#3b82f6",   // Bleu
-                "CE2": "#eab308",   // Jaune
-                "CM1": "#ef4444",   // Rouge
-                "CM2": "#22c55e",   // Vert
-                "AUTRE": "#a855f7"  // Violet
-            };
-
+            const couleursFixes = { "CP": "#ec4899", "CE1": "#3b82f6", "CE2": "#eab308", "CM1": "#ef4444", "CM2": "#22c55e", "AUTRE": "#a855f7" };
             const paletteNiveaux = JSON.parse(localStorage.getItem('palette_niveaux')) || {};
             const ordreNiveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "AUTRE"];
 
@@ -188,24 +225,16 @@
             });
 
             const niveauxTries = Object.keys(groupes).sort((a, b) => {
-                let indexA = ordreNiveaux.indexOf(a);
-                let indexB = ordreNiveaux.indexOf(b);
-                if (indexA === -1) indexA = 99;
-                if (indexB === -1) indexB = 99;
-                return indexA - indexB;
+                let indexA = ordreNiveaux.indexOf(a), indexB = ordreNiveaux.indexOf(b);
+                return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
             });
 
             niveauxTries.forEach(niv => {
                 const levelSection = document.createElement('div');
-                
-                // On donne la priorité à la palette du localStorage, sinon aux couleurs fixes demandées
                 const couleurNiveau = paletteNiveaux[niv] || paletteNiveaux[niv.toLowerCase()] || couleursFixes[niv] || '#9ca3af';
-
                 levelSection.innerHTML = `<div class="level-title" style="color: ${couleurNiveau} !important;">${niv}</div>`;
-                
                 const grid = document.createElement('div');
                 grid.className = "student-grid";
-
                 groupes[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(el => {
                     const isDrawn = !remaining.includes(el.id);
                     const item = document.createElement('div');
@@ -214,63 +243,36 @@
                     item.onclick = () => toggleStudent(el.id);
                     grid.appendChild(item);
                 });
-                
                 levelSection.appendChild(grid);
                 container.appendChild(levelSection);
             });
 
-            const total = rawData.length;
-            const restants = remaining.length;
+            const total = rawData.length, restants = remaining.length;
             document.getElementById('counter').innerText = `${restants} restant${restants > 1 ? 's' : ''} / ${total}`;
-            
             const btn = document.getElementById('draw-btn');
-            if (restants === 0) {
-                btn.disabled = true;
-                btn.innerText = "Session terminée";
-                btn.style.opacity = "0.5";
-            } else {
-                btn.disabled = false;
-                btn.innerText = "Tirer un prénom";
-                btn.style.opacity = "1";
-            }
+            if (restants === 0) { btn.disabled = true; btn.innerText = "Session terminée"; btn.style.opacity = "0.5"; }
+            else { btn.disabled = false; btn.innerText = "Tirer un prénom"; btn.style.opacity = "1"; }
         }
 
         function toggleStudent(id) {
-            if (remaining.includes(id)) {
-                remaining = remaining.filter(item => item !== id);
-            } else {
-                remaining.push(id);
-            }
-            saveState();
-            renderList();
+            remaining = remaining.includes(id) ? remaining.filter(item => item !== id) : [...remaining, id];
+            saveState(); renderList();
         }
 
         function drawName() {
             if (remaining.length === 0) return;
-            const display = document.getElementById('result-display');
-            const btn = document.getElementById('draw-btn');
-            btn.disabled = true;
-
-            display.style.color = "#9ca3af";
-
+            const display = document.getElementById('result-display'), btn = document.getElementById('draw-btn');
+            btn.disabled = true; display.style.color = "#9ca3af";
             let iterations = 0;
             const interval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * remaining.length);
-                const tempStudent = rawData.find(s => s.id === remaining[randomIndex]);
-                display.innerText = formatName(tempStudent.identite);
-                iterations++;
-
-                if (iterations > 12) {
+                display.innerText = formatName(rawData.find(s => s.id === remaining[randomIndex]).identite);
+                if (++iterations > 12) {
                     clearInterval(interval);
                     const finalIndex = Math.floor(Math.random() * remaining.length);
                     const winnerId = remaining.splice(finalIndex, 1)[0];
-                    const winner = rawData.find(s => s.id === winnerId);
-                    
-                    display.innerText = formatName(winner.identite);
-                    display.style.color = ""; 
-                    
-                    saveState();
-                    renderList();
+                    display.innerText = formatName(rawData.find(s => s.id === winnerId).identite);
+                    display.style.color = ""; saveState(); renderList();
                     btn.disabled = (remaining.length === 0);
                 }
             }, 60);
@@ -285,10 +287,7 @@
             }
         }
 
-        window.onload = () => {
-            appliquerTheme();
-            renderList();
-        };
+        window.onload = () => { appliquerTheme(); renderList(); };
     </script>
 </body>
 </html>
