@@ -9,7 +9,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        /* AJOUT UNIQUE : Variables de thème pour ne rien casser */
         :root {
             --bg-page: #000;
             --text-page: #eee;
@@ -87,6 +86,13 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 5px;
             min-width: 0;
+            border: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        /* Cadre gris accentué en mode clair pour les liens */
+        body.light-mode .link-item {
+            border: 1.5px solid #374151;
         }
 
         .drag-handle {
@@ -123,12 +129,14 @@
 <body>
 
 <div class="main-wrapper">
-    <div class="flex items-center justify-between py-2 mb-2 px-1">
-        <a href="index.html" id="btn-retour" class="flex items-center justify-center w-7 h-7 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    <div class="flex items-center justify-between py-2 mb-2 px-2">
+        <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full shadow-lg transition-transform active:scale-90">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
         </a>
-        <h1 id="mainTitle" class="font-black text-[16px] tracking-normal uppercase">Gestion des Liens</h1>
-        <button onclick="toggleTheme()" class="w-7 h-7 flex items-center justify-center text-sm">
+        <h1 id="mainTitle" class="font-black text-lg tracking-normal uppercase text-center flex-grow">Gestion des Liens</h1>
+        <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center text-xl no-select">
             <span id="theme-icon">🌙</span>
         </button> 
     </div>
@@ -174,24 +182,21 @@
 </div>
 
 <script>
-    /* SCRIPT DE THEME */
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
         const isLight = document.body.classList.contains('light-mode');
         localStorage.setItem('theme_mode', isLight ? 'light' : 'dark');
         document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
         const svg = document.querySelector('#btn-retour svg');
-        svg.style.stroke = isLight ? '#000' : '#fff';
+        svg.style.color = isLight ? '#000' : '#fff';
     }
 
-    // Appliquer au chargement
     if (localStorage.getItem('theme_mode') === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('theme-icon').innerText = '☀️';
-        setTimeout(() => { document.querySelector('#btn-retour svg').style.stroke = '#000'; }, 10);
+        setTimeout(() => { document.querySelector('#btn-retour svg').style.color = '#000'; }, 10);
     }
 
-    /* TOUT TON CODE ORIGINAL CI-DESSOUS */
     const mapCouleurs = {
         'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
         'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',

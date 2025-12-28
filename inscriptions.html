@@ -8,7 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        /* Variables de thème pour ne rien décaler */
+        /* Variables de thème */
         :root {
             --bg-body: #000;
             --text-main: #eee;
@@ -16,7 +16,7 @@
             --card-bg: #e5e7eb;
             --card-text: #111827;
             --input-bg: #ffffff;
-            --zinc-text: #52525b; /* zinc-600 */
+            --zinc-text: #52525b;
         }
 
         body.light-mode {
@@ -76,29 +76,46 @@
         .text-m { color: #2563eb; } 
         .text-f { color: #db2777; } 
         
-        .student-item { background: #fff; padding: 6px 10px; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; cursor: pointer; border: 1px solid #e5e7eb; }
+        .student-item { 
+            background: #fff; 
+            padding: 6px 10px; 
+            border-radius: 0.75rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 4px; 
+            cursor: pointer; 
+            border: 1px solid #e5e7eb; 
+            transition: border-color 0.3s;
+        }
+
+        /* Accentuation du cadre en mode clair */
+        body.light-mode .student-item {
+            border: 1.5px solid #374151;
+        }
 
         .btn-nav { font-weight: 800; padding: 12px 4px; border-radius: 50px; font-size: 9px; text-align: center; width: 100%; }
         .input-field { background: var(--input-bg); border: 1px solid #9ca3af; color: #111827; border-radius: 0.75rem; padding: 10px; outline: none; font-size: 0.75rem; font-weight: 600; }
         
-        /* Ajustement couleur icône supprimer pour mode clair */
         .btn-delete-svg { color: var(--zinc-text); }
     </style>
 </head>
 <body class="pb-10">
     <div class="max-w-4xl mx-auto">
         
-        <div class="flex items-center justify-between py-2 mb-2">
-            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-8 h-8 rounded-full shadow-lg transition-transform active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <header class="flex items-center justify-between py-2 mb-2 max-w-500 mx-auto px-2">
+            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full shadow-lg transition-transform active:scale-90">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 id="page-title" class="text-lg font-black tracking-normal uppercase">Enregistrement des élèves</h1>
-            <button onclick="toggleTheme()" class="w-8 h-8 flex items-center justify-center text-sm">
+            
+            <h1 id="page-title" class="text-lg font-black tracking-normal uppercase flex-grow text-center">Enregistrement des élèves</h1>
+            
+            <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center text-xl no-select">
                 <span id="theme-icon">🌙</span>
             </button> 
-        </div>
+        </header>
         
         <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
             <form id="eleveForm" class="flex flex-col gap-3">
@@ -138,7 +155,6 @@
     </div>
 
     <script>
-        // --- GESTION DU THÈME ---
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
             const isLight = document.body.classList.contains('light-mode');
@@ -150,11 +166,9 @@
             document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
             const backSvg = document.querySelector('#btn-retour svg');
             backSvg.style.color = isLight ? '#000' : '#fff';
-            // On relance render pour mettre à jour les couleurs de texte zinc
             render();
         }
 
-        // --- LOGIQUE ORIGINALE ---
         const mapCouleurs = {
             'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
             'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
@@ -257,8 +271,6 @@
         function render() {
             const container = document.getElementById('listeContainer');
             container.innerHTML = "";
-            const isLight = document.body.classList.contains('light-mode');
-
             if (eleves.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs py-10 italic" style="color:var(--zinc-text)">Aucun élève inscrit.</p>`;
                 return;
@@ -329,7 +341,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Appliquer le thème sauvegardé
             if (localStorage.getItem('theme_mode') === 'light') {
                 document.body.classList.add('light-mode');
                 updateThemeUI(true);
