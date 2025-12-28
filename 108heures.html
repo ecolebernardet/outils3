@@ -9,9 +9,36 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background: #000; color: #eee; padding: 10px; margin: 0; }
+        /* Variables de thème pour ne rien décaler */
+        :root {
+            --bg-page: #000;
+            --text-page: #eee;
+            --card-bg: #e5e7eb;
+            --card-text: #111827;
+            --column-bg: #f3f4f6;
+            --column-text: #111827;
+            --item-bg: #ffffff;
+        }
+
+        body.light-mode {
+            --bg-page: #f3f4f6;
+            --text-page: #111827;
+            --card-bg: #ffffff;
+            --card-text: #111827;
+            --column-bg: #e5e7eb;
+            --column-text: #111827;
+            --item-bg: #ffffff;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            color: var(--text-page); 
+            padding: 10px; margin: 0; 
+            transition: background 0.3s, color 0.3s;
+        }
         
-        .light-card { background: #e5e7eb; color: #111827; border-radius: 1.5rem; }
+        .light-card { background: var(--card-bg); color: var(--card-text); border-radius: 1.5rem; transition: background 0.3s; }
 
         .card-input { display: none; }
         .card-label {
@@ -24,18 +51,19 @@
         .card-input:checked + .card-label { background: #111827; border-color: #111827; color: #fff; transform: scale(0.98); }
 
         .level-column { 
-            background: #f3f4f6; color: #111827; border-radius: 1.2rem; 
+            background: var(--column-bg); color: var(--column-text); border-radius: 1.2rem; 
             padding: 10px; border: 1px solid #ffffff; 
             display: flex; flex-direction: column; 
             justify-content: flex-start;
             align-self: start;
+            transition: background 0.3s;
         }
         
         .progress-container { width: 100%; background: #d1d5db; height: 7px; border-radius: 10px; margin: 6px 0; overflow: hidden; }
         .progress-bar { height: 100%; transition: width 0.5s ease-in-out; }
 
         .reunion-item { 
-            background: #ffffff; padding: 6px 8px; border-radius: 0.4rem; 
+            background: var(--item-bg); padding: 6px 8px; border-radius: 0.4rem; 
             margin-bottom: 4px; border-left-width: 3px;
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer;
@@ -72,12 +100,14 @@
     <div id="capture-area" class="max-w-4xl mx-auto">
         <div class="flex items-center justify-between py-4 mb-2">
             <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
                 </svg>
             </a>
-            <h1 class="text-lg font-black uppercase tracking-normal text-white">108 heures</h1>
-            <div class="w-10"></div> 
+            <h1 id="main-title" class="text-lg font-black uppercase tracking-normal">108 heures</h1>
+            <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center text-xl">
+                <span id="theme-icon">🌙</span>
+            </button> 
         </div>
         
         <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
@@ -97,21 +127,21 @@
                     </div>
                 </div>
                 <input type="text" id="comm" placeholder="Commentaire..." class="input-field">
-                <button type="submit" id="submitBtn" class="bg-indigo-600 text-white font-black py-2 rounded-full uppercase text-[10px] active:scale-95 transition-transform">Enregistrer</button>
+                <button type="submit" id="submitBtn" class="font-black py-2 rounded-full uppercase text-[10px] active:scale-95 transition-transform">Enregistrer</button>
             </form>
         </div>
 
         <div id="globalStats" class="max-w-md mx-auto light-card p-3 mb-5 shadow-xl">
             <div class="flex justify-between items-end mb-1">
-                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-700">Total Annuel (108h)</span>
-                <span id="globalReste" class="text-[10px] font-black text-indigo-900"></span>
+                <span id="stats-title" class="text-[10px] font-black uppercase tracking-widest">Total Annuel (108h)</span>
+                <span id="globalReste" class="text-[10px] font-black"></span>
             </div>
             <div class="progress-container !h-3">
                 <div id="globalBar" class="progress-bar"></div>
             </div>
-            <div class="flex justify-between text-[9px] font-bold text-gray-600 uppercase">
+            <div class="flex justify-between text-[9px] font-bold text-gray-500 uppercase">
                 <span id="globalFait">Fait : 0h</span>
-                <span id="globalPercent" class="text-indigo-700">0%</span>
+                <span id="globalPercent">0%</span>
             </div>
         </div>
 
@@ -135,6 +165,21 @@
     <div id="pdf-template"></div>
 
     <script>
+    // --- GESTION DU THÈME ---
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        localStorage.setItem('theme_mode', isLight ? 'light' : 'dark');
+        updateThemeUI(isLight);
+    }
+
+    function updateThemeUI(isLight) {
+        document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+        const backSvg = document.querySelector('#btn-retour svg');
+        backSvg.style.color = isLight ? '#000' : '#fff';
+    }
+
+    // --- LOGIQUE ORIGINALE ---
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
     const couleurH108 = themePrefs.h108 || 'orange'; 
 
@@ -146,11 +191,23 @@
     let editId = null; 
 
     window.addEventListener('DOMContentLoaded', () => {
-        const titrePage = document.querySelector('h1');
-        if (titrePage) titrePage.classList.add(`text-${couleurH108}-500`);
+        // Appliquer thèmes
+        if (localStorage.getItem('theme_mode') === 'light') {
+            document.body.classList.add('light-mode');
+            updateThemeUI(true);
+        }
+
+        const titrePage = document.getElementById('main-title');
+        if (titrePage) titrePage.className += ` text-${couleurH108}-500`;
+        
+        const statsTitle = document.getElementById('stats-title');
+        if (statsTitle) statsTitle.className += ` text-${couleurH108}-700`;
+
         const btnRetour = document.getElementById('btn-retour');
-        if (btnRetour) btnRetour.classList.add(`bg-${couleurH108}-600`, `border`, `border-${couleurH108}-400/30`);
+        if (btnRetour) btnRetour.className += ` bg-${couleurH108}-600 border border-${couleurH108}-400/30`;
+        
         updateSubmitButtonStyle();
+        render();
     });
 
     function updateSubmitButtonStyle() {
@@ -222,7 +279,7 @@
             minutesGlobales += fait;
             
             const col = document.createElement('div');
-            col.className = "level-column";
+            col.className = "level-column shadow-md";
             col.innerHTML = `
                 <div class="mb-1">
                     <div class="flex justify-between items-center mb-1"><h3 class="text-[9px] font-black uppercase text-gray-900">${LABELS[catKey]}</h3></div>
@@ -258,7 +315,9 @@
         const globalPercent = Math.min((minutesGlobales / TOTAL_ANNUEL) * 100, 100);
         document.getElementById('globalFait').innerText = `Fait : ${formatDuree(minutesGlobales)}`;
         document.getElementById('globalReste').innerText = `Reste : ${formatDuree(globalReste)}`;
+        document.getElementById('globalReste').className = `text-[10px] font-black text-${couleurH108}-900`;
         document.getElementById('globalPercent').innerText = `${Math.round(globalPercent)}%`;
+        document.getElementById('globalPercent').className = `text-${couleurH108}-700`;
         document.getElementById('globalBar').style.width = globalPercent + "%";
         document.getElementById('globalBar').className = `progress-bar bg-${couleurH108}-600`;
     }
@@ -306,7 +365,7 @@
     });
 
     function initDate() { document.getElementById('dateReu').value = new Date().toISOString().split('T')[0]; document.getElementById('h').value = 1; document.getElementById('m').value = 0; }
-    initDate(); render();
+    initDate();
     </script>
 </body>
 </html>
