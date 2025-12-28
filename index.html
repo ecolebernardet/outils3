@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Outils pour les profs d'école</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        :root {
+            --bg-body: #000;
+            --text-title: #ffffff;
+            --btn-bg: #171717;
+            --btn-border: #404040;
+        }
+
+        body.light-mode {
+            --bg-body: #f3f4f6;
+            --text-title: #111827;
+            --btn-bg: #ffffff;
+            --btn-border: #d4d4d4;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-title);
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Layout Header */
+        header {
+            display: grid;
+            grid-template-columns: 40px 1fr 40px;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .menu-card { 
+            position: relative;
+            transition: transform 0.1s; 
+            border-radius: 30% 0% 30% 0%; 
+            border-width: 2px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .menu-card:active { transform: scale(0.95); }
+        
+        .drag-handle {
+            position: absolute;
+            top: 8px; right: 8px;
+            display: grid; grid-template-columns: repeat(3, 2px); gap: 3px;
+            opacity: 0.3; cursor: grab; z-index: 30; padding: 4px;
+        }
+        .drag-handle span { width: 2px; height: 2px; background-color: #000; border-radius: 50%; }
+
+        .ui-btn {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: var(--btn-bg);
+            border: 1px solid var(--btn-border);
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .sortable-ghost { opacity: 0.1; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-start min-h-screen p-2 pt-4">
+  
+    <div class="w-full max-w-[340px]">
+        <header class="mb-8 px-1">
+            <a href="parametres.html" class="ui-btn text-xl active:scale-90">⚙️</a>
+            
+            <h1 class="text-base font-black uppercase tracking-tighter text-center" style="color: var(--text-title)">Outils Profs</h1>
+            
+            <button onclick="toggleTheme()" class="ui-btn active:scale-90">
+                <span id="theme-icon" class="text-lg">🌙</span>
+            </button>
+        </header>
+
+        <nav id="grid-menu" class="grid grid-cols-2 gap-4 mb-6">
+            <div data-id="inscr" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="inscriptions.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">📝</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Inscriptions</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Ma classe</h3>
+                </a>
+            </div>
+
+            <div data-id="liens" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="liens.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">🔗</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Liens</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Favoris</h3>
+                </a>
+            </div>
+
+            <div data-id="h108" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="108heures.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">⏲️</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">108 heures</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Réunions</h3>
+                </a>
+            </div>
+
+            <div data-id="memos" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="memos.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">📒</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Mémos</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Notes</h3>
+                </a>
+            </div>
+
+            <div data-id="tirage" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="tirage.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">🎲</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Tirage</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Hasard</h3>
+                </a>
+            </div>
+
+            <div data-id="equipes" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="equipes.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">👥</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Équipes</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Groupes</h3>
+                </a>
+            </div>
+
+            <div data-id="obs" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="observations.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">✏️</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Observations</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Suivi</h3>
+                </a>
+            </div>
+
+            <div data-id="compt" class="menu-card flex flex-col items-center justify-center text-center p-3 pt-5">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="compteur.html" class="w-full h-full flex flex-col items-center no-underline">
+                    <div class="icon-bg w-12 h-12 flex items-center justify-center rounded-full mb-1 border shadow-inner">
+                        <span class="text-2xl">🚥</span>
+                    </div>
+                    <h2 class="text-black font-extrabold text-[11px] uppercase tracking-tighter">Compteur</h2>
+                    <h3 class="text-black/60 text-[8px] font-bold uppercase">Points</h3>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+<script>
+    // --- THEME ---
+    function updateThemeUI() {
+        const isLight = document.body.classList.contains('light-mode');
+        document.getElementById('theme-icon').innerText = isLight ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+        localStorage.setItem('theme_mode', mode);
+        updateThemeUI();
+    }
+
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+    updateThemeUI();
+
+    // --- COULEURS DES TUILES ---
+    const defaultColors = {
+        inscr: 'lime', h108: 'orange', liens: 'indigo', tirage: 'yellow', 
+        equipes: 'rose', memos: 'purple', obs: 'green', compt: 'sky'
+    };
+
+    const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || defaultColors;
+
+    document.querySelectorAll('.menu-card').forEach(el => {
+        const id = el.getAttribute('data-id');
+        const colorName = prefs[id] || 'gray';
+        el.classList.add(`bg-${colorName}-200`, `border-${colorName}-900`);
+        const iconCircle = el.querySelector('.icon-bg');
+        if (iconCircle) iconCircle.classList.add(`bg-${colorName}-400`, `border-${colorName}-900`);
+    });
+
+    // --- ORDRE (SORTABLE) ---
+    const gridMenu = document.getElementById('grid-menu');
+    const savedOrder = JSON.parse(localStorage.getItem('menu_order'));
+    
+    if (savedOrder) {
+        savedOrder.forEach(id => {
+            const tile = document.querySelector(`[data-id="${id}"]`);
+            if (tile) gridMenu.appendChild(tile);
+        });
+    }
+
+    new Sortable(gridMenu, {
+        handle: '.drag-handle',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: function() {
+            const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
+            localStorage.setItem('menu_order', JSON.stringify(order));
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Paramètres - Outils Profs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        
+        /* Variables de thèmes */
+        :root {
+            --bg-page: #000;
+            --text-main: #eee;
+            --header-bg: #000;
+            --border-color: #222;
+            --card-bg: #e5e7eb;
+            --card-text: #111827;
+            --card-sub: #374151;
+        }
+
+        .light-mode {
+            --bg-page: #f3f4f6;
+            --text-main: #111;
+            --header-bg: #ffffff;
+            --border-color: #ddd;
+            --card-bg: #ffffff;
+            --card-text: #111827;
+            --card-sub: #4b5563;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            color: var(--text-main); 
+            padding: 0; margin: 0; 
+            overflow-x: hidden; 
+            transition: background 0.3s ease;
+        }
+        
+        header { background: var(--header-bg); border-bottom: 1px solid var(--border-color); }
+
+        .tab-btn { 
+            padding: 12px 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; 
+            letter-spacing: 1px; color: #666; border-bottom: 2px solid transparent;
+            transition: all 0.3s; flex: 1; text-align: center;
+        }
+        .tab-btn.active { color: var(--text-main); border-bottom-color: var(--text-main); }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card-info { 
+            background: var(--card-bg); 
+            color: var(--card-text); 
+            border-radius: 1.2rem; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .tile-config { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 1rem; 
+            padding: 10px; 
+            margin-bottom: 8px; 
+            color: var(--card-text);
+        }
+        
+        .color-dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); transition: all 0.2s; }
+        .color-dot.active { border-color: black; transform: scale(1.2); box-shadow: 0 0 5px rgba(0,0,0,0.2); z-index: 10; }
+        
+        .btn-nav { font-weight: 900; padding: 14px 4px; border-radius: 50px; font-size: 10px; text-align: center; text-transform: uppercase; }
+        
+        .handle-preview {
+            display: inline-grid; grid-template-columns: repeat(3, 3px); gap: 2px;
+            padding: 4px; background: #cbd5e1; border-radius: 3px; vertical-align: middle; margin: 0 4px;
+        }
+        .handle-dot { width: 3px; height: 3px; background-color: #64748b; border-radius: 50%; }
+
+        .card-warning { 
+            background: #fef3c7; border: 2px solid #f59e0b; border-radius: 1.2rem; 
+            padding: 15px; margin-bottom: 15px; color: #92400e;
+        }
+        
+        .card-info p, .card-info li { color: var(--card-sub); }
+        .card-info strong { color: #000; }
+        
+        #theme-toggle {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: #222; border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .light-mode #theme-toggle { background: #eee; border-color: #ddd; }
+    </style>
+</head>
+<body class="pb-10">
+    <div class="max-w-md mx-auto">
+        
+        <header class="flex items-center justify-between p-4 sticky top-0 z-50">
+            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-lg bg-gray-800 border border-white/10 active:scale-90">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
+            
+            <button id="theme-toggle" onclick="toggleTheme()" class="active:scale-90 transition-transform">
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-800 hidden" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 5.106a.75.75 0 011.06 0l1.591 1.591a.75.75 0 11-1.06 1.06l-1.591-1.591a.75.75 0 010-1.06zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 010 1.06l-1.591 1.591a.75.75 0 11-1.06-1.06l1.591-1.591a.75.75 0 011.06 0zM12 18.75a.75.75 0 01.75.75V21.75a.75.75 0 01-1.5 0V19.5a.75.75 0 01.75-.75zM5.106 18.894a.75.75 0 011.06 0l1.591 1.591a.75.75 0 11-1.06 1.06L5.106 19.954a.75.75 0 010-1.06zM3 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3.75A.75.75 0 013 12zm2.106-6.894a.75.75 0 010 1.06L3.515 7.757a.75.75 0 11-1.06-1.06l1.591-1.591a.75.75 0 011.06 0z" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="flex border-b border-gray-800 sticky top-[73px] bg-inherit z-40" id="tabs-nav">
+            <button class="tab-btn active" onclick="openTab(event, 'emploi')">Mode d'emploi</button>
+            <button class="tab-btn" onclick="openTab(event, 'perso')">Couleurs</button>
+            <button class="tab-btn" onclick="openTab(event, 'propos')">À Propos</button>
+        </div>
+
+        <div class="p-4">
+            <div id="emploi" class="tab-content active">
+                <div class="card-info">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-lg">✨</span>
+                        <h3 class="font-black text-xs uppercase text-black">Interface</h3>
+                    </div>
+                    <p class="text-xs leading-relaxed">
+                        Utilisez le bouton en haut à droite pour basculer entre le mode clair et le mode sombre instantanément.
+                    </p>
+                </div>
+
+                <div class="card-info">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                        </svg>
+                        <h3 class="font-black text-xs uppercase text-black">Organisation de l'accueil</h3>
+                    </div>
+                    <p class="text-xs leading-relaxed mb-3">Vous pouvez changer l'ordre des rubriques sur la page d'accueil.</p>
+                    <div class="bg-white/50 rounded-lg p-3 border border-black/10 flex items-center gap-4">
+                        <div class="flex flex-col items-center gap-1">
+                             <div class="handle-preview">
+                                <div class="handle-dot"></div><div class="handle-dot"></div><div class="handle-dot"></div>
+                                <div class="handle-dot"></div><div class="handle-dot"></div><div class="handle-dot"></div>
+                                <div class="handle-dot"></div><div class="handle-dot"></div><div class="handle-dot"></div>
+                             </div>
+                             <span class="text-[7px] text-gray-500 uppercase font-bold">Poignée</span>
+                        </div>
+                        <p class="text-[11px] text-gray-800 leading-snug">
+                            Maintenez votre doigt ou votre souris appuyé sur les <strong>petites poignées</strong> situées en haut à droite de chaque tuile.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-info">
+                    <h3 id="title-inscr" class="font-black text-xs uppercase mb-2">📌 Inscriptions</h3>
+                    <p class="text-[11px] font-bold mb-1">C'est ici que vous créez votre base d'élèves.</p>
+                    <ul class="text-xs space-y-2 leading-relaxed">
+                        <li>• <strong>Ajout :</strong> Saisissez le nom, choisissez le genre et le niveau.</li>
+                        <li>• <strong>Import/Export :</strong> Sauvegardez ou transférez votre liste.</li>
+                        <li>• <strong>Gestion :</strong> Tri alphabétique et suppression individuelle ou globale.</li>
+                    </ul>
+                </div>
+
+                <div class="card-info"><h3 id="title-liens" class="font-black text-xs uppercase mb-2">🔗️ Liens</h3><p class="text-xs leading-relaxed">Accès rapide à vos sites favoris.</p></div>
+                
+                <div class="card-info">
+                    <h3 id="title-h108" class="font-black text-xs uppercase mb-2">⏲️ 108 Heures</h3>
+                    <p class="text-xs leading-relaxed">Gérez vos forfaits annuels (APC, Conseils), suivez les totaux et exportez votre bilan.</p>
+                </div>
+
+                <div class="card-info"><h3 id="title-memos" class="font-black text-xs uppercase mb-2">📒️ Mémos</h3><p class="text-xs leading-relaxed">Notes rapides avec couleurs personnalisables.</p></div>
+                <div class="card-info"><h3 id="title-tirage" class="font-black text-xs uppercase mb-2">🎲 Tirage</h3><p class="text-xs leading-relaxed">Tirage au sort parmi les élèves présents.</p></div>
+                <div class="card-info"><h3 id="title-equipes" class="font-black text-xs uppercase mb-2">👥 Équipes</h3><p class="text-xs leading-relaxed">Génération automatique de groupes mixtes.</p></div>
+                <div class="card-info"><h3 id="title-obs" class="font-black text-xs uppercase mb-2">✏️ Observations</h3><p class="text-xs leading-relaxed">Suivi individuel des élèves.</p></div>
+                
+                <div class="card-info">
+                    <h3 id="title-compt" class="font-black text-xs uppercase mb-2">🚥 Compteur</h3>
+                    <p class="text-xs leading-relaxed">Suivi rapide du comportement (Clic +1, Double-clic -1).</p>
+                </div>
+                
+                <div class="card-warning">
+                    <h3 class="font-black text-xs uppercase mb-2">⚠️ Attention</h3>
+                    <p class="text-xs leading-relaxed">Les données sont stockées uniquement en local sur ce navigateur.</p>
+                </div>
+            </div>
+
+            <div id="perso" class="tab-content">
+                <div id="settingsContainer" class="space-y-1"></div>
+                <div class="flex mt-6 pb-10">
+                    <a href="index.html" class="btn-nav bg-green-600 text-white flex items-center justify-center no-underline shadow-lg flex-1 active:scale-95">Enregistrer et quitter</a>
+                </div>
+            </div>
+
+            <div id="propos" class="tab-content text-center py-6">
+                <div class="card-info flex flex-col items-center">
+                    <img src="logo-ecole-jean-rostand-v2-006.png" class="w-32 h-auto mb-6 drop-shadow-lg" alt="Logo">
+                    <p class="text-sm font-bold">Conçu par Nicolas B. avec l'aide de Gemini</p>
+                    <div class="h-[1px] bg-gray-300 w-full my-6"></div>
+                    <p class="text-[10px] text-gray-500 uppercase">École Jean Rostand - Chambéry</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestion du Thème
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme_pref', isLight ? 'light' : 'dark');
+            updateThemeIcons(isLight);
+        }
+
+        function updateThemeIcons(isLight) {
+            document.getElementById('sun-icon').classList.toggle('hidden', isLight);
+            document.getElementById('moon-icon').classList.toggle('hidden', !isLight);
+        }
+
+        // Chargement du thème au démarrage
+        const savedTheme = localStorage.getItem('theme_pref');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            updateThemeIcons(true);
+        }
+
+        const mapCouleurs = {
+            'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+            'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+            'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+            'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+            'rose': '#f43f5e', 'gray': '#6b7280'
+        };
+
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
+            tablinks = document.getElementsByClassName("tab-btn");
+            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        const tuiles = [
+            { id: 'inscr', label: 'Inscriptions', emoji: '📝' },
+            { id: 'liens', label: 'Liens', emoji: '🔗' },
+            { id: 'h108', label: '108 Heures', emoji: '⏲️' },
+            { id: 'memos', label: 'Mémos', emoji: '📒' },
+            { id: 'tirage', label: 'Tirage', emoji: '🎲' },
+            { id: 'equipes', label: 'Équipes', emoji: '👥' },
+            { id: 'obs', label: 'Observations', emoji: '✏️' },
+            { id: 'compt', label: 'Compteur', emoji: '🚥' }
+        ];
+
+        const couleurs = Object.keys(mapCouleurs);
+        let prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {
+            inscr: 'lime', h108: 'orange', liens: 'indigo', 
+            tirage: 'yellow', equipes: 'rose', memos: 'purple', 
+            obs: 'green', compt: 'sky'
+        };
+
+        function appliquerCouleursGlobales() {
+            const mapping = {
+                'title-inscr': 'inscr', 'title-liens': 'liens', 'title-h108': 'h108',
+                'title-memos': 'memos', 'title-tirage': 'tirage', 'title-equipes': 'equipes',
+                'title-obs': 'obs', 'title-compt': 'compt'
+            };
+            for (let [elementId, prefId] of Object.entries(mapping)) {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    const colorName = prefs[prefId] || 'gray';
+                    el.style.color = mapCouleurs[colorName];
+                }
+            }
+        }
+
+        function renderSettings() {
+            const container = document.getElementById('settingsContainer');
+            container.innerHTML = '';
+            tuiles.forEach(tuile => {
+                const configDiv = document.createElement('div');
+                configDiv.className = 'tile-config';
+                const currentColor = prefs[tuile.id] || 'gray';
+                configDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs">${tuile.emoji}</span>
+                            <span class="text-[9px] font-black uppercase tracking-tight opacity-70">${tuile.label}</span>
+                        </div>
+                        <span class="text-[8px] font-bold uppercase border border-gray-400/30 px-1.5 rounded" style="color: ${mapCouleurs[currentColor]}">${currentColor}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 justify-start">
+                        ${couleurs.map(c => `
+                            <button onclick="setTileColor('${tuile.id}', '${c}')" 
+                                    class="color-dot ${currentColor === c ? 'active' : ''}"
+                                    style="background-color: ${mapCouleurs[c]}">
+                            </button>`).join('')}
+                    </div>`;
+                container.appendChild(configDiv);
+            });
+            appliquerCouleursGlobales();
+        }
+
+        function setTileColor(tuileId, couleur) {
+            prefs[tuileId] = couleur;
+            localStorage.setItem('theme_tuiles', JSON.stringify(prefs));
+            renderSettings();
+        }
+
+        renderSettings();
+    </script>
+</body>
+</html>
