@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Générateur Équilibre Absolu</title>
+    
+    <script>
+        (function() {
+            const mode = localStorage.getItem('theme_mode');
+            if (mode === 'light') {
+                document.documentElement.classList.add('light-mode-init');
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -21,7 +31,7 @@
         }
 
         /* Mode Clair */
-        body.light-mode {
+        body.light-mode, html.light-mode-init body {
             --bg: #f3f4f6;
             --text: #111827;
             --card-bg: #ffffff;
@@ -31,7 +41,7 @@
         }
 
         /* Bordure sombre pour les noms en mode clair uniquement */
-        body.light-mode .student-item {
+        body.light-mode .student-item, html.light-mode-init .student-item {
             border: 1.5px solid #374151;
         }
         
@@ -96,8 +106,8 @@
         .name-f { color: var(--pink); } 
         .name-g { color: var(--blue-light); }
 
-        body.light-mode .name-f { color: #d81b60; }
-        body.light-mode .name-g { color: #0288d1; }
+        body.light-mode .name-f, html.light-mode-init .name-f { color: #d81b60; }
+        body.light-mode .name-g, html.light-mode-init .name-g { color: #0288d1; }
         
         .bottom-nav { width: 100%; max-width: 400px; margin: 20px 0 40px 0; }
         .btn-nav { font-weight: 800; padding: 12px; border-radius: 50px; font-size: 10px; text-align: center; cursor: pointer; width: 100%; border: none; }
@@ -133,8 +143,9 @@
 <script>
     function toggleTheme() {
         document.body.classList.toggle('light-mode');
+        document.documentElement.classList.remove('light-mode-init');
         const isLight = document.body.classList.contains('light-mode');
-        localStorage.setItem('equipes_theme_mode', isLight ? 'light' : 'dark');
+        localStorage.setItem('theme_mode', isLight ? 'light' : 'dark');
         updateThemeUI(isLight);
         selectNum(selectedNumTeams);
     }
@@ -161,6 +172,15 @@
     let absents = new Set(JSON.parse(localStorage.getItem('absents_session_equipes')) || []);
 
     function appliquerTheme() {
+        const savedMode = localStorage.getItem('theme_mode');
+        if (savedMode === 'light') {
+            document.body.classList.add('light-mode');
+            updateThemeUI(true);
+        } else {
+            document.body.classList.remove('light-mode');
+            updateThemeUI(false);
+        }
+
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const couleurNom = themePrefs.equipes || 'pink';
         const couleurHex = mapCouleurs[couleurNom] || '#ec4899';
@@ -171,11 +191,6 @@
         if(title) title.style.color = couleurHex;
         if(btnRetour) btnRetour.style.backgroundColor = couleurHex;
         if(genBtn) genBtn.style.backgroundColor = couleurHex;
-
-        if (localStorage.getItem('equipes_theme_mode') === 'light') {
-            document.body.classList.add('light-mode');
-            updateThemeUI(true);
-        }
     }
 
     function getDisplayName(eleve, allStudents) {
