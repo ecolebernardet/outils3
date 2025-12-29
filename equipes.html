@@ -6,6 +6,7 @@
     <title>Générateur Équilibre Absolu</title>
     
     <script>
+    
         (function() {
             const mode = localStorage.getItem('theme_mode');
             if (mode === 'light') {
@@ -28,7 +29,7 @@
             --btn-num-bg: #111827;
             --btn-num-border: #374151;
             --title-gray: #9ca3af;
-            --header-bg: #000;
+            --header-bg: #111828;
             --header-border: #1f2937;
             --pill-bg: #1f2937;
         }
@@ -45,24 +46,33 @@
             --pill-bg: #ffffff;
         }
 
+        /* MODIFICATION 1 : Le Body */
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: var(--bg); 
+            background: var(--bg); 
             color: var(--text); 
-            margin: 0; padding: 0; min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0; margin: 0; 
+            transition: background 0.3s;
             display: flex; flex-direction: column; align-items: center;
-			            /* --- MARGE DE SÉCURITÉ POUR LA BARRE DE NOTIFICATIONS --- */
-            padding-top: calc(env(safe-area-inset-top) + 30px);
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
         }
 
+        /* MODIFICATION 2 : Le Header */
         header { 
-            width: 100%; background: var(--header-bg); display: flex; align-items: center; 
-            justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--header-border);
-            position: sticky; top: 0; z-index: 50; margin-bottom: 10px;
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0; 
+            z-index: 100; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px; 
+            width: calc(100% + 30px); 
+            margin-left: -15px;
+            margin-bottom: 10px;
         }
 
         .section-title { font-size: 10px; color: var(--title-gray); margin: 15px 0 5px 0; font-weight: 900; letter-spacing: 1px; text-align: center; text-transform: uppercase; }
@@ -92,7 +102,6 @@
         .bg-f { color: var(--pink) !important; } 
         .bg-m { color: var(--blue-light) !important; } 
 
-        /* Mode Foncé - Étiquettes des absents */
         .absent { 
             background-color: #0a0a0a !important; 
             color: #374151 !important; 
@@ -102,7 +111,6 @@
             transform: scale(0.96);
         }
 
-        /* Mode Clair - Couleurs spécifiques */
         body.light-mode .bg-f, html.light-mode-init .bg-f { background-color: #fce7f3 !important; color: #831843 !important; border-color: #f9a8d4 !important; } 
         body.light-mode .bg-m, html.light-mode-init .bg-m { background-color: #dbeafe !important; color: #1e3a8a !important; border-color: #93c5fd !important; } 
         

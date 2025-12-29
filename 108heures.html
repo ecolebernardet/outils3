@@ -13,7 +13,7 @@
         :root {
             --bg-page: #000;
             --text-page: #ffffff;
-            --header-bg: #000;
+            --header-bg: #111828;
             --header-border: #1f2937;
             --border-color: #1f2937;
             /* Formulaire et Stats */
@@ -56,7 +56,7 @@
             color: var(--text-page); 
             padding: 0; margin: 0; 
             transition: background 0.3s, color 0.3s;
-            padding-top: calc(env(safe-area-inset-top) + 30px);
+            /* Suppression du padding-top fixe pour le remplacer par le header sticky */
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
@@ -67,12 +67,14 @@
             border-bottom: 1px solid var(--header-border);
             position: sticky;
             top: 0;
-            z-index: 50;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
-            width: 100%;
+            /* Gestion de l'encoche et du bandeau fixe */
+            padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px;
+            width: calc(100% + 30px);
+            margin-left: -15px;
         }
         
         .light-card { 
@@ -158,8 +160,7 @@
         <div class="header-spacer"></div>
     </header>
 
-    <div id="capture-area" class="max-w-4xl mx-auto p-4">
-        <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
+    <div id="capture-area" class="max-w-4xl mx-auto p-4 mt-4"> <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
             <form id="heuresForm" class="flex flex-col gap-3">
                 <div class="grid grid-cols-4 gap-1.5">
                     <label><input type="radio" name="cat" value="APC" class="card-input" checked><div class="card-label">APC</div></label>
@@ -360,9 +361,16 @@
     }
 
     function exportData() {
-        const blob = new Blob([JSON.stringify(reunions, null, 2)], { type: 'text/plain' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `108heures.txt`; a.click();
+        const contenu = JSON.stringify(reunions, null, 2);
+        if (window.Android && window.Android.exportTxt) {
+            Android.exportTxt(contenu);
+        } else {
+            const blob = new Blob([contenu], { type: 'text/plain' });
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(blob);
+            a.download = `108heures.txt`; 
+            a.click();
+        }
     }
 
     function exportPDF() {

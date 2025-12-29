@@ -11,11 +11,10 @@
         :root {
             --bg-body: #000;
             --text-main: #ffffff;
-            --header-bg: #000;
+            --header-bg: #111828;
             --header-border: #1f2937;
             --border-color: #1f2937;
             --column-bg: rgba(24, 24, 27, 0.6);
-            /* Couleurs du formulaire ajustées pour le mode sombre */
             --card-bg: #111827; 
             --card-text: #ffffff;
             --input-bg: #1f2937;
@@ -47,7 +46,7 @@
             color: var(--text-main); 
             padding: 0; margin: 0; 
             transition: background 0.3s;
-            padding-top: calc(env(safe-area-inset-top) + 30px);
+            /* Suppression du padding-top ici */
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
@@ -58,15 +57,17 @@
             border-bottom: 1px solid var(--header-border);
             position: sticky;
             top: 0;
-            z-index: 50;
+            z-index: 100;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
-            width: 100%;
+            /* Padding de sécurité pour l'encoche intégré au header */
+            padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px;
+            /* On ajuste la largeur pour compenser les marges du body */
+            width: calc(100% + 30px);
+            margin-left: -15px;
         }
 
-        /* Styles du formulaire */
         .light-card { 
             background: var(--card-bg); 
             color: var(--card-text); 
@@ -155,7 +156,7 @@
         <div class="header-spacer"></div>
     </header>
 
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-4xl mx-auto p-4 mt-4">
         <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-4 shadow-2xl">
             <form id="eleveForm" class="flex flex-col gap-3">
                 <input type="hidden" id="edit-id" value="">
@@ -361,12 +362,34 @@
                 const parts = el.identite.split(" ");
                 contenu += `${parts[0]};${parts.slice(1).join(" ")};${el.sexe};${el.niveau}\n`;
             });
-            const blob = new Blob([contenu], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'liste_eleves.txt';
-            a.click();
+
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+            overlay.style.zIndex = '1000';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.padding = '20px';
+            overlay.style.boxSizing = 'border-box';
+
+            overlay.innerHTML = `
+                <h2 style="color:white; margin-bottom:10px; font-weight:bold;">Copiez votre liste :</h2>
+                <textarea id="copyArea" readonly style="flex-grow:1; width:100%; padding:15px; border-radius:10px; font-family:monospace; font-size:14px; border:none;">${contenu}</textarea>
+                <button id="closeOverlay" style="margin-top:15px; background:#ef4444; color:white; font-weight:bold; padding:15px; border-radius:50px; border:none;">FERMER</button>
+            `;
+
+            document.body.appendChild(overlay);
+
+            document.getElementById('closeOverlay').onclick = function() {
+                document.body.removeChild(overlay);
+            };
+
+            document.getElementById('copyArea').select();
+            document.getElementById('copyArea').setSelectionRange(0, 99999);
         }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {

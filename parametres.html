@@ -11,8 +11,8 @@
         :root {
             --bg-page: #000;
             --text-main: #eee;
-            --header-bg: #000;
-            --border-color: #1f2937;
+            --header-bg: #111828;
+            --header-border: #1f2937;
             --card-bg: #111; 
             --card-text: #eee;
             --card-sub: #9ca3af;
@@ -23,45 +23,45 @@
             --bg-page: #eeeeee;
             --text-main: #111;
             --header-bg: #ffffff;
-            --border-color: #ddd;
+            --header-border: #ddd;
             --card-bg: #ffffff;
             --card-text: #111827;
             --card-sub: #4b5563;
             --btn-back-bg: #e5e7eb;
         }
 
+        /* MODIFICATION 1 : Le Body */
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-page); 
             color: var(--text-main); 
             padding: 0; margin: 0; 
-            overflow-x: hidden; 
-            transition: background 0.3s ease;
-			            /* --- MARGE DE SÉCURITÉ POUR LA BARRE DE NOTIFICATIONS --- */
-            padding-top: calc(env(safe-area-inset-top) + 30px);
+            transition: background 0.3s;
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
+            overflow-x: hidden;
         }
         
+        /* MODIFICATION 2 : Le Header */
         header { 
             background: var(--header-bg); 
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--header-border);
             position: sticky;
-            top: 0;
-            z-index: 50;
-            width: 100%;
-            height: 64px;
+            top: 0; 
+            z-index: 100; 
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px; 
+            width: calc(100% + 30px); 
+            margin-left: -15px;
+            height: auto; /* Ajusté pour le nouveau padding */
         }
 
         #btn-retour { 
             background-color: var(--btn-back-bg); 
             color: var(--text-main);
-            position: absolute;
-            left: 15px; /* Aligné sur le bord gauche de l'écran */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -95,12 +95,12 @@
             padding: 15px; 
             margin-bottom: 15px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--header-border);
         }
         
         .tile-config { 
             background: var(--card-bg); 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--header-border); 
             border-radius: 1rem; 
             padding: 10px; 
             margin-bottom: 8px; 
@@ -120,7 +120,7 @@
         .handle-dot { width: 3px; height: 3px; background-color: #64748b; border-radius: 50%; }
 
         .card-warning { 
-            background: #5c594c; border: 2px solid #f59e0b; border-radius: 1.2rem; 
+            background: #666666; border: 2px solid #333333; border-radius: 1.2rem; 
             padding: 15px; margin-bottom: 15px; color: #eeeeee;
         }
         
@@ -131,7 +131,7 @@
             flex: 1;
             padding: 12px;
             border-radius: 12px;
-            border: 2px solid var(--border-color);
+            border: 2px solid var(--header-border);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -150,11 +150,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
+        <h1 class="text-lg font-black tracking-normal uppercase flex-grow text-center mr-[40px]">Paramètres</h1>
     </header>
 
     <div class="max-w-md mx-auto">
-        <div class="flex border-b border-gray-800 sticky top-[64px] bg-[var(--bg-page)] z-40" id="tabs-nav">
+        <div class="flex border-b border-gray-800 sticky top-0 bg-[var(--bg-page)] z-40" id="tabs-nav">
             <button class="tab-btn active" onclick="openTab(event, 'emploi')">Mode d'emploi</button>
             <button class="tab-btn" onclick="openTab(event, 'perso')">Couleurs</button>
             <button class="tab-btn" onclick="openTab(event, 'propos')">À Propos</button>
@@ -163,21 +163,21 @@
         <div class="p-4">
             <div id="emploi" class="tab-content active">
                 <div class="card-info">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-lg">🌓</span>
-                        <h3 class="font-black text-xs uppercase">Apparence</h3>
-                    </div>
-                    <div class="flex gap-4">
-                        <button onclick="selectTheme('light')" class="theme-choice-btn">
-                            <span class="text-2xl">☀️</span>
-                            <span class="text-[10px] font-bold uppercase">Mode Clair</span>
-                        </button>
-                        <button onclick="selectTheme('dark')" class="theme-choice-btn">
-                            <span class="text-2xl">🌙</span>
-                            <span class="text-[10px] font-bold uppercase">Mode Sombre</span>
-                        </button>
-                    </div>
-                </div>
+    <div class="flex items-center gap-2 mb-4">
+        <span class="text-lg">🌓</span>
+        <h3 class="font-black text-xs uppercase">Apparence</h3>
+    </div>
+    <div class="flex gap-4">
+        <button onclick="selectTheme('light')" class="theme-choice-btn border-white/20 bg-[#666666] text-white [.light-mode_&]:bg-transparent [.light-mode_&]:text-inherit [.light-mode_&]:border-[var(--header-border)]">
+            <span class="text-2xl">☀️</span>
+            <span class="text-[10px] font-bold uppercase">Mode Clair</span>
+        </button>
+        <button onclick="selectTheme('dark')" class="theme-choice-btn [.light-mode_&]:bg-[#666666] [.light-mode_&]:text-white [.light-mode_&]:border-black">
+            <span class="text-2xl">🌙</span>
+            <span class="text-[10px] font-bold uppercase">Mode Sombre</span>
+        </button>
+    </div>
+</div>
 
                 <div class="card-info">
                     <div class="flex items-center gap-2 mb-3">
@@ -238,7 +238,7 @@
                 
                 <div class="card-warning">
                     <h3 class="font-black text-xs uppercase mb-2">⚠️ Attention</h3>
-                    <p class="text-xs leading-relaxed">Les données sont stockées uniquement en local sur ce navigateur.<br> Il est conseillé de les exporter puis dans les importer dans un autre environnement pour les réutiliser.</p>
+                    <p class="text-xs leading-relaxed">Les infos enregistrées sur un appareil (PC, smartphone, tablette...) et/ou sur un navigateur (Firefox, DuckDuckGo, Chrome...) ne sont enregistrées que dans la <strong>mémoire locale</strong>.<br>Pour retrouver vos infos, <strong>exportez-les</strong> d'abord puis <strong>importez-les</strong> sur le nouvel appareil. </p>
                 </div>
             </div>
 
@@ -251,7 +251,7 @@
 
             <div id="propos" class="tab-content text-center py-6">
                 <div class="card-info flex flex-col items-center">
-                    <img src="outils-profs.png" class="w-32 h-auto mb-6 drop-shadow-lg">
+                    <img src="outilsprofs_icone6.jpg" class="w-32 h-auto mb-6 drop-shadow-lg">
                     <p class="text-sm font-bold">Application conçue par Nicolas B. avec la grande aide de Gemini pour la programmation.</p>
                     <div class="h-[1px] bg-gray-700 w-full my-6"></div>
                     <p class="text-[15px] font-black text-gray-500 uppercase">Outils pour les profs</p>

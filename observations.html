@@ -6,6 +6,7 @@
     <title>Observations</title>
     
     <script>
+    
         (function() {
             const mode = localStorage.getItem('theme_mode');
             if (mode === 'light') {
@@ -23,7 +24,7 @@
             --bg-page: #000000; 
             --text-main: #ffffff;
             --card-student: #374151; /* Gris en mode sombre */
-            --header-bg: #000;
+            --header-bg: #111828;
             --header-border: #1f2937;
         }
 
@@ -36,35 +37,34 @@
             --header-border: #ddd;
         }
 
+        /* MODIFICATION 1 : Le Body */
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-page); 
-            margin: 0; 
-            padding: 0; 
-            min-height: 100vh; 
             color: var(--text-main); 
-            transition: background 0.3s, color 0.3s;
+            padding: 0; margin: 0; 
+            transition: background 0.3s;
             display: flex;
             flex-direction: column;
             align-items: center;
-			            /* --- MARGE DE SÉCURITÉ POUR LA BARRE DE NOTIFICATIONS --- */
-            padding-top: calc(env(safe-area-inset-top) + 30px);
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
         }
 
+        /* MODIFICATION 2 : Le Header */
         header { 
-            width: 100%; 
             background: var(--header-bg); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 10px;
             border-bottom: 1px solid var(--header-border);
             position: sticky;
-            top: 0;
-            z-index: 50;
+            top: 0; 
+            z-index: 100; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px; 
+            width: calc(100% + 30px); 
+            margin-left: -15px;
             margin-bottom: 20px;
         }
 
@@ -93,11 +93,9 @@
             border-color: #374151;
         }
 
-        /* Couleurs de texte adaptées au mode sombre (plus claires pour la lisibilité sur fond gris) */
         .text-girl { color: #f9a8d4; } 
         .text-boy { color: #93c5fd; } 
         
-        /* En mode clair, on garde les couleurs originales */
         body.light-mode .text-girl, html.light-mode-init .text-girl { color: #db2777; } 
         body.light-mode .text-boy, html.light-mode-init .text-boy { color: #2563eb; } 
         
@@ -289,24 +287,46 @@
         }
 
         function exportToFile() {
-            let cleanedComments = {};
-            elevesInscrits.forEach(s => { 
-                const sId = String(s.id);
-                if(savedComments[sId]) cleanedComments[sId] = savedComments[sId]; 
-            });
-            const bundle = {
-                eleves: elevesInscrits,
-                observations: cleanedComments,
-                date: new Date().toLocaleDateString()
-            };
-            const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `observations_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+    try {
+        const eleves = typeof elevesInscrits !== 'undefined' ? elevesInscrits : [];
+        const observations = typeof savedComments !== 'undefined' ? savedComments : {};
+
+        let cleanedComments = {};
+        eleves.forEach(s => { 
+            const sId = String(s.id);
+            if(observations[sId] && observations[sId].trim() !== "") {
+                cleanedComments[sId] = observations[sId]; 
+            }
+        });
+
+        const bundle = {
+            eleves: eleves,
+            observations: cleanedComments,
+            date: new Date().toLocaleDateString(),
+            type: "export_observations"
+        };
+
+        const jsonString = JSON.stringify(bundle, null, 2);
+        const blob = new Blob([jsonString], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `observations_${new Date().toISOString().split('T')[0]}.txt`;
+
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
+
+    } catch (err) {
+        alert("Erreur technique lors de l'export : " + err.message);
+    }
+}
 
         document.getElementById('importFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -335,6 +355,9 @@
             appliquerTheme();
             renderList();
         };
+
+        (function() {
+        })();
     </script>
 </body>
 </html>
