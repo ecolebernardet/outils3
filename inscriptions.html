@@ -85,11 +85,12 @@
 
         .btn-nav { font-weight: 800; padding: 12px 4px; border-radius: 50px; font-size: 9px; text-align: center; width: 100%; cursor: pointer; }
         .input-field { background: var(--input-bg); border: 1px solid #9ca3af; color: #111827; border-radius: 0.75rem; padding: 10px; outline: none; font-size: 0.75rem; font-weight: 600; }
+        
+        .stat-pill { padding: 4px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body class="pb-10">
     <div class="max-w-4xl mx-auto">
-        
         <header class="flex items-center justify-between p-4 sticky top-0 z-50">
             <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-lg active:scale-90">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,7 +102,7 @@
         </header>
         
         <div class="p-4">
-            <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
+            <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-4 shadow-2xl">
                 <form id="eleveForm" class="flex flex-col gap-3">
                     <input type="hidden" id="edit-id" value="">
                     <input type="text" id="nomComplet" placeholder="Prénom NOM" class="input-field w-full" required>
@@ -123,6 +124,8 @@
                     <button type="submit" id="btn-submit" class="font-black py-2.5 rounded-full uppercase text-xs active:scale-95 transition-transform mt-1">Enregistrer</button>
                 </form>
             </div>
+
+            <div id="stats-container" class="max-w-md mx-auto mb-6 flex flex-wrap justify-center gap-2"></div>
 
             <div id="listeContainer"></div>
 
@@ -161,7 +164,6 @@
             const isLight = localStorage.getItem('theme_mode') === 'light';
             if (isLight) document.body.classList.add('light-mode');
 
-            // Couleur dynamique sur le bouton de retour
             const btnRetour = document.getElementById('btn-retour');
             btnRetour.style.backgroundColor = hexaTheme;
 
@@ -171,7 +173,6 @@
 
             const backSvg = document.querySelector('#btn-retour svg');
             if (backSvg) {
-                // Couleur de la flèche : noire si fond clair, sinon blanc
                 backSvg.style.color = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurInscr) ? '#000' : '#fff';
             }
         }
@@ -184,7 +185,26 @@
             return p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() + " " + n;
         }
 
+        function renderStats() {
+            const statsDiv = document.getElementById('stats-container');
+            if (eleves.length === 0) {
+                statsDiv.innerHTML = "";
+                return;
+            }
+
+            const total = eleves.length;
+            const garcons = eleves.filter(e => e.sexe === 'm').length;
+            const filles = eleves.filter(e => e.sexe === 'f').length;
+
+            statsDiv.innerHTML = `
+                <div class="stat-pill bg-gray-200 text-gray-800 border border-gray-300">Total: ${total}</div>
+                <div class="stat-pill bg-blue-100 text-blue-700 border border-blue-200">♂ ${garcons}</div>
+                <div class="stat-pill bg-pink-100 text-pink-700 border border-pink-200">♀ ${filles}</div>
+            `;
+        }
+
         function render() {
+            renderStats();
             const container = document.getElementById('listeContainer');
             if (!container) return;
             container.innerHTML = "";
@@ -200,7 +220,12 @@
             });
             const nomsNiveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
             
-            container.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 items-start";
+            // Logique de colonnes : si exactement 2 niveaux, on force 2 colonnes
+            if (nomsNiveauxPresents.length === 2) {
+                container.className = "grid grid-cols-2 gap-3 items-start";
+            } else {
+                container.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 items-start";
+            }
 
             nomsNiveauxPresents.forEach(niv => {
                 const col = document.createElement('div');
@@ -213,7 +238,7 @@
                     item.className = 'student-item shadow-sm';
                     item.onclick = (e) => { if (!e.target.closest('button')) preparerModification(el.id); };
                     item.innerHTML = `
-                        <span class="text-[9px] font-bold pr-2 text-${el.sexe === 'f' ? 'pink-600' : 'blue-600'} whitespace-normal break-words leading-tight">${el.identite}</span>
+                        <span class="text-[9px] font-bold pr-2 ${el.sexe === 'f' ? 'text-pink-600' : 'text-blue-600'} whitespace-normal break-words leading-tight">${el.identite}</span>
                         <button onclick="supprimer(${el.id})" class="opacity-40 hover:opacity-100 transition-opacity p-1 flex-shrink-0" style="color:var(--sub-text)">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -291,6 +316,31 @@
             a.download = 'liste_eleves.txt';
             a.click();
         }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const lignes = e.target.result.split(/\r?\n/);
+                lignes.forEach(l => {
+                    const clean = l.trim();
+                    if (!clean) return;
+                    const p = clean.split(';'); 
+                    if(p.length >= 4) {
+                        eleves.push({
+                            id: Date.now() + Math.random(),
+                            identite: formaterIdentite(p[0], p[1]),
+                            sexe: p[2].trim().toLowerCase(),
+                            niveau: p[3].trim().toUpperCase()
+                        });
+                    }
+                });
+                localStorage.setItem('maListeEleves', JSON.stringify(eleves));
+                render();
+            };
+            reader.readAsText(file);
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             appliquerCouleursTheme();
