@@ -28,39 +28,55 @@
             --btn-num-bg: #222;
             --btn-num-border: #444;
             --title-gray: #555;
+            --header-bg: #000;
+            --header-border: #1f2937;
         }
 
-        /* Mode Clair */
         body.light-mode, html.light-mode-init body {
-            --bg: #f3f4f6;
+            --bg: #dddddd;
             --text: #111827;
             --card-bg: #ffffff;
             --btn-num-bg: #e5e7eb;
             --btn-num-border: #d1d5db;
             --title-gray: #6b7280;
+            --header-bg: #ffffff;
+            --header-border: #ddd;
         }
 
-        /* Bordure sombre pour les noms en mode clair uniquement */
-        body.light-mode .student-item, html.light-mode-init .student-item {
-            border: 1.5px solid #374151;
-        }
-        
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg); 
             color: var(--text); 
             margin: 0; 
-            padding: 10px; 
+            padding: 0; 
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header { 
+            width: 100%; 
+            background: var(--header-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px;
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            margin-bottom: 10px;
+        }
+
+        body.light-mode .student-item, html.light-mode-init .student-item {
+            border: 1.5px solid #374151;
         }
         
         .section-title { font-size: 10px; color: var(--title-gray); margin: 15px 0 5px 0; font-weight: 900; letter-spacing: 1px; text-align: center; text-transform: uppercase; }
-        
-        #attendance-container { width: 100%; max-width: 600px; margin: 0 auto; }
-        
+        #attendance-container { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 10px; }
         .attendance-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 20px; width: 100%; }
-        
         .level-label { text-align: center; font-size: 10px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
 
         .student-item { 
@@ -94,7 +110,7 @@
         
         .generate-btn { width: 100%; max-width: 300px; color: white; padding: 14px; font-size: 10px; font-weight: 900; border-radius: 50px; text-transform: uppercase; margin: 20px 0; border: none; cursor: pointer; }
         
-        .grid-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; margin: 0 auto; }
+        .grid-teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 10px; }
         .team-card { border-radius: 1.2rem; padding: 10px; background: var(--card-bg); border: 1px solid #aaa; transition: background-color 0.3s; }
         .team-header { border-bottom: 1px solid #333; margin-bottom: 5px; padding-bottom: 2px; }
         
@@ -109,24 +125,24 @@
         body.light-mode .name-f, html.light-mode-init .name-f { color: #d81b60; }
         body.light-mode .name-g, html.light-mode-init .name-g { color: #0288d1; }
         
-        .bottom-nav { width: 100%; max-width: 400px; margin: 20px 0 40px 0; }
+        .bottom-nav { width: 100%; max-width: 400px; margin: 20px 0 40px 0; padding: 0 10px; }
         .btn-nav { font-weight: 800; padding: 12px; border-radius: 50px; font-size: 10px; text-align: center; cursor: pointer; width: 100%; border: none; }
-        
-        /* Espaceur pour centrer le titre suite au retrait du bouton */
         .header-spacer { width: 40px; }
     </style>
 </head>
-<body class="flex flex-col items-center">
+<body>
 
-    <div class="w-full max-w-md flex items-center justify-between py-4 mb-2 px-2">
+    <header>
         <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 id="mainTitle" class="font-black text-lg tracking-normal uppercase">Générer des équipes</h1>
+        <h1 id="mainTitle" class="font-black text-lg tracking-normal uppercase text-center flex-grow">
+            Générer des équipes
+        </h1>
         <div class="header-spacer"></div>
-    </div>
+    </header>
 
     <div id="attendance-container"></div>
 
@@ -161,7 +177,9 @@
 
     function appliquerTheme() {
         const savedMode = localStorage.getItem('theme_mode');
-        if (savedMode === 'light') {
+        const isLight = savedMode === 'light';
+        
+        if (isLight) {
             document.body.classList.add('light-mode');
         } else {
             document.body.classList.remove('light-mode');
@@ -170,13 +188,27 @@
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const couleurNom = themePrefs.equipes || 'pink';
         const couleurHex = mapCouleurs[couleurNom] || '#ec4899';
+        
         const title = document.getElementById('mainTitle');
         const genBtn = document.getElementById('main-generate-btn');
         const btnRetour = document.getElementById('btn-retour');
+        const svgRetour = document.querySelector('#btn-retour svg');
         
-        if(title) title.style.color = couleurHex;
-        if(btnRetour) btnRetour.style.backgroundColor = couleurHex;
-        if(genBtn) genBtn.style.backgroundColor = couleurHex;
+        // Titre noir en clair / blanc en sombre
+        if(title) title.style.color = isLight ? '#000000' : '#ffffff';
+
+        // Éléments thématiques
+        const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurNom);
+        
+        if(btnRetour) {
+            btnRetour.style.backgroundColor = couleurHex;
+            if(svgRetour) svgRetour.style.color = isLightColor ? 'black' : 'white';
+        }
+
+        if(genBtn) {
+            genBtn.style.backgroundColor = couleurHex;
+            genBtn.style.color = isLightColor ? 'black' : 'white';
+        }
     }
 
     function getDisplayName(eleve, allStudents) {
@@ -211,17 +243,21 @@
     function selectNum(n) {
         selectedNumTeams = n;
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const activeColor = mapCouleurs[themePrefs.equipes || 'pink'] || '#ec4899';
+        const couleurNom = themePrefs.equipes || 'pink';
+        const activeColor = mapCouleurs[couleurNom] || '#ec4899';
         const isLight = document.body.classList.contains('light-mode');
+        const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurNom);
 
         document.querySelectorAll('.num-btn').forEach(b => {
             b.style.backgroundColor = isLight ? "#e5e7eb" : "#222";
             b.style.borderColor = isLight ? "#d1d5db" : "#444";
+            b.style.color = isLight ? "#111827" : "#ffffff";
         });
         const activeBtn = document.getElementById('btn-' + n);
         if (activeBtn) {
             activeBtn.style.backgroundColor = activeColor;
             activeBtn.style.borderColor = activeColor;
+            activeBtn.style.color = isLightColor ? 'black' : 'white';
         }
     }
 

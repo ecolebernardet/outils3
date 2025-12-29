@@ -18,7 +18,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
-        /* Variables de Thème */
         :root {
             --bg-page: #000;
             --text-page: #eee;
@@ -26,15 +25,19 @@
             --card-text: #111827;
             --result-bg: #ffffff;
             --result-border: #9ca3af;
+            --header-bg: #000;
+            --header-border: #1f2937;
         }
 
         body.light-mode, html.light-mode-init body {
-            --bg-page: #f3f4f6;
+            --bg-page: #dddddd;
             --text-page: #111827;
             --card-bg: #ffffff;
             --card-text: #111827;
             --result-bg: #f9fafb;
             --result-border: #d1d5db;
+            --header-bg: #ffffff;
+            --header-border: #ddd;
         }
 
         body {
@@ -42,29 +45,41 @@
             background-color: var(--bg-page);
             color: var(--text-page);
             margin: 0;
-            padding: 10px;
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* Bordure sombre pour les noms en mode clair uniquement */
+        header { 
+            width: 100%; 
+            background: var(--header-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px;
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            margin-bottom: 10px;
+        }
+
         body.light-mode .student-item, html.light-mode-init .student-item {
-            border: 1.5px solid #374151; /* Gris sombre/anthracite */
+            border: 1.5px solid #374151;
         }
 
         .light-card { 
             background: var(--card-bg); 
             color: var(--card-text); 
             border-radius: 1.5rem; 
-            width: 100%; 
+            width: 95%; 
             max-width: 400px; 
             padding: 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
             text-align: center; 
-            margin-top: 20px; 
-            margin-bottom: 20px;
+            margin: 20px 0;
             transition: background-color 0.3s;
         }
         
@@ -102,6 +117,7 @@
             gap: 5px;
             margin-bottom: 10px;
             width: 100%;
+            padding: 0 10px;
         }
 
         .student-item {
@@ -117,7 +133,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .drawn {
@@ -144,24 +159,22 @@
 
         .btn-nav { width: 100%; max-width: 400px; font-weight: 800; padding: 14px; border-radius: 50px; font-size: 10px; cursor: pointer; border: none; }
         .stats { margin-top: 8px; font-size: 0.6rem; color: #666; text-transform: uppercase; font-weight: 800; }
-
-        /* Espaceur pour le centrage du titre */
         .header-spacer { width: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="w-full max-w-md flex items-center justify-between py-4 mb-2 px-2">
+    <header>
         <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
-        <h1 id="page-title" class="font-black text-lg tracking-normal uppercase">
+        <h1 id="page-title" class="font-black text-lg tracking-normal uppercase text-center flex-grow">
             Tirage au sort
         </h1>
         <div class="header-spacer"></div>
-    </div>
+    </header>
 
     <div class="w-full max-w-md" id="listeContainer"></div>
 
@@ -176,12 +189,23 @@
     </div>
 
     <script>
+        const mapCouleurs = {
+            'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+            'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+            'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+            'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+            'rose': '#f43f5e', 'gray': '#6b7280'
+        };
+
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const couleurTirage = themePrefs.tirage || 'pink';
+        const nomCouleur = themePrefs.tirage || 'pink';
+        const hexaTheme = mapCouleurs[nomCouleur] || '#ec4899';
 
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
-            if (savedMode === 'light') {
+            const isLight = savedMode === 'light';
+            
+            if (isLight) {
                 document.body.classList.add('light-mode');
             } else {
                 document.body.classList.remove('light-mode');
@@ -191,13 +215,25 @@
             const btn = document.getElementById('draw-btn');
             const display = document.getElementById('result-display');
             const btnRetour = document.getElementById('btn-retour');
+            const svgRetour = document.querySelector('#btn-retour svg');
 
-            title.classList.add(`text-${couleurTirage}-500`);
-            if (btnRetour) btnRetour.classList.add(`bg-${couleurTirage}-600`, `border`, `border-${couleurTirage}-400/30`);
+            // 3) Titre : Noir en clair, Blanc en sombre
+            if (title) title.style.color = isLight ? '#000000' : '#ffffff';
 
-            btn.classList.add(`bg-${couleurTirage}-600`);
-            btn.classList.add(['yellow', 'lime', 'amber', 'cyan'].includes(couleurTirage) ? 'text-black' : 'text-white');
-            display.classList.add(`text-${couleurTirage}-600`);
+            // 2) Couleur dynamique pour le bouton retour et bouton tirage
+            const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
+            
+            if (btnRetour) {
+                btnRetour.style.backgroundColor = hexaTheme;
+                if (svgRetour) svgRetour.style.color = isLightColor ? 'black' : 'white';
+            }
+
+            if (btn) {
+                btn.style.backgroundColor = hexaTheme;
+                btn.style.color = isLightColor ? 'black' : 'white';
+            }
+
+            if (display) display.style.color = hexaTheme;
         }
 
         function formatName(fullName) {
@@ -264,7 +300,9 @@
         function drawName() {
             if (remaining.length === 0) return;
             const display = document.getElementById('result-display'), btn = document.getElementById('draw-btn');
-            btn.disabled = true; display.style.color = "#9ca3af";
+            btn.disabled = true; 
+            const originalColor = display.style.color;
+            display.style.color = "#9ca3af";
             let iterations = 0;
             const interval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * remaining.length);
@@ -274,7 +312,7 @@
                     const finalIndex = Math.floor(Math.random() * remaining.length);
                     const winnerId = remaining.splice(finalIndex, 1)[0];
                     display.innerText = formatName(rawData.find(s => s.id === winnerId).identite);
-                    display.style.color = ""; saveState(); renderList();
+                    display.style.color = hexaTheme; saveState(); renderList();
                     btn.disabled = (remaining.length === 0);
                 }
             }, 60);

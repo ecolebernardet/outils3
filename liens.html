@@ -15,6 +15,7 @@
             --column-bg: #111;
             --column-border: #222;
             --header-bg: #000;
+            --border-color: #1f2937;
         }
 
         body.light-mode {
@@ -23,6 +24,7 @@
             --column-bg: #ffffff;
             --column-border: #d4d4d4;
             --header-bg: #ffffff;
+            --border-color: #ddd;
         }
 
         body { 
@@ -34,7 +36,6 @@
             transition: background 0.3s;
         }
 
-        /* Header avec rectangle blanc en mode clair */
         header { 
             width: 100%; 
             background: var(--header-bg); 
@@ -42,7 +43,10 @@
             align-items: center; 
             justify-content: space-between; 
             padding: 10px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
         .main-wrapper { width: 100%; max-width: 800px; display: flex; flex-direction: column; }
@@ -145,7 +149,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
     </a>
-    <h1 id="mainTitle" class="font-black text-lg tracking-normal uppercase text-center flex-grow text-black">Gestion des Liens</h1>
+    <h1 id="mainTitle" class="font-black text-lg tracking-normal uppercase text-center flex-grow">Gestion des Liens</h1>
     <div class="header-spacer"></div>
 </header>
 
@@ -191,7 +195,8 @@
 </div>
 
 <script>
-    if (localStorage.getItem('theme_mode') === 'light') {
+    const isLightMode = localStorage.getItem('theme_mode') === 'light';
+    if (isLightMode) {
         document.body.classList.add('light-mode');
     }
 
@@ -220,11 +225,17 @@
         const btn = document.getElementById('mainAddBtn');
         const btnRetour = document.getElementById('btn-retour');
         const svgRetour = document.querySelector('#btn-retour svg');
+        const mainTitle = document.getElementById('mainTitle');
 
-        // Application de la couleur dynamique au bouton de retour
+        // 3) Titre : Noir en mode clair, Blanc en sombre
+        if(mainTitle) {
+            mainTitle.style.color = isLightMode ? '#000000' : '#ffffff';
+        }
+
+        // 2) Couleur dynamique pour le bouton retour
         if(btnRetour) btnRetour.style.backgroundColor = couleurHexa;
         
-        // Couleur de la flèche (noir si couleur claire, sinon blanc)
+        // Couleur de la flèche selon la clarté du thème
         if(svgRetour) {
             svgRetour.style.color = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur) ? '#000' : '#fff';
         }
@@ -238,10 +249,7 @@
     function initSortables() {
         ['École', 'Institutionnel', 'Autre', 'Ressources'].forEach(cat => {
             new Sortable(document.getElementById(`list-${cat}`), {
-                group: 'sharedLinks',
-                animation: 150,
-                handle: '.drag-handle',
-                onEnd: saveOrder
+                group: 'sharedLinks', animation: 150, handle: '.drag-handle', onEnd: saveOrder
             });
         });
     }
@@ -307,15 +315,11 @@
 
     function exportData() {
         const contenu = JSON.stringify(links, null, 2);
-        if (navigator.share) {
-            navigator.share({ title: 'liens.txt', text: contenu });
-        } else {
-            const blob = new Blob([contenu], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `liens.txt`;
-            a.click();
-        }
+        const blob = new Blob([contenu], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `liens.txt`;
+        a.click();
     }
 
     document.getElementById('importFile').addEventListener('change', (e) => {

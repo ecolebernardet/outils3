@@ -27,33 +27,52 @@
             --input-bg: #ffffff;
             --input-text: #111827;
             --search-bg: #18181b; 
+            --header-bg: #000;
+            --header-border: #1f2937;
         }
 
-        /* Mode clair synchronisé avec index.html */
         body.light-mode, html.light-mode-init body {
-            --bg-page: #f3f4f6;
+            --bg-page: #dddddd;
             --text-page: #111827;
             --card-bg: #ffffff;
             --card-text: #111827;
             --input-bg: #f9fafb;
             --input-text: #111827;
             --search-bg: #ffffff;
+            --header-bg: #ffffff;
+            --header-border: #ddd;
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-page); 
             color: var(--text-page); 
-            padding: 12px; margin: 0; 
+            padding: 0; margin: 0; 
             transition: background 0.3s, color 0.3s;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .container { max-width: 600px; margin: 0 auto; }
+        header { 
+            width: 100%; 
+            background: var(--header-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px;
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            margin-bottom: 12px;
+        }
+
+        .container { width: 100%; max-width: 600px; padding: 0 12px; }
         .light-card { background: var(--card-bg); color: var(--card-text); border-radius: 1.5rem; transition: background 0.3s; }
         .input-field { background: var(--input-bg); border: 1px solid #9ca3af; color: var(--input-text); border-radius: 0.75rem; padding: 10px; outline: none; font-size: 0.8rem; font-weight: 600; width: 100%; }
         #searchInput { background: var(--search-bg) !important; color: var(--text-page) !important; border-color: #3f3f46; }
-        .header-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 20px; }
-        #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
+        
+        #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        
         .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); transition: all 0.2s; flex-shrink: 0; }
         .color-dot.active { border: 2.5px solid white !important; box-shadow: 0 0 8px rgba(0,0,0,0.3); }
         .note-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -75,23 +94,22 @@
         .btns { display: flex; gap: 8px; }
         .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-cancel { background: #eee; color: #555; }
-        /* Spacer pour équilibrer le titre sans le bouton */
         .header-spacer { width: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header class="header-nav">
-            <a href="index.html" id="btn-retour">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
-            <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal">Mémos et pense-bêtes</h1>
-            <div class="header-spacer"></div>
-        </header>
+    <header>
+        <a href="index.html" id="btn-retour">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal text-center flex-grow">Mémos et pense-bêtes</h1>
+        <div class="header-spacer"></div>
+    </header>
 
+    <div class="container">
         <div class="light-card p-4 mb-4 shadow-xl">
             <textarea id="newNoteTitle" class="input-field mb-1 resize-none h-[45px]" placeholder="Titre (max 2 lignes)..."></textarea>
             <textarea id="newNoteInput" class="input-field mb-1 min-h-[60px] resize-none" placeholder="Saisir une note..." oninput="autoExpand(this)"></textarea>
@@ -150,7 +168,9 @@
 
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
-            if (savedMode === 'light') {
+            const isLight = savedMode === 'light';
+            
+            if (isLight) {
                 document.body.classList.add('light-mode');
             } else {
                 document.body.classList.remove('light-mode');
@@ -166,11 +186,17 @@
             const btnRetour = document.getElementById('btn-retour');
             const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
 
-            if(title) title.style.color = hex;
+            // Titre : Noir en mode clair, Blanc en mode sombre
+            if(title) {
+                title.style.color = isLight ? '#000000' : '#ffffff';
+            }
+
+            // Bouton retour avec couleur dynamique
             if(btnRetour) {
                 btnRetour.style.backgroundColor = hex;
                 btnRetour.style.color = isLightColor ? 'black' : 'white';
             }
+
             [btn, modalBtn].forEach(el => {
                 if(el) { 
                     el.style.backgroundColor = hex; 

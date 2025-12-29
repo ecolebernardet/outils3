@@ -23,33 +23,51 @@
             --bg-page: #000000; 
             --text-main: #ffffff;
             --card-student: #ffffff;
+            --header-bg: #000;
+            --header-border: #1f2937;
         }
 
         /* Mode Clair */
         body.light-mode, html.light-mode-init body {
-            --bg-page: #f3f4f6;
+            --bg-page: #dddddd;
             --text-main: #111827;
             --card-student: #ffffff;
+            --header-bg: #ffffff;
+            --header-border: #ddd;
         }
 
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-page); 
             margin: 0; 
-            padding: 10px; 
+            padding: 0; 
             min-height: 100vh; 
             color: var(--text-main); 
             transition: background 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        
-        .header-nav { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 500px; margin: 10px auto 20px auto; padding: 0 10px; }
+
+        header { 
+            width: 100%; 
+            background: var(--header-bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px;
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            margin-bottom: 20px;
+        }
+
         #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
         #mainTitle { text-align: center; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; margin: 0; flex-grow: 1; text-transform: uppercase;}
-        
-        /* Espaceur pour centrer le titre suite au retrait du bouton */
         .header-spacer { width: 40px; }
 
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; align-items: start; }
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; align-items: start; padding: 0 10px; }
         
         .level-group { margin-bottom: 1px; }
 
@@ -91,9 +109,9 @@
 </head>
 <body>
 
-    <header class="header-nav">
+    <header>
         <a href="index.html" id="btn-retour">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
@@ -147,7 +165,9 @@
 
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
-            if (savedMode === 'light') {
+            const isLight = savedMode === 'light';
+            
+            if (isLight) {
                 document.body.classList.add('light-mode');
             } else {
                 document.body.classList.remove('light-mode');
@@ -159,13 +179,22 @@
             
             const mainTitle = document.getElementById('mainTitle');
             const btnRetour = document.getElementById('btn-retour');
+            const svgRetour = document.querySelector('#btn-retour svg');
             const btnSave = document.querySelector('.btn-save');
 
-            if(mainTitle) mainTitle.style.color = couleurHexa;
-            if(btnRetour) btnRetour.style.backgroundColor = couleurHexa;
+            // Couleur du titre (Noir en clair / Blanc en sombre)
+            if(mainTitle) mainTitle.style.color = isLight ? '#000000' : '#ffffff';
+
+            const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
+
+            if(btnRetour) {
+                btnRetour.style.backgroundColor = couleurHexa;
+                if(svgRetour) svgRetour.style.color = isLightColor ? 'black' : 'white';
+            }
+
             if(btnSave) {
                 btnSave.style.backgroundColor = couleurHexa;
-                btnSave.style.color = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur) ? 'black' : 'white';
+                btnSave.style.color = isLightColor ? 'black' : 'white';
             }
             document.documentElement.style.setProperty('--primary', couleurHexa);
         }
