@@ -39,9 +39,18 @@
             transition: background 0.3s ease;
         }
         
-        header { background: var(--header-bg); border-bottom: 1px solid var(--border-color); }
+        header { 
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-        #btn-retour { background-color: var(--btn-back-bg); }
+        #btn-retour { 
+            background-color: var(--btn-back-bg); 
+            color: var(--text-main);
+        }
 
         .tab-btn { 
             padding: 12px 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; 
@@ -93,15 +102,6 @@
         
         .card-info p, .card-info li { color: var(--card-sub); }
         .card-info h3 { color: var(--text-main); }
-        
-        #theme-toggle {
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background: #222; border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-            font-size: 1.25rem;
-        }
-        .light-mode #theme-toggle { background: #eee; border-color: #ddd; }
 
         .theme-choice-btn {
             flex: 1;
@@ -117,6 +117,7 @@
             color: var(--card-text);
         }
         .theme-choice-btn:active { transform: scale(0.95); }
+        .header-spacer { width: 40px; }
     </style>
 </head>
 <body class="pb-10">
@@ -129,10 +130,7 @@
                 </svg>
             </a>
             <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
-            
-            <button id="theme-toggle" onclick="toggleTheme()" class="active:scale-90 transition-transform no-select">
-                <span id="theme-icon">☀️</span>
-            </button>
+            <div class="header-spacer"></div>
         </header>
 
         <div class="flex border-b border-gray-800 sticky top-[73px] bg-[var(--bg-page)] z-40" id="tabs-nav">
@@ -196,26 +194,26 @@
 
                 <div class="card-info"><h3 id="title-liens" class="font-black text-xs uppercase mb-2">🔗️ Liens</h3><p class="text-xs leading-relaxed">Accès rapide à vos sites favoris rangés par rubriques.</p></div>
                 <div class="card-info"><h3 id="title-h108" class="font-black text-xs uppercase mb-2">⏲️ 108 Heures</h3>
-					<p class="text-xs leading-relaxed">
+                    <p class="text-xs leading-relaxed">
                         Gérez vos forfaits annuels (APC, Conseils, etc.) :<br>
                         • Saisissez une durée pour chaque événement.<br>
                         • Suivez vos totaux et le reliquat d'heures restant par catégorie.<br>
                         • Utilisez l'<strong>exportation</strong> pour conserver votre bilan officiel.<br>
                         • Corriger une information en cliquant sur la réunion en question.
                     </p>
-					</div>
+                    </div>
                 <div class="card-info"><h3 id="title-memos" class="font-black text-xs uppercase mb-2">📒️ Mémos</h3><p class="text-xs leading-relaxed">Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.</p></div>
                 <div class="card-info"><h3 id="title-tirage" class="font-black text-xs uppercase mb-2">🎲 Tirage</h3><p class="text-xs leading-relaxed">Décochez les élèves absents puis tirez un prénom d'élève au hasard parmi les présents.</p></div>
                 <div class="card-info"><h3 id="title-equipes" class="font-black text-xs uppercase mb-2">👥 Équipes</h3><p class="text-xs leading-relaxed">Décochez les élèves absents et générez des groupes mixtes et équilibrés par genre et par niveau automatiquement.</p></div>
                 <div class="card-info"><h3 id="title-obs" class="font-black text-xs uppercase mb-2">✏️ Observations</h3><p class="text-xs leading-relaxed">Notez des informations sur chaque élève et sauvegardez vos données.</p></div>
                 <div class="card-info"><h3 id="title-compt" class="font-black text-xs uppercase mb-2">🚥 Compteur</h3>
-					<p class="text-xs leading-relaxed">
+                    <p class="text-xs leading-relaxed">
                         Suivi rapide des points de comportement (jusqu'à 5 points) :<br>
                         • <strong>Un clic :</strong> Ajoute 1 point.<br>
                         • <strong>Double-clic :</strong> Enlève 1 point.<br>
                         Les points peuvent être remis à zéro d'un seul coup via le bouton en bas de page.
                     </p>
-				</div>
+                </div>
                 
                 <div class="card-warning">
                     <h3 class="font-black text-xs uppercase mb-2">⚠️ Attention</h3>
@@ -242,44 +240,6 @@
     </div>
 
     <script>
-        function updateThemeIcons(isLight) {
-            const themeIcon = document.getElementById('theme-icon');
-            if (themeIcon) themeIcon.innerText = isLight ? '☀️' : '🌙';
-            const svgRetour = document.querySelector('#btn-retour svg');
-            if (svgRetour) svgRetour.style.color = isLight ? '#111' : '#fff';
-        }
-
-        // FONCTION DE SELECTION AVEC CLE CORRIGEE 'theme_mode'
-        function selectTheme(mode) {
-            if (mode === 'light') {
-                document.body.classList.add('light-mode');
-            } else {
-                document.body.classList.remove('light-mode');
-            }
-            localStorage.setItem('theme_mode', mode);
-            updateThemeIcons(mode === 'light');
-            
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 100);
-        }
-
-        function toggleTheme() {
-            const isLight = document.body.classList.toggle('light-mode');
-            localStorage.setItem('theme_mode', isLight ? 'light' : 'dark');
-            updateThemeIcons(isLight);
-        }
-
-        // CHARGEMENT INITIAL
-        const savedTheme = localStorage.getItem('theme_mode');
-        if (savedTheme === 'light') {
-            document.body.classList.add('light-mode');
-            updateThemeIcons(true);
-        } else {
-            document.body.classList.remove('light-mode');
-            updateThemeIcons(false);
-        }
-
         const mapCouleurs = {
             'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
             'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
@@ -287,6 +247,16 @@
             'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
             'rose': '#f43f5e', 'gray': '#6b7280'
         };
+
+        function selectTheme(mode) {
+            if (mode === 'light') {
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+            }
+            localStorage.setItem('theme_mode', mode);
+            setTimeout(() => { window.location.href = 'index.html'; }, 100);
+        }
 
         function openTab(evt, tabName) {
             let i, tabcontent, tablinks;
@@ -365,6 +335,9 @@
             renderSettings();
         }
 
+        // CHARGEMENT INITIAL
+        const savedTheme = localStorage.getItem('theme_mode');
+        if (savedTheme === 'light') document.body.classList.add('light-mode');
         renderSettings();
     </script>
 </body>
