@@ -45,11 +45,30 @@
             position: sticky;
             top: 0;
             z-index: 50;
+            width: 100%;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #btn-retour { 
             background-color: var(--btn-back-bg); 
             color: var(--text-main);
+            position: absolute;
+            left: 15px; /* Aligné sur le bord gauche de l'écran */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        
+        .light-mode #btn-retour {
+            border-color: rgba(0,0,0,0.1);
         }
 
         .tab-btn { 
@@ -117,23 +136,20 @@
             color: var(--card-text);
         }
         .theme-choice-btn:active { transform: scale(0.95); }
-        .header-spacer { width: 40px; }
     </style>
 </head>
 <body class="pb-10">
-    <div class="max-w-md mx-auto">
-        
-        <header class="flex items-center justify-between p-4 sticky top-0 z-50">
-            <a href="index.html" id="btn-retour" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 shadow-lg border border-white/10 active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
-            <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
-            <div class="header-spacer"></div>
-        </header>
+    <header>
+        <a href="index.html" id="btn-retour" class="shadow-lg active:scale-90">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <h1 class="text-lg font-black tracking-normal uppercase">Infos et paramètres</h1>
+    </header>
 
-        <div class="flex border-b border-gray-800 sticky top-[73px] bg-[var(--bg-page)] z-40" id="tabs-nav">
+    <div class="max-w-md mx-auto">
+        <div class="flex border-b border-gray-800 sticky top-[64px] bg-[var(--bg-page)] z-40" id="tabs-nav">
             <button class="tab-btn active" onclick="openTab(event, 'emploi')">Mode d'emploi</button>
             <button class="tab-btn" onclick="openTab(event, 'perso')">Couleurs</button>
             <button class="tab-btn" onclick="openTab(event, 'propos')">À Propos</button>
@@ -201,7 +217,7 @@
                         • Utilisez l'<strong>exportation</strong> pour conserver votre bilan officiel.<br>
                         • Corriger une information en cliquant sur la réunion en question.
                     </p>
-                    </div>
+                </div>
                 <div class="card-info"><h3 id="title-memos" class="font-black text-xs uppercase mb-2">📒️ Mémos</h3><p class="text-xs leading-relaxed">Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.</p></div>
                 <div class="card-info"><h3 id="title-tirage" class="font-black text-xs uppercase mb-2">🎲 Tirage</h3><p class="text-xs leading-relaxed">Décochez les élèves absents puis tirez un prénom d'élève au hasard parmi les présents.</p></div>
                 <div class="card-info"><h3 id="title-equipes" class="font-black text-xs uppercase mb-2">👥 Équipes</h3><p class="text-xs leading-relaxed">Décochez les élèves absents et générez des groupes mixtes et équilibrés par genre et par niveau automatiquement.</p></div>
