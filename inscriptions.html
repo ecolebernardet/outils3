@@ -2,8 +2,18 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Inscriptions - Outils Profs</title>
+    
+    <script>
+        (function() {
+            const mode = localStorage.getItem('theme_mode');
+            if (mode === 'light') {
+                document.documentElement.classList.add('light-mode-init');
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -24,7 +34,8 @@
             --student-name-boy: #93c5fd;
         }
 
-        body.light-mode {
+        /* Synchronisation avec l'index (light-mode-init) */
+        body.light-mode, html.light-mode-init body {
             --bg-body: #eeeeee;
             --text-main: #111827;
             --header-bg: #ffffff;
@@ -42,11 +53,11 @@
 
         body { 
             font-family: 'Inter', sans-serif; 
-            background: var(--bg-body); 
+            background-color: var(--bg-body); 
             color: var(--text-main); 
             padding: 0; margin: 0; 
-            transition: background 0.3s;
-            /* Suppression du padding-top ici */
+            transition: background-color 0.2s ease;
+            padding-top: 0;
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
@@ -61,9 +72,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Padding de sécurité pour l'encoche intégré au header */
             padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px;
-            /* On ajuste la largeur pour compenser les marges du body */
             width: calc(100% + 30px);
             margin-left: -15px;
         }
@@ -72,8 +81,8 @@
             background: var(--card-bg); 
             color: var(--card-text); 
             border-radius: 1.5rem; 
-            transition: background 0.3s;
             border: 1px solid var(--header-border);
+            transition: background 0.3s;
         }
 
         .card-input { display: none; }
@@ -85,7 +94,7 @@
             transition: all 0.2s; 
         }
         
-        body.light-mode .card-label {
+        body.light-mode .card-label, html.light-mode-init .card-label {
             background: #d1d5db; border: 2px solid #9ca3af; color: #374151;
         }
 
@@ -104,7 +113,7 @@
             border-radius: 1.25rem; padding: 10px; height: fit-content; 
             transition: background 0.3s;
         }
-        body.light-mode .level-column { border: 1px solid #d4d4d4; }
+        body.light-mode .level-column, html.light-mode-init .level-column { border: 1px solid #d4d4d4; }
 
         .student-item { 
             background: var(--student-item-bg); 
@@ -117,7 +126,7 @@
             border: 1px solid transparent; 
             transition: border-color 0.3s;
         }
-        body.light-mode .student-item { border: 1.5px solid #374151; }
+        body.light-mode .student-item, html.light-mode-init .student-item { border: 1.5px solid #374151; }
 
         .text-girl-custom { color: var(--student-name-girl); }
         .text-boy-custom { color: var(--student-name-boy); }
@@ -135,7 +144,7 @@
             font-weight: 600; 
         }
         
-        body.light-mode .input-field {
+        body.light-mode .input-field, html.light-mode-init .input-field {
             color: #111827;
             border-color: #9ca3af;
         }
@@ -146,6 +155,12 @@
     </style>
 </head>
 <body class="pb-10">
+    <script>
+        if (localStorage.getItem('theme_mode') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    </script>
+
     <header>
         <a href="index.html" id="btn-retour" class="shadow-lg active:scale-90">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -181,7 +196,6 @@
         </div>
 
         <div id="stats-container" class="max-w-md mx-auto mb-6 flex flex-wrap justify-center gap-2"></div>
-
         <div id="listeContainer"></div>
 
         <div class="max-w-md mx-auto flex flex-col gap-3 mt-6 mb-10">
@@ -216,8 +230,7 @@
 
         function appliquerCouleursTheme() {
             const isLight = localStorage.getItem('theme_mode') === 'light';
-            if (isLight) document.body.classList.add('light-mode');
-
+            
             const btnRetour = document.getElementById('btn-retour');
             const pageTitle = document.getElementById('page-title');
             const btnSubmit = document.getElementById('btn-submit');
@@ -227,7 +240,7 @@
 
             const textContrast = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurInscr) ? '#000000' : '#ffffff';
             if (btnSubmit) btnSubmit.style.color = textContrast;
-            if (pageTitle) pageTitle.style.color = isLight ? '#000000' : '#ffffff';
+            if (pageTitle) pageTitle.style.color = isLight ? '#222222' : '#ffffff';
 
             const backSvg = document.querySelector('#btn-retour svg');
             if (backSvg) backSvg.style.color = textContrast;
@@ -243,10 +256,7 @@
 
         function renderStats() {
             const statsDiv = document.getElementById('stats-container');
-            if (eleves.length === 0) {
-                statsDiv.innerHTML = "";
-                return;
-            }
+            if (eleves.length === 0) { statsDiv.innerHTML = ""; return; }
             const total = eleves.length;
             const garcons = eleves.filter(e => e.sexe === 'm').length;
             const filles = eleves.filter(e => e.sexe === 'f').length;
@@ -274,11 +284,7 @@
             });
             const nomsNiveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
             
-            if (nomsNiveauxPresents.length === 2) {
-                container.className = "grid grid-cols-2 gap-3 items-start";
-            } else {
-                container.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 items-start";
-            }
+            container.className = nomsNiveauxPresents.length === 2 ? "grid grid-cols-2 gap-3 items-start" : "grid grid-cols-1 sm:grid-cols-2 gap-3 items-start";
 
             nomsNiveauxPresents.forEach(niv => {
                 const col = document.createElement('div');
@@ -333,8 +339,7 @@
             document.getElementById('nomComplet').value = el.identite;
             document.querySelector(`input[name="sexe"][value="${el.sexe}"]`).checked = true;
             document.querySelector(`input[name="niveau"][value="${el.niveau}"]`).checked = true;
-            const btn = document.getElementById('btn-submit');
-            btn.innerText = "Mettre à jour";
+            document.getElementById('btn-submit').innerText = "Mettre à jour";
             document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
             document.getElementById('nomComplet').focus();
         }
@@ -357,31 +362,18 @@
 
         function exporterListe() {
             if (eleves.length === 0) return alert("Liste vide !");
-            
-            // Préparation du contenu textuel
             let contenu = "";
             eleves.forEach(el => {
                 const parts = el.identite.split(" ");
                 contenu += `${parts[0]};${parts.slice(1).join(" ")};${el.sexe};${el.niveau}\n`;
             });
-
-            // Génération de la date au format AAAA-MM-JJ (ex: 2025-12-29)
             const date = new Date().toISOString().split('T')[0];
             const fileName = `export_eleves_${date}.txt`;
-
-            // Logique d'exportation
-            if (window.Android && window.Android.exportTxt) {
-                // Pour l'intégration Android Studio
-                Android.exportTxt(contenu);
-            } else {
-                // Pour le téléchargement via navigateur
-                const blob = new Blob([contenu], { type: 'text/plain' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = fileName;
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }
+            const blob = new Blob([contenu], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fileName;
+            a.click();
         }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
@@ -395,12 +387,7 @@
                     if (!clean) return;
                     const p = clean.split(';'); 
                     if(p.length >= 4) {
-                        eleves.push({
-                            id: Date.now() + Math.random(),
-                            identite: formaterIdentite(p[0], p[1]),
-                            sexe: p[2].trim().toLowerCase(),
-                            niveau: p[3].trim().toUpperCase()
-                        });
+                        eleves.push({ id: Date.now() + Math.random(), identite: formaterIdentite(p[0], p[1]), sexe: p[2].trim().toLowerCase(), niveau: p[3].trim().toUpperCase() });
                     }
                 });
                 localStorage.setItem('maListeEleves', JSON.stringify(eleves));

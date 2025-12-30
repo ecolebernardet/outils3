@@ -2,8 +2,18 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>108 heures</title>
+
+    <script>
+        (function() {
+            const mode = localStorage.getItem('theme_mode');
+            if (mode === 'light') {
+                document.documentElement.classList.add('light-mode-init');
+            }
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -16,13 +26,11 @@
             --header-bg: #111828;
             --header-border: #1f2937;
             --border-color: #1f2937;
-            /* Formulaire et Stats */
             --card-bg: #111827; 
             --card-text: #ffffff;
             --input-bg: #1f2937;
             --input-border: #374151;
             --input-text: #ffffff;
-            /* Colonnes et Items */
             --column-bg: #111827;
             --column-text: #ffffff;
             --item-bg: #1f2937;
@@ -30,19 +38,18 @@
             --item-subtext: #9ca3af;
         }
 
-        body.light-mode {
+        /* Synchronisation avec l'index */
+        body.light-mode, html.light-mode-init body {
             --bg-page: #eeeeee;
             --text-page: #111827;
             --header-bg: #ffffff;
             --header-border: #ddd;
             --border-color: #ddd;
-            /* Formulaire et Stats */
             --card-bg: #ffffff;
             --card-text: #111827;
             --input-bg: #ffffff;
             --input-border: #9ca3af;
             --input-text: #111827;
-            /* Colonnes et Items */
             --column-bg: #ffffff;
             --column-text: #111827;
             --item-bg: #ffffff;
@@ -55,8 +62,7 @@
             background: var(--bg-page); 
             color: var(--text-page); 
             padding: 0; margin: 0; 
-            transition: background 0.3s, color 0.3s;
-            /* Suppression du padding-top fixe pour le remplacer par le header sticky */
+            transition: background 0.2s ease, color 0.2s ease;
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
@@ -71,7 +77,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Gestion de l'encoche et du bandeau fixe */
             padding: calc(env(safe-area-inset-top) + 10px) 10px 10px 10px;
             width: calc(100% + 30px);
             margin-left: -15px;
@@ -116,11 +121,6 @@
             border-left-width: 4px;
         }
 
-        .quota-badge {
-            font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 50px;
-            background: #111827; color: #fff; white-space: nowrap;
-        }
-
         .bottom-nav { width: 100%; max-width: 500px; margin: 20px auto 0; padding-bottom: 40px; display: flex; flex-direction: column; gap: 8px; }
         .nav-group { display: flex; gap: 8px; width: 100%; }
         .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
@@ -140,16 +140,17 @@
         .hidden-list { display: none; margin-top: 8px; }
 
         #pdf-template { display: none; color: #000; background: #fff; padding: 20px; font-family: Arial, sans-serif; }
-        .pdf-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
-        .pdf-table th { background: #f0f0f0; text-align: left; padding: 8px; font-size: 11px; border: 1px solid #ddd; }
-        .pdf-table td { padding: 8px; font-size: 10px; border: 1px solid #ddd; vertical-align: top; }
-        .pdf-cat-header { background: #e2e8f0; font-weight: bold; font-size: 12px; padding: 10px; margin-top: 20px; border-radius: 4px; }
         .header-spacer { width: 40px; }
         #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
     </style>
 </head>
 <body class="pb-10">
+    <script>
+        if (localStorage.getItem('theme_mode') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    </script>
+
     <header>
         <a href="index.html" id="btn-retour" class="shadow-lg active:scale-90">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -160,7 +161,8 @@
         <div class="header-spacer"></div>
     </header>
 
-    <div id="capture-area" class="max-w-4xl mx-auto p-4 mt-4"> <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
+    <div id="capture-area" class="max-w-4xl mx-auto p-4 mt-4"> 
+        <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-6 shadow-2xl">
             <form id="heuresForm" class="flex flex-col gap-3">
                 <div class="grid grid-cols-4 gap-1.5">
                     <label><input type="radio" name="cat" value="APC" class="card-input" checked><div class="card-label">APC</div></label>
@@ -200,10 +202,10 @@
         <footer class="bottom-nav">
             <div class="nav-group">
                 <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center flex-1">
-                    👇importer .txt👇
+                    👇 importer .txt
                     <input type="file" id="importFile" class="hidden" accept=".txt">
                 </label>
-                <button onclick="exportData()" class="nav-btn bg-neutral-800 text-white flex-1">👆exporter .txt👆</button>
+                <button onclick="exportData()" class="nav-btn bg-neutral-800 text-white flex-1">👆 exporter .txt</button>
                 <button onclick="exportPDF()" class="nav-btn bg-neutral-800 text-white flex-1">📄 PDF</button>
             </div>
             <button onclick="resetHeures()" class="nav-btn bg-red-500 text-red-100 shadow-md active:scale-95">
@@ -236,7 +238,6 @@
 
     function appliquerCouleursTheme() {
         const isLight = localStorage.getItem('theme_mode') === 'light';
-        if (isLight) document.body.classList.add('light-mode');
         
         const btnRetour = document.getElementById('btn-retour');
         const titrePage = document.getElementById('main-title');
@@ -253,7 +254,7 @@
         const backSvg = document.querySelector('#btn-retour svg');
         if (backSvg) backSvg.style.color = textContrast;
 
-        if (titrePage) titrePage.style.color = isLight ? '#000' : '#fff';
+        if (titrePage) titrePage.style.color = isLight ? '#222222' : '#ffffff';
     }
 
     document.getElementById('heuresForm').addEventListener('submit', (e) => {
@@ -274,19 +275,6 @@
         }
         sauvegarder(); e.target.reset(); initDate();
     });
-
-    function chargerPourEdition(id) {
-        const r = reunions.find(item => item.id === id);
-        if (!r) return;
-        document.querySelector(`input[name="cat"][value="${r.cat}"]`).checked = true;
-        document.getElementById('dateReu').value = r.date;
-        document.getElementById('h').value = Math.floor(r.minutes / 60);
-        document.getElementById('m').value = r.minutes % 60;
-        document.getElementById('comm').value = r.comm;
-        editId = id;
-        document.getElementById('submitBtn').innerText = "Mettre à jour";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
     function formatDuree(totalMinutes) {
         const h = Math.floor(Math.abs(totalMinutes) / 60);
@@ -360,52 +348,45 @@
         document.getElementById('globalBar').style.backgroundColor = hexaTheme;
     }
 
-    function exportData() {
-        if (reunions.length === 0) return alert("Aucune donnée à exporter !");
+    function chargerPourEdition(id) {
+        const r = reunions.find(item => item.id === id);
+        if (!r) return;
+        document.querySelector(`input[name="cat"][value="${r.cat}"]`).checked = true;
+        document.getElementById('dateReu').value = r.date;
+        document.getElementById('h').value = Math.floor(r.minutes / 60);
+        document.getElementById('m').value = r.minutes % 60;
+        document.getElementById('comm').value = r.comm;
+        editId = id;
+        document.getElementById('submitBtn').innerText = "Mettre à jour";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-        // Génération de la date au format AAAA-MM-JJ (ex: 2025-12-29)
+    function exportData() {
+        if (reunions.length === 0) return alert("Aucune donnée !");
         const date = new Date().toISOString().split('T')[0];
         const fileName = `export_108h_${date}.txt`;
         const contenu = JSON.stringify(reunions, null, 2);
-        
-        if (window.Android && window.Android.exportTxt) {
-            // Pour l'intégration Android Studio
-            Android.exportTxt(contenu);
-        } else {
-            // Pour le téléchargement via navigateur
-            const blob = new Blob([contenu], { type: 'text/plain' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = fileName;
-            a.click();
-            URL.revokeObjectURL(a.href);
-        }
+        const blob = new Blob([contenu], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
     }
 
     function exportPDF() {
         const pdfContainer = document.getElementById('pdf-template');
         pdfContainer.style.display = 'block';
-        let htmlContent = `<div class="pdf-header"><h1 style="margin:0; font-size:22px;">BILAN DES 108 HEURES</h1><p style="margin:5px 0; font-size:12px; color:#555;">Généré le ${new Date().toLocaleDateString('fr-FR')}</p></div>`;
-
+        let htmlContent = `<h1 style="text-align:center; font-size:20px;">BILAN DES 108 HEURES</h1>`;
         Object.keys(QUOTAS).forEach(catKey => {
             const reuCat = reunions.filter(r => r.cat === catKey).sort((a,b) => new Date(a.date) - new Date(b.date));
             const totalCat = reuCat.reduce((sum, r) => sum + r.minutes, 0);
-            htmlContent += `
-                <div class="pdf-cat-header">${LABELS[catKey]} (Total : ${formatDuree(totalCat)} / ${formatDuree(QUOTAS[catKey])})</div>
-                <table class="pdf-table">
-                    <thead><tr><th style="width: 20%;">Date</th><th style="width: 15%;">Durée</th><th style="width: 65%;">Commentaire</th></tr></thead>
-                    <tbody>${reuCat.length === 0 ? '<tr><td colspan="3" style="text-align:center; color:#999;">Aucune donnée</td></tr>' : 
-                        reuCat.map(r => `<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td><b>${formatDuree(r.minutes)}</b></td><td>${r.comm || ""}</td></tr>`).join('')}
-                    </tbody>
-                </table>`;
+            htmlContent += `<h3>${LABELS[catKey]} (Total : ${formatDuree(totalCat)})</h3><hr>`;
+            reuCat.forEach(r => {
+                htmlContent += `<p>${new Date(r.date).toLocaleDateString('fr-FR')} - <b>${formatDuree(r.minutes)}</b> ${r.comm ? ' : ' + r.comm : ''}</p>`;
+            });
         });
-
-        const totalGlobal = reunions.reduce((sum, r) => sum + r.minutes, 0);
-        htmlContent += `<div style="margin-top:30px; border-top:2px solid #000; padding-top:10px; text-align:right;"><span style="font-size:16px; font-weight:bold;">TOTAL GÉNÉRAL : ${formatDuree(totalGlobal)} / 108h</span></div>`;
-
         pdfContainer.innerHTML = htmlContent;
-        const opt = { margin: 15, filename: 'Bilan_108_Heures.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        html2pdf().set(opt).from(pdfContainer).save().then(() => { pdfContainer.style.display = 'none'; });
+        html2pdf().from(pdfContainer).save('Bilan_108h.pdf').then(() => { pdfContainer.style.display = 'none'; });
     }
 
     document.getElementById('importFile').addEventListener('change', function(e) {
