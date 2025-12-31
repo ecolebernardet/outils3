@@ -113,8 +113,10 @@
         body.light-mode .bg-m, html.light-mode-init .bg-m { 
             background-color: #dbeafe !important; color: #1e3a8a !important; border-color: #93c5fd !important; 
         } 
+        
+        /* Modification : Gris foncé pour les étiquettes tirées en mode clair */
         body.light-mode .drawn, html.light-mode-init .drawn { 
-            background: #e5e7eb !important; color: #9ca3af !important; border-color: #d1d5db !important;
+            background: #eeeeee !important; color: #999999 !important; border-color: #cccccc !important;
         }
 
         .level-title { 
@@ -152,7 +154,6 @@
         .stats { margin-top: 8px; font-size: 0.6rem; color: #6b7280; text-transform: uppercase; font-weight: 800; }
         .header-spacer { width: 40px; }
 
-        /* MODALE ALERTE HARMONISÉE */
         .modal-overlay { 
             display: none; position: fixed; inset: 0; 
             background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
