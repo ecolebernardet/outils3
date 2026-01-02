@@ -113,18 +113,19 @@
 
         .btn-add { width: 100%; padding: 10px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; color: white; }
         .btn-del { color: #9ca3af; padding-left: 2px; flex-shrink: 0; cursor: pointer; }
+        .btn-edit { color: #9ca3af; padding-left: 8px; flex-shrink: 0; cursor: pointer; }
 
         .bottom-nav { width: 100%; max-width: 400px; align-self: center; display: flex; flex-direction: column; gap: 6px; margin-top: 20px; padding-bottom: 20px; }
         .nav-group { display: flex; gap: 5px; width: 100%; }
         .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 8px; flex: 1; text-align: center; background: #27272a; color: white; border: none; }
 
-        /* MODAL DE CONFIRMATION PERSO */
-        #custom-confirm {
+        /* STYLE COMMUN DES MODALES */
+        .modal-overlay {
             display: none; position: fixed; inset: 0; z-index: 9999;
             background: var(--modal-bg); backdrop-filter: blur(4px);
             align-items: center; justify-content: center; padding: 20px;
         }
-        .confirm-card {
+        .modal-card {
             background: var(--card-bg); border: 1px solid var(--border-color);
             width: 100%; max-width: 320px; border-radius: 1.5rem; padding: 20px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); text-align: center;
@@ -133,12 +134,24 @@
 </head>
 <body>
 
-<div id="custom-confirm">
-    <div class="confirm-card">
+<div id="custom-confirm" class="modal-overlay">
+    <div class="modal-card">
         <p id="confirm-msg" class="font-bold text-sm mb-6 leading-tight"></p>
         <div class="flex gap-3">
             <button onclick="closeConfirm(false)" class="flex-1 py-3 rounded-full bg-neutral-500 text-white text-[10px] font-black uppercase">Annuler</button>
-            <button id="confirm-yes" class="flex-1 py-3 rounded-full text-white text-[10px] font-black uppercase shadow-lg">Confirmer</button>
+            <button id="confirm-yes" class="confirm-btn-style flex-1 py-3 rounded-full text-white text-[10px] font-black uppercase shadow-lg">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-edit" class="modal-overlay">
+    <div class="modal-card">
+        <h2 class="font-black text-[10px] uppercase mb-4 opacity-50 tracking-widest">Modifier le lien</h2>
+        <input type="text" id="editLinkName" class="input-field mb-2" placeholder="Nom...">
+        <input type="text" id="editLinkUrl" class="input-field mb-6" placeholder="URL...">
+        <div class="flex gap-3">
+            <button onclick="closeEditModal()" class="flex-1 py-3 rounded-full bg-neutral-500 text-white text-[10px] font-black uppercase">Annuler</button>
+            <button id="edit-save" class="confirm-btn-style flex-1 py-3 rounded-full text-white text-[10px] font-black uppercase shadow-lg">Enregistrer</button>
         </div>
     </div>
 </div>
@@ -208,6 +221,7 @@
 
     let links = JSON.parse(localStorage.getItem('eduLinksList')) || [];
     let confirmAction = null;
+    let editingLinkId = null;
 
     const configCouleurs = {
         'École': { text: 'text-rose-500' },
@@ -222,24 +236,28 @@
         const couleurHexa = mapCouleurs[nomCouleur] || '#10b981';
         const btn = document.getElementById('mainAddBtn');
         const btnRetour = document.getElementById('btn-retour');
-        const btnConfirm = document.getElementById('confirm-yes');
-        const svgRetour = document.querySelector('#btn-retour svg');
         const mainTitle = document.getElementById('mainTitle');
+        const confirmBtns = document.querySelectorAll('.confirm-btn-style');
 
         if(mainTitle) mainTitle.style.color = isLightMode ? '#000000' : '#ffffff';
         if(btnRetour) btnRetour.style.backgroundColor = couleurHexa;
-        if(btnConfirm) btnConfirm.style.backgroundColor = couleurHexa;
         
         const darkText = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
+        const svgRetour = document.querySelector('#btn-retour svg');
         if(svgRetour) svgRetour.style.color = darkText ? '#000' : '#fff';
-        if(btnConfirm) btnConfirm.style.color = darkText ? '#000' : '#fff';
+
+        confirmBtns.forEach(b => {
+            b.style.backgroundColor = couleurHexa;
+            b.style.color = darkText ? '#000' : '#fff';
+        });
+
         if(btn) {
             btn.style.backgroundColor = couleurHexa;
             btn.style.color = darkText ? 'black' : 'white';
         }
     }
 
-    // --- GESTION MODAL PERSO ---
+    // --- GESTION MODALES ---
     function customConfirm(msg, onConfirm) {
         document.getElementById('confirm-msg').innerText = msg;
         document.getElementById('custom-confirm').style.display = 'flex';
@@ -251,6 +269,32 @@
         confirmAction = null;
     }
     document.getElementById('confirm-yes').onclick = () => closeConfirm(true);
+
+    function openEditModal(id) {
+        const link = links.find(l => l.id === id);
+        if (!link) return;
+        editingLinkId = id;
+        document.getElementById('editLinkName').value = link.name;
+        document.getElementById('editLinkUrl').value = link.url;
+        document.getElementById('modal-edit').style.display = 'flex';
+    }
+    function closeEditModal() {
+        document.getElementById('modal-edit').style.display = 'none';
+        editingLinkId = null;
+    }
+    document.getElementById('edit-save').onclick = () => {
+        const link = links.find(l => l.id === editingLinkId);
+        const newName = document.getElementById('editLinkName').value.trim();
+        const newUrl = document.getElementById('editLinkUrl').value.trim();
+        
+        if (link && newName && newUrl) {
+            link.name = newName;
+            link.url = newUrl.startsWith('http') ? newUrl : 'https://' + newUrl;
+            localStorage.setItem('eduLinksList', JSON.stringify(links));
+            render();
+            closeEditModal();
+        }
+    };
 
     function initSortables() {
         ['École', 'Institutionnel', 'Autre', 'Ressources'].forEach(cat => {
@@ -288,10 +332,17 @@
                     <span class="link-name ${styleCat.text}">${link.name}</span>
                     <span class="link-url">${link.url}</span>
                 </div>
-                <div class="btn-del" onclick="event.stopPropagation(); deleteLink(${link.id})">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                <div class="flex items-center">
+                    <div class="btn-edit" onclick="event.stopPropagation(); openEditModal(${link.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </div>
+                    <div class="btn-del" onclick="event.stopPropagation(); deleteLink(${link.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
                 </div>`;
             listDiv.appendChild(item);
         });
@@ -335,7 +386,6 @@
         }
     }
 
-    // --- MODIFICATION ICI : IMPORT AVEC CONFIRMATION ---
     document.getElementById('importFile').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -352,7 +402,7 @@
             } catch(err) { alert("Erreur de fichier."); }
         };
         reader.readAsText(file);
-        e.target.value = ''; // Réinitialisation
+        e.target.value = ''; 
     });
 
     function resetLinks() { 
