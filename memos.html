@@ -98,7 +98,7 @@
 
         #searchInput { background: var(--search-bg) !important; color: var(--text-page) !important; border-color: var(--input-border); }
         
-        #btn-retour { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        #btn-retour, #btn-search-toggle { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         
         .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); transition: all 0.2s; flex-shrink: 0; }
         .color-dot.active { border: 2.5px solid white !important; box-shadow: 0 0 8px rgba(0,0,0,0.3); }
@@ -159,11 +159,19 @@
         .modal-btn:active { transform: scale(0.95); }
         .btn-cancel { background: #f3f4f6; color: #4b5563; }
         
-        /* Style spécifique Alerte */
         .alert-title { font-size: 18px; font-weight: 900; text-transform: uppercase; color: #111; margin-bottom: 8px; text-align: center; }
         .alert-text { font-size: 14px; color: #4b5563; text-align: center; line-height: 1.5; font-weight: 500; }
         
-        .header-spacer { width: 40px; }
+        /* Recherche animée */
+        #searchContainer { 
+            overflow: hidden; 
+            max-height: 0; 
+            transition: max-height 0.3s ease-out, margin-bottom 0.3s ease; 
+        }
+        #searchContainer.open { 
+            max-height: 100px; 
+            margin-bottom: 1.5rem; 
+        }
     </style>
 </head>
 <body>
@@ -175,10 +183,18 @@
             </svg>
         </a>
         <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal text-center flex-grow">Mémos et pense-bêtes</h1>
-        <div class="header-spacer"></div>
+        <button id="btn-search-toggle" onclick="toggleSearch()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </button>
     </header>
 
     <div class="container">
+        <div id="searchContainer">
+            <input type="text" id="searchInput" class="input-field shadow-sm" placeholder="🔍 Rechercher un mémo par son titre ou son texte..." onkeyup="renderNotes()">
+        </div>
+
         <div class="light-card p-4 mb-4 shadow-xl">
             <textarea id="newNoteTitle" class="input-field mb-1 resize-none h-[45px]" placeholder="Titre (max 2 lignes)..."></textarea>
             <textarea id="newNoteInput" class="input-field mb-1 min-h-[60px] resize-none" placeholder="Saisir une note..." oninput="autoExpand(this)"></textarea>
@@ -196,16 +212,15 @@
             </div>
         </div>
 
-        <input type="text" id="searchInput" class="input-field mb-6 shadow-sm" placeholder="Rechercher une note..." onkeyup="renderNotes()">
         <div id="notesGrid" class="note-grid mb-6"></div>
 
         <footer class="bottom-nav flex flex-col gap-2">
             <div class="flex gap-2 w-full">
-                <label class="nav-btn bg-zinc-800 text-white cursor-pointer flex-1">
+                <label class="nav-btn bg-black text-white cursor-pointer flex-1">
                     👇importer .txt👇
                     <input type="file" id="importNotesFile" class="hidden" accept=".txt">
                 </label>
-                <button onclick="exportNotesToFile()" class="nav-btn bg-zinc-800 text-white flex-1">👆exporter .txt👆</button>
+                <button onclick="exportNotesToFile()" class="nav-btn bg-black text-white flex-1">👆exporter .txt👆</button>
             </div>
             <button onclick="confirmResetAll()" class="nav-btn bg-red-500 text-white border border-rose-900/20 w-full shadow-lg">⚠️ effacer tous les mémos</button>
         </footer>
@@ -246,6 +261,18 @@
             'rose': '#f43f5e', 'gray': '#6b7280'
         };
 
+        function toggleSearch() {
+            const container = document.getElementById('searchContainer');
+            const input = document.getElementById('searchInput');
+            container.classList.toggle('open');
+            if (container.classList.contains('open')) {
+                setTimeout(() => input.focus(), 300);
+            } else {
+                input.value = '';
+                renderNotes();
+            }
+        }
+
         function showAlert(title, text, onConfirm = null, isAlertOnly = false) {
             document.getElementById('alertTitle').innerText = title;
             document.getElementById('alertText').innerText = text;
@@ -281,10 +308,14 @@
             const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
 
             const btnRetour = document.getElementById('btn-retour');
-            if(btnRetour) {
-                btnRetour.style.backgroundColor = hex;
-                btnRetour.style.color = isLightColor ? 'black' : 'white';
-            }
+            const btnSearch = document.getElementById('btn-search-toggle');
+            
+            [btnRetour, btnSearch].forEach(btn => {
+                if(btn) {
+                    btn.style.backgroundColor = hex;
+                    btn.style.color = isLightColor ? 'black' : 'white';
+                }
+            });
 
             const elementsToTheme = [
                 document.getElementById('addBtn'),
