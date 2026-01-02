@@ -75,7 +75,7 @@
             gap: 8px;
         }
 
-        .container { width: 100%; max-width: 600px; padding: 0 12px; }
+        .container { width: 100%; max-width: 600px; padding: 0 4px; }
         
         .light-card { 
             background: var(--card-bg); 
@@ -96,35 +96,28 @@
             width: 100%; 
         }
 
-        #searchInput { background: var(--search-bg) !important; color: var(--text-page) !important; border-color: var(--input-border); }
+        #btn-retour, #btn-aide, #btn-search-trigger { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; transition: all 0.3s ease; flex-shrink: 0; }
         
-        #btn-retour, #btn-search-toggle, #btn-aide { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; transition: all 0.3s ease; flex-shrink: 0; }
-        
+        /* Animation du champ de recherche */
+        #searchWrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.3s ease;
+            opacity: 0;
+        }
+        #searchWrapper.open {
+            max-height: 100px;
+            margin-bottom: 1.5rem;
+            opacity: 1;
+        }
+
         .color-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0, 0, 0, 0.2); flex-shrink: 0; }
         .color-dot.active { border: 2.5px solid white !important; box-shadow: 0 0 8px rgba(0,0,0,0.3); }
         
-        .note-grid { 
-            column-count: 2; 
-            column-gap: 10px; 
-            width: 100%;
-        }
-        @media (min-width: 600px) { 
-            .note-grid { column-count: 3; } 
-        }
+        .note-grid { column-count: 2; column-gap: 10px; width: 100%; }
+        @media (min-width: 600px) { .note-grid { column-count: 3; } }
         
-        .note-card { 
-            break-inside: avoid; 
-            display: inline-block; 
-            width: 100%;
-            margin-bottom: 10px;
-            border-radius: 12px; 
-            padding: 10px; 
-            border: 1px solid rgba(0,0,0,0.1); 
-            position: relative; 
-            cursor: pointer; 
-            transition: background 0.3s, transform 0.2s; 
-        }
-        
+        .note-card { break-inside: avoid; display: inline-block; width: 100%; margin-bottom: 10px; border-radius: 12px; padding: 10px; border: 1px solid rgba(0,0,0,0.1); position: relative; cursor: pointer; transition: background 0.3s, transform 0.2s; }
         .note-card.dark-text { color: #121212; }
         .note-card.light-text { color: #ffffff; }
 
@@ -144,14 +137,10 @@
         /* MODALS */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal-content { background: white; padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; color: #111; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        
         .modal-content textarea { width: 100%; margin-bottom: 12px; padding: 14px; border-radius: 14px; border: 1px solid #ddd; font-size: 14px; background: #f9f9f9; color: #000 !important; }
         .btns { display: flex; gap: 10px; margin-top: 20px; }
         .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 16px; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; }
         .btn-cancel { background: #f3f4f6; color: #4b5563; }
-
-        #searchContainer { overflow: hidden; max-height: 0; transition: max-height 0.3s ease-out, margin-bottom 0.3s ease; }
-        #searchContainer.open { max-height: 100px; margin-bottom: 1.5rem; }
     </style>
 </head>
 <body>
@@ -163,26 +152,23 @@
             </svg>
         </a>
         <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal text-center flex-grow">Mémos</h1>
-        
-        <div class="flex gap-2">
-            <button id="btn-aide" onclick="openHelp()" class="text-lg">💡</button>
-            <button id="btn-search-toggle" onclick="toggleSearch()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            </button>
-        </div>
+        <button id="btn-aide" onclick="openHelp()" class="text-lg">💡</button>
     </header>
 
     <div class="container">
-        <div id="searchContainer">
-            <input type="text" id="searchInput" class="input-field shadow-sm" placeholder="🔍 Rechercher un mémo..." onkeyup="renderNotes()">
-        </div>
-
         <div class="light-card p-4 mb-4 shadow-xl">
-            <textarea id="newNoteTitle" class="input-field mb-1 resize-none h-[45px]" placeholder="Titre..."></textarea>
+            <div class="flex gap-2 mb-1 items-start">
+                <textarea id="newNoteTitle" class="input-field resize-none h-[45px]" placeholder="Titre..."></textarea>
+                <button id="btn-search-trigger" onclick="toggleSearch()" class="shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+            
             <textarea id="newNoteInput" class="input-field mb-1 min-h-[60px] resize-none" placeholder="Saisir une note..." oninput="autoExpand(this)"></textarea>
-            <div class="flex justify-between items-end">
+            
+            <div class="flex justify-between items-end mt-1">
                 <div class="flex flex-wrap gap-1.5 max-w-[65%]" id="newColorPicker">
                     <div class="color-dot active" style="background-color: #fef9c3;" data-color="#fef9c3"></div>
                     <div class="color-dot" style="background-color: #fee2e2;" data-color="#fee2e2"></div>
@@ -193,6 +179,17 @@
                     <div class="color-dot" style="background-color: #6b7280;" data-color="#6b7280"></div>
                 </div>
                 <button id="addBtn" onclick="addNote()" class="px-5 py-2.5 rounded-full text-[10px] font-black uppercase shadow-md active:scale-90 transition-transform">Ajouter</button>
+            </div>
+        </div>
+
+        <div id="searchWrapper">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 opacity-40">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" id="searchInput" class="input-field shadow-sm pl-10" placeholder="Rechercher dans mes mémos..." onkeyup="renderNotes()">
             </div>
         </div>
 
@@ -257,21 +254,33 @@
             const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleurTheme);
             const contrast = isLightColor ? 'black' : 'white';
             
-            [document.getElementById('btn-retour'), document.getElementById('btn-search-toggle'), document.getElementById('btn-aide'), document.getElementById('addBtn'), document.getElementById('modalSaveBtn')].forEach(el => {
+            [document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-search-trigger'), document.getElementById('addBtn'), document.getElementById('modalSaveBtn')].forEach(el => {
                 if(el) { el.style.backgroundColor = hexaTheme; el.style.color = contrast; }
             });
             renderNotes();
         }
 
+        function toggleSearch() {
+            const wrapper = document.getElementById('searchWrapper');
+            const input = document.getElementById('searchInput');
+            wrapper.classList.toggle('open');
+            if(wrapper.classList.contains('open')) {
+                setTimeout(() => input.focus(), 300);
+            } else {
+                input.value = '';
+                renderNotes();
+            }
+        }
+
         function openHelp() {
             const container = document.getElementById('modal-body-content');
             container.innerHTML = `
-                <h3 class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">📌 Mémos</h3>
+                <h3 id="titre-aide" class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">📌 Mémos</h3>
                 <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-2" style="color: #111">
-                    <p>• <b>Saisie :</b> Ajoutez un titre optionnel et votre texte.</p>
-                    <p>• <b>Couleurs :</b> Personnalisez chaque mémo pour l'organiser.</p>
-                    <p>• <b>Ordre :</b> Faites glisser les mémos pour les réorganiser.</p>
-                    <p>• <b>Fichiers :</b> Utilisez l'import/export pour sauvegarder vos données.</p>
+                    <p>• <b>Saisie :</b> Ajoutez un titre et votre texte.</p>
+                    <p>• <b>Loupe :</b> Cliquez sur la loupe pour rechercher une note précise par mot clé.</p>
+                    <p>• <b>Couleurs :</b> Personnalisez chaque mémo.</p>
+                    <p>• <b>Ordre :</b> Réorganisez les mémos par simple glisser-déposer.</p>
                 </div>
             `;
             const confirmBtn = document.getElementById('alertConfirmBtn');
@@ -300,7 +309,6 @@
                     const card = document.createElement('div');
                     card.className = 'note-card shadow-xl';
                     card.dataset.index = index;
-                    
                     let finalColor = note.color || '#fef9c3';
                     if (isDarkMode) {
                         finalColor = shadeColor(finalColor, -0.6);
@@ -308,20 +316,12 @@
                     } else {
                         card.classList.add(note.color === '#6b7280' ? 'light-text' : 'dark-text');
                     }
-                    
                     card.style.backgroundColor = finalColor;
                     card.onclick = (e) => { if (!e.target.closest('.drag-handle')) openEditModal(index); };
                     card.innerHTML = `<div class="note-header"><div class="note-title">${note.title || ''}</div><div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div><div class="note-card-content">${note.content}</div>`;
                     grid.appendChild(card);
                 }
             });
-        }
-
-        function toggleSearch() {
-            const container = document.getElementById('searchContainer');
-            const input = document.getElementById('searchInput');
-            container.classList.toggle('open');
-            if (container.classList.contains('open')) { setTimeout(() => input.focus(), 300); } else { input.value = ''; renderNotes(); }
         }
 
         function addNote() { const t=document.getElementById('newNoteTitle'), c=document.getElementById('newNoteInput'); if(c.value.trim()){ notes.unshift({title:t.value.trim(), content:c.value.trim(), color:selectedColorForNew}); saveAndRender(); t.value=''; c.value=''; c.style.height='60px'; } }
@@ -383,23 +383,17 @@
         
         function exportNotesToFile() { 
             if(notes.length === 0) return; 
-            
-            // Formatage de la date YYYY-MM-DD
             const d = new Date();
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
-            
             const fileName = `outilsprofs_memos-${formattedDate}.txt`;
             const content = JSON.stringify(notes, null, 2);
-            
             const blob = new Blob([content], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
+            a.href = url; a.download = fileName; a.click();
             window.URL.revokeObjectURL(url);
         }
         
