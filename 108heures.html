@@ -116,37 +116,27 @@
             outline: none; font-size: 0.75rem; font-weight: 600; 
         }
 
-        /* STYLE MODAL AIDE (IDENTIQUE MÉMOS) */
-        #modal-aide {
+        #modal-aide, #modal-alerte {
             display: none; position: fixed; inset: 0; z-index: 9999;
             background: var(--modal-overlay); backdrop-filter: blur(4px);
             align-items: center; justify-content: center; padding: 25px;
         }
-        .aide-card {
-            background: #ffffff; width: 100%; max-width: 380px; 
-            border-radius: 2.5rem; padding: 40px 30px 30px 30px;
+        .aide-card, .alerte-card {
+            background: var(--card-bg); width: 100%; max-width: 380px; 
+            border-radius: 2.5rem; padding: 30px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             text-align: left; position: relative;
+            border: 1px solid var(--border-color);
         }
-        #aide-title-display {
-            font-weight: 900; font-size: 14px; text-transform: uppercase;
-            display: flex; align-items: center; gap: 8px; margin-bottom: 15px;
-        }
-        #aide-content {
-            color: #333333; font-size: 13px; font-weight: 500;
-            line-height: 1.6; margin-bottom: 30px;
-        }
-        #aide-content ul { list-style: none; padding: 0; margin: 0; }
-        #aide-content li { position: relative; padding-left: 15px; margin-bottom: 8px; }
-        #aide-content li::before { content: "•"; position: absolute; left: 0; font-weight: bold; }
+        
+        .light-mode .aide-card { background: white; }
 
-        #btn-fermer-aide { 
-            width: 100%; padding: 18px; border-radius: 1.5rem; 
+        #btn-fermer-aide, #btn-fermer-alerte { 
+            width: 100%; padding: 15px; border-radius: 1.5rem; 
             font-size: 12px; font-weight: 900; text-transform: uppercase; 
             transition: transform 0.2s; border: none; cursor: pointer;
         }
 
-        /* CONFIRMATION */
         #custom-confirm {
             display: none; position: fixed; inset: 0; z-index: 9999;
             background: var(--modal-overlay); backdrop-filter: blur(4px);
@@ -158,30 +148,39 @@
         }
 
         #btn-retour, #btn-aide { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; flex-shrink: 0; }
-
-        #print-overlay { display: none; position: fixed; inset: 0; background: white; color: black; z-index: 20000; overflow-y: auto; padding: 20px; }
+        .toggle-list-btn { width: 100%; font-size: 8px; font-weight: 900; text-transform: uppercase; opacity: 0.5; margin-top: 5px; }
     </style>
 </head>
-<body>
+<body class="pb-10">
 
-    <div id="modal-aide">
-        <div class="aide-card">
-            <h2 id="aide-title-display">
+    <div id="modal-aide" onclick="fermerAide()">
+        <div class="aide-card" onclick="event.stopPropagation()">
+            <h2 id="aide-title-display" class="font-black text-sm uppercase mb-4 flex items-center gap-2">
                 <span>⏱️</span> <span id="aide-label">108 HEURES</span>
             </h2>
-            
-            <div id="aide-content">
-                </div>
+            <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-6" style="color: var(--text-page)">
+                <p>• <b>Saisie :</b> Sélectionnez la catégorie, la date et la durée.</p>
+                <p>• <b>Suivi :</b> Les barres se remplissent selon les quotas officiels.</p>
+                <p>• <b>Détails :</b> Cliquez pour voir l'historique et modifier/supprimer une entrée.</p>
+				<p>• <b>Modiication/suppression :</b> Cliquez sur le détail d'une réunion pour la modifier ou la supprimer.</p>
+                <p>• <b>Import :</b> Importez un fichier de sauvegarde .txt de vos réunions.</p>
+				<p>• <b>Export :</b> Exportez en .txt (pour la sauvegarde) ou en PDF.</p>
+            </div>
+            <button onclick="fermerAide()" id="btn-fermer-aide" class="active:scale-95">Fermer</button>
+        </div>
+    </div>
 
-            <button onclick="fermerAide()" id="btn-fermer-aide" class="active:scale-95">
-                Fermer
-            </button>
+    <div id="modal-alerte" onclick="fermerAlerte()">
+        <div class="alerte-card" onclick="event.stopPropagation()">
+            <h2 id="alerte-titre" class="font-black text-sm uppercase mb-2">Message</h2>
+            <p id="alerte-msg" class="text-[11px] opacity-80 mb-6"></p>
+            <button onclick="fermerAlerte()" id="btn-fermer-alerte" class="active:scale-95">OK</button>
         </div>
     </div>
 
     <div id="custom-confirm">
         <div class="confirm-card text-center">
-            <p id="confirm-msg" class="font-bold text-sm mb-6 leading-tight"></p>
+            <p id="confirm-msg" class="font-bold text-sm mb-6 leading-tight" style="color: var(--text-page)"></p>
             <div class="flex gap-3">
                 <button onclick="closeConfirm(false)" class="flex-1 py-3 rounded-full bg-neutral-500 text-white text-[10px] font-black uppercase">Annuler</button>
                 <button id="confirm-yes" class="flex-1 py-3 rounded-full text-white text-[10px] font-black uppercase shadow-lg">Confirmer</button>
@@ -196,11 +195,7 @@
             </svg>
         </a>
         <h1 id="main-title" class="text-lg font-black uppercase tracking-normal flex-grow text-center">108 heures</h1>
-        <button id="btn-aide" onclick="ouvrirAide('title-108h')" class="shadow-lg active:scale-90">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </button>
+        <button id="btn-aide" onclick="ouvrirAide()" class="shadow-lg active:scale-90 text-lg">💡</button>
     </header>
 
     <div id="app-ui" class="max-w-4xl mx-auto p-4 mt-4"> 
@@ -221,7 +216,12 @@
                     </div>
                 </div>
                 <input type="text" id="comm" placeholder="Commentaire..." class="input-field">
-                <button type="submit" id="submitBtn" class="font-black py-2 rounded-full uppercase text-[10px] active:scale-95 transition-transform">Enregistrer</button>
+                
+                <div id="edit-actions" class="hidden flex gap-2">
+                    <button type="button" onclick="cancelEdit()" class="flex-1 font-black py-2 rounded-full uppercase text-[10px] bg-gray-500 text-white">Annuler</button>
+                    <button type="button" onclick="deleteEntry()" class="flex-1 font-black py-2 rounded-full uppercase text-[10px] bg-red-600 text-white">Supprimer</button>
+                </div>
+                <button type="submit" id="submitBtn" class="font-black py-2 rounded-full uppercase text-[10px] active:scale-95 transition-transform text-white">Enregistrer</button>
             </form>
         </div>
 
@@ -245,7 +245,7 @@
             <div class="nav-group">
                 <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center flex-1">
                     👇 importer .txt
-                    <input type="file" id="importFile" class="hidden" accept=".txt">
+                    <input type="file" id="importFile" class="hidden" accept=".txt" onchange="importData(event)">
                 </label>
                 <button onclick="exportData()" class="nav-btn bg-neutral-800 text-white flex-1">👆 exporter .txt</button>
                 <button onclick="exportPDF()" class="nav-btn bg-neutral-800 text-white flex-1">📄 PDF</button>
@@ -277,63 +277,100 @@
     let editId = null; 
     let confirmAction = null;
 
-    function appliquerCouleursTheme() {
-        const isLight = localStorage.getItem('theme_mode') === 'light';
-        const elts = {
-            btnRetour: document.getElementById('btn-retour'),
-            btnAide: document.getElementById('btn-aide'),
-            btnEnregistrer: document.getElementById('submitBtn'),
-            statsTitle: document.getElementById('stats-title'),
-            btnConfirm: document.getElementById('confirm-yes'),
-            aideLabel: document.getElementById('aide-label'),
-            btnFermerAide: document.getElementById('btn-fermer-aide')
-        };
-
-        if (elts.btnRetour) elts.btnRetour.style.backgroundColor = hexaTheme;
-        if (elts.btnAide) elts.btnAide.style.backgroundColor = hexaTheme;
-        if (elts.btnEnregistrer) elts.btnEnregistrer.style.backgroundColor = hexaTheme;
-        if (elts.btnConfirm) elts.btnConfirm.style.backgroundColor = hexaTheme;
-        if (elts.statsTitle) elts.statsTitle.style.color = hexaTheme;
-        if (elts.aideLabel) elts.aideLabel.style.color = hexaTheme;
-        if (elts.btnFermerAide) elts.btnFermerAide.style.backgroundColor = hexaTheme;
-
-        const textContrast = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurH108) ? '#000' : '#fff';
-        if (elts.btnEnregistrer) elts.btnEnregistrer.style.color = textContrast;
-        if (elts.btnConfirm) elts.btnConfirm.style.color = textContrast;
-        if (elts.btnFermerAide) elts.btnFermerAide.style.color = textContrast;
-
-        const backSvg = document.querySelector('#btn-retour svg');
-        if (backSvg) backSvg.style.color = textContrast;
-        const aideSvg = document.querySelector('#btn-aide svg');
-        if (aideSvg) aideSvg.style.color = textContrast;
-    }
-
-    function ouvrirAide(key) {
-        const content = localStorage.getItem('aide_' + key);
-        const display = document.getElementById('aide-content');
-        const modal = document.getElementById('modal-aide');
-
-        if (content && content.trim() !== "") {
-            // Transforme les lignes commençant par • en liste <li>
-            const lines = content.split('\n');
-            let html = "<ul>";
-            lines.forEach(line => {
-                if (line.trim().startsWith('•')) {
-                    html += `<li>${line.trim().substring(1).trim()}</li>`;
-                } else if (line.trim() !== "") {
-                    html += `<p style="margin-bottom:10px">${line}</p>`;
-                }
-            });
-            html += "</ul>";
-            display.innerHTML = html;
-        } else {
-            display.innerHTML = "Aucune instruction d'aide saisie.";
-        }
-        
-        modal.style.display = 'flex';
-    }
-
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+    
+    function alerte(titre, msg) {
+        document.getElementById('alerte-titre').innerText = titre;
+        document.getElementById('alerte-msg').innerText = msg;
+        document.getElementById('modal-alerte').style.display = 'flex';
+    }
+    function fermerAlerte() { document.getElementById('modal-alerte').style.display = 'none'; }
+
+    function customConfirm(msg, action) {
+        document.getElementById('confirm-msg').innerText = msg;
+        confirmAction = action;
+        document.getElementById('custom-confirm').style.display = 'flex';
+    }
+    function closeConfirm(confirmed) {
+        document.getElementById('custom-confirm').style.display = 'none';
+        if (confirmed && confirmAction) confirmAction();
+        confirmAction = null;
+    }
+    document.getElementById('confirm-yes').onclick = () => closeConfirm(true);
+
+    function appliquerCouleursTheme() {
+        const ids = ['btn-retour', 'btn-aide', 'submitBtn', 'confirm-yes', 'aide-label', 'btn-fermer-aide', 'btn-fermer-alerte'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.backgroundColor = hexaTheme;
+            if (id === 'aide-label') { el.style.backgroundColor = 'transparent'; el.style.color = hexaTheme; }
+        });
+        const statsTitle = document.getElementById('stats-title');
+        if (statsTitle) statsTitle.style.color = hexaTheme;
+    }
+
+    document.getElementById('heuresForm').onsubmit = function(e) {
+        e.preventDefault();
+        const cat = document.querySelector('input[name="cat"]:checked').value;
+        const date = document.getElementById('dateReu').value;
+        const h = parseInt(document.getElementById('h').value) || 0;
+        const m = parseInt(document.getElementById('m').value) || 0;
+        const minutes = (h * 60) + m;
+        const comm = document.getElementById('comm').value;
+
+        if (minutes <= 0) return alerte("Erreur", "La durée doit être supérieure à 0.");
+
+        if (editId) {
+            const index = reunions.findIndex(r => r.id === editId);
+            reunions[index] = { ...reunions[index], cat, date, minutes, comm };
+            editId = null;
+            document.getElementById('submitBtn').innerText = "Enregistrer";
+            document.getElementById('edit-actions').classList.add('hidden');
+        } else {
+            reunions.push({ id: Date.now(), cat, date, minutes, comm });
+        }
+
+        saveAndRender();
+        this.reset();
+        initDate();
+    };
+
+    function chargerPourEdition(id) {
+        const r = reunions.find(item => item.id === id);
+        if (!r) return;
+        editId = id;
+        document.querySelector(`input[name="cat"][value="${r.cat}"]`).checked = true;
+        document.getElementById('dateReu').value = r.date;
+        document.getElementById('h').value = Math.floor(r.minutes / 60);
+        document.getElementById('m').value = r.minutes % 60;
+        document.getElementById('comm').value = r.comm || "";
+        
+        document.getElementById('submitBtn').innerText = "Mettre à jour";
+        document.getElementById('edit-actions').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+        editId = null;
+        document.getElementById('heuresForm').reset();
+        document.getElementById('submitBtn').innerText = "Enregistrer";
+        document.getElementById('edit-actions').classList.add('hidden');
+        initDate();
+    }
+
+    function deleteEntry() {
+        customConfirm("Supprimer cette entrée ?", () => {
+            reunions = reunions.filter(r => r.id !== editId);
+            cancelEdit();
+            saveAndRender();
+        });
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('mesHeuresReu', JSON.stringify(reunions));
+        render();
+    }
 
     function render() {
         const container = document.getElementById('displayContainer');
@@ -349,12 +386,12 @@
             col.className = "level-column shadow-md";
             col.innerHTML = `
                 <div class="mb-1">
-                    <div class="flex justify-between items-center mb-1"><h3 class="text-[9px] font-black uppercase" style="color: var(--column-text)">${LABELS[catKey]}</h3></div>
+                    <div class="flex justify-between items-center mb-1"><h3 class="text-[9px] font-black uppercase">${LABELS[catKey]}</h3></div>
                     <div class="progress-container"><div class="progress-bar" style="width: ${Math.min((fait/QUOTAS[catKey])*100, 100)}%; background-color: ${hexaTheme}"></div></div>
-                    <p class="text-[8px] font-extrabold text-gray-500 uppercase">${formatDuree(fait)} / ${formatDuree(QUOTAS[catKey])}</p>
+                    <p class="text-[8px] font-extrabold text-gray-400 uppercase">${formatDuree(fait)} / ${formatDuree(QUOTAS[catKey])}</p>
                 </div>
                 <button id="btn-${catKey}" onclick="toggleListe('${catKey}')" class="toggle-list-btn">Détails</button>
-                <div id="list-${catKey}" class="hidden-list" style="display:none"></div>`;
+                <div id="list-${catKey}" class="mt-2 space-y-1" style="display:none"></div>`;
 
             const listDiv = col.querySelector(`#list-${catKey}`);
             reuCat.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
@@ -364,9 +401,9 @@
                         <div class="flex-1 overflow-hidden">
                             <div class="flex items-center gap-2">
                                 <span class="font-black text-[10px]" style="color: ${hexaTheme}">${dateFmt}</span>
-                                <span class="font-bold text-[10px]" style="color: var(--item-text)">${formatDuree(r.minutes)}</span>
+                                <span class="font-bold text-[10px]">${formatDuree(r.minutes)}</span>
                             </div>
-                            ${r.comm ? `<div class="italic text-[9px] truncate mt-0.5 leading-tight" style="color: var(--item-subtext)">${r.comm}</div>` : ''}
+                            ${r.comm ? `<div class="italic text-[9px] truncate mt-0.5 leading-tight opacity-60">${r.comm}</div>` : ''}
                         </div>
                     </div>`;
             });
@@ -384,10 +421,10 @@
         document.getElementById('globalBar').style.backgroundColor = hexaTheme;
     }
 
-    // Fonctions utilitaires (Duree, Confirmation, Export, etc.)
     function formatDuree(totalMinutes) {
-        const h = Math.floor(Math.abs(totalMinutes) / 60);
-        const m = Math.abs(totalMinutes) % 60;
+        const abs = Math.abs(totalMinutes);
+        const h = Math.floor(abs / 60);
+        const m = abs % 60;
         return `${totalMinutes < 0 ? "-" : ""}${h}h${m > 0 ? m.toString().padStart(2, '0') : ''}`;
     }
 
@@ -399,21 +436,55 @@
         btn.innerText = isHidden ? "Masquer" : "Détails";
     }
 
-    function customConfirm(msg, onConfirm) {
-        document.getElementById('confirm-msg').innerText = msg;
-        document.getElementById('custom-confirm').style.display = 'flex';
-        confirmAction = onConfirm;
-    }
-
-    function closeConfirm(confirmed) {
-        document.getElementById('custom-confirm').style.display = 'none';
-        if (confirmed && confirmAction) confirmAction();
-        confirmAction = null;
-    }
-    document.getElementById('confirm-yes').onclick = () => closeConfirm(true);
-
     function initDate() { 
         document.getElementById('dateReu').value = new Date().toISOString().split('T')[0]; 
+    }
+
+    function exportData() {
+        const date = new Date().toISOString().split('T')[0];
+        const fileName = `outilsprofs_108heures_${date}.txt`;
+        const blob = new Blob([JSON.stringify(reunions)], {type: "text/plain"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    reunions = imported;
+                    saveAndRender();
+                    alerte("Succès", "Données importées !");
+                }
+            } catch(e) { alerte("Erreur", "Fichier invalide."); }
+        };
+        reader.readAsText(file);
+    }
+
+    function resetHeures() {
+        customConfirm("Tout effacer ?", () => {
+            reunions = [];
+            saveAndRender();
+        });
+    }
+
+    function exportPDF() {
+        const element = document.createElement('div');
+        element.style.padding = "20px";
+        element.style.color = "black";
+        element.innerHTML = `<h1 style="text-align:center">Bilan des 108 heures</h1>`;
+        
+        reunions.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(r => {
+            element.innerHTML += `<p><b>${r.date}</b> [${r.cat}] : ${formatDuree(r.minutes)} - ${r.comm || ''}</p>`;
+        });
+
+        html2pdf().from(element).save(`108heures_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
     window.addEventListener('DOMContentLoaded', () => { 

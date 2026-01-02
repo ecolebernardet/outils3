@@ -165,11 +165,7 @@
         <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal text-center flex-grow">Mémos</h1>
         
         <div class="flex gap-2">
-            <button id="btn-aide" onclick="openHelp()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </button>
+            <button id="btn-aide" onclick="openHelp()" class="text-lg">💡</button>
             <button id="btn-search-toggle" onclick="toggleSearch()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -267,27 +263,21 @@
             renderNotes();
         }
 
-        // --- GESTION DU MODAL D'AIDE (CORRIGÉ) ---
         function openHelp() {
             const container = document.getElementById('modal-body-content');
-            const helpHTML = localStorage.getItem('aide_title-memos');
-            
-            if (helpHTML) {
-                container.innerHTML = helpHTML;
-            } else {
-                container.innerHTML = `
-                    <h3 class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">📌 Mémos</h3>
-                    <p class="text-xs leading-relaxed text-gray-600">
-                        Créez, organisez et recherchez vos notes. Vous pouvez glisser-déposer les mémos pour changer leur ordre et les exporter en fichier .txt.
-                    </p>
-                `;
-            }
-
+            container.innerHTML = `
+                <h3 class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">📌 Mémos</h3>
+                <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-2" style="color: #111">
+                    <p>• <b>Saisie :</b> Ajoutez un titre optionnel et votre texte.</p>
+                    <p>• <b>Couleurs :</b> Personnalisez chaque mémo pour l'organiser.</p>
+                    <p>• <b>Ordre :</b> Faites glisser les mémos pour les réorganiser.</p>
+                    <p>• <b>Fichiers :</b> Utilisez l'import/export pour sauvegarder vos données.</p>
+                </div>
+            `;
             const confirmBtn = document.getElementById('alertConfirmBtn');
             confirmBtn.innerText = "Fermer";
             confirmBtn.style.backgroundColor = hexaTheme;
             confirmBtn.onclick = () => closeModal('alertModal');
-
             document.getElementById('alertCancelBtn').style.display = 'none';
             document.getElementById('alertModal').style.display = 'flex';
         }
@@ -354,26 +344,66 @@
 
         function setupSortable() { new Sortable(document.getElementById('notesGrid'), { handle: '.drag-handle', animation: 150, onEnd: function(){ const n=[]; document.querySelectorAll('.note-card').forEach(c=>n.push(notes[c.dataset.index])); notes=n; saveAndRender(); } }); }
         
+        function setupImport() {
+            const importInput = document.getElementById('importNotesFile');
+            importInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedNotes = JSON.parse(e.target.result);
+                        if (Array.isArray(importedNotes)) {
+                            notes = [...importedNotes, ...notes];
+                            saveAndRender();
+                            showAlert("Succès", "Mémos importés !");
+                        } else { throw new Error(); }
+                    } catch (err) { showAlert("Erreur", "Fichier invalide."); }
+                    importInput.value = '';
+                };
+                reader.readAsText(file);
+            });
+        }
+
         function showAlert(t, tx, f) { 
             const container = document.getElementById('modal-body-content');
             container.innerHTML = `<h3 class="alert-title font-black uppercase text-center mb-2">${t}</h3><p class="alert-text text-center mb-4">${tx}</p>`;
-            
             const c=document.getElementById('alertConfirmBtn'), x=document.getElementById('alertCancelBtn');
             c.innerText = "Confirmer";
             c.style.backgroundColor = hexaTheme;
             x.style.display = 'block';
-            
             const n=c.cloneNode(true);
             c.parentNode.replaceChild(n,c);
             n.onclick=()=>{closeModal('alertModal'); if(f) f();};
             document.getElementById('alertModal').style.display='flex'; 
         }
 
-        function confirmResetAll() { showAlert("Tout effacer ?", "Supprimer définitivement tous vos mémos ?", () => { notes=[]; saveAndRender(); }); }
-        function confirmDeleteNote() { showAlert("Supprimer ?", "Voulez-vous vraiment supprimer cette note ?", () => { notes.splice(currentNoteIndex, 1); saveAndRender(); closeModal('editModal'); }); }
-        function exportNotesToFile() { if(notes.length===0) return; const d=new Date().toISOString().split('T')[0], n=`export_memos_${d}.txt`, c=JSON.stringify(notes,null,2); const b=new Blob([c],{type:'text/plain'}); const u=window.URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=n; a.click(); }
+        function confirmResetAll() { showAlert("Tout effacer ?", "Supprimer tous vos mémos ?", () => { notes=[]; saveAndRender(); }); }
+        function confirmDeleteNote() { showAlert("Supprimer ?", "Supprimer cette note ?", () => { notes.splice(currentNoteIndex, 1); saveAndRender(); closeModal('editModal'); }); }
         
-        window.onload = () => { appliquerTheme(); setupColorPickers(); renderNotes(); setupSortable(); };
+        function exportNotesToFile() { 
+            if(notes.length === 0) return; 
+            
+            // Formatage de la date YYYY-MM-DD
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            const fileName = `outilsprofs_memos-${formattedDate}.txt`;
+            const content = JSON.stringify(notes, null, 2);
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        window.onload = () => { appliquerTheme(); setupColorPickers(); renderNotes(); setupSortable(); setupImport(); };
     </script>
 </body>
 </html>

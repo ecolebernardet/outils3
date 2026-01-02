@@ -105,9 +105,8 @@
         .btn-save { background: var(--primary); color: white; }
         .btn-cancel { background: #333; color: #ccc; }
 
-        /* --- STYLE FIXE POUR LA MODALE D'AIDE --- */
         #modal-aide .modal-card {
-            background-color: var(--card-student); /* Utilise la couleur de carte du thème */
+            background-color: var(--card-student);
             border: 1px solid var(--header-border);
         }
 
@@ -157,11 +156,7 @@
             </svg>
         </a>
         <h1 id="mainTitle">OBSERVATIONS</h1>
-        <button id="btn-aide" onclick="ouvrirAide()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        </button>
+        <button id="btn-aide" onclick="ouvrirAide()" style="font-size: 1.2rem;">💡</button>
     </header>
 
     <div id="listeContainer" class="columns-container"></div>
@@ -217,21 +212,24 @@
         const couleurParNiveau = { 'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#8b5cf6' };
         const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
 
-        // GESTION AIDE
+        // GESTION AIDE (Version fixe)
         function ouvrirAide() {
-            const content = localStorage.getItem('aide_title-observations');
             const display = document.getElementById('aide-content');
+            const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+            const couleurObs = mapCouleurs[prefs.obs] || '#22c55e';
             
-            if (content) {
-                display.innerHTML = content;
-                // Colorer le titre injecté
-                const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-                const couleurObs = mapCouleurs[prefs.obs] || '#22c55e';
-                const title = display.querySelector('h3');
-                if (title) title.style.color = couleurObs;
-            } else {
-                display.innerHTML = "<p>Notez des informations sur chaque élève et sauvegardez vos données.</p>";
-            }
+            display.innerHTML = `
+                <h3 style="color:${couleurObs}">
+                    💡 Aide Observations
+                </h3>
+                <p>Gérez ici les remarques pédagogiques et le suivi de vos élèves.</p>
+                <ul>
+                    <li>• <strong>Éditer :</strong> Cliquez sur un élève pour ouvrir son carnet de notes.</li>
+                    <li>• <strong>Statut :</strong> L'icône 🔎 indique une note présente, ＋ indique un carnet vide.</li>
+                    <li>• <strong>Export :</strong> Sauvegardez vos textes dans un fichier .txt.</li>
+                    <li>• <strong>Import :</strong> Restaurez vos observations à partir d'un fichier.</li>
+                </ul>
+            `;
             document.getElementById('modal-aide').style.display = 'flex';
         }
 
@@ -361,7 +359,10 @@
             const blob = new Blob([jsonString], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `export_obs_${new Date().toISOString().split('T')[0]}.txt`; a.click();
+            a.href = url; 
+            const dateStr = new Date().toISOString().split('T')[0];
+            a.download = `outilsprofs_lien_${dateStr}.txt`; 
+            a.click();
         }
 
         document.getElementById('importFile').addEventListener('change', function(e) {

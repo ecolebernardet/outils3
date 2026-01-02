@@ -184,16 +184,14 @@
         <h1 id="page-title" class="font-black text-lg tracking-normal uppercase text-center flex-grow">
             Tirage au sort
         </h1>
-        <button id="btn-aide" onclick="openHelp()" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <button id="btn-aide" onclick="openHelp()" class="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 text-lg">
+            💡
         </button>
     </header>
 
-    <div class="w-full max-w-md" id="listeContainer"></div>
+    <div class="w-full" id="listeContainer" style="max-width: 400px; margin: 0 auto;"></div>
 
-    <div class="light-card">
+    <div class="light-card mx-auto">
         <div class="result-box" id="result-display">PRÊT</div>
         <button id="draw-btn" class="main-btn" onclick="drawName()">Tirer un prénom</button>
         <div class="stats" id="counter">--</div>
@@ -230,26 +228,20 @@
         const hexaTheme = mapCouleurs[nomCouleur] || '#ec4899';
 
         function openHelp() {
-            // Récupère l'aide spécifique depuis le localStorage (page paramètres)
-            const helpHTML = localStorage.getItem('aide_title-tirage');
             const container = document.getElementById('modal-body-content');
-            
-            if (helpHTML) {
-                container.innerHTML = helpHTML;
-            } else {
-                container.innerHTML = `
-                    <h3 class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">🎲 Tirage</h3>
-                    <p class="text-xs leading-relaxed text-gray-600">
-                        Décochez les élèves absents puis tirez un prénom d'élève au hasard parmi les présents.
-                    </p>
-                `;
-            }
-
+            container.innerHTML = `
+                <h3 class="font-black text-xs uppercase mb-2" style="color: ${hexaTheme}">🎲 Tirage</h3>
+                <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-2" style="color: #111">
+                    <p>• <b>Absences :</b> Cliquez sur le nom d'un élève pour le griser s'il est absent. Il ne sera pas tiré au sort.</p>
+                    <p>• <b>Le Tirage :</b> Cliquez sur le bouton pour lancer l'animation et désigner un élève présent.</p>
+                    <p>• <b>Suivi :</b> Les élèves déjà tirés sont barrés. Le compteur indique la progression.</p>
+                    <p>• <b>RàZ :</b> Le bouton rouge remet tous les élèves présents dans la liste de tirage.</p>
+                </div>
+            `;
             const confirmBtn = document.getElementById('alertConfirmBtn');
             confirmBtn.innerText = "Fermer";
             confirmBtn.style.backgroundColor = hexaTheme;
             confirmBtn.onclick = closeModal;
-
             document.getElementById('btn-secondary').style.display = 'none';
             document.getElementById('alertModal').style.display = 'flex';
         }
@@ -257,54 +249,39 @@
         function showAlert(title, text, onConfirm) {
             const container = document.getElementById('modal-body-content');
             container.innerHTML = `<h3 class="alert-title">${title}</h3><p class="alert-text">${text}</p>`;
-            
             const confirmBtn = document.getElementById('alertConfirmBtn');
             confirmBtn.innerText = "Confirmer";
             confirmBtn.style.backgroundColor = hexaTheme;
-            
-            // Reset button to avoid event listener accumulation
             const newBtn = confirmBtn.cloneNode(true);
             confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-            
-            newBtn.onclick = () => {
-                closeModal();
-                onConfirm();
-            };
-
+            newBtn.onclick = () => { closeModal(); onConfirm(); };
             document.getElementById('btn-secondary').style.display = 'block';
             document.getElementById('btn-secondary').innerText = "Annuler";
             document.getElementById('alertModal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('alertModal').style.display = 'none';
-        }
+        function closeModal() { document.getElementById('alertModal').style.display = 'none'; }
 
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
             const isLight = savedMode === 'light';
             document.body.classList.toggle('light-mode', isLight);
-
             const title = document.getElementById('page-title');
             const btn = document.getElementById('draw-btn');
             const display = document.getElementById('result-display');
             const btnRetour = document.getElementById('btn-retour');
             const btnAide = document.getElementById('btn-aide');
-
             const isLightColor = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleur);
             const contrastColor = isLightColor ? 'black' : 'white';
-
             if (title) title.style.color = isLight ? '#000000' : '#ffffff';
-
             [btnRetour, btnAide, btn].forEach(el => {
                 if (el) {
                     el.style.backgroundColor = hexaTheme;
+                    if (el === btn) el.style.color = contrastColor;
                     const svg = el.querySelector('svg');
                     if (svg) svg.style.color = contrastColor;
-                    if (el === btn) el.style.color = contrastColor;
                 }
             });
-
             if (display) display.style.color = hexaTheme;
         }
 
@@ -322,9 +299,7 @@
         let rawData = JSON.parse(localStorage.getItem('maListeEleves')) || [];
         let remaining = JSON.parse(localStorage.getItem('remainingStudents')) || rawData.map(el => el.id);
 
-        function saveState() {
-            localStorage.setItem('remainingStudents', JSON.stringify(remaining));
-        }
+        function saveState() { localStorage.setItem('remainingStudents', JSON.stringify(remaining)); }
 
         function renderList() {
             const container = document.getElementById('listeContainer');
@@ -332,19 +307,16 @@
             const couleursFixes = { "CP": "#ec4899", "CE1": "#3b82f6", "CE2": "#eab308", "CM1": "#ef4444", "CM2": "#22c55e", "AUTRE": "#a855f7" };
             const paletteNiveaux = JSON.parse(localStorage.getItem('palette_niveaux')) || {};
             const ordreNiveaux = ["CP", "CE1", "CE2", "CM1", "CM2", "AUTRE"];
-
             const groupes = {};
             rawData.forEach(el => {
                 const niv = el.niveau.trim().toUpperCase();
                 if (!groupes[niv]) groupes[niv] = [];
                 groupes[niv].push(el);
             });
-
             const niveauxTries = Object.keys(groupes).sort((a, b) => {
                 let indexA = ordreNiveaux.indexOf(a), indexB = ordreNiveaux.indexOf(b);
                 return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
             });
-
             niveauxTries.forEach(niv => {
                 const levelSection = document.createElement('div');
                 const couleurNiveau = paletteNiveaux[niv] || paletteNiveaux[niv.toLowerCase()] || couleursFixes[niv] || '#9ca3af';
@@ -362,15 +334,11 @@
                 levelSection.appendChild(grid);
                 container.appendChild(levelSection);
             });
-
             const total = rawData.length, restants = remaining.length;
             document.getElementById('counter').innerText = `${restants} restant${restants > 1 ? 's' : ''} / ${total}`;
             const btn = document.getElementById('draw-btn');
-            if (restants === 0) { 
-                btn.disabled = true; btn.innerText = "Session terminée"; 
-            } else { 
-                btn.disabled = false; btn.innerText = "Tirer un prénom"; 
-            }
+            if (restants === 0) { btn.disabled = true; btn.innerText = "Session terminée"; } 
+            else { btn.disabled = false; btn.innerText = "Tirer un prénom"; }
         }
 
         function toggleStudent(id) {
@@ -384,28 +352,22 @@
             btn.disabled = true; 
             display.style.color = "#9ca3af";
             display.style.transform = "scale(0.95)";
-
             let iterations = 0;
             const maxIter = 15;
             const interval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * remaining.length);
                 const tempStudent = rawData.find(s => s.id === remaining[randomIndex]);
                 display.innerText = formatName(tempStudent.identite);
-                
                 if (++iterations > maxIter) {
                     clearInterval(interval);
                     const finalIndex = Math.floor(Math.random() * remaining.length);
                     const winnerId = remaining.splice(finalIndex, 1)[0];
                     const winner = rawData.find(s => s.id === winnerId);
-                    
                     display.innerText = formatName(winner.identite);
                     display.style.color = hexaTheme;
                     display.style.transform = "scale(1.1)";
-                    
                     setTimeout(() => display.style.transform = "scale(1)", 200);
-                    
-                    saveState(); 
-                    renderList();
+                    saveState(); renderList();
                 }
             }, 70);
         }
