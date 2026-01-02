@@ -12,61 +12,65 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap');
         
         :root {
-            --bg-body: #1a1a1a;
-            --card-bg: #1a1a1a;
-            --sh-dark: #0d0d0d;
-            --sh-light: #272727;
-            --text-main: #e2e8f0;
-            --text-muted: #94a3b8;
+            /* MODE SOMBRE (Par défaut) */
+            --bg-body: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --shadow-color: rgba(0, 0, 0, 0.4);
         }
 
         body.light-mode {
-            --bg-body: #e0e5ec;
-            --card-bg: #e0e5ec;
-            --sh-dark: #a3b1c6;
-            --sh-light: #ffffff;
-            --text-main: #475569;
-            --text-muted: #64748b;
+            /* MODE CLAIR */
+            --bg-body: #eeeeee;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #71717a;
+            --border-color: rgba(0, 0, 0, 0.05);
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-body); 
             color: var(--text-main);
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
             padding: calc(env(safe-area-inset-top) + 20px) 20px 40px;
         }
 
+        /* --- TUILES STYLE "INSCRIPTIONS" 3D --- */
         .menu-card { 
             position: relative;
             background: var(--card-bg);
-            border-radius: 30px;
-            box-shadow: 8px 8px 16px var(--sh-dark), 
-                       -8px -8px 16px var(--sh-light);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 1.5rem;
+            border: 1px solid var(--border-color);
+            
+            /* Ombre 3D */
+            box-shadow: 0 10px 25px -5px var(--shadow-color), 
+                        0 8px 10px -6px var(--shadow-color);
+            
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
         
         .menu-card:active { transform: scale(0.96); }
-        
+
         .icon-box {
-            width: 56px; height: 56px;
-            border-radius: 20px;
+            width: 50px; height: 50px;
+            border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 4px 4px 8px var(--sh-dark), 
-                       -4px -4px 8px var(--sh-light);
-            margin-bottom: 12px;
+            background: rgba(128, 128, 128, 0.1);
+            margin-bottom: 8px;
             font-size: 26px;
-            transition: background 0.3s ease;
+            border: 1px solid var(--border-color);
         }
 
         .tile-subtitle {
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 1px;
             text-align: center;
         }
 
-        /* --- STYLE DU HANDLE PLAT 3x3 POINTS --- */
         .drag-handle {
             position: absolute;
             top: 15px; right: 15px;
@@ -74,163 +78,131 @@
             grid-template-columns: repeat(3, 3px);
             gap: 3px;
             cursor: grab;
-            opacity: 0.3; /* Très discret par défaut */
-            transition: opacity 0.2s;
+            opacity: 0.3;
         }
 
-        .drag-handle:hover { opacity: 0.7; }
-
         .drag-handle span {
-            width: 3px;
-            height: 3px;
+            width: 3px; height: 3px;
             background-color: var(--text-muted);
             border-radius: 50%;
         }
-        
-        .drag-handle:active { cursor: grabbing; }
 
         .ui-btn {
-            width: 46px; height: 46px;
+            width: 44px; height: 44px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 16px;
+            border-radius: 12px;
             background: var(--card-bg);
-            box-shadow: 5px 5px 10px var(--sh-dark), 
-                       -5px -5px 10px var(--sh-light);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px var(--shadow-color);
         }
 
         .header-avatar {
             width: 42px; height: 42px;
-            border-radius: 50%;
-            border: 3px solid var(--card-bg);
-            box-shadow: 4px 4px 8px var(--sh-dark);
+            border-radius: 12px;
+            border: 2px solid var(--card-bg);
+            box-shadow: 0 4px 10px var(--shadow-color);
         }
     </style>
 </head>
 <body class="flex flex-col items-center">
 
     <div class="w-full max-w-[360px]">
-        <header class="flex justify-between items-center mb-5 px-1">
+        <header class="flex justify-between items-center mb-8 px-1">
             <a href="parametres.html" class="ui-btn text-xl active:scale-90">⚙️</a>
-            <h1 class="text-sm font-extrabold tracking-[0.2em] uppercase opacity-60">Outils Profs</h1>
+            <h1 class="text-[15px] font-black tracking-[0.5em] uppercase opacity-90">Outils Profs</h1>
             <img src="outilsprofs_icone30.png" alt="Avatar" class="header-avatar">
         </header>
 
         <nav id="grid-menu" class="grid grid-cols-2 gap-5">
-            <div data-id="inscr" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="inscr" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="inscriptions.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📝</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Inscriptions</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Enregistrement élèves</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Enregistrement des élèves</span>
                 </a>
             </div>
 
-            <div data-id="liens" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="liens" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="liens.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🔗</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Liens</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Bibliothèque favoris</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Bibliothèque de favoris</span>
                 </a>
             </div>
 
-            <div data-id="h108" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="h108" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="108heures.html" class="flex flex-col items-center text-center">
-                    <div class="icon-box">⏲️</div>
+                    <div class="icon-box">⏱️</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">108 heures</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Suivi des réunions</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Suivi des réunions</span>
                 </a>
             </div>
 
-            <div data-id="memos" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="memos" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="memos.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📒</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Mémos</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Pense-bêtes</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Pense-bêtes</span>
                 </a>
             </div>
 
-            <div data-id="tirage" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="tirage" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="tirage.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🎲</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Tirage</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Prénom au hasard</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Nom au hasard</span>
                 </a>
             </div>
 
-            <div data-id="equipes" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="equipes" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="equipes.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">👥</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Équipes</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Groupes mixtes</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Groupes équilibrés</span>
                 </a>
             </div>
 
-            <div data-id="obs" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="obs" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="observations.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">✏️</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Observations</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Infos élèves</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Suivi des élèves</span>
                 </a>
             </div>
 
-            <div data-id="compt" class="menu-card p-3">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
+            <div data-id="compt" class="menu-card p-4">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="compteur.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🚥</div>
                     <h2 class="font-bold text-[12px] uppercase tracking-wider">Compteur</h2>
-                    <span class="tile-subtitle text-[8px] font-semibold uppercase tracking-tight">Suivi comportement</span>
+                    <span class="tile-subtitle text-[9px] font-semibold">Suivi du comportement</span>
                 </a>
             </div>
         </nav>
     </div>
 
 <script>
+    // 1. GESTION DU MODE SOMBRE / CLAIR
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+
     const colorMap = {
-        'red': '#ff4444', 'orange': '#fb923c', 'amber': '#fbbf24', 'yellow': '#facc15',
-        'lime': '#a3e635', 'green': '#4ade80', 'emerald': '#34d399', 'teal': '#2dd4bf',
-        'cyan': '#22d3ee', 'sky': '#38bdf8', 'blue': '#60a5fa', 'indigo': '#818cf8',
-        'violet': '#a78bfa', 'purple': '#c084fc', 'fuchsia': '#e879f9', 'pink': '#f472b6',
-        'rose': '#fb7185'
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+        'rose': '#f43f5e'
     };
 
+    // 2. APPLICATION DES COULEURS DE TUILES
     function applyColors() {
         const isLight = document.body.classList.contains('light-mode');
         const defaultColors = {
@@ -246,33 +218,27 @@
             
             const iconBox = el.querySelector('.icon-box');
             const title = el.querySelector('h2');
-            const subtitle = el.querySelector('.tile-subtitle');
 
             if (iconBox) {
-                iconBox.style.backgroundColor = `${hexColor}33`; 
+                iconBox.style.backgroundColor = `${hexColor}15`; 
                 iconBox.style.color = hexColor;
-
+                iconBox.style.borderColor = `${hexColor}30`;
+                // Petit effet de lueur en mode sombre
                 if (!isLight) {
-                    iconBox.style.textShadow = `0 0 10px ${hexColor}aa`;
-                    iconBox.style.border = `1px solid ${hexColor}44`;
+                    iconBox.style.boxShadow = `0 0 15px ${hexColor}20`;
                 } else {
-                    iconBox.style.textShadow = 'none';
-                    iconBox.style.border = `1px solid ${hexColor}22`;
+                    iconBox.style.boxShadow = 'none';
                 }
             }
             if (title) {
-                title.style.color = isLight ? 'var(--text-main)' : hexColor;
-                title.style.opacity = isLight ? '0.8' : '1';
-            }
-            if (subtitle) {
-                subtitle.style.color = 'var(--text-muted)';
+                title.style.color = hexColor;
             }
         });
     }
 
-    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
     applyColors();
 
+    // 3. GESTION DE L'ORDRE (SORTABLE)
     const gridMenu = document.getElementById('grid-menu');
     const savedOrder = JSON.parse(localStorage.getItem('menu_order'));
     if (savedOrder) {
