@@ -28,7 +28,6 @@
             --card-sub: #9ca3af;
         }
 
-        /* Mode Clair */
         body.light-mode, html.light-mode-init body {
             --bg-page: #eeeeee;
             --text-main: #111827;
@@ -96,7 +95,6 @@
         .student-name { font-weight: 800; font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .status-icon { font-size: 0.65rem; opacity: 0.8; }
 
-        /* MODALES */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
         .modal-content { background: #1a1a1a; padding: 20px; border-radius: 20px; width: 92%; max-width: 400px; border: 1px solid #333; }
         textarea { width: 100%; margin: 10px 0; padding: 12px; border-radius: 12px; border: 1px solid #333; font-size: 0.8rem; background: #000; color: #fff; outline: none; }
@@ -105,35 +103,14 @@
         .btn-save { background: var(--primary); color: white; }
         .btn-cancel { background: #333; color: #ccc; }
 
-        #modal-aide .modal-card {
-            background-color: var(--card-student);
-            border: 1px solid var(--header-border);
-        }
-
-        #aide-content h3 {
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        #aide-content p, #aide-content li {
-            font-size: 0.75rem;
-            line-height: 1.5;
-            color: var(--card-sub);
-            margin-bottom: 8px;
-        }
-
+        #modal-aide .modal-card { background-color: var(--card-student); border: 1px solid var(--header-border); }
+        #aide-content h3 { font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        #aide-content p, #aide-content li { font-size: 0.75rem; line-height: 1.5; color: var(--card-sub); margin-bottom: 8px; }
         #aide-content ul { list-style: none; padding: 0; }
 
-        /* Correction Mode Clair Modale */
         body.light-mode .modal-content, body.light-mode #modal-aide .modal-card { background: #ffffff; border-color: #d1d5db; }
         body.light-mode textarea { background: #f3f4f6; color: #111827; border-color: #d1d5db; }
 
-        /* ALERTES */
         .alert-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .alert-content { background: white; padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; color: #111; }
         .alert-title { font-size: 18px; font-weight: 900; text-transform: uppercase; text-align: center; margin-bottom: 10px; color: #000; }
@@ -206,55 +183,13 @@
     <script>
         let elevesInscrits = JSON.parse(localStorage.getItem('maListeEleves')) || [];
         let savedComments = JSON.parse(localStorage.getItem('studentObservations')) || {};
-        let currentStudentId = "";
+        let currentStudentName = ""; // Utilisation du NOM comme référence
 
         const ordreNiveaux = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', 'AUTRE'];
         const couleurParNiveau = { 'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#8b5cf6' };
         const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
 
-        // GESTION AIDE (Version fixe)
-        function ouvrirAide() {
-            const display = document.getElementById('aide-content');
-            const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-            const couleurObs = mapCouleurs[prefs.obs] || '#22c55e';
-            
-            display.innerHTML = `
-                <h3 style="color:${couleurObs}">
-                    💡 Aide Observations
-                </h3>
-                <p>Gérez ici les remarques pédagogiques et le suivi de vos élèves.</p>
-                <ul>
-                    <li>• <strong>Éditer :</strong> Cliquez sur un élève pour ouvrir son carnet de notes.</li>
-                    <li>• <strong>Statut :</strong> L'icône 🔎 indique une note présente, ＋ indique un carnet vide.</li>
-                    <li>• <strong>Export :</strong> Sauvegardez vos textes dans un fichier .txt.</li>
-                    <li>• <strong>Import :</strong> Restaurez vos observations à partir d'un fichier.</li>
-                </ul>
-            `;
-            document.getElementById('modal-aide').style.display = 'flex';
-        }
-
-        function fermerAide() {
-            document.getElementById('modal-aide').style.display = 'none';
-        }
-
-        // SYSTÈME ALERTES
-        function showAlert(title, text, onConfirm, showCancel = true) {
-            document.getElementById('alertTitle').innerText = title;
-            document.getElementById('alertText').innerText = text;
-            const confirmBtn = document.getElementById('alertConfirmBtn');
-            const cancelBtn = document.getElementById('alertCancelBtn');
-            const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-            const colorHex = mapCouleurs[themePrefs.obs || 'green'] || '#22c55e';
-            confirmBtn.style.backgroundColor = colorHex;
-            cancelBtn.style.display = showCancel ? 'block' : 'none';
-            const newBtn = confirmBtn.cloneNode(true);
-            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-            newBtn.onclick = () => { closeAlert(); if(onConfirm) onConfirm(); };
-            document.getElementById('alertModal').style.display = 'flex';
-        }
-        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
-
-        // THEME ET RENDU
+        // --- THEME ---
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
             const isLight = savedMode === 'light';
@@ -285,6 +220,7 @@
             document.documentElement.style.setProperty('--primary', couleurHexa);
         }
 
+        // --- RENDU ---
         function formatName(str) {
             if(!str) return "";
             const parts = str.trim().split(' ');
@@ -317,9 +253,12 @@
                     const genderClass = (el.sexe.toLowerCase() === 'f') ? 'text-girl' : 'text-boy';
                     const item = document.createElement('div');
                     item.className = `student-item no-select ${genderClass}`;
-                    const hasNote = (savedComments[String(el.id)] || "").trim().length > 0;
+                    
+                    // Liaison par NOM (identite)
+                    const hasNote = (savedComments[el.identite] || "").trim().length > 0;
+                    
                     item.innerHTML = `<span class="student-name">${formatName(el.identite)}</span><span class="status-icon">${hasNote ? '🔎' : '＋'}</span>`;
-                    item.onclick = () => openCommentModal(String(el.id), formatName(el.identite));
+                    item.onclick = () => openCommentModal(el.identite);
                     list.appendChild(item);
                 });
                 levelWrapper.appendChild(list);
@@ -327,10 +266,11 @@
             });
         }
 
-        function openCommentModal(id, nom) {
-            currentStudentId = String(id);
-            document.getElementById('modalTitle').innerText = nom;
-            document.getElementById('commentInput').value = savedComments[currentStudentId] || "";
+        // --- MODALES ---
+        function openCommentModal(identite) {
+            currentStudentName = identite;
+            document.getElementById('modalTitle').innerText = formatName(identite);
+            document.getElementById('commentInput').value = savedComments[identite] || "";
             document.getElementById('modal').style.display = 'flex';
             setTimeout(() => document.getElementById('commentInput').focus(), 100);
         }
@@ -339,12 +279,13 @@
 
         function saveData() {
             const val = document.getElementById('commentInput').value;
-            if(val.trim() === "") delete savedComments[currentStudentId];
-            else savedComments[currentStudentId] = val;
+            if(val.trim() === "") delete savedComments[currentStudentName];
+            else savedComments[currentStudentName] = val;
             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
             renderList(); closeAllModals();
         }
 
+        // --- ACTIONS ---
         function toutEffacer() {
             showAlert("Tout effacer ?", "Supprimer toutes les observations ?", () => {
                 savedComments = {};
@@ -354,14 +295,14 @@
         }
 
         function exportToFile() {
-            const bundle = { eleves: elevesInscrits, observations: savedComments, date: new Date().toLocaleDateString(), type: "export_observations" };
+            const bundle = { observations: savedComments, date: new Date().toLocaleDateString(), type: "export_observations" };
             const jsonString = JSON.stringify(bundle, null, 2);
             const blob = new Blob([jsonString], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url; 
             const dateStr = new Date().toISOString().split('T')[0];
-            a.download = `outilsprofs_lien_${dateStr}.txt`; 
+            a.download = `observations_${dateStr}.txt`; 
             a.click();
         }
 
@@ -370,10 +311,13 @@
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (data.eleves) {
-                        showAlert("Importer ?", "Remplacer les observations actuelles ?", () => {
-                            localStorage.setItem('studentObservations', JSON.stringify(data.observations || {}));
-                            window.location.reload();
+                    const incomingObs = data.observations || data.studentObservations;
+                    if (incomingObs) {
+                        showAlert("Importer ?", "Fusionner les observations du fichier ?", () => {
+                            // On fusionne les données importées avec l'existant (priorité import)
+                            savedComments = Object.assign({}, savedComments, incomingObs);
+                            localStorage.setItem('studentObservations', JSON.stringify(savedComments));
+                            renderList();
                         });
                     }
                 } catch (err) { showAlert("Erreur", "Fichier invalide", null, false); }
@@ -381,7 +325,67 @@
             if(e.target.files[0]) reader.readAsText(e.target.files[0]);
         });
 
+        // --- ALERTES & AIDE ---
+        function ouvrirAide() {
+            const display = document.getElementById('aide-content');
+            const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+            const couleurObs = mapCouleurs[prefs.obs] || '#22c55e';
+            display.innerHTML = `
+                <h3 style="color:${couleurObs}">💡 Aide Observations</h3>
+                <p>Gérez ici les remarques pédagogiques liées au nom de vos élèves.</p>
+                <ul>
+                    <li>• <strong>Lien :</strong> Les notes sont liées au nom. Si vous recréez un élève avec le même nom, sa note reviendra.</li>
+                    <li>• <strong>Statut :</strong> 🔎 (Note présente), ＋ (Vide).</li>
+                    <li>• <strong>Import :</strong> Fusionne le fichier avec vos notes actuelles.</li>
+                </ul>`;
+            document.getElementById('modal-aide').style.display = 'flex';
+        }
+        function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+
+        function showAlert(title, text, onConfirm, showCancel = true) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertText').innerText = text;
+            const confirmBtn = document.getElementById('alertConfirmBtn');
+            const cancelBtn = document.getElementById('alertCancelBtn');
+            const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+            const colorHex = mapCouleurs[themePrefs.obs || 'green'] || '#22c55e';
+            confirmBtn.style.backgroundColor = colorHex;
+            cancelBtn.style.display = showCancel ? 'block' : 'none';
+            const newBtn = confirmBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+            newBtn.onclick = () => { closeAlert(); if(onConfirm) onConfirm(); };
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+        function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
+
         window.onload = () => { appliquerTheme(); renderList(); };
+		
+		// Fermer les modales en cliquant sur l'overlay (fond sombre)
+window.onclick = function(event) {
+    const modalNote = document.getElementById('modal');
+    const modalAide = document.getElementById('modal-aide');
+    const modalAlert = document.getElementById('alertModal');
+
+    if (event.target === modalNote) {
+        closeAllModals();
+    }
+    if (event.target === modalAide) {
+        fermerAide();
+    }
+    if (event.target === modalAlert) {
+        closeAlert();
+    }
+}
+
+// Fermer avec la touche Échap
+window.onkeydown = function(event) {
+    if (event.key === "Escape") {
+        closeAllModals();
+        fermerAide();
+        closeAlert();
+    }
+}
+
     </script>
 </body>
 </html>
