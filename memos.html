@@ -398,6 +398,14 @@
         }
         
         window.onload = () => { appliquerTheme(); setupColorPickers(); renderNotes(); setupSortable(); setupImport(); };
+		
+		// Fermer les modals en cliquant à l'extérieur (sur l'overlay)
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        event.target.style.display = 'none';
+    }
+}
+
     </script>
 </body>
 </html>
