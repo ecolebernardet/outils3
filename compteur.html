@@ -408,6 +408,28 @@
         };
 
         window.onload = initApp;
+		
+		// Fermer les modales en cliquant sur l'arrière-plan (overlay)
+window.onclick = function(event) {
+    const modalAide = document.getElementById('modal-aide');
+    const modalAlert = document.getElementById('alertModal');
+
+    if (event.target === modalAide) {
+        fermerAide();
+    }
+    if (event.target === modalAlert) {
+        closeAlert();
+    }
+}
+
+// Fermer les modales avec la touche Échap
+window.onkeydown = function(event) {
+    if (event.key === "Escape") {
+        fermerAide();
+        closeAlert();
+    }
+}
+
     </script>
 </body>
 </html>
