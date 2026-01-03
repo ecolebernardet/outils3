@@ -388,7 +388,7 @@
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
-            const fileName = `outilsprofs_memos-${formattedDate}.txt`;
+            const fileName = `outilsprofs_memos_${formattedDate}.txt`;
             const content = JSON.stringify(notes, null, 2);
             const blob = new Blob([content], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
