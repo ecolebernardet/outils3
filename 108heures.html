@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +36,7 @@
             --item-bg: #2a2a2a; 
             --item-text: #ffffff;
             --item-subtext: #a1a1aa;
-            --modal-overlay: rgba(0, 0, 0, 0.8);
+            --modal-overlay: rgba(0, 0, 0, 0.85);
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
@@ -55,7 +56,7 @@
             --item-bg: #f3f4f6; 
             --item-text: #111827;
             --item-subtext: #71717a;
-            --modal-overlay: rgba(0, 0, 0, 0.5);
+            --modal-overlay: rgba(0, 0, 0, 0.6);
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
@@ -99,7 +100,7 @@
         }
         
         .progress-container { width: 100%; background: var(--input-bg); height: 8px; border-radius: 10px; margin: 8px 0; overflow: hidden; border: 1px solid var(--border-color); }
-        .progress-bar { height: 100%; transition: width 0.5s ease-in-out; }
+        .progress-bar { height: 100%; transition: width 0.5s ease-out; }
 
         .reunion-item { 
             background: var(--input-bg); padding: 8px 12px; border-radius: 0.75rem; 
@@ -115,6 +116,11 @@
             background: var(--input-bg); border: 1px solid var(--border-color); 
             color: var(--input-text); border-radius: 0.75rem; padding: 10px; 
             outline: none; font-size: 0.75rem; font-weight: 600; 
+        }
+
+        .field-label {
+            font-size: 10px; font-weight: 900; text-transform: uppercase;
+            opacity: 0.5; margin-bottom: 4px; margin-left: 4px; letter-spacing: 0.5px;
         }
 
         .modal-overlay {
@@ -140,27 +146,20 @@
 
     <div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="aide-label" class="text-lg font-black uppercase mb-4">⏱️ 108 HEURES</h2>
+            <h2 id="aide-label" class="text-lg font-black uppercase mb-4">💡️ 108 heures</h2>
             <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-6">
-                <p>• <b>Saisie :</b> Sélectionnez la catégorie, la date et la durée.</p>
-                <p>• <b>Suivi :</b> Les barres se remplissent selon les quotas officiels.</p>
-                <p>• <b>Détails :</b> Cliquez sur une catégorie pour voir l'historique.</p>
-                <p>• <b>Edition :</b> Cliquez sur une réunion pour la modifier ou la supprimer.</p>
+                <p>• <b>Saisie :</b> Sélectionnez la catégorie, la date et la durée puis ajoutez un commentaire.</p>
+                <p>• <b>Visualisation :</b> Dans chaque catégorie, cliquez sur "Détails" pour visualiser toutes les réunions de la catégorie.</p>
+                <p>• <b>Modification/Suppression :</b> Cliquez sur le détail de la réunion pour la modifier ou la supprimer.</p>
+                <p>• <b>Suivi :</b> Les jauges se remplissent selon les quotas officiels.</p>
+                <p>• <b>PDF :</b> Générez un bilan propre trié par rubriques.</p>
             </div>
-            <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform">Fermer</button>
+            <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full py-3 rounded-xl text-[10px] font-black uppercase">Fermer</button>
         </div>
     </div>
 
-    <div id="modal-alerte" class="modal-overlay" onclick="fermerAlerte()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 id="alerte-titre" class="text-lg font-black uppercase mb-4 text-red-500">Message</h2>
-            <p id="alerte-msg" class="text-[11px] opacity-80 mb-6"></p>
-            <button onclick="fermerAlerte()" id="btn-fermer-alerte" class="w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95">OK</button>
-        </div>
-    </div>
-
-    <div id="custom-confirm" class="modal-overlay">
-        <div class="modal-content text-center">
+    <div id="custom-confirm" class="modal-overlay" onclick="closeConfirm(false)">
+        <div class="modal-content text-center" onclick="event.stopPropagation()">
             <p id="confirm-msg" class="font-bold text-sm mb-6 leading-tight"></p>
             <div class="flex gap-3">
                 <button onclick="closeConfirm(false)" class="flex-1 py-3 rounded-xl bg-neutral-500/20 text-[10px] font-black uppercase">Annuler</button>
@@ -181,21 +180,31 @@
 
     <div id="app-ui" class="max-w-md mx-auto p-2 mt-4"> 
         <div id="form-container" class="light-card p-4 mb-6">
-            <form id="heuresForm" class="flex flex-col gap-3">
+            <form id="heuresForm" class="flex flex-col gap-4">
                 <div class="grid grid-cols-4 gap-2">
                     <label><input type="radio" name="cat" value="APC" class="card-input" checked><div class="card-label">APC</div></label>
                     <label><input type="radio" name="cat" value="PEDAGO" class="card-input"><div class="card-label">Réunions</div></label>
                     <label><input type="radio" name="cat" value="FORM" class="card-input"><div class="card-label">Formation</div></label>
                     <label><input type="radio" name="cat" value="CONSEIL" class="card-input"><div class="card-label">Conseil</div></label>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="date" id="dateReu" class="input-field" required>
-                    <div class="flex items-center gap-1 bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl px-2">
-                        <input type="number" id="h" class="bg-transparent w-full outline-none text-center text-[var(--input-text)] font-bold text-xs" min="0" value="1">
-                        <span class="opacity-30 font-bold">:</span>
-                        <input type="number" id="m" class="bg-transparent w-full outline-none text-center text-[var(--input-text)] font-bold text-xs" min="0" max="59" value="0">
+
+                <div>
+                    <p class="field-label">Date de la réunion</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <select id="sel-jour" class="input-field"></select>
+                        <select id="sel-mois" class="input-field"></select>
+                        <select id="sel-annee" class="input-field"></select>
                     </div>
                 </div>
+
+                <div>
+                    <p class="field-label">Durée de la réunion</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="sel-h" class="input-field"></select>
+                        <select id="sel-m" class="input-field"></select>
+                    </div>
+                </div>
+
                 <input type="text" id="comm" placeholder="Commentaire..." class="input-field" autocomplete="off">
                 
                 <div id="edit-actions" class="hidden flex gap-2">
@@ -225,13 +234,13 @@
         <footer class="bottom-nav">
             <div class="nav-group">
                 <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center flex-1">
-                    👇 importer .txt
+                    👇 importer .txt 👇
                     <input type="file" id="importFile" class="hidden" accept=".txt" onchange="importData(event)">
                 </label>
-                <button onclick="exportData()" class="nav-btn bg-neutral-800 text-white flex-1">👆 exporter .txt</button>
+                <button onclick="exportData()" class="nav-btn bg-neutral-800 text-white flex-1">👆 exporter .txt 👆</button>
                 <button onclick="exportPDF()" class="nav-btn bg-neutral-800 text-white flex-1">📄 PDF</button>
             </div>
-            <button onclick="resetHeures()" class="nav-btn bg-red-600 text-white shadow-md active:scale-95">
+            <button onclick="resetHeures()" class="nav-btn bg-red-500 text-white shadow-md active:scale-95">
                 ⚠️ effacer les données
             </button>
         </footer>
@@ -248,8 +257,8 @@
 
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
     const couleurH108 = themePrefs.h108 || 'orange'; 
-    const hexaTheme = mapCouleurs[couleurH108];
-    const isDarkTheme = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurH108);
+    const hexaTheme = mapCouleurs[couleurH108] || '#f97316';
+    const isDarkTextNeeded = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurH108);
 
     const QUOTAS = { "APC": 36 * 60, "PEDAGO": 48 * 60, "FORM": 18 * 60, "CONSEIL": 6 * 60 };
     const TOTAL_ANNUEL = 108 * 60;
@@ -259,14 +268,33 @@
     let editId = null; 
     let confirmAction = null;
 
+    function initSelectors() {
+        const sj = document.getElementById('sel-jour'), sm = document.getElementById('sel-mois'), sa = document.getElementById('sel-annee');
+        const sh = document.getElementById('sel-h'), smin = document.getElementById('sel-m');
+        
+        for(let i=1; i<=31; i++) sj.innerHTML += `<option value="${i<10?'0'+i:i}">${i}</option>`;
+        const mois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+        mois.forEach((m, i) => sm.innerHTML += `<option value="${(i+1)<10?'0'+(i+1):(i+1)}">${m}</option>`);
+        const an = new Date().getFullYear();
+        for(let i=an-1; i<=an+1; i++) sa.innerHTML += `<option value="${i}">${i}</option>`;
+
+        for(let i=0; i<=10; i++) sh.innerHTML += `<option value="${i}">${i} h</option>`;
+        for(let i=0; i<60; i+=5) smin.innerHTML += `<option value="${i}">${i<10?'0'+i:i} min</option>`;
+    }
+
+    function setSelectedDate(dateStr) {
+        const d = new Date(dateStr);
+        document.getElementById('sel-jour').value = d.getDate() < 10 ? '0' + d.getDate() : d.getDate();
+        document.getElementById('sel-mois').value = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : (d.getMonth() + 1);
+        document.getElementById('sel-annee').value = d.getFullYear();
+    }
+
+    function getSelectedDate() {
+        return `${document.getElementById('sel-annee').value}-${document.getElementById('sel-mois').value}-${document.getElementById('sel-jour').value}`;
+    }
+
     function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
-    function alerte(titre, msg) {
-        document.getElementById('alerte-titre').innerText = titre;
-        document.getElementById('alerte-msg').innerText = msg;
-        document.getElementById('modal-alerte').style.display = 'flex';
-    }
-    function fermerAlerte() { document.getElementById('modal-alerte').style.display = 'none'; }
 
     function customConfirm(msg, action) {
         document.getElementById('confirm-msg').innerText = msg;
@@ -281,29 +309,25 @@
     document.getElementById('confirm-yes').onclick = () => closeConfirm(true);
 
     function appliquerCouleursTheme() {
-        const textCol = isDarkTheme ? '#000' : '#fff';
-        const ids = ['btn-retour', 'btn-aide', 'submitBtn', 'confirm-yes', 'btn-fermer-aide', 'btn-fermer-alerte'];
+        const textCol = isDarkTextNeeded ? '#000' : '#fff';
+        const ids = ['btn-retour', 'btn-aide', 'submitBtn', 'confirm-yes', 'btn-fermer-aide'];
         ids.forEach(id => {
             const el = document.getElementById(id);
-            if (el) {
-                el.style.backgroundColor = hexaTheme;
-                el.style.color = textCol;
-            }
+            if (el) { el.style.backgroundColor = hexaTheme; el.style.color = textCol; }
         });
-        document.getElementById('aide-label').style.color = hexaTheme;
         document.getElementById('stats-title').style.color = hexaTheme;
+        document.getElementById('aide-label').style.color = hexaTheme;
     }
 
     document.getElementById('heuresForm').onsubmit = function(e) {
         e.preventDefault();
         const cat = document.querySelector('input[name="cat"]:checked').value;
-        const date = document.getElementById('dateReu').value;
-        const h = parseInt(document.getElementById('h').value) || 0;
-        const m = parseInt(document.getElementById('m').value) || 0;
+        const date = getSelectedDate();
+        const h = parseInt(document.getElementById('sel-h').value) || 0;
+        const m = parseInt(document.getElementById('sel-m').value) || 0;
         const minutes = (h * 60) + m;
         const comm = document.getElementById('comm').value;
-
-        if (minutes <= 0) return alerte("Erreur", "La durée doit être supérieure à 0.");
+        if (minutes <= 0) return;
 
         if (editId) {
             const index = reunions.findIndex(r => r.id === editId);
@@ -314,7 +338,6 @@
         } else {
             reunions.push({ id: Date.now(), cat, date, minutes, comm });
         }
-
         saveAndRender();
         this.reset();
         initDate();
@@ -325,11 +348,10 @@
         if (!r) return;
         editId = id;
         document.querySelector(`input[name="cat"][value="${r.cat}"]`).checked = true;
-        document.getElementById('dateReu').value = r.date;
-        document.getElementById('h').value = Math.floor(r.minutes / 60);
-        document.getElementById('m').value = r.minutes % 60;
+        setSelectedDate(r.date);
+        document.getElementById('sel-h').value = Math.floor(r.minutes / 60);
+        document.getElementById('sel-m').value = (Math.round(r.minutes % 60 / 5) * 5) % 60;
         document.getElementById('comm').value = r.comm || "";
-        
         document.getElementById('submitBtn').innerText = "Mettre à jour";
         document.getElementById('edit-actions').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -354,6 +376,13 @@
     function saveAndRender() {
         localStorage.setItem('mesHeuresReu', JSON.stringify(reunions));
         render();
+    }
+
+    function formatDuree(totalMinutes) {
+        const abs = Math.abs(totalMinutes);
+        const h = Math.floor(abs / 60);
+        const m = abs % 60;
+        return `${totalMinutes < 0 ? "-" : ""}${h}h${m > 0 ? m.toString().padStart(2, '0') : ''}`;
     }
 
     function render() {
@@ -404,13 +433,6 @@
         document.getElementById('globalBar').style.backgroundColor = hexaTheme;
     }
 
-    function formatDuree(totalMinutes) {
-        const abs = Math.abs(totalMinutes);
-        const h = Math.floor(abs / 60);
-        const m = abs % 60;
-        return `${totalMinutes < 0 ? "-" : ""}${h}h${m > 0 ? m.toString().padStart(2, '0') : ''}`;
-    }
-
     function toggleListe(catKey) {
         const listDiv = document.getElementById(`list-${catKey}`);
         const btn = document.getElementById(`btn-${catKey}`);
@@ -420,7 +442,9 @@
     }
 
     function initDate() { 
-        document.getElementById('dateReu').value = new Date().toISOString().split('T')[0]; 
+        setSelectedDate(new Date().toISOString().split('T')[0]);
+        document.getElementById('sel-h').value = "1";
+        document.getElementById('sel-m').value = "0";
     }
 
     function exportData() {
@@ -440,13 +464,16 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    reunions = imported;
-                    saveAndRender();
-                    alerte("Succès", "Données importées !");
+                    customConfirm("Fusionner avec les données actuelles ?", () => {
+                        const existingIds = new Set(reunions.map(r => r.id));
+                        imported.forEach(item => { if(!existingIds.has(item.id)) reunions.push(item); });
+                        saveAndRender();
+                    });
                 }
-            } catch(e) { alerte("Erreur", "Fichier invalide."); }
+            } catch(e) { console.error("Erreur import"); }
         };
         reader.readAsText(file);
+        event.target.value = "";
     }
 
     function resetHeures() {
@@ -457,21 +484,52 @@
     }
 
     function exportPDF() {
+        let profNom = localStorage.getItem('nom_enseignant') || "Enseignant";
+        const dateFichier = new Date().toISOString().split('T')[0];
         const element = document.createElement('div');
-        element.style.padding = "20px";
+        element.style.padding = "10px";
         element.style.color = "black";
-        element.innerHTML = `<h1 style="text-align:center">Bilan des 108 heures</h1>`;
-        reunions.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(r => {
-            element.innerHTML += `<p><b>${r.date}</b> [${r.cat}] : ${formatDuree(r.minutes)} - ${r.comm || ''}</p>`;
+        element.style.fontFamily = "Arial, sans-serif";
+        element.style.fontSize = "11px";
+
+        let html = `<div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                <h1 style="margin:0; text-transform:uppercase; font-size:18px;">Bilan des 108 heures</h1>
+                <h2 style="margin:5px 0; color:#444; font-size:14px;">Enseignant(e) : ${profNom}</h2>
+                <p style="font-size:9px;">Document généré le ${new Date().toLocaleDateString('fr-FR')}</p>
+            </div>`;
+
+        Object.keys(QUOTAS).forEach(catKey => {
+            const reuCat = reunions.filter(r => r.cat === catKey);
+            const fait = reuCat.reduce((sum, r) => sum + r.minutes, 0);
+            html += `<div style="margin-bottom: 15px; page-break-inside: avoid; border: 1px solid #eee; padding: 5px; border-radius: 5px;">
+                    <div style="background-color: #f3f4f6; padding: 6px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <b style="text-transform:uppercase; font-size:12px;">${LABELS[catKey]}</b>
+                        <span style="font-size:10px;">Fait: <b>${formatDuree(fait)}</b></span>
+                    </div>
+                    <table style="width:100%; border-collapse: collapse; margin-top: 5px;">
+                        <thead><tr style="border-bottom: 1px solid #000; text-align:left; font-size:9px;"><th style="padding:4px; width:20%;">Date</th><th style="padding:4px; width:15%;">Durée</th><th style="padding:4px; width:65%;">Objet</th></tr></thead>
+                        <tbody>`;
+            if (reuCat.length === 0) {
+                html += `<tr><td colspan="3" style="padding:5px; color:#999; font-style:italic; font-size:10px;">Aucune saisie.</td></tr>`;
+            } else {
+                reuCat.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(r => {
+                    html += `<tr style="border-bottom: 1px solid #f9f9f9;"><td style="padding:4px;">${new Date(r.date).toLocaleDateString('fr-FR')}</td><td style="padding:4px;">${formatDuree(r.minutes)}</td><td style="padding:4px; font-size:10px;">${r.comm || '-'}</td></tr>`;
+                });
+            }
+            html += `</tbody></table></div>`;
         });
-        html2pdf().from(element).save(`108h_${new Date().toISOString().split('T')[0]}.pdf`);
+
+        element.innerHTML = html;
+        const opt = { margin: 10, filename: `108h_${profNom}_${dateFichier}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        html2pdf().set(opt).from(element).save();
     }
 
     window.addEventListener('DOMContentLoaded', () => { 
+        initSelectors();
         appliquerCouleursTheme(); 
         render(); 
         initDate(); 
     });
-    </script>
+</script>
 </body>
 </html>
