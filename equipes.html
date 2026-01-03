@@ -490,6 +490,22 @@
         });
     }
     window.onload = init;
+	
+	// Fermer la modal en cliquant sur l'overlay (fond sombre)
+window.onclick = function(event) {
+    const modal = document.getElementById('alertModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+// Fermer aussi avec la touche Échap pour plus d'accessibilité
+window.onkeydown = function(event) {
+    if (event.key === "Escape") {
+        closeModal();
+    }
+}
+
 </script>
 </body>
 </html>
