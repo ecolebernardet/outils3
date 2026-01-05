@@ -17,7 +17,6 @@
             --header-bg: #1e1e1e; --header-border: rgba(255, 255, 255, 0.1);
             --card-bg: #1e1e1e; --input-bg: #2a2a2a;
             --sub-text: #a1a1aa; --student-item-bg: #1e1e1e;
-            /* Couleurs par défaut (seront écrasées par le JS) */
             --student-name-girl: #f472b6; --student-name-boy: #60a5fa;
             --modal-bg: rgba(0, 0, 0, 0.8); --shadow-color: rgba(0, 0, 0, 0.4);
         }
@@ -27,7 +26,6 @@
             --header-bg: #ffffff; --header-border: #ddd;
             --card-bg: #ffffff; --input-bg: #f3f4f6;
             --sub-text: #71717a; --student-item-bg: #ffffff;
-            /* IMPORTANT : On ne définit plus de couleurs fixes ici pour laisser le JS piloter les variables */
             --modal-bg: rgba(255, 255, 255, 0.8); --shadow-color: rgba(0, 0, 0, 0.1);
         }
 
@@ -76,7 +74,6 @@
             border: 1px solid var(--header-border); box-shadow: 0 2px 5px var(--shadow-color); cursor: pointer;
         }
 
-        /* Utilisation des variables dynamiques pour les noms */
         .text-girl-custom { color: var(--student-name-girl) !important; }
         .text-boy-custom { color: var(--student-name-boy) !important; }
         
@@ -90,6 +87,19 @@
         .confirm-card { background: var(--card-bg); border: 1px solid var(--header-border); width: 100%; max-width: 320px; border-radius: 1.5rem; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); text-align: center; }
         #modal-aide { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--header-border); padding: 25px; position: relative; box-shadow: 0 10px 25px -5px var(--shadow-color); }
+
+        /* Pinterest Layout Fix */
+        .pinterest-grid {
+            column-count: 2;
+            column-gap: 12px;
+            width: 100%;
+        }
+        .pinterest-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            display: inline-block;
+            width: 100%;
+        }
     </style>
 </head>
 
@@ -188,7 +198,6 @@
         let modeTriApp = localStorage.getItem('tri_eleves_app') || 'prenom';
         let eleves = JSON.parse(localStorage.getItem('maListeEleves')) || [];
 
-        // --- FONCTION CORRIGÉE POUR LES COULEURS ---
         function appliquerCouleursSexe() {
             const prefs = JSON.parse(localStorage.getItem('theme_tuiles'));
             if (prefs) {
@@ -295,11 +304,13 @@
             const groupes = {};
             eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
             const présents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
-            container.className = "grid grid-cols-2 gap-3 items-start w-full"; 
+            
+            // Correction pinterest
+            container.className = "pinterest-grid max-w-4xl mx-auto"; 
 
             présents.forEach(niv => {
                 const levelColumn = document.createElement('div');
-                levelColumn.className = "flex flex-col";
+                levelColumn.className = "pinterest-item";
                 const couleurNiveau = couleurParNiveau[niv] || hexaTheme;
                 levelColumn.innerHTML = `<h3 style="color:${couleurNiveau}" class="text-[11px] font-black uppercase tracking-widest text-center mb-3">${niv}</h3>`;
                 const list = document.createElement('div');
@@ -321,7 +332,7 @@
                     item.innerHTML = `
                         <div class="flex flex-col flex-grow overflow-hidden" onclick="preparerModification('${el.id}')">
                             <span class="text-[10px] font-black truncate leading-tight">${identiteAffiche}</span>
-                            ${el.dateNaissance ? `<span class="text-[8px] italic mt-0.5 opacity-60">${el.dateNaissance}</span>` : ""}
+                            ${el.dateNaissance ? `<span class="text-[8px] italic mt-0.5 text-gray-500">${el.dateNaissance}</span>` : ""}
                         </div>
                         <button onclick="supprimer('${el.id}')" class="ml-1 opacity-20 hover:opacity-100 p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -341,12 +352,17 @@
             const month = document.getElementById('birth-month').value;
             const year = document.getElementById('birth-year').value;
             let dateStockee = (day && month && year) ? `${day}-${month}-${year}` : "";
+            
+            const selectedSexe = document.querySelector('input[name="sexe"]:checked').value;
+            const selectedNiveau = document.querySelector('input[name="niveau"]:checked').value;
+
             const data = { 
                 identite: formaterIdentite(saisie[0], saisie.slice(1).join(" ")), 
-                sexe: document.querySelector('input[name="sexe"]:checked').value, 
-                niveau: document.querySelector('input[name="niveau"]:checked').value, 
+                sexe: selectedSexe, 
+                niveau: selectedNiveau, 
                 dateNaissance: dateStockee 
             };
+
             if (editId) { 
                 const idx = eleves.findIndex(el => String(el.id) === String(editId)); 
                 if(idx !== -1) eleves[idx] = { ...eleves[idx], ...data }; 
@@ -354,8 +370,15 @@
                 document.getElementById('btn-submit').innerText = "Enregistrer"; 
             }
             else { eleves.push({ id: String(Date.now()), ...data }); }
+            
             localStorage.setItem('maListeEleves', JSON.stringify(eleves)); 
-            render(); e.target.reset(); initDateSelectors();
+            render(); 
+            
+            document.getElementById('nomComplet').value = "";
+            initDateSelectors();
+            
+            document.querySelector(`input[name="sexe"][value="${selectedSexe}"]`).checked = true;
+            document.querySelector(`input[name="niveau"][value="${selectedNiveau}"]`).checked = true;
         };
 
         function preparerModification(id) {
@@ -395,8 +418,7 @@
             a.click(); URL.revokeObjectURL(url);
         }
 
-function importerListe() { 
-            // On déclenche le clic sur l'input seulement après confirmation
+        function importerListe() { 
             customConfirm(
                 "Importer une nouvelle liste ? Cela remplacera définitivement la liste actuelle.", 
                 (val) => { 
@@ -431,12 +453,10 @@ function importerListe() {
                     }
                 });
                 if (nouveaux.length > 0) {
-                    // Ici on remplace totalement l'ancienne liste
                     eleves = nouveaux;
                     localStorage.setItem('maListeEleves', JSON.stringify(eleves));
                     render();
                 }
-                // Reset de l'input pour permettre de ré-importer le même fichier si besoin
                 e.target.value = "";
             };
             reader.readAsText(fichier);
@@ -457,28 +477,6 @@ function importerListe() {
             });
             doc.save(`liste_eleves.pdf`);
         }
-
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const fichier = e.target.files[0];
-            if (!fichier) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const lignes = event.target.result.split(/\r?\n/);
-                const nouveaux = [];
-                lignes.forEach(l => {
-                    const col = l.split(";");
-                    if (col.length >= 4) {
-                        nouveaux.push({ id: String(Date.now() + Math.random()), identite: formaterIdentite(col[0], col[1]), sexe: col[2], niveau: col[3], dateNaissance: col[4] || "" });
-                    }
-                });
-                if (nouveaux.length > 0) {
-                    eleves = nouveaux;
-                    localStorage.setItem('maListeEleves', JSON.stringify(eleves));
-                    render();
-                }
-            };
-            reader.readAsText(fichier);
-        });
 
         window.onload = () => { 
             initDateSelectors(); 
