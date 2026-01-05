@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tirage au Sort</title>
+    <title>Tirage au Sort - OutilsProfs</title>
     
     <script>
         (function() {
@@ -19,7 +19,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
         :root {
-            /* Mode Sombre - Noir Pur & Gris Neutres (Pas de bleu nuit/ardoise/pierre) */
             --bg-page: #000000;
             --text-page: #ffffff;
             --header-bg: #000000;
@@ -29,15 +28,14 @@
             --card-text: #ffffff;
             --result-bg: #111111;
             --result-border: #262626;
+            --pill-bg: #1a1a1a; /* Gris foncé en sombre */
             
-            /* Étiquettes prénoms plus claires en sombre */
-            --pill-bg: #1a1a1a; 
-            --blue-light: #93c5fd; 
-            --pink: #f9a8d4;
+            /* Couleurs par défaut (seront écrasées par le JS) */
+            --student-name-boy: #93c5fd; 
+            --student-name-girl: #f9a8d4;
         }
 
         body.light-mode, html.light-mode-init body {
-            /* Couleurs Mode Clair */
             --bg-page: #eeeeee;
             --text-page: #000000;
             --header-bg: #ffffff;
@@ -47,9 +45,7 @@
             --card-text: #000000;
             --result-bg: #f5f5f5;
             --result-border: #dddddd;
-            --pill-bg: #ffffff;
-            --blue-light: #1e3a8a;
-            --pink: #831843;
+            --pill-bg: #ffffff; /* Blanc en clair */
         }
 
         body { 
@@ -59,24 +55,15 @@
             padding: 0; margin: 0; 
             transition: background 0.3s;
             display: flex; flex-direction: column; align-items: center;
-            padding-left: 15px;
-            padding-right: 15px;
-            padding-bottom: 20px;
+            padding-left: 15px; padding-right: 15px; padding-bottom: 20px;
         }
 
         header { 
-            background: var(--header-bg); 
-            border-bottom: 1px solid var(--header-border);
-            position: sticky;
-            top: 0; 
-            z-index: 100; 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: var(--header-bg); border-bottom: 1px solid var(--header-border);
+            position: sticky; top: 0; z-index: 100; display: flex;
+            align-items: center; justify-content: space-between;
             padding: calc(env(safe-area-inset-top) + 10px) 15px 15px 15px; 
-            width: calc(100% + 30px); 
-            margin-left: -15px;
-            margin-bottom: 10px;
+            width: calc(100% + 30px); margin-left: -15px; margin-bottom: 10px;
         }
 
         .student-grid { 
@@ -85,41 +72,27 @@
         }
 
         .student-item { 
-            padding: 6px 2px; 
-            border-radius: 999px; 
-            font-size: 0.55rem; 
-            font-weight: 800; 
-            text-align: center; 
-            cursor: pointer; 
+            padding: 6px 2px; border-radius: 999px; font-size: 0.55rem; 
+            font-weight: 800; text-align: center; cursor: pointer; 
             background-color: var(--pill-bg);
             border: 1px solid var(--header-border); 
-            transition: all 0.2s; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s; white-space: nowrap; 
+            overflow: hidden; text-overflow: ellipsis; 
+            user-select: none; -webkit-tap-highlight-color: transparent;
         }
 
-        .bg-f { color: var(--pink) !important; } 
-        .bg-m { color: var(--blue-light) !important; } 
+        /* Couleurs de texte dynamiques */
+        .bg-f { color: var(--student-name-girl) !important; } 
+        .bg-m { color: var(--student-name-boy) !important; } 
 
         .drawn { 
             background-color: #0a0a0a !important; 
             color: #444444 !important; 
             text-decoration: line-through; 
             border-color: #1a1a1a !important;
-            opacity: 0.5;
-            transform: scale(0.96);
+            opacity: 0.5; transform: scale(0.96);
         }
 
-        body.light-mode .bg-f, html.light-mode-init .bg-f { 
-            background-color: #fce7f3 !important; border-color: #f9a8d4 !important; 
-        } 
-        body.light-mode .bg-m, html.light-mode-init .bg-m { 
-            background-color: #dbeafe !important; border-color: #93c5fd !important; 
-        } 
-        
         body.light-mode .drawn, html.light-mode-init .drawn { 
             background: #e0e0e0 !important; color: #aaaaaa !important; border-color: #cccccc !important;
         }
@@ -130,17 +103,14 @@
         }
 
         .light-card { 
-            background: var(--card-bg); 
-            color: var(--card-text); 
-            border-radius: 1.5rem; 
+            background: var(--card-bg); color: var(--card-text); border-radius: 1.5rem; 
             width: 95%; max-width: 400px; padding: 20px; text-align: center; 
             margin: 20px 0; border: 1px solid var(--border-color);
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
         }
         
         .result-box { 
-            background: var(--result-bg); 
-            border: 1px solid var(--result-border); 
+            background: var(--result-bg); border: 1px solid var(--result-border); 
             border-radius: 0.75rem; height: 60px;
             display: flex; align-items: center; justify-content: center;
             margin-bottom: 12px; font-size: 1.4rem; font-weight: 800;
@@ -232,6 +202,19 @@
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const nomCouleur = themePrefs.tirage || 'pink';
         const hexaTheme = mapCouleurs[nomCouleur] || '#ec4899';
+
+        // FONCTION POUR LES COULEURS DE SEXE DYNAMIQUES
+        function appliquerCouleursSexe() {
+            const prefs = JSON.parse(localStorage.getItem('theme_tuiles'));
+            if (prefs) {
+                if (prefs.fille && mapCouleurs[prefs.fille]) {
+                    document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]);
+                }
+                if (prefs.garcon && mapCouleurs[prefs.garcon]) {
+                    document.documentElement.style.setProperty('--student-name-boy', mapCouleurs[prefs.garcon]);
+                }
+            }
+        }
 
         function openHelp() {
             const container = document.getElementById('modal-body-content');
@@ -342,7 +325,8 @@
                 groupes[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(el => {
                     const isDrawn = !remaining.includes(el.id);
                     const item = document.createElement('div');
-                    item.className = `student-item bg-${el.sexe.toLowerCase().startsWith('f') ? 'f' : 'm'} ${isDrawn ? 'drawn' : ''}`;
+                    const genderClass = el.sexe.toLowerCase().startsWith('f') ? 'bg-f' : 'bg-m';
+                    item.className = `student-item ${genderClass} ${isDrawn ? 'drawn' : ''}`;
                     item.innerText = formatName(el.identite);
                     item.onclick = () => toggleStudent(el.id);
                     grid.appendChild(item);
@@ -412,7 +396,11 @@
             });
         }
 
-        window.onload = () => { appliquerTheme(); renderList(); };
+        window.onload = () => { 
+            appliquerCouleursSexe(); 
+            appliquerTheme(); 
+            renderList(); 
+        };
         
         window.onclick = function(event) {
             const modal = document.getElementById('alertModal');

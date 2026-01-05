@@ -26,6 +26,8 @@
             --header-bg: #000;
             --header-border: #1f2937;
             --card-sub: #9ca3af;
+            --student-name-girl: #f9a8d4;
+            --student-name-boy: #93c5fd;
         }
 
         body.light-mode, html.light-mode-init body {
@@ -49,7 +51,7 @@
             padding-left: 15px;
             padding-right: 15px;
             padding-bottom: 20px;
-            overflow-x: hidden; /* Empêche le scroll horizontal accidentel */
+            overflow-x: hidden;
         }
 
         header { 
@@ -70,7 +72,6 @@
         #btn-retour, #btn-aide { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
         #mainTitle { text-align: center; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; margin: 0; flex-grow: 1; text-transform: uppercase;}
 
-        /* FIX: Utilisation de minmax(0, 1fr) pour forcer les colonnes à ne pas déborder */
         .columns-container { 
             display: grid; 
             grid-template-columns: repeat(2, minmax(0, 1fr)); 
@@ -95,24 +96,21 @@
             transition: all 0.1s;
             border: 1.5px solid transparent;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 0; /* Permet au flexbox de rétrécir si besoin */
+            min-width: 0;
         }
 
         body.light-mode .student-item, html.light-mode-init .student-item { border-color: #e5e7eb; }
 
-        .text-girl { color: #f9a8d4; } 
-        .text-boy { color: #93c5fd; } 
-        body.light-mode .text-girl, html.light-mode-init .text-girl { color: #db2777; } 
-        body.light-mode .text-boy, html.light-mode-init .text-boy { color: #2563eb; } 
+        .text-girl { color: var(--student-name-girl); } 
+        .text-boy { color: var(--student-name-boy); } 
         
-        /* FIX: Tronquage du texte si le nom est trop long */
         .student-name { 
             font-weight: 800; 
             font-size: 0.65rem; 
             overflow: hidden; 
             text-overflow: ellipsis; 
             white-space: nowrap; 
-            flex: 1; /* Prend tout l'espace disponible à gauche */
+            flex: 1; 
             min-width: 0;
         }
         
@@ -120,7 +118,7 @@
             font-size: 0.65rem; 
             opacity: 0.8; 
             margin-left: 5px; 
-            flex-shrink: 0; /* L'icône ne doit jamais être écrasée */
+            flex-shrink: 0;
         }
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
@@ -222,6 +220,14 @@
             const nomCouleur = prefs['obs'] || 'green';
             const couleurHexa = mapCouleurs[nomCouleur] || '#22c55e';
             
+            // Appliquer les couleurs Fille/Garçon
+            if (prefs.fille && mapCouleurs[prefs.fille]) {
+                document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]);
+            }
+            if (prefs.garcon && mapCouleurs[prefs.garcon]) {
+                document.documentElement.style.setProperty('--student-name-boy', mapCouleurs[prefs.garcon]);
+            }
+
             const mainTitle = document.getElementById('mainTitle');
             const btnRetour = document.getElementById('btn-retour');
             const btnAide = document.getElementById('btn-aide');
@@ -272,7 +278,7 @@
                 levelWrapper.innerHTML = `<h2 style="color:${colorTitle}" class="text-[11px] font-black uppercase tracking-widest text-center mb-2">${niv}</h2>`;
                 const list = document.createElement('div');
                 groupes[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(el => {
-                    const genderClass = (el.sexe.toLowerCase() === 'f') ? 'text-girl' : 'text-boy';
+                    const genderClass = (el.sexe.toLowerCase().startsWith('f')) ? 'text-girl' : 'text-boy';
                     const item = document.createElement('div');
                     item.className = `student-item no-select ${genderClass}`;
                     

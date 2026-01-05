@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Compteur Élèves</title>
+    <title>Compteur Élèves - OutilsProfs</title>
 
     <script>
         (function() {
@@ -19,16 +19,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         
         :root { 
-            --primary: #6366f1; /* Changé de sky à indigo */
+            --primary: #6366f1; 
             --bg-page: #000000; 
             --text-main: #ffffff;
-            --card-student: #1a1a1a; /* Remplacé le gris bleuté par un gris neutre foncé */
-            --header-bg: #000000;    /* Noir pur */
-            --header-border: #262626; /* Gris neutre */
+            --card-student: #1a1a1a; 
+            --header-bg: #000000;    
+            --header-border: #262626; 
             --card-sub: #a3a3a3;
+            /* Variables de couleurs dynamiques */
+            --color-fille: #f9a8d4;
+            --color-garcon: #93c5fd;
         }
 
-        /* Mode Clair */
         body.light-mode, html.light-mode-init body {
             --bg-page: #eeeeee;
             --text-main: #111827;
@@ -91,11 +93,9 @@
             border-color: #e5e7eb;
         }
 
-        .text-girl { color: #f9a8d4; } 
-        .text-boy { color: #93c5fd; } 
-
-        body.light-mode .text-girl, html.light-mode-init body .text-girl { color: #db2777; } 
-        body.light-mode .text-boy, html.light-mode-init body .text-boy { color: #2563eb; } 
+        /* Application stricte des variables */
+        .text-girl { color: var(--color-fille) !important; } 
+        .text-boy { color: var(--color-garcon) !important; } 
         
         .student-name { font-weight: 800; font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -119,13 +119,11 @@
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
         .no-select { -webkit-tap-highlight-color: transparent; user-select: none; }
 
-        /* STYLE AIDE */
         #modal-aide .modal-card { background-color: var(--card-student); border: 1px solid var(--header-border); }
         #aide-content h3 { font-weight: 900; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         #aide-content p, #aide-content li { font-size: 0.75rem; line-height: 1.5; color: var(--card-sub); margin-bottom: 8px; }
         #aide-content ul { list-style: none; padding: 0; }
 
-        /* MODALE ALERTE */
         .alert-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 2000; padding: 20px; backdrop-filter: blur(4px); }
         .alert-content { background: white; padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; color: #111; }
         .alert-title { font-size: 18px; font-weight: 900; text-transform: uppercase; text-align: center; margin-bottom: 10px; color: #000; }
@@ -222,7 +220,22 @@
             document.body.classList.toggle('light-mode', isLight);
 
             const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-            const nomCouleur = prefs['compt'] || 'indigo'; // Indigo par défaut au lieu de sky
+            
+            // 1. Appliquer les couleurs Fille/Garçon personnalisées si elles existent
+            if (prefs.fille && mapCouleurs[prefs.fille]) {
+                document.documentElement.style.setProperty('--color-fille', mapCouleurs[prefs.fille]);
+            } else {
+                document.documentElement.style.setProperty('--color-fille', isLight ? '#db2777' : '#f9a8d4');
+            }
+            
+            if (prefs.garcon && mapCouleurs[prefs.garcon]) {
+                document.documentElement.style.setProperty('--color-garcon', mapCouleurs[prefs.garcon]);
+            } else {
+                document.documentElement.style.setProperty('--color-garcon', isLight ? '#2563eb' : '#93c5fd');
+            }
+
+            // 2. Couleur de l'interface
+            const nomCouleur = prefs['compt'] || 'indigo'; 
             const couleurHexa = mapCouleurs[nomCouleur] || '#6366f1';
             
             const titre = document.getElementById('mainTitle');
@@ -286,7 +299,10 @@
 
         function createRow(name, sexe) {
             const card = document.createElement('div');
-            const genderClass = (sexe && sexe.toLowerCase() === 'f') ? 'text-girl' : 'text-boy';
+            // Détection du sexe
+            const isF = (sexe && (sexe.toLowerCase() === 'f' || sexe.toLowerCase() === 'fille'));
+            const genderClass = isF ? 'text-girl' : 'text-boy';
+            
             card.className = `student-item no-select ${genderClass}`;
 
             const nameEl = document.createElement('span');

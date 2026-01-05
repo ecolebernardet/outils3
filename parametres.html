@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Infos & paramètres - Outils Profs</title>
+    <title>Infos et paramètres - OutilsProfs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
@@ -65,9 +65,7 @@
             transition: all 0.3s;
         }
         
-        .light-mode #btn-retour {
-            border-color: rgba(0,0,0,0.1);
-        }
+        .light-mode #btn-retour { border-color: rgba(0,0,0,0.1); }
 
         .tab-btn { 
             padding: 12px 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; 
@@ -121,39 +119,22 @@
         .card-info h3 { color: var(--text-main); }
 
         .theme-choice-btn {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            border: 2px solid var(--header-border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            background: var(--card-bg);
-            color: var(--card-text);
+            flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--header-border);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            transition: all 0.2s; background: var(--card-bg); color: var(--card-text);
         }
         .theme-choice-btn:active { transform: scale(0.95); }
 
-        #avatar-propos {
-            width: 128px;
-            height: auto;
-            margin-bottom: 24px;
-            transition: filter 0.3s ease;
-        }
+        #avatar-propos { width: 128px; height: auto; margin-bottom: 24px; transition: filter 0.3s ease; }
 
-        /* Style pour l'input nom */
         #nomEnseignant {
-            background: rgba(128, 128, 128, 0.1);
-            color: var(--text-main);
-            border: 1px solid var(--header-border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            width: 100%;
-            outline: none;
-            font-size: 14px;
+            background: rgba(128, 128, 128, 0.1); color: var(--text-main); border: 1px solid var(--header-border);
+            padding: 8px 12px; border-radius: 8px; width: 100%; outline: none; font-size: 14px;
         }
         #nomEnseignant:focus { border-color: #22c55e; }
+
+        #settingsContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; justify-items: center; }
     </style>
 </head>
 <body class="pb-10">
@@ -178,29 +159,12 @@
 
         <div class="flex border-b border-gray-800 sticky top-0 bg-[var(--bg-page)] z-40" id="tabs-nav">
             <button class="tab-btn active" onclick="openTab(event, 'emploi')">Mode d'emploi</button>
-            <button class="tab-btn" onclick="openTab(event, 'perso')">Couleurs</button>
+            <button class="tab-btn" onclick="openTab(event, 'perso')">Apparence</button>
             <button class="tab-btn" onclick="openTab(event, 'propos')">À Propos</button>
         </div>
 
         <div class="p-4">
             <div id="emploi" class="tab-content active">
-                <div class="card-info">
-                    <div class="flex items-center gap-2 mb-4">
-                        <span class="text-lg">🌓</span>
-                        <h3 class="font-black text-xs uppercase">Apparence</h3>
-                    </div>
-                    <div class="flex gap-4">
-                        <button onclick="selectTheme('light')" class="theme-choice-btn border-white/20 bg-[#dddddd] text-black [.light-mode_&]:bg-transparent [.light-mode_&]:text-inherit [.light-mode_&]:border-[var(--header-border)]">
-                            <span class="text-2xl">☀️</span>
-                            <span class="text-[10px] font-bold uppercase">Mode Clair</span>
-                        </button>
-                        <button onclick="selectTheme('dark')" class="theme-choice-btn [.light-mode_&]:bg-[#666666] [.light-mode_&]:text-white [.light-mode_&]:border-black">
-                            <span class="text-2xl">🌙</span>
-                            <span class="text-[10px] font-bold uppercase">Mode Sombre</span>
-                        </button>
-                    </div>
-                </div>
-
                 <div class="card-info">
                     <div class="flex items-center gap-2 mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,25 +191,25 @@
                     <ul class="text-xs space-y-2 leading-relaxed">
                         <li>• <strong>Ajout :</strong> Saisissez le nom, la date de naissance (optionnel), choisissez le genre et le niveau, puis enregistrez.</li>
                         <li>• <strong>Import/Export :</strong> Utilisez ces boutons pour sauvegarder votre liste sur votre appareil ou la transférer vers un autre appareil au format <em>Prénom;NOM;genre;niveau</em>.</li>
-						<li>• <strong>Export PDF :</strong> Générez votre liste de classe en PDF après avoir décidé de ranger les élèves par prénoms ou par noms.
+                        <li>• <strong>Export PDF :</strong> Générez votre liste de classe en PDF après avoir décidé de ranger les élèves par prénoms ou par noms.</li>
                         <li>• <strong>Gestion :</strong> La liste est triée par ordre alphabétique. Vous pouvez supprimer un élève avec l'icône poubelle ou vider la liste complète.</li>
                         <li>La liste générée sera utilisée dans les autres rubriques de l'application.</li>
                     </ul>
                 </div>
 
                 <div class="card-info">
-					<h3 id="title-liens" class="font-black text-xs uppercase mb-2">🔗️ Liens</h3>
-					<p class="text-xs leading-relaxed">
-						Accès rapide à vos sites favoris rangés par rubriques.<br>
-						• Cliquez sur la poignée pour réorganiser les liens et les catégories.<br>
-						• Cliquez sur une catégorie du formulaire pour y accéder rapidement.<br>
-						• Cliquez sur le crayon pour modifier un lien.<br>
-						• Cliquez sur la poubelle pour supprimer un lien.
-					</p>
-					</div>
+                    <h3 id="title-liens" class="font-black text-xs uppercase mb-2">🔗️ Liens</h3>
+                    <p class="text-xs leading-relaxed">
+                        Accès rapide à vos sites favoris rangés par rubriques.<br>
+                        • Cliquez sur la poignée pour réorganiser les liens et les catégories.<br>
+                        • Cliquez sur une catégorie du formulaire pour y accéder rapidement.<br>
+                        • Cliquez sur le crayon pour modifier un lien.<br>
+                        • Cliquez sur la poubelle pour supprimer un lien.
+                    </p>
+                </div>
                 
-				<div class="card-info">
-					<h3 id="title-108h" class="font-black text-xs uppercase mb-2">⏱️ 108 Heures</h3>
+                <div class="card-info">
+                    <h3 id="title-108h" class="font-black text-xs uppercase mb-2">⏱️ 108 Heures</h3>
                     <p class="text-xs leading-relaxed">
                         Gérez vos forfaits annuels (APC, Conseils, etc.) :<br>
                         • Saisissez une durée pour chaque événement.<br>
@@ -254,37 +218,38 @@
                         • Corriger une information en cliquant sur la réunion en question.
                     </p>
                 </div>
-				
+                
                 <div class="card-info">
-					<h3 id="title-memos" class="font-black text-xs uppercase mb-2">📒️ Mémos</h3>
-					<p class="text-xs leading-relaxed">
-						• Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.<br>
-						• Réorganiser vos notes en utilisant la poignée.
-					</p>
-					</div>
+                    <h3 id="title-memos" class="font-black text-xs uppercase mb-2">📒️ Mémos</h3>
+                    <p class="text-xs leading-relaxed">
+                        • Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.<br>
+                        • Réorganiser vos notes en utilisant la poignée.
+                    </p>
+                </div>
 
                 <div class="card-info">
-					<h3 id="title-tirage" class="font-black text-xs uppercase mb-2">🎲 Tirage</h3>
-					<p class="text-xs leading-relaxed">
-						Décochez les élèves absents puis tirez un prénom d'élève au hasard parmi les présents.
-					</p>
-					</div>
+                    <h3 id="title-tirage" class="font-black text-xs uppercase mb-2">🎲 Tirage</h3>
+                    <p class="text-xs leading-relaxed">
+                        Décochez les élèves absents puis tirez un prénom d'élève au hasard parmi les présents.
+                    </p>
+                </div>
 
                 <div class="card-info">
-					<h3 id="title-equipes" class="font-black text-xs uppercase mb-2">👥 Équipes</h3>
-					<p class="text-xs leading-relaxed">
-						Décochez les élèves absents et générez des groupes mixtes et équilibrés par genre et par niveau automatiquement.
-					</p>
-					</div>
+                    <h3 id="title-equipes" class="font-black text-xs uppercase mb-2">👥 Équipes</h3>
+                    <p class="text-xs leading-relaxed">
+                        Décochez les élèves absents et générez des groupes mixtes et équilibrés par genre et par niveau automatiquement.
+                    </p>
+                </div>
 
                 <div class="card-info">
-					<h3 id="title-observations" class="font-black text-xs uppercase mb-2">✏️ Observations</h3>
-					<p class="text-xs leading-relaxed">
-						Notez des informations sur chaque élève et sauvegardez vos données.
-					</p>
-					</div>
+                    <h3 id="title-observations" class="font-black text-xs uppercase mb-2">✏️ Observations</h3>
+                    <p class="text-xs leading-relaxed">
+                        Notez des informations sur chaque élève et sauvegardez vos données.
+                    </p>
+                </div>
 
-                <div class="card-info"><h3 id="title-compteur" class="font-black text-xs uppercase mb-2">🚥 Compteur</h3>
+                <div class="card-info">
+                    <h3 id="title-compteur" class="font-black text-xs uppercase mb-2">🚥 Compteur</h3>
                     <p class="text-xs leading-relaxed">
                         Suivi rapide des points de comportement (jusqu'à 5 points) :<br>
                         • Un clic : Ajoute 1 point.<br>
@@ -299,11 +264,28 @@
                         Les infos enregistrées sur un appareil (PC, smartphone, tablette...) et/ou sur un navigateur (Firefox, DuckDuckGo, Chrome...) ne sont enregistrées que dans la <strong>mémoire locale</strong>.<br>Pour retrouver vos infos, <strong>exportez-les</strong> d'abord puis <strong>importez-les</strong> sur le nouvel appareil en utilisant les boutons d'exportation et d'importation.
                     </p>
                 </div>
-				
             </div>
 
             <div id="perso" class="tab-content">
-                <div id="settingsContainer" class="space-y-1"></div>
+                <div class="card-info">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-lg">🌓</span>
+                        <h3 class="font-black text-xs uppercase">Thème de l'interface</h3>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="selectTheme('light')" class="theme-choice-btn border-white/20 bg-[#dddddd] text-black [.light-mode_&]:bg-transparent [.light-mode_&]:text-inherit [.light-mode_&]:border-[var(--header-border)]">
+                            <span class="text-2xl">☀️</span>
+                            <span class="text-[10px] font-bold uppercase">Mode Clair</span>
+                        </button>
+                        <button onclick="selectTheme('dark')" class="theme-choice-btn [.light-mode_&]:bg-[#666666] [.light-mode_&]:text-white [.light-mode_&]:border-black">
+                            <span class="text-2xl">🌙</span>
+                            <span class="text-[10px] font-bold uppercase">Mode Sombre</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="settingsContainer"></div>
+                
                 <div class="flex mt-6 pb-10">
                     <a href="index.html" class="btn-nav bg-green-600 text-white flex items-center justify-center no-underline shadow-lg flex-1 active:scale-95">Enregistrer et quitter</a>
                 </div>
@@ -324,43 +306,22 @@
         const mapCouleurs = {
             'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
             'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
-            'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+            'cyan': '#06b6d4', 'blue': '#3b82f6', 'indigo': '#6366f1',
             'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
-            'rose': '#f43f5e', 'gray': '#6b7280'
+            'rose': '#f43f5e'
         };
 
-        // --- GESTION NOM ENSEIGNANT ---
-        function saveNom() {
-            const nom = document.getElementById('nomEnseignant').value;
-            localStorage.setItem('nom_enseignant', nom);
-        }
-
-        function loadNom() {
-            const savedNom = localStorage.getItem('nom_enseignant');
-            if (savedNom) document.getElementById('nomEnseignant').value = savedNom;
-        }
-
-        function selectTheme(mode) {
-            if (mode === 'light') {
-                document.body.classList.add('light-mode');
-            } else {
-                document.body.classList.remove('light-mode');
-            }
-            localStorage.setItem('theme_mode', mode);
-            setTimeout(() => { window.location.href = 'index.html'; }, 100);
-        }
-
-        function openTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) { tabcontent[i].classList.remove("active"); }
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) { tablinks[i].classList.remove("active"); }
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-        }
+        const nomsFr = {
+            'red': 'Rouge', 'orange': 'Orange', 'amber': 'Ambre', 'yellow': 'Jaune',
+            'lime': 'Citron', 'green': 'Vert', 'emerald': 'Émeraude', 'teal': 'Sarcelle',
+            'cyan': 'Cyan', 'blue': 'Bleu', 'indigo': 'Indigo',
+            'violet': 'Violet', 'purple': 'Pourpre', 'fuchsia': 'Fuchsia', 'pink': 'Rose',
+            'rose': 'Rosé'
+        };
 
         const tuiles = [
+            { id: 'fille', label: 'Filles', emoji: '👧' },
+            { id: 'garcon', label: 'Garçons', emoji: '👦' },
             { id: 'inscr', label: 'Inscriptions', emoji: '📝' },
             { id: 'liens', label: 'Liens', emoji: '🔗' },
             { id: 'h108', label: '108 Heures', emoji: '⏲️' },
@@ -373,33 +334,34 @@
 
         const couleurs = Object.keys(mapCouleurs);
         let prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {
-            inscr: 'lime', h108: 'orange', liens: 'indigo', 
-            tirage: 'yellow', equipes: 'rose', memos: 'purple', 
-            obs: 'green', compt: 'sky'
+            fille: 'pink', garcon: 'blue', inscr: 'lime', h108: 'orange', 
+            liens: 'indigo', tirage: 'yellow', equipes: 'rose', 
+            memos: 'purple', obs: 'green', compt: 'blue'
         };
 
-        function appliquerCouleursGlobales() {
-            const isLight = document.body.classList.contains('light-mode');
-            
-            const avatarPropos = document.getElementById('avatar-propos');
-            if (avatarPropos) {
-                avatarPropos.style.filter = isLight 
-                    ? 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))' 
-                    : 'drop-shadow(4px 4px 8px rgba(255,255,255,0.15))';
-            }
+        function saveNom() {
+            const nom = document.getElementById('nomEnseignant').value;
+            localStorage.setItem('nom_enseignant', nom);
+        }
 
-            const mapping = {
-                'title-inscr': 'inscr', 'title-liens': 'liens', 'title-h108': 'h108',
-                'title-memos': 'memos', 'title-tirage': 'tirage', 'title-equipes': 'equipes',
-                'title-obs': 'obs', 'title-compt': 'compt'
-            };
-            for (let [elementId, prefId] of Object.entries(mapping)) {
-                const el = document.getElementById(elementId);
-                if (el) {
-                    const colorName = prefs[prefId] || 'gray';
-                    el.style.color = mapCouleurs[colorName];
-                }
-            }
+        function loadNom() {
+            const savedNom = localStorage.getItem('nom_enseignant');
+            if (savedNom) document.getElementById('nomEnseignant').value = savedNom;
+        }
+
+        function selectTheme(mode) {
+            document.body.classList.toggle('light-mode', mode === 'light');
+            localStorage.setItem('theme_mode', mode);
+            appliquerCouleursGlobales(); // Rafraîchir l'avatar et les titres
+        }
+
+        function openTab(evt, tabName) {
+            const contents = document.getElementsByClassName("tab-content");
+            for (let c of contents) c.classList.remove("active");
+            const links = document.getElementsByClassName("tab-btn");
+            for (let l of links) l.classList.remove("active");
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
         }
 
         function renderSettings() {
@@ -408,17 +370,26 @@
             container.innerHTML = '';
             tuiles.forEach(tuile => {
                 const configDiv = document.createElement('div');
-                configDiv.className = 'tile-config';
-                const currentColor = prefs[tuile.id] || 'gray';
+                const isGender = tuile.id === 'fille' || tuile.id === 'garcon';
+                
+                configDiv.className = isGender 
+                    ? 'tile-config border-2 border-dashed relative' 
+                    : 'tile-config';
+                
+                if (isGender) {
+                    configDiv.style.borderColor = mapCouleurs[prefs[tuile.id]];
+                }
+
+                const currentColor = prefs[tuile.id] || 'blue';
                 configDiv.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5 overflow-hidden">
                             <span class="text-xs">${tuile.emoji}</span>
-                            <span class="text-[9px] font-black uppercase tracking-tight opacity-70">${tuile.label}</span>
+                            <span class="text-[8px] font-black uppercase tracking-tight opacity-70 truncate">${tuile.label}</span>
                         </div>
-                        <span class="text-[8px] font-bold uppercase border border-gray-400/30 px-1.5 rounded" style="color: ${mapCouleurs[currentColor]}">${currentColor}</span>
+                        <span class="text-[8px] font-bold uppercase border border-gray-400/30 px-1.5 rounded whitespace-nowrap" style="color: ${mapCouleurs[currentColor]}">${nomsFr[currentColor]}</span>
                     </div>
-                    <div class="flex flex-wrap gap-1.5 justify-start">
+                    <div class="color-grid">
                         ${couleurs.map(c => `
                             <button onclick="setTileColor('${tuile.id}', '${c}')" 
                                     class="color-dot ${currentColor === c ? 'active' : ''}"
@@ -435,37 +406,41 @@
             localStorage.setItem('theme_tuiles', JSON.stringify(prefs));
             renderSettings();
         }
-		
 
-function sauvegarderToutesLesAides() {
-    const rubriques = [
-        { id: 'title-liens', key: 'aide_liens' },
-        { id: 'title-inscriptions', key: 'aide_inscr' },
-        { id: 'title-memos', key: 'aide_memos' },
-        { id: 'title-108h', key: 'aide_h108' },
-        { id: 'title-tirage', key: 'aide_tirage' },
-        { id: 'title-equipes', key: 'aide_equipes' },
-        { id: 'title-observations', key: 'aide_obs' },
-        { id: 'title-compteur', key: 'aide_compt_text' } // On utilise la clé attendue par le compteur
-    ];
+        function appliquerCouleursGlobales() {
+            const isLight = document.body.classList.contains('light-mode');
+            const avatar = document.getElementById('avatar-propos');
+            if (avatar) avatar.style.filter = isLight ? 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))' : 'drop-shadow(4px 4px 8px rgba(255,255,255,0.15))';
 
-    rubriques.forEach(item => {
-        const titreEl = document.getElementById(item.id);
-        if (titreEl) {
-            const blocAide = titreEl.closest('.card-info');
-            if (blocAide) {
-                localStorage.setItem(item.key, blocAide.innerHTML);
+            const mapping = {
+                'title-inscriptions': 'inscr', 'title-liens': 'liens', 'title-108h': 'h108',
+                'title-memos': 'memos', 'title-tirage': 'tirage', 'title-equipes': 'equipes',
+                'title-observations': 'obs', 'title-compteur': 'compt'
+            };
+            for (let [elId, prefId] of Object.entries(mapping)) {
+                const el = document.getElementById(elId);
+                if (el) el.style.color = mapCouleurs[prefs[prefId] || 'blue'];
             }
         }
-    });
-}
 
-// On sauvegarde dès que la page est chargée
-window.addEventListener('load', sauvegarderToutesLesAides);
+        function sauvegarderToutesLesAides() {
+            const rubriques = [
+                { id: 'title-liens', key: 'aide_liens' }, { id: 'title-inscriptions', key: 'aide_inscr' },
+                { id: 'title-memos', key: 'aide_memos' }, { id: 'title-108h', key: 'aide_h108' },
+                { id: 'title-tirage', key: 'aide_tirage' }, { id: 'title-equipes', key: 'aide_equipes' },
+                { id: 'title-observations', key: 'aide_obs' }, { id: 'title-compteur', key: 'aide_compt_text' }
+            ];
+            rubriques.forEach(item => {
+                const titreEl = document.getElementById(item.id);
+                if (titreEl) {
+                    const blocAide = titreEl.closest('.card-info');
+                    if (blocAide) localStorage.setItem(item.key, blocAide.innerHTML);
+                }
+            });
+        }
 
-        const savedTheme = localStorage.getItem('theme_mode');
-        if (savedTheme === 'light') document.body.classList.add('light-mode');
-        
+        window.addEventListener('load', sauvegarderToutesLesAides);
+        if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
         loadNom();
         renderSettings();
     </script>

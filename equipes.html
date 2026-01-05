@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Générateur d'équipes équilibrées</title>
+    <title>Générateur d'équipes équilibrées - OutilsProfs</title>
     
     <script>
         (function() {
@@ -22,14 +22,13 @@
             --bg: #000000; --text: #ffffff; --card-bg: #0a0a0a; --header-bg: #000000;
             --header-border: #262626; --pill-bg: #1a1a1a; --btn-num-bg: #0a0a0a;
             --btn-num-border: #262626; --title-gray: #888888; 
-            --blue-light: #bae6fd; --pink: #fbcfe8;
+            --student-name-boy: #bae6fd; --student-name-girl: #fbcfe8;
         }
 
         body.light-mode, html.light-mode-init body {
             --bg: #eeeeee; --text: #000000; --card-bg: #ffffff; --header-bg: #ffffff;
             --header-border: #dddddd; --pill-bg: #ffffff; --btn-num-bg: #ffffff;
             --btn-num-border: #cccccc; --title-gray: #666666; 
-            --blue-light: #2563eb; --pink: #db2777;
         }
 
         body { 
@@ -65,7 +64,10 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: none;
         }
 
-        .bg-f { color: var(--pink) !important; } .bg-m { color: var(--blue-light) !important; } 
+        .bg-f { color: var(--student-name-girl) !important; } 
+        .bg-m { color: var(--student-name-boy) !important; } 
+        .name-f { color: var(--student-name-girl); } 
+        .name-g { color: var(--student-name-boy); }
 
         .absent { 
             background-color: #0a0a0a !important; color: #444444 !important; 
@@ -87,7 +89,6 @@
         .team-stats { font-size: 0.5rem; color: var(--title-gray); display: block; line-height: 1.4; }
         
         .tag { font-size: 0.45rem; font-weight: 700; margin-right: 8px; padding: 2px 6px; border-radius: 999px; color: #fff; min-width: 35px; text-align: center; }
-        .name-f { color: var(--pink); } .name-g { color: var(--blue-light); }
         
         .bottom-nav { width: 100%; max-width: 400px; margin: 20px 0 40px 0; padding: 0 10px; }
         .btn-nav { font-weight: 800; padding: 12px; border-radius: 50px; font-size: 10px; text-align: center; cursor: pointer; width: 100%; border: none; }
@@ -145,10 +146,23 @@
 <script>
     const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#666666' };
     const couleursDecidees = { "CP": "#ec4899", "CE1": "#3b82f6", "CE2": "#eab308", "CM1": "#ef4444", "CM2": "#22c55e", "AUTRE": "#a855f7" };
+    const ORDRE_SCOLAIRE = ["CP", "CE1", "CE2", "CM1", "CM2", "AUTRE"];
 
     let selectedNumTeams = 4;
     let ALL_STUDENTS = JSON.parse(localStorage.getItem('maListeEleves')) || [];
     let absents = new Set(JSON.parse(localStorage.getItem('absents_session_equipes')) || []);
+
+    function appliquerCouleursSexe() {
+        const prefs = JSON.parse(localStorage.getItem('theme_tuiles'));
+        if (prefs) {
+            if (prefs.fille && mapCouleurs[prefs.fille]) {
+                document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]);
+            }
+            if (prefs.garcon && mapCouleurs[prefs.garcon]) {
+                document.documentElement.style.setProperty('--student-name-boy', mapCouleurs[prefs.garcon]);
+            }
+        }
+    }
 
     function appliquerTheme() {
         const isLight = localStorage.getItem('theme_mode') === 'light';
@@ -196,16 +210,17 @@
 
     function getDetailedStats(team) {
         const s = { f: 0, m: 0, total: team.length, levels: {} };
-        Object.keys(couleursDecidees).forEach(n => {
+        ORDRE_SCOLAIRE.forEach(n => {
             s.levels[n.toLowerCase()] = { f: 0, m: 0, total: 0 };
         });
         team.forEach(e => {
             const isF = e.sexe.toLowerCase().startsWith('f');
-            const niv = e.niveau.toUpperCase().trim().toLowerCase();
+            const niv = e.niveau.toString().trim().toUpperCase(); 
             if(isF) s.f++; else s.m++;
-            if(s.levels[niv]) {
-                s.levels[niv].total++;
-                if(isF) s.levels[niv].f++; else s.levels[niv].m++;
+            const key = niv.toLowerCase();
+            if(s.levels[key]) {
+                s.levels[key].total++;
+                if(isF) s.levels[key].f++; else s.levels[key].m++;
             }
         });
         return s;
@@ -230,7 +245,8 @@
                     let sI = getDetailedStats(teams[i]), sJ = getDetailedStats(teams[j]);
                     const getScore = (st1, st2) => {
                         let score = Math.abs(st1.f - st2.f) * 10 + Math.abs(st1.m - st2.m) * 10;
-                        Object.keys(st1.levels).forEach(niv => {
+                        ORDRE_SCOLAIRE.forEach(n => {
+                            const niv = n.toLowerCase();
                             score += Math.abs(st1.levels[niv].f - st2.levels[niv].f) * 20;
                             score += Math.abs(st1.levels[niv].total - st2.levels[niv].total) * 5;
                         });
@@ -266,15 +282,27 @@
         teams.forEach((t, i) => {
             const s = getDetailedStats(t);
             let statsText = `${s.f}F/${s.m}G`;
-            Object.keys(couleursDecidees).forEach(n => { 
+            
+            // Affichage des stats dans l'ordre strict
+            ORDRE_SCOLAIRE.forEach(n => { 
                 const lv = n.toLowerCase();
-                if(s.levels[lv].total > 0) statsText += ` • ${s.levels[lv].total}${n}`; 
+                if(s.levels[lv] && s.levels[lv].total > 0) statsText += ` • ${s.levels[lv].total}${n}`; 
             });
+
             let h = `<div class="team-card"><div class="team-header"><span class="team-title">Équipe ${i+1}</span><span class="team-stats">${statsText}</span></div>`;
-            t.sort((a,b) => a.niveau.localeCompare(b.niveau)).forEach(e => {
-                const niv = e.niveau.toUpperCase();
+            
+            // TRI DES ÉLÈVES DANS LA CARTE SELON L'ORDRE SCOLAIRE
+            t.sort((a, b) => {
+                const nivA = a.niveau.toString().trim().toUpperCase();
+                const nivB = b.niveau.toString().trim().toUpperCase();
+                const indexA = ORDRE_SCOLAIRE.indexOf(nivA);
+                const indexB = ORDRE_SCOLAIRE.indexOf(nivB);
+                return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+            }).forEach(e => {
+                const niv = e.niveau.toString().trim().toUpperCase();
                 const cTag = pal[niv] || pal[niv.toLowerCase()] || couleursDecidees[niv] || '#888';
-                h += `<div class="flex items-center mb-1 text-[0.65rem] font-bold"><span class="tag" style="background-color:${cTag}">${niv}</span><span class="${e.sexe.toLowerCase().startsWith('f')?'name-f':'name-g'}">${getDisplayName(e, ALL_STUDENTS)}</span></div>`;
+                const genderClass = e.sexe.toLowerCase().startsWith('f') ? 'name-f' : 'name-g';
+                h += `<div class="flex items-center mb-1 text-[0.65rem] font-bold"><span class="tag" style="background-color:${cTag}">${niv}</span><span class="${genderClass}">${getDisplayName(e, ALL_STUDENTS)}</span></div>`;
             });
             res.innerHTML += h + `</div>`;
         });
@@ -285,15 +313,25 @@
         container.innerHTML = '';
         const pal = JSON.parse(localStorage.getItem('palette_niveaux')) || {};
         const groups = {};
-        ALL_STUDENTS.forEach(s => { const n = s.niveau.toUpperCase(); if(!groups[n]) groups[n] = []; groups[n].push(s); });
-        ["CP", "CE1", "CE2", "CM1", "CM2", "AUTRE"].forEach(niv => {
-            if(!groups[niv]) return;
-            let h = `<div class="level-label" style="color:${pal[niv]||couleursDecidees[niv]}">${niv}</div><div class="attendance-grid">`;
-            groups[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(s => {
-                const isAbs = absents.has(String(s.id));
-                h += `<div class="student-item bg-${s.sexe.toLowerCase().startsWith('f')?'f':'m'} ${isAbs?'absent':''}" onclick="toggleAbs('${s.id}')">${getDisplayName(s, ALL_STUDENTS)}</div>`;
-            });
-            container.innerHTML += h + `</div>`;
+        
+        // Groupement avec nettoyage des clés
+        ALL_STUDENTS.forEach(s => { 
+            const n = s.niveau.toString().trim().toUpperCase(); 
+            if(!groups[n]) groups[n] = []; 
+            groups[n].push(s); 
+        });
+
+        // AFFICHAGE DES SECTIONS DE PRÉSENCE DANS L'ORDRE SCOLAIRE
+        ORDRE_SCOLAIRE.forEach(niv => {
+            if(groups[niv] && groups[niv].length > 0) {
+                let h = `<div class="level-label" style="color:${pal[niv]||couleursDecidees[niv]}">${niv}</div><div class="attendance-grid">`;
+                groups[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(s => {
+                    const isAbs = absents.has(String(s.id));
+                    const genderClass = s.sexe.toLowerCase().startsWith('f') ? 'bg-f' : 'bg-m';
+                    h += `<div class="student-item ${genderClass} ${isAbs?'absent':''}" onclick="toggleAbs('${s.id}')">${getDisplayName(s, ALL_STUDENTS)}</div>`;
+                });
+                container.innerHTML += h + `</div>`;
+            }
         });
     }
 
@@ -323,6 +361,7 @@
     }
 
     window.onload = () => {
+        appliquerCouleursSexe();
         appliquerTheme();
         const sel = document.getElementById('selector');
         for(let i=2; i<=8; i++) {
