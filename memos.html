@@ -74,13 +74,38 @@
         .bottom-nav { width: 100%; max-width: 400px; margin: 25px auto 0; padding-bottom: 40px; }
         .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
         
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 24px; border-radius: 24px; width: 100%; max-width: 360px; color: #111; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 1.5rem; width: 100%; max-width: 400px; border: 1px solid var(--border-color); position: relative; }
         .btns { display: flex; gap: 10px; margin-top: 20px; }
         .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 16px; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Mémos</h2>
+            <div class="text-[11px] leading-relaxed space-y-2 opacity-80">
+                <p class="text-xs leading-relaxed">
+                        • Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.<br>
+                        • Réorganiser vos notes en utilisant la poignée.<br>
+                        • Cliquez sur un mémo pour le mettre à jour ou l'effacer.<br>
+                </p>
+            </div>
+            <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-transform">Fermer</button>
+        </div>
+    </div>
+
+    <div id="modal-alerte" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="alerte-titre" class="text-lg font-black uppercase mb-4">Alerte</h2>
+            <div id="alerte-texte" class="text-[11px] leading-relaxed opacity-80 mb-6 text-center"></div>
+            <div class="btns">
+                <button id="alerte-cancel" onclick="fermerModal('modal-alerte')" class="flex-1 py-3 bg-neutral-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest">Annuler</button>
+                <button id="alerte-confirm" class="flex-1 py-3 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirmer</button>
+            </div>
+        </div>
+    </div>
 
     <header>
         <a href="index.html" id="btn-retour">
@@ -89,7 +114,7 @@
             </svg>
         </a>
         <h1 id="pageTitle" class="font-black text-lg uppercase tracking-normal text-center flex-grow">Mémos</h1>
-        <button id="btn-aide" onclick="openHelp()" class="text-lg">💡</button>
+        <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
     </header>
 
     <div class="container">
@@ -103,10 +128,10 @@
                 </button>
             </div>
             
-            <textarea id="noteInput" class="input-field mb-1 min-h-[60px] resize-none" placeholder="Saisir une note..." oninput="autoExpand(this)"></textarea>
+            <textarea id="noteInput" class="input-field mb-3 min-h-[60px] resize-none" placeholder="Saisir une note..." oninput="autoExpand(this)"></textarea>
             
-            <div class="flex justify-between items-end mt-1">
-                <div class="flex flex-wrap gap-1.5 max-w-[50%]" id="colorPicker">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-wrap gap-2 justify-center" id="colorPicker">
                     <div class="color-dot active" style="background-color: #fef9c3;" data-color="#fef9c3"></div>
                     <div class="color-dot" style="background-color: #fee2e2;" data-color="#fee2e2"></div>
                     <div class="color-dot" style="background-color: #ffedd5;" data-color="#ffedd5"></div>
@@ -115,9 +140,11 @@
                     <div class="color-dot" style="background-color: #ffffff;" data-color="#ffffff"></div>
                     <div class="color-dot" style="background-color: #6b7280;" data-color="#6b7280"></div>
                 </div>
-                <div class="flex gap-2">
-                    <button id="btnDelete" onclick="deleteSelectedNote()" class="hidden px-4 py-2.5 rounded-full bg-red-600 text-white text-[10px] font-black uppercase shadow-md active:scale-90">Effacer</button>
+                
+                <div class="flex gap-2 justify-center items-center">
+                    <button id="btnDelete" onclick="deleteSelectedNote()" class="hidden px-4 py-2.5 rounded-full bg-red-500 text-white text-[10px] font-black uppercase shadow-md active:scale-90">Effacer</button>
                     <button id="btnAction" onclick="saveNote()" class="px-5 py-2.5 rounded-full text-[10px] font-black uppercase shadow-md active:scale-90 transition-transform">Ajouter</button>
+                    <button id="btnCancelEdit" onclick="cancelEdit()" class="hidden px-5 py-2.5 rounded-full bg-neutral-500/20 text-[10px] font-black uppercase active:scale-90">Annuler</button>
                 </div>
             </div>
         </div>
@@ -140,16 +167,6 @@
         </footer>
     </div>
 
-    <div id="alertModal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="modal-body-content"></div>
-            <div class="btns">
-                <button id="alertCancelBtn" class="modal-btn bg-gray-100 text-gray-600" onclick="closeModal('alertModal')">Annuler</button>
-                <button id="alertConfirmBtn" class="modal-btn text-white">Confirmer</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
@@ -170,9 +187,10 @@
             document.body.classList.toggle('light-mode', isLight);
             const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(nomCouleurTheme) ? 'black' : 'white';
             document.documentElement.style.setProperty('--theme-color', hexaTheme);
-            [document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-search-trigger'), document.getElementById('btnAction')].forEach(el => {
+            [document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-search-trigger'), document.getElementById('btnAction'), document.getElementById('btn-fermer-aide')].forEach(el => {
                 if(el) { el.style.backgroundColor = hexaTheme; el.style.color = contrast; }
             });
+            if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexaTheme;
             renderNotes();
         }
 
@@ -213,8 +231,9 @@
                 d.classList.toggle('active', d.dataset.color === selectedColor);
             });
 
-            document.getElementById('btnAction').innerText = "Modifier";
+            document.getElementById('btnAction').innerText = "Mettre à jour";
             document.getElementById('btnDelete').classList.remove('hidden');
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
             autoExpand(document.getElementById('noteInput'));
             renderNotes();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -236,7 +255,7 @@
 
         function deleteSelectedNote() {
             if(editingIndex === -1) return;
-            showAlert("Supprimer ?", "Voulez-vous supprimer ce mémo ?", () => {
+            afficherMessage("Supprimer ?", "Voulez-vous supprimer ce mémo ?", () => {
                 notes.splice(editingIndex, 1);
                 cancelEdit();
                 saveAndRender();
@@ -250,6 +269,7 @@
             document.getElementById('noteInput').style.height = '60px';
             document.getElementById('btnAction').innerText = "Ajouter";
             document.getElementById('btnDelete').classList.add('hidden');
+            document.getElementById('btnCancelEdit').classList.add('hidden');
             renderNotes();
         }
 
@@ -278,17 +298,19 @@
 
         function setupSortable() { new Sortable(document.getElementById('notesGrid'), { handle: '.drag-handle', animation: 150, onEnd: function(){ const n=[]; document.querySelectorAll('.note-card').forEach(c=>n.push(notes[c.dataset.index])); notes=n; saveAndRender(); } }); }
 
-        function showAlert(t, tx, f) { 
-            const container = document.getElementById('modal-body-content');
-            container.innerHTML = `<h3 class="font-black uppercase text-center mb-2">${t}</h3><p class="text-center text-xs mb-4">${tx}</p>`;
-            const c=document.getElementById('alertConfirmBtn');
-            c.style.backgroundColor = hexaTheme;
-            c.onclick=()=>{closeModal('alertModal'); if(f) f();};
-            document.getElementById('alertModal').style.display='flex'; 
+        function afficherMessage(titre, texte, callback) { 
+            document.getElementById('alerte-titre').innerText = titre;
+            document.getElementById('alerte-texte').innerText = texte;
+            const modal = document.getElementById('modal-alerte');
+            const confirmBtn = document.getElementById('alerte-confirm');
+            confirmBtn.style.backgroundColor = hexaTheme;
+            confirmBtn.onclick = () => { fermerModal('modal-alerte'); callback(); };
+            modal.style.display = 'flex'; 
         }
 
-        function closeModal(id) { document.getElementById(id).style.display='none'; }
-        function confirmResetAll() { showAlert("Tout effacer ?", "Supprimer tous vos mémos ?", () => { notes=[]; saveAndRender(); }); }
+        function ouvrirAide() { appliquerTheme(); document.getElementById('modal-aide').style.display = 'flex'; }
+        function fermerModal(id) { document.getElementById(id).style.display = 'none'; }
+        function confirmResetAll() { afficherMessage("Tout effacer ?", "Supprimer tous vos mémos ?", () => { notes=[]; saveAndRender(); }); }
 
         function setupImport() {
             const input = document.getElementById('importNotesFile');
@@ -320,11 +342,6 @@
             const a = document.createElement('a');
             a.href = url; a.download = `outilsprofs_memos_${new Date().toISOString().slice(0,10)}.txt`; a.click();
             URL.revokeObjectURL(url);
-        }
-
-        function openHelp() {
-            showAlert("💡 Aide", "Cliquez sur un mémo pour le modifier ou le supprimer. Faites glisser les points pour réorganiser.", null);
-            document.getElementById('alertCancelBtn').style.display = 'none';
         }
 
         window.onload = () => { appliquerTheme(); setupColorPickers(); setupSortable(); setupImport(); };
