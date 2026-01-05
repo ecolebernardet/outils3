@@ -9,14 +9,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         
         :root {
-            --bg-page: #000;
+            --bg-page: #121212;
             --text-main: #eee;
-            --header-bg: #111828;
-            --header-border: #1f2937;
+            --header-bg: #1e1e1e;
+            --header-border: rgba(255, 255, 255, 0.1);
+			--border-color: rgba(255, 255, 255, 0.1);
             --card-bg: #111; 
             --card-text: #eee;
             --card-sub: #9ca3af;
-            --btn-back-bg: #1f2937;
+            --btn-back-bg: #555555;
         }
 
         .light-mode {
@@ -27,7 +28,7 @@
             --card-bg: #ffffff;
             --card-text: #111827;
             --card-sub: #4b5563;
-            --btn-back-bg: #e5e7eb;
+            --btn-back-bg: #cccccc;
         }
 
         body { 
@@ -47,7 +48,7 @@
             border-bottom: 1px solid var(--header-border);
             position: sticky; top: 0; z-index: 100; 
             display: flex; align-items: center; justify-content: space-between;
-            padding: calc(env(safe-area-inset-top) + 10px) 15px 15px 15px; 
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
             width: calc(100% + 30px); margin-left: -15px;
             height: auto;
         }

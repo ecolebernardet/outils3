@@ -19,8 +19,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
         :root { 
-            --bg: #000000; --text: #ffffff; --card-bg: #0a0a0a; --header-bg: #000000;
-            --header-border: #262626; --pill-bg: #1a1a1a; --btn-num-bg: #0a0a0a;
+            --bg: #121212; --text: #ffffff; --card-bg: #0a0a0a; --header-bg: #1e1e1e;
+            --header-border: rgba(255, 255, 255, 0.1); --border-color: rgba(255, 255, 255, 0.1); --pill-bg: #1a1a1a; --btn-num-bg: #0a0a0a;
             --btn-num-border: #262626; --title-gray: #888888; 
             --student-name-boy: #bae6fd; --student-name-girl: #fbcfe8;
         }
@@ -41,7 +41,7 @@
         header { 
             background: var(--header-bg); border-bottom: 1px solid var(--header-border);
             position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
-            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 15px 15px; 
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
             width: calc(100% + 30px); margin-left: -15px; margin-bottom: 10px;
         }
 
