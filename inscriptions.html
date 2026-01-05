@@ -395,7 +395,52 @@
             a.click(); URL.revokeObjectURL(url);
         }
 
-        function importerListe() { document.getElementById('fileInput').click(); }
+function importerListe() { 
+            // On déclenche le clic sur l'input seulement après confirmation
+            customConfirm(
+                "Importer une nouvelle liste ? Cela remplacera définitivement la liste actuelle.", 
+                (val) => { 
+                    if(val === 'yes') { 
+                        document.getElementById('fileInput').click(); 
+                    } 
+                }, 
+                [
+                    {text: 'Importer et Remplacer', value: 'yes', type: 'primary'}, 
+                    {text: 'Annuler', value: 'no'}
+                ]
+            );
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const fichier = e.target.files[0];
+            if (!fichier) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const lignes = event.target.result.split(/\r?\n/);
+                const nouveaux = [];
+                lignes.forEach(l => {
+                    const col = l.split(";");
+                    if (col.length >= 4) {
+                        nouveaux.push({ 
+                            id: String(Date.now() + Math.random()), 
+                            identite: formaterIdentite(col[0], col[1]), 
+                            sexe: col[2], 
+                            niveau: col[3], 
+                            dateNaissance: col[4] || "" 
+                        });
+                    }
+                });
+                if (nouveaux.length > 0) {
+                    // Ici on remplace totalement l'ancienne liste
+                    eleves = nouveaux;
+                    localStorage.setItem('maListeEleves', JSON.stringify(eleves));
+                    render();
+                }
+                // Reset de l'input pour permettre de ré-importer le même fichier si besoin
+                e.target.value = "";
+            };
+            reader.readAsText(fichier);
+        });
 
         function genererPDF() {
             if (eleves.length === 0) return alert("La liste est vide !");
