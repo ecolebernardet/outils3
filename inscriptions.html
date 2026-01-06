@@ -376,7 +376,10 @@
         function toutEffacer() { customConfirm("⚠️ Supprimer toute la liste ?", (val) => { if(val === 'yes') { eleves = []; localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Tout effacer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
 
 		function exporterListe() {
-            if (eleves.length === 0) return alert("Liste vide !");
+            if (eleves.length === 0) {
+                customConfirm("La liste est vide ! Ajoutez des élèves avant d'exporter.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
+                return;
+            }
             
             // Préparation du contenu
             let contenu = eleves.map(el => { 
@@ -384,23 +387,16 @@
                 return `${p[0]};${p.slice(1).join(" ")};${el.sexe};${el.niveau};${el.dateNaissance||''}`; 
             }).join("\n");
             
-            // Récupération du nom de l'enseignant et de la date
             const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
             const maintenant = new Date();
-            const annee = maintenant.getFullYear();
-            const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
-            const jour = String(maintenant.getDate()).padStart(2, '0');
-            const dateFormattee = `${annee}-${mois}-${jour}`;
+            const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
             
-            // Nettoyage du nom pour le fichier
             const nomNettoye = nomEnseignantBrut.toLowerCase().trim()
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                 .replace(/\s+/g, '_');
             
-            // Construction du nom de fichier final .txt
             const nomFichier = `outilsprofs_liste_classe_${nomNettoye}_${dateFormattee}.txt`;
             
-            // Téléchargement
             const blob = new Blob([contenu], { type: 'text/plain' }); 
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); 
@@ -424,20 +420,17 @@
             reader.readAsText(fichier);
         });
 
-		function genererPDF() {
-            if (eleves.length === 0) return alert("La liste est vide !");
+function genererPDF() {
+            if (eleves.length === 0) {
+                customConfirm("La liste est vide ! Ajoutez des élèves avant de générer le PDF.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
+                return;
+            }
             const { jsPDF } = window.jspdf; 
             const doc = new jsPDF();
             
-            // Récupération du nom de l'enseignant
             const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
-            
-            // Préparation de la date au format aaaa-mm-jj
             const maintenant = new Date();
-            const annee = maintenant.getFullYear();
-            const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
-            const jour = String(maintenant.getDate()).padStart(2, '0');
-            const dateFormattee = `${annee}-${mois}-${jour}`;
+            const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
             
             const groupes = {}; 
             eleves.forEach(el => { 
@@ -477,14 +470,11 @@
                 styles: { fontSize: 9 } 
             });
             
-            // Nettoyage du nom pour le nom de fichier (pas d'espaces, pas d'accents)
             const nomNettoye = nomEnseignantBrut.toLowerCase().trim()
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                 .replace(/\s+/g, '_');
             
-            // Construction du nom de fichier final
             const nomFichier = `outilsprofs_liste_classe_${nomNettoye}_${dateFormattee}.pdf`;
-            
             doc.save(nomFichier);
         }
 
