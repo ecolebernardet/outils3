@@ -15,6 +15,7 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -73,7 +74,6 @@
         #btn-retour, #btn-aide { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s ease; }
         #mainTitle { text-align: center; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; margin: 0; flex-grow: 1; text-transform: uppercase;}
 
-        /* Pinterest Layout Fix */
         .columns-container { 
             column-count: 2;
             column-gap: 12px;
@@ -171,6 +171,7 @@
                 <input type="file" id="importFile" class="hidden" accept=".txt">
             </label>
             <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white ">👆exporter .txt👆</button>
+			<button onclick="genererPDF()" class="nav-btn bg-neutral-800 text-white ">📄 récapitulatif PDF</button>
         </div>
         <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
     </footer>
@@ -225,7 +226,6 @@
             const nomCouleur = prefs['obs'] || 'green';
             const couleurHexa = mapCouleurs[nomCouleur] || '#22c55e';
             
-            // Appliquer les couleurs Fille/Garçon
             if (prefs.fille && mapCouleurs[prefs.fille]) {
                 document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]);
             }
@@ -262,7 +262,7 @@
             return (first + ' ' + last).trim();
         }
 
-function renderList() {
+        function renderList() {
             const container = document.getElementById('listeContainer');
             container.innerHTML = "";
             if (elevesInscrits.length === 0) {
@@ -277,7 +277,6 @@ function renderList() {
             });
             const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
             
-            // Si exactement 2 niveaux, on force les 2 colonnes via Grid, sinon mode Pinterest
             if (niveauxPresents.length === 2) {
                 container.className = "grid grid-cols-2 gap-3 w-full max-w-[600px] mx-auto";
             } else {
@@ -286,7 +285,6 @@ function renderList() {
 
             niveauxPresents.forEach(niv => {
                 const levelWrapper = document.createElement('div');
-                // Adaptation de la classe selon le mode
                 levelWrapper.className = niveauxPresents.length === 2 ? "w-full" : "level-group";
                 
                 const colorTitle = couleurParNiveau[niv] || '#ffffff';
@@ -340,16 +338,87 @@ function renderList() {
                 renderList();
             });
         }
+		
+		async function genererPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const dateStr = new Date().toLocaleDateString('fr-FR');
+            
+            if (Object.keys(savedComments).length === 0) {
+                showAlert("Vide", "Aucune observation à inclure dans le PDF.", null, false);
+                return;
+            }
 
+            // Style du titre
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text("RÉCAPITULATIF DES OBSERVATIONS", 105, 20, { align: "center" });
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Document généré le : ${dateStr}`, 105, 28, { align: "center" });
+            doc.line(20, 32, 190, 32);
+
+            let y = 45;
+            const margin = 20;
+            const pageHeight = 280;
+
+            // Classer les observations par élève (en utilisant la liste des inscrits pour avoir les noms propres)
+            elevesInscrits.forEach((eleve) => {
+                const note = savedComments[eleve.id] || savedComments[eleve.identite];
+                
+                if (note && note.trim() !== "") {
+                    // Vérifier si on doit changer de page
+                    if (y > pageHeight - 20) {
+                        doc.addPage();
+                        y = 20;
+                    }
+
+                    // Nom de l'élève
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(12);
+                    doc.text(`${formatName(eleve.identite)} (${eleve.niveau})`, margin, y);
+                    y += 7;
+
+                    // Contenu de la note (gestion du retour à la ligne automatique)
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(10);
+                    const splitTitle = doc.splitTextToSize(note, 170);
+                    doc.text(splitTitle, margin, y);
+                    
+                    y += (splitTitle.length * 5) + 10; // Espacement après la note
+                }
+            });
+
+            const dateFichier = new Date().toISOString().split('T')[0];
+            doc.save(`outilsprofs_recap_observations_${dateFichier}.pdf`);
+        }
+		
         function exportToFile() {
+            if (Object.keys(savedComments).length === 0) {
+                showAlert("Vide", "Il n'y a aucune observation à exporter.", null, false);
+                return;
+            }
             const jsonString = JSON.stringify(savedComments, null, 2);
             const blob = new Blob([jsonString], { type: 'text/plain;charset=utf-8' });
+            
+            // Formatage de la date en AAAA-MM-JJ
+            const dateStr = new Date().toISOString().split('T')[0];
+            
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
+            
+            // Nom de fichier fixe avec la date
             a.href = url;
-            const dateStr = new Date().toISOString().split('T')[0];
             a.download = `outilsprofs_observations_${dateStr}.txt`; 
+            
+            document.body.appendChild(a);
             a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 100);
         }
 
         document.getElementById('importFile').addEventListener('change', function(e) {
@@ -358,8 +427,8 @@ function renderList() {
                 try {
                     const incomingData = JSON.parse(event.target.result);
                     if (typeof incomingData === 'object' && incomingData !== null) {
-                        showAlert("Importer ?", "Fusionner les notes du fichier avec vos notes actuelles ?", () => {
-                            savedComments = { ...savedComments, ...incomingData };
+                        showAlert("Importer ?", "Remplacer les données actuelles ? (L'ancienne liste sera écrasée)", () => {
+                            savedComments = incomingData; 
                             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
                             renderList();
                         });
