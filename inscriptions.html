@@ -88,26 +88,13 @@
         #modal-aide { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--header-border); padding: 25px; position: relative; box-shadow: 0 10px 25px -5px var(--shadow-color); }
 
-        /* Pinterest Layout Fix */
-        .pinterest-grid {
-            column-count: 2;
-            column-gap: 12px;
-            width: 100%;
-        }
-        .pinterest-item {
-            break-inside: avoid;
-            margin-bottom: 20px;
-            display: inline-block;
-            width: 100%;
-        }
+        .pinterest-grid { column-count: 2; column-gap: 12px; width: 100%; }
+        .pinterest-item { break-inside: avoid; margin-bottom: 20px; display: inline-block; width: 100%; }
     </style>
 </head>
-
 <body class="pb-10">
     <script>
-        if (localStorage.getItem('theme_mode') === 'light') {
-            document.body.classList.add('light-mode');
-        }
+        if (localStorage.getItem('theme_mode') === 'light') { document.body.classList.add('light-mode'); }
     </script>
 
     <div id="custom-confirm">
@@ -121,9 +108,9 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 id="aide-titre" class="text-lg font-black uppercase mb-4">💡 Inscriptions</h2>
             <div class="text-[11px] leading-relaxed space-y-2 opacity-80">
-                <p>• <b>Ajouter :</b> Saisissez le Prénom et le Nom, choisissez la date de naissance, le sexe et le niveau, puis validez.</p>
-                <p>• <b>Modifier :</b> Cliquez sur le nom pour modifier.</p>
-                <p>• <b>Supprimer :</b> Cliquez sur la petite corbeille.</p>
+                <p>• <b>Ajouter :</b> Saisissez le Prénom et le Nom, choisissez la date de naissance, le sexe et le niveau.</p>
+                <p>• <b>Profil :</b> Saisissez votre nom en haut pour les exports PDF.</p>
+                <p>• <b>Modifier :</b> Cliquez sur le nom d'un élève pour modifier.</p>
                 <p>• <b>Sauvegarder :</b> Automatique.</p>
             </div>
             <button id="btn-fermer-aide" onclick="fermerAide()" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform">Fermer</button>
@@ -139,6 +126,16 @@
     </header>
 
     <div class="max-w-4xl mx-auto p-4 mt-4">
+        <div id="profil-container" class="max-w-md mx-auto light-card p-4 mb-4 border-dashed border-2" style="border-color: var(--header-border)">
+            <div class="flex flex-col gap-2">
+                <label class="text-[9px] font-black uppercase opacity-60 ml-1">Nom de l'enseignant (pour les PDF)</label>
+                <input type="text" id="nomEnseignant" placeholder="ex: M. DURAND ou Mme MARTIN" 
+                       class="input-field w-full border-none shadow-inner" 
+                       style="background: rgba(0,0,0,0.05)"
+                       oninput="sauvegarderNomEnseignant()">
+            </div>
+        </div>
+
         <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-4">
             <form id="eleveForm" class="flex flex-col gap-3">
                 <input type="hidden" id="edit-id" value="">
@@ -198,15 +195,16 @@
         let modeTriApp = localStorage.getItem('tri_eleves_app') || 'prenom';
         let eleves = JSON.parse(localStorage.getItem('maListeEleves')) || [];
 
+        function sauvegarderNomEnseignant() {
+            const nom = document.getElementById('nomEnseignant').value;
+            localStorage.setItem('nom_enseignant', nom);
+        }
+
         function appliquerCouleursSexe() {
             const prefs = JSON.parse(localStorage.getItem('theme_tuiles'));
             if (prefs) {
-                if (prefs.fille && mapCouleurs[prefs.fille]) {
-                    document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]);
-                }
-                if (prefs.garcon && mapCouleurs[prefs.garcon]) {
-                    document.documentElement.style.setProperty('--student-name-boy', mapCouleurs[prefs.garcon]);
-                }
+                if (prefs.fille && mapCouleurs[prefs.fille]) { document.documentElement.style.setProperty('--student-name-girl', mapCouleurs[prefs.fille]); }
+                if (prefs.garcon && mapCouleurs[prefs.garcon]) { document.documentElement.style.setProperty('--student-name-boy', mapCouleurs[prefs.garcon]); }
             }
         }
 
@@ -215,23 +213,12 @@
             const monthSel = document.getElementById('birth-month');
             const yearSel = document.getElementById('birth-year');
             const derniereAnnee = localStorage.getItem('derniereAnneeSaisie') || "";
-            daySel.innerHTML = '<option value="">Jour</option>'; 
-            monthSel.innerHTML = '<option value="">Mois</option>'; 
-            yearSel.innerHTML = '<option value="">Année</option>';
-            for(let i=1; i<=31; i++) {
-                let val = i < 10 ? '0'+i : i;
-                daySel.innerHTML += `<option value="${val}">${i}</option>`;
-            }
+            daySel.innerHTML = '<option value="">Jour</option>'; monthSel.innerHTML = '<option value="">Mois</option>'; yearSel.innerHTML = '<option value="">Année</option>';
+            for(let i=1; i<=31; i++) { let val = i < 10 ? '0'+i : i; daySel.innerHTML += `<option value="${val}">${i}</option>`; }
             const mois = ["Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sep.", "Oct.", "Nov.", "Déc."];
-            mois.forEach((m, index) => {
-                let val = (index + 1) < 10 ? '0'+(index+1) : (index+1);
-                monthSel.innerHTML += `<option value="${val}">${m}</option>`;
-            });
+            mois.forEach((m, index) => { let val = (index + 1) < 10 ? '0'+(index+1) : (index+1); monthSel.innerHTML += `<option value="${val}">${m}</option>`; });
             const currentYear = new Date().getFullYear();
-            for(let i=currentYear; i>=currentYear-20; i--) {
-                const selected = (String(i) === derniereAnnee) ? "selected" : "";
-                yearSel.innerHTML += `<option value="${i}" ${selected}>${i}</option>`;
-            }
+            for(let i=currentYear; i>=currentYear-20; i--) { const selected = (String(i) === derniereAnnee) ? "selected" : ""; yearSel.innerHTML += `<option value="${i}" ${selected}>${i}</option>`; }
         }
 
         function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
@@ -296,7 +283,7 @@
             statsDiv.innerHTML = `<div class="stat-pill bg-white text-gray-800 border border-gray-300">Total: ${eleves.length}</div><div class="stat-pill bg-blue-100 text-blue-700 border border-blue-200">♂ ${eleves.filter(e => e.sexe === 'm').length}</div><div class="stat-pill bg-pink-100 text-pink-700 border border-pink-200">♀ ${eleves.filter(e => e.sexe === 'f').length}</div>`;
         }
 
-function render() {
+        function render() {
             renderStats();
             const container = document.getElementById('listeContainer');
             if (!container) return;
@@ -305,26 +292,18 @@ function render() {
             eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
             const présents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
             
-            // Si 2 niveaux, on utilise une grille à 2 colonnes, sinon le mode pinterest
-            if (présents.length === 2) {
-                container.className = "grid grid-cols-2 gap-4 max-w-4xl mx-auto";
-            } else {
-                container.className = "pinterest-grid max-w-4xl mx-auto"; 
-            }
+            container.className = présents.length === 2 ? "grid grid-cols-2 gap-4 max-w-4xl mx-auto" : "pinterest-grid max-w-4xl mx-auto";
 
             présents.forEach(niv => {
                 const levelColumn = document.createElement('div');
-                // On retire la classe pinterest-item si on est en mode 2 colonnes pour éviter les conflits de style
                 levelColumn.className = présents.length === 2 ? "w-full" : "pinterest-item";
-                
                 const couleurNiveau = couleurParNiveau[niv] || hexaTheme;
                 levelColumn.innerHTML = `<h3 style="color:${couleurNiveau}" class="text-[11px] font-black uppercase tracking-widest text-center mb-3">${niv}</h3>`;
                 const list = document.createElement('div');
                 list.className = "flex flex-col gap-1.5";
                 
                 groupes[niv].sort((a, b) => {
-                    const partsA = a.identite.split(" ");
-                    const partsB = b.identite.split(" ");
+                    const partsA = a.identite.split(" "); const partsB = b.identite.split(" ");
                     const pA = partsA[0], nA = partsA.slice(1).join(" ");
                     const pB = partsB[0], nB = partsB.slice(1).join(" ");
                     return modeTriApp === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
@@ -334,7 +313,6 @@ function render() {
                     item.className = `student-item ${genderClass}`;
                     const parts = el.identite.split(" ");
                     const identiteAffiche = modeTriApp === 'nom' ? `${parts.slice(1).join(" ")} ${parts[0]}` : `${parts[0]} ${parts.slice(1).join(" ")}`;
-
                     item.innerHTML = `
                         <div class="flex flex-col flex-grow overflow-hidden" onclick="preparerModification('${el.id}')">
                             <span class="text-[10px] font-black truncate leading-tight">${identiteAffiche}</span>
@@ -358,213 +336,123 @@ function render() {
             const month = document.getElementById('birth-month').value;
             const year = document.getElementById('birth-year').value;
             let dateStockee = (day && month && year) ? `${day}-${month}-${year}` : "";
-            
             const selectedSexe = document.querySelector('input[name="sexe"]:checked').value;
             const selectedNiveau = document.querySelector('input[name="niveau"]:checked').value;
-
-            const data = { 
-                identite: formaterIdentite(saisie[0], saisie.slice(1).join(" ")), 
-                sexe: selectedSexe, 
-                niveau: selectedNiveau, 
-                dateNaissance: dateStockee 
-            };
+            const data = { identite: formaterIdentite(saisie[0], saisie.slice(1).join(" ")), sexe: selectedSexe, niveau: selectedNiveau, dateNaissance: dateStockee };
 
             if (editId) { 
                 const idx = eleves.findIndex(el => String(el.id) === String(editId)); 
                 if(idx !== -1) eleves[idx] = { ...eleves[idx], ...data }; 
-                document.getElementById('edit-id').value = ""; 
-                document.getElementById('btn-submit').innerText = "Enregistrer"; 
-            }
-            else { eleves.push({ id: String(Date.now()), ...data }); }
+                document.getElementById('edit-id').value = ""; document.getElementById('btn-submit').innerText = "Enregistrer"; 
+            } else { eleves.push({ id: String(Date.now()), ...data }); }
             
             localStorage.setItem('maListeEleves', JSON.stringify(eleves)); 
+            if(year) localStorage.setItem('derniereAnneeSaisie', year);
             render(); 
-            
             document.getElementById('nomComplet').value = "";
             initDateSelectors();
-            
-            document.querySelector(`input[name="sexe"][value="${selectedSexe}"]`).checked = true;
-            document.querySelector(`input[name="niveau"][value="${selectedNiveau}"]`).checked = true;
         };
 
         function preparerModification(id) {
             const el = eleves.find(e => String(e.id) === String(id)); if (!el) return;
-            document.getElementById('edit-id').value = el.id; 
-            document.getElementById('nomComplet').value = el.identite; 
-            if (el.dateNaissance) {
-                const parts = el.dateNaissance.split('-');
-                document.getElementById('birth-day').value = parts[0];
-                document.getElementById('birth-month').value = parts[1];
-                document.getElementById('birth-year').value = parts[2];
-            }
-            document.querySelector(`input[name="sexe"][value="${el.sexe}"]`).checked = true; 
-            document.querySelector(`input[name="niveau"][value="${el.niveau}"]`).checked = true;
-            document.getElementById('btn-submit').innerText = "Mettre à jour"; 
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            document.getElementById('edit-id').value = el.id; document.getElementById('nomComplet').value = el.identite; 
+            if (el.dateNaissance) { const parts = el.dateNaissance.split('-'); document.getElementById('birth-day').value = parts[0]; document.getElementById('birth-month').value = parts[1]; document.getElementById('birth-year').value = parts[2]; }
+            document.querySelector(`input[name="sexe"][value="${el.sexe}"]`).checked = true; document.querySelector(`input[name="niveau"][value="${el.niveau}"]`).checked = true;
+            document.getElementById('btn-submit').innerText = "Mettre à jour"; window.scrollTo({ top: 0, behavior: "smooth" });
         }
 
-        function supprimer(id) { 
-            customConfirm("Supprimer cet élève ?", (val) => { if(val === 'yes') { eleves = eleves.filter(e => String(e.id) !== String(id)); localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Supprimer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); 
-        }
-
-        function toutEffacer() { 
-            customConfirm("⚠️ Supprimer toute la liste ?", (val) => { if(val === 'yes') { eleves = []; localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Tout effacer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); 
-        }
+        function supprimer(id) { customConfirm("Supprimer cet élève ?", (val) => { if(val === 'yes') { eleves = eleves.filter(e => String(e.id) !== String(id)); localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Supprimer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
+        function toutEffacer() { customConfirm("⚠️ Supprimer toute la liste ?", (val) => { if(val === 'yes') { eleves = []; localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Tout effacer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
 
         function exporterListe() {
             if (eleves.length === 0) return alert("Liste vide !");
-            let contenu = eleves.map(el => { 
-                const p = el.identite.split(" "); 
-                return `${p[0]};${p.slice(1).join(" ")};${el.sexe};${el.niveau};${el.dateNaissance||''}`; 
-            }).join("\n");
-            const blob = new Blob([contenu], { type: 'text/plain' }); 
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); 
-            a.href = url; a.download = `liste_eleves.txt`; 
-            a.click(); URL.revokeObjectURL(url);
+            let contenu = eleves.map(el => { const p = el.identite.split(" "); return `${p[0]};${p.slice(1).join(" ")};${el.sexe};${el.niveau};${el.dateNaissance||''}`; }).join("\n");
+            const blob = new Blob([contenu], { type: 'text/plain' }); const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `liste_eleves.txt`; a.click(); URL.revokeObjectURL(url);
         }
 
-        function importerListe() { 
-            customConfirm(
-                "Importer une nouvelle liste ? Cela remplacera définitivement la liste actuelle.", 
-                (val) => { 
-                    if(val === 'yes') { 
-                        document.getElementById('fileInput').click(); 
-                    } 
-                }, 
-                [
-                    {text: 'Importer et Remplacer', value: 'yes', type: 'primary'}, 
-                    {text: 'Annuler', value: 'no'}
-                ]
-            );
-        }
+        function importerListe() { customConfirm("Importer une nouvelle liste ? Cela remplacera la liste actuelle.", (val) => { if(val === 'yes') { document.getElementById('fileInput').click(); }}, [{text: 'Importer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
-            const fichier = e.target.files[0];
-            if (!fichier) return;
+            const fichier = e.target.files[0]; if (!fichier) return;
             const reader = new FileReader();
             reader.onload = function(event) {
-                const lignes = event.target.result.split(/\r?\n/);
-                const nouveaux = [];
-                lignes.forEach(l => {
-                    const col = l.split(";");
-                    if (col.length >= 4) {
-                        nouveaux.push({ 
-                            id: String(Date.now() + Math.random()), 
-                            identite: formaterIdentite(col[0], col[1]), 
-                            sexe: col[2], 
-                            niveau: col[3], 
-                            dateNaissance: col[4] || "" 
-                        });
-                    }
-                });
-                if (nouveaux.length > 0) {
-                    eleves = nouveaux;
-                    localStorage.setItem('maListeEleves', JSON.stringify(eleves));
-                    render();
-                }
+                const lignes = event.target.result.split(/\r?\n/); const nouveaux = [];
+                lignes.forEach(l => { const col = l.split(";"); if (col.length >= 4) { nouveaux.push({ id: String(Date.now() + Math.random()), identite: formaterIdentite(col[0], col[1]), sexe: col[2], niveau: col[3], dateNaissance: col[4] || "" }); } });
+                if (nouveaux.length > 0) { eleves = nouveaux; localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }
                 e.target.value = "";
             };
             reader.readAsText(fichier);
         });
 
 function genererPDF() {
-    if (eleves.length === 0) return alert("La liste est vide !");
-    const { jsPDF } = window.jspdf; 
-    const doc = new jsPDF();
-    
-    // --- RÉCUPÉRATION DU NOM ---
-    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
-    
-    // 1. Préparation des données groupées par niveau
-    const groupes = {};
-    eleves.forEach(el => {
-        if (!groupes[el.niveau]) groupes[el.niveau] = [];
-        groupes[el.niveau].push(el);
-    });
-
-    // 2. Tri des niveaux selon l'ordre défini
-    const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
-    
-    // --- TITRE ET SOUS-TITRE ---
-    doc.setFontSize(18);
-    doc.text(`Liste de la classe de ${nomEnseignantBrut}`, 105, 15, { align: "center" });
-    
-    doc.setFontSize(12);
-    const texteNiveaux = niveauxPresents.join(" / ");
-    doc.text(texteNiveaux, 105, 22, { align: "center" });
-    
-    let finalBody = [];
-    let compteurGlobal = 1; // Numérotation continue
-
-    niveauxPresents.forEach(niv => {
-        // Ligne de titre pour le niveau
-        finalBody.push([
-            { content: niv, colSpan: 5, styles: { fillColor: [240, 240, 240], fontStyle: 'bold', halign: 'center' } }
-        ]);
-
-        // 3. Tri des élèves au sein du niveau
-        const elevesTries = groupes[niv].sort((a, b) => {
-            const partsA = a.identite.split(" ");
-            const partsB = b.identite.split(" ");
-            const prenomA = partsA[0], nomA = partsA.slice(1).join(" ");
-            const prenomB = partsB[0], nomB = partsB.slice(1).join(" ");
-
-            if (modeTriApp === 'nom') {
-                return nomA.localeCompare(nomB);
-            } else {
-                return prenomA.localeCompare(prenomB);
-            }
-        });
-
-        // 4. Formatage de l'identité et numérotation
-        elevesTries.forEach((el) => {
-            const parts = el.identite.split(" ");
-            const identitePDF = modeTriApp === 'nom' 
-                ? `${parts.slice(1).join(" ")} ${parts[0]}` 
-                : `${parts[0]} ${parts.slice(1).join(" ")}`;
-
-            finalBody.push([
-                compteurGlobal++, 
-                identitePDF,
-                el.dateNaissance || '-',
-                el.sexe.toUpperCase(),
-                el.niveau
-            ]);
-        });
-    });
-
-    doc.autoTable({
-        head: [['#', 'Identité', 'Date Naiss.', 'S.', 'Niveau']],
-        body: finalBody,
-        startY: 30, // Ajusté pour ne pas chevaucher le sous-titre
-        theme: 'grid',
-        headStyles: { fillColor: [80, 80, 80] },
-        styles: { fontSize: 9 }
-    });
-
-    // Nettoyage pour le nom du fichier
-    const nomNettoye = nomEnseignantBrut
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, '_');
-    
-    // Date au format AAAA-MM-JJ
-    const d = new Date();
-    const dateJour = d.getFullYear() + '-' + 
-                   String(d.getMonth() + 1).padStart(2, '0') + '-' + 
-                   String(d.getDate()).padStart(2, '0');
-    
-    doc.save(`outilsprofs_liste_classe_${nomNettoye}_${dateJour}.pdf`);
-}
+            if (eleves.length === 0) return alert("La liste est vide !");
+            const { jsPDF } = window.jspdf; 
+            const doc = new jsPDF();
+            
+            // Récupération du nom de l'enseignant
+            const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
+            
+            // Préparation de la date au format aaaa-mm-jj
+            const maintenant = new Date();
+            const annee = maintenant.getFullYear();
+            const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
+            const jour = String(maintenant.getDate()).padStart(2, '0');
+            const dateFormattee = `${annee}-${mois}-${jour}`;
+            
+            const groupes = {}; 
+            eleves.forEach(el => { 
+                if (!groupes[el.niveau]) groupes[el.niveau] = []; 
+                groupes[el.niveau].push(el); 
+            });
+            
+            const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
+            
+            doc.setFontSize(18); 
+            doc.text(`Liste de la classe de ${nomEnseignantBrut}`, 105, 15, { align: "center" });
+            doc.setFontSize(12); 
+            doc.text(niveauxPresents.join(" / "), 105, 22, { align: "center" });
+            
+            let finalBody = []; 
+            let compteurGlobal = 1;
+            
+            niveauxPresents.forEach(niv => {
+                finalBody.push([{ content: niv, colSpan: 5, styles: { fillColor: [240, 240, 240], fontStyle: 'bold', halign: 'center' } }]);
+                groupes[niv].sort((a, b) => {
+                    const pA = a.identite.split(" ")[0], nA = a.identite.split(" ").slice(1).join(" ");
+                    const pB = b.identite.split(" ")[0], nB = b.identite.split(" ").slice(1).join(" ");
+                    return modeTriApp === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
+                }).forEach((el) => {
+                    const pts = el.identite.split(" ");
+                    const idPDF = modeTriApp === 'nom' ? `${pts.slice(1).join(" ")} ${pts[0]}` : `${pts[0]} ${pts.slice(1).join(" ")}`;
+                    finalBody.push([compteurGlobal++, idPDF, el.dateNaissance || '-', el.sexe.toUpperCase(), el.niveau]);
+                });
+            });
+            
+            doc.autoTable({ 
+                head: [['#', 'Identité', 'Date Naiss.', 'S.', 'Niveau']], 
+                body: finalBody, 
+                startY: 30, 
+                theme: 'grid', 
+                headStyles: { fillColor: [80, 80, 80] }, 
+                styles: { fontSize: 9 } 
+            });
+            
+            // Nettoyage du nom pour le nom de fichier (pas d'espaces, pas d'accents)
+            const nomNettoye = nomEnseignantBrut.toLowerCase().trim()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, '_');
+            
+            // Construction du nom de fichier final
+            const nomFichier = `outilsprofs_liste_classe_${nomNettoye}_${dateFormattee}.pdf`;
+            
+            doc.save(nomFichier);
+        }
 
         window.onload = () => { 
-            initDateSelectors(); 
-            appliquerCouleursSexe(); 
-            appliquerCouleursTheme(); 
-            render(); 
+            const nomStocke = localStorage.getItem('nom_enseignant') || "";
+            document.getElementById('nomEnseignant').value = nomStocke;
+            initDateSelectors(); appliquerCouleursSexe(); appliquerCouleursTheme(); render(); 
         };
     </script>
 </body>
