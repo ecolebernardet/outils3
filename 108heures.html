@@ -296,6 +296,13 @@
     function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
 
+function resetHeures() {
+        customConfirm("Voulez-vous vraiment tout effacer ? Cette action est irréversible.", () => {
+            reunions = [];
+            saveAndRender();
+        });
+    }
+	
     function customConfirm(msg, action) {
         document.getElementById('confirm-msg').innerText = msg;
         confirmAction = action;
@@ -464,9 +471,9 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    customConfirm("Fusionner avec les données actuelles ?", () => {
-                        const existingIds = new Set(reunions.map(r => r.id));
-                        imported.forEach(item => { if(!existingIds.has(item.id)) reunions.push(item); });
+                    // Modification de l'avertissement et de la logique (remplacement au lieu de fusion)
+                    customConfirm("Remplacer les données actuelles ? (L'ancienne liste sera écrasée)", () => {
+                        reunions = imported; 
                         saveAndRender();
                     });
                 }
@@ -474,13 +481,6 @@
         };
         reader.readAsText(file);
         event.target.value = "";
-    }
-
-    function resetHeures() {
-        customConfirm("Tout effacer ?", () => {
-            reunions = [];
-            saveAndRender();
-        });
     }
 
     function exportPDF() {
