@@ -15,7 +15,7 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -171,7 +171,7 @@
                 <input type="file" id="importFile" class="hidden" accept=".txt">
             </label>
             <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white ">👆exporter .txt👆</button>
-			<button onclick="genererPDF()" class="nav-btn bg-neutral-800 text-white ">📄 récapitulatif PDF</button>
+            <button onclick="genererPDF()" class="nav-btn bg-neutral-800 text-white ">📄 récapitulatif PDF</button>
         </div>
         <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
     </footer>
@@ -295,7 +295,7 @@
                     const item = document.createElement('div');
                     item.className = `student-item no-select ${genderClass}`;
                     
-                    const noteText = savedComments[el.id] || savedComments[el.identite] || "";
+                    const noteText = savedComments[el.identite] || "";
                     const hasNote = noteText.trim().length > 0;
                     
                     item.innerHTML = `<span class="student-name">${formatName(el.identite)}</span><span class="status-icon">${hasNote ? '🔎' : '＋'}</span>`;
@@ -311,7 +311,7 @@
             currentStudentId = el.id;
             currentStudentName = el.identite;
             document.getElementById('modalTitle').innerText = formatName(el.identite);
-            document.getElementById('commentInput').value = savedComments[el.id] || savedComments[el.identite] || "";
+            document.getElementById('commentInput').value = savedComments[el.identite] || "";
             document.getElementById('modal').style.display = 'flex';
             setTimeout(() => document.getElementById('commentInput').focus(), 100);
         }
@@ -321,11 +321,9 @@
         function saveData() {
             const val = document.getElementById('commentInput').value;
             if(val.trim() === "") {
-                delete savedComments[currentStudentId];
                 delete savedComments[currentStudentName];
             } else {
-                const key = currentStudentId || currentStudentName;
-                savedComments[key] = val;
+                savedComments[currentStudentName] = val;
             }
             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
             renderList(); closeAllModals();
@@ -338,8 +336,8 @@
                 renderList();
             });
         }
-		
-		async function genererPDF() {
+        
+        async function genererPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             const dateStr = new Date().toLocaleDateString('fr-FR');
@@ -349,7 +347,6 @@
                 return;
             }
 
-            // Style du titre
             doc.setFont("helvetica", "bold");
             doc.setFontSize(18);
             doc.text("RÉCAPITULATIF DES OBSERVATIONS", 105, 20, { align: "center" });
@@ -363,72 +360,73 @@
             const margin = 20;
             const pageHeight = 280;
 
-            // Classer les observations par élève (en utilisant la liste des inscrits pour avoir les noms propres)
             elevesInscrits.forEach((eleve) => {
-                const note = savedComments[eleve.id] || savedComments[eleve.identite];
+                const note = savedComments[eleve.identite];
                 
                 if (note && note.trim() !== "") {
-                    // Vérifier si on doit changer de page
                     if (y > pageHeight - 20) {
                         doc.addPage();
                         y = 20;
                     }
 
-                    // Nom de l'élève
                     doc.setFont("helvetica", "bold");
                     doc.setFontSize(12);
                     doc.text(`${formatName(eleve.identite)} (${eleve.niveau})`, margin, y);
                     y += 7;
 
-                    // Contenu de la note (gestion du retour à la ligne automatique)
                     doc.setFont("helvetica", "normal");
                     doc.setFontSize(10);
                     const splitTitle = doc.splitTextToSize(note, 170);
                     doc.text(splitTitle, margin, y);
                     
-                    y += (splitTitle.length * 5) + 10; // Espacement après la note
+                    y += (splitTitle.length * 5) + 10;
                 }
             });
 
             const dateFichier = new Date().toISOString().split('T')[0];
             doc.save(`outilsprofs_recap_observations_${dateFichier}.pdf`);
         }
-		
+        
         function exportToFile() {
             if (Object.keys(savedComments).length === 0) {
                 showAlert("Vide", "Il n'y a aucune observation à exporter.", null, false);
                 return;
             }
-            const jsonString = JSON.stringify(savedComments, null, 2);
-            const blob = new Blob([jsonString], { type: 'text/plain;charset=utf-8' });
-            
-            // Formatage de la date en AAAA-MM-JJ
+
+            let contenu = Object.entries(savedComments)
+                .map(([nom, obs]) => `${nom};${obs.replace(/\n/g, '[BR]')}`)
+                .join("\n");
+
+            const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' });
             const dateStr = new Date().toISOString().split('T')[0];
-            
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            
-            // Nom de fichier fixe avec la date
             a.href = url;
             a.download = `outilsprofs_observations_${dateStr}.txt`; 
-            
             document.body.appendChild(a);
             a.click();
-            
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+            document.body.removeChild(a);
         }
 
         document.getElementById('importFile').addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
-                    const incomingData = JSON.parse(event.target.result);
-                    if (typeof incomingData === 'object' && incomingData !== null) {
-                        showAlert("Importer ?", "Remplacer les données actuelles ? (L'ancienne liste sera écrasée)", () => {
-                            savedComments = incomingData; 
+                    const lignes = event.target.result.split(/\r?\n/);
+                    const nouveauxComments = {};
+                    
+                    lignes.forEach(l => {
+                        const parts = l.split(";");
+                        if (parts.length >= 2) {
+                            const nom = parts[0];
+                            const obs = parts.slice(1).join(";").replace(/\[BR\]/g, "\n");
+                            nouveauxComments[nom] = obs;
+                        }
+                    });
+
+                    if (Object.keys(nouveauxComments).length > 0) {
+                        showAlert("Importer ?", "Fusionner avec les données existantes ?", () => {
+                            savedComments = { ...savedComments, ...nouveauxComments };
                             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
                             renderList();
                         });
@@ -449,6 +447,7 @@
                 <ul class="space-y-2">
                     <li>• <strong>Icone 🔎 :</strong> Indique qu'une note est enregistrée.</li>
                     <li>• <strong>Icone ＋ :</strong> Aucune note pour cet élève.</li>
+                    <li>• <strong>Portabilité :</strong> L'export et l'import se basent sur le NOM et le PRÉNOM. Vous pouvez transférer vos notes d'un appareil à l'autre sans problème.</li>
                 </ul>`;
             document.getElementById('modal-aide').style.display = 'flex';
         }
