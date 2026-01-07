@@ -43,6 +43,20 @@
             width: calc(100% + 30px); margin-left: -15px;
         }
 
+        /* Onglets */
+        .tab-nav {
+            display: flex; background: var(--header-bg); border-bottom: 1px solid var(--header-border);
+            margin-left: -15px; width: calc(100% + 30px); position: sticky; top: 60px; z-index: 90;
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase;
+            text-align: center; opacity: 0.5; border-bottom: 3px solid transparent; transition: all 0.3s;
+			cursor: pointer;
+        }
+        .tab-btn.active { opacity: 1; border-bottom-color: var(--text-main); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .light-card { 
             background: var(--card-bg); border-radius: 1.5rem; 
             border: 1px solid var(--header-border); box-shadow: 0 10px 25px -5px var(--shadow-color);
@@ -125,72 +139,82 @@
         <button id="btn-aide" onclick="ouvrirAide()" class="header-btn shadow-lg active:scale-90 text-lg">💡</button>
     </header>
 
-    <div class="max-w-4xl mx-auto p-4 mt-4">
-		<div id="profil-container" class="max-w-md mx-auto light-card p-4 mb-4 border-dashed border-2" style="border-color: var(--header-border)">
-			<div class="flex flex-col gap-2">
-				<label class="text-[9px] font-black uppercase opacity-60 ml-1">Nom de l'enseignant :</label>
-        
-				<input type="text" id="nomEnseignant" placeholder="ex: M. DURAND ou Mme MARTIN" 
-					class="input-field w-full border-none shadow-inner" 
-					style="background: rgba(0,0,0,0.05)"
-					oninput="sauvegarderNomEnseignant()">
-        
-				<p class="text-[9px] italic opacity-50 ml-1">
-					Ce nom sera utilisé pour personnaliser vos documents.
-				</p>
-			</div>
-		</div>
+    <nav class="tab-nav">
+        <div id="tab-btn-classe" class="tab-btn active" onclick="switchTab('classe')">Enregistrement de la classe</div>
+        <div id="tab-btn-editeur" class="tab-btn" onclick="switchTab('editeur')">Éditeur de listes</div>
+    </nav>
 
-        <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-4">
-			<div class="mb-3">
-				<label class="text-[9px] font-black uppercase opacity-60 ml-1">Enregistrement des élèves :</label>
-			</div>
-            <form id="eleveForm" class="flex flex-col gap-3">
-                <input type="hidden" id="edit-id" value="">
-                <input type="text" id="nomComplet" placeholder="Prénom NOM" class="input-field w-full" required autocomplete="off">
-                <div class="grid grid-cols-3 gap-2">
-                    <select id="birth-day" class="select-date"></select>
-                    <select id="birth-month" class="select-date"></select>
-                    <select id="birth-year" class="select-date"></select>
+    <div class="max-w-4xl mx-auto p-4 mt-4">
+        
+        <div id="tab-classe" class="tab-content active">
+            <div id="profil-container" class="max-w-md mx-auto light-card p-4 mb-4 border-dashed border-2" style="border-color: var(--header-border)">
+                <div class="flex flex-col gap-2">
+                    <label class="text-[9px] font-black uppercase opacity-60 ml-1">Nom de l'enseignant :</label>
+                    <input type="text" id="nomEnseignant" placeholder="ex: M. DURAND ou Mme MARTIN" 
+                        class="input-field w-full border-none shadow-inner" 
+                        style="background: rgba(0,0,0,0.05)"
+                        oninput="sauvegarderNomEnseignant()">
+                    <p class="text-[9px] italic opacity-50 ml-1">Ce nom sera utilisé pour personnaliser vos documents.</p>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <label><input type="radio" name="sexe" value="f" class="card-input input-fille"><div class="card-label">Fille</div></label>
-                    <label><input type="radio" name="sexe" value="m" class="card-input input-garcon" checked><div class="card-label">Garçon</div></label>
+            </div>
+
+            <div id="form-container" class="max-w-md mx-auto light-card p-4 mb-4">
+                <div class="mb-3">
+                    <label class="text-[9px] font-black uppercase opacity-60 ml-1">Enregistrement des élèves :</label>
                 </div>
-                <div class="grid grid-cols-6 gap-1">
-                    <label><input type="radio" name="niveau" value="CP" class="card-input input-cp"><div class="card-label">CP</div></label>
-                    <label><input type="radio" name="niveau" value="CE1" class="card-input input-ce1"><div class="card-label">CE1</div></label>
-                    <label><input type="radio" name="niveau" value="CE2" class="card-input input-ce2" checked><div class="card-label">CE2</div></label>
-                    <label><input type="radio" name="niveau" value="CM1" class="card-input input-cm1"><div class="card-label">CM1</div></label>
-                    <label><input type="radio" name="niveau" value="CM2" class="card-input input-cm2"><div class="card-label">CM2</div></label>
-                    <label><input type="radio" name="niveau" value="AUTRE" class="card-input input-autre"><div class="card-label">Autre</div></label>
+                <form id="eleveForm" class="flex flex-col gap-3">
+                    <input type="hidden" id="edit-id" value="">
+                    <input type="text" id="nomComplet" placeholder="Prénom NOM" class="input-field w-full" required autocomplete="off">
+                    <div class="grid grid-cols-3 gap-2">
+                        <select id="birth-day" class="select-date"></select>
+                        <select id="birth-month" class="select-date"></select>
+                        <select id="birth-year" class="select-date"></select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label><input type="radio" name="sexe" value="f" class="card-input input-fille"><div class="card-label">Fille</div></label>
+                        <label><input type="radio" name="sexe" value="m" class="card-input input-garcon" checked><div class="card-label">Garçon</div></label>
+                    </div>
+                    <div class="grid grid-cols-6 gap-1">
+                        <label><input type="radio" name="niveau" value="CP" class="card-input input-cp"><div class="card-label">CP</div></label>
+                        <label><input type="radio" name="niveau" value="CE1" class="card-input input-ce1"><div class="card-label">CE1</div></label>
+                        <label><input type="radio" name="niveau" value="CE2" class="card-input input-ce2" checked><div class="card-label">CE2</div></label>
+                        <label><input type="radio" name="niveau" value="CM1" class="card-input input-cm1"><div class="card-label">CM1</div></label>
+                        <label><input type="radio" name="niveau" value="CM2" class="card-input input-cm2"><div class="card-label">CM2</div></label>
+                        <label><input type="radio" name="niveau" value="AUTRE" class="card-input input-autre"><div class="card-label">Autre</div></label>
+                    </div>
+                    <button type="submit" id="btn-submit" class="font-black py-2.5 rounded-full uppercase text-xs active:scale-95 transition-transform mt-1">Enregistrer</button>
+                </form>
+            </div>
+
+            <div id="stats-container" class="max-w-md mx-auto mb-4 flex flex-wrap justify-center gap-2"></div>
+
+            <div id="sort-controls" class="max-w-md mx-auto mb-5 flex justify-center items-center p-2 rounded-xl border border-white/10" style="background: var(--card-bg);">
+                <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-black uppercase opacity-60 leading-none">Trier par :</span>
+                    <div class="flex gap-2">
+                        <button onclick="changerTriApp('prenom')" id="sort-prenom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Prénom</button>
+                        <button onclick="changerTriApp('nom')" id="sort-nom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Nom</button>
+                    </div>
                 </div>
-                <button type="submit" id="btn-submit" class="font-black py-2.5 rounded-full uppercase text-xs active:scale-95 transition-transform mt-1">Enregistrer</button>
-            </form>
+            </div>
+
+            <div id="listeContainer"></div>
+
+            <div class="max-w-md mx-auto flex flex-col gap-3 mt-6 mb-10">
+                <div class="grid grid-cols-2 gap-2"> 
+                    <button onclick="importerListe()" class="btn-nav bg-neutral-800 text-white shadow-md">👇 importer .txt 👇</button>
+                    <button onclick="exporterListe()" class="btn-nav bg-neutral-800 text-white shadow-md">👆 exporter.txt 👆</button>
+                </div>
+                <button onclick="toutEffacer()" class="btn-nav bg-red-500 text-red-100 shadow-md">⚠️ effacer la liste</button>
+            </div>
         </div>
 
-        <div id="stats-container" class="max-w-md mx-auto mb-4 flex flex-wrap justify-center gap-2"></div>
-
-        <div id="sort-controls" class="max-w-md mx-auto mb-5 flex justify-center items-center p-2 rounded-xl border border-white/10" style="background: var(--card-bg);">
-			<div class="flex items-center gap-3">
-				<span class="text-[9px] font-black uppercase opacity-60 leading-none">Trier par :</span>
-				<div class="flex gap-2">
-					<button onclick="changerTriApp('prenom')" id="sort-prenom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Prénom</button>
-					<button onclick="changerTriApp('nom')" id="sort-nom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Nom</button>
-				</div>
-			</div>
-		</div>
-
-        <div id="listeContainer"></div>
-
-        <div class="max-w-md mx-auto flex flex-col gap-3 mt-6 mb-10">
-<div class="grid grid-cols-2 gap-2"> <button onclick="importerListe()" class="btn-nav bg-neutral-800 text-white shadow-md">👇 importer .txt 👇</button>
-    <button onclick="exporterListe()" class="btn-nav bg-neutral-800 text-white shadow-md">👆 exporter.txt 👆</button>
-    <button onclick="genererPDF()" class="btn-nav bg-neutral-800 text-white shadow-md">📄 liste de la classe .pdf</button>
-    <button onclick="genererEmargement()" class="btn-nav bg-neutral-800 text-white shadow-md">📄 feuille de pointage .pdf</button>
-	<button onclick="genererEtiquettes()" class="btn-nav bg-neutral-800 text-white shadow-md">🏷️ étiquettes</button>
-</div>
-            <button onclick="toutEffacer()" class="btn-nav bg-red-500 text-red-100 shadow-md">⚠️ effacer la liste</button>
+        <div id="tab-editeur" class="tab-content">
+            <div class="max-w-md mx-auto flex flex-col gap-3">
+                <button onclick="genererPDF()" class="btn-nav bg-neutral-800 text-white shadow-md">📄 liste de la classe .pdf</button>
+                <button onclick="genererEmargement()" class="btn-nav bg-neutral-800 text-white shadow-md">📄 feuille de pointage .pdf</button>
+                <button onclick="genererEtiquettes()" class="btn-nav bg-neutral-800 text-white shadow-md">🏷️ étiquettes</button>
+            </div>
         </div>
     </div>
 
@@ -206,6 +230,13 @@
 
         let modeTriApp = localStorage.getItem('tri_eleves_app') || 'prenom';
         let eleves = JSON.parse(localStorage.getItem('maListeEleves')) || [];
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('tab-btn-' + tab).classList.add('active');
+        }
 
         function sauvegarderNomEnseignant() {
             const nom = document.getElementById('nomEnseignant').value;
@@ -376,59 +407,33 @@
         function supprimer(id) { customConfirm("Supprimer cet élève ?", (val) => { if(val === 'yes') { eleves = eleves.filter(e => String(e.id) !== String(id)); localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Supprimer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
         function toutEffacer() { customConfirm("⚠️ Supprimer toute la liste ?", (val) => { if(val === 'yes') { eleves = []; localStorage.setItem('maListeEleves', JSON.stringify(eleves)); render(); }}, [{text: 'Tout effacer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
 
-function verifierDernierExport() {
-    const dernierExport = localStorage.getItem('last_export_inscr');
-    const maintenant = new Date().getTime();
-    const septJours = 7 * 24 * 60 * 60 * 1000;
-
-    if (!dernierExport || (maintenant - dernierExport > septJours)) {
-        const btnExport = document.querySelector('button[onclick="exporterListe()"]');
-        if (btnExport) {
-            btnExport.innerHTML = '👆 exporter.txt 🟠';
-            btnExport.classList.add('border-2', 'border-orange-500');
-        }
-    }
-}
-
-		function exporterListe() {
-            if (eleves.length === 0) {
-                customConfirm("La liste est vide ! Ajoutez des élèves avant d'exporter.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
-                return;
+        function verifierDernierExport() {
+            const dernierExport = localStorage.getItem('last_export_inscr');
+            const maintenant = new Date().getTime();
+            const septJours = 7 * 24 * 60 * 60 * 1000;
+            if (!dernierExport || (maintenant - dernierExport > septJours)) {
+                const btnExport = document.querySelector('button[onclick="exporterListe()"]');
+                if (btnExport) { btnExport.innerHTML = '👆 exporter.txt 🟠'; btnExport.classList.add('border-2', 'border-orange-500'); }
             }
-            
-            // Préparation du contenu
-            let contenu = eleves.map(el => { 
-                const p = el.identite.split(" "); 
-                return `${p[0]};${p.slice(1).join(" ")};${el.sexe};${el.niveau};${el.dateNaissance||''}`; 
-            }).join("\n");
-            
+        }
+
+        function exporterListe() {
+            if (eleves.length === 0) { customConfirm("La liste est vide !", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]); return; }
+            let contenu = eleves.map(el => { const p = el.identite.split(" "); return `${p[0]};${p.slice(1).join(" ")};${el.sexe};${el.niveau};${el.dateNaissance||''}`; }).join("\n");
             const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
             const maintenant = new Date();
             const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
-            
-            const nomNettoye = nomEnseignantBrut.toLowerCase().trim()
-                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, '_');
-            
+            const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
             const nomFichier = `outilsprofs_liste_classe_${nomNettoye}_${dateFormattee}.txt`;
-            
             const blob = new Blob([contenu], { type: 'text/plain' }); 
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); 
-            a.href = url; 
-            a.download = nomFichier; 
-            a.click(); 
-            URL.revokeObjectURL(url);
-			localStorage.setItem('last_export_inscr', new Date().getTime());
-    const btnExport = document.querySelector('button[onclick="exporterListe()"]');
-    if (btnExport) {
-        btnExport.innerHTML = '👆 exporter.txt 👆';
-        btnExport.classList.remove('border-2', 'border-orange-500');
-    }
-}
+            const a = document.createElement('a'); a.href = url; a.download = nomFichier; a.click(); URL.revokeObjectURL(url);
+            localStorage.setItem('last_export_inscr', new Date().getTime());
+            const btnExport = document.querySelector('button[onclick="exporterListe()"]');
+            if (btnExport) { btnExport.innerHTML = '👆 exporter.txt 👆'; btnExport.classList.remove('border-2', 'border-orange-500'); }
+        }
 
-
-        function importerListe() { customConfirm("Importer une nouvelle liste ? Cela remplacera la liste actuelle.", (val) => { if(val === 'yes') { document.getElementById('fileInput').click(); }}, [{text: 'Importer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
+        function importerListe() { customConfirm("Importer une nouvelle liste ?", (val) => { if(val === 'yes') { document.getElementById('fileInput').click(); }}, [{text: 'Importer', value: 'yes', type: 'primary'}, {text: 'Annuler', value: 'no'}]); }
 
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const fichier = e.target.files[0]; if (!fichier) return;
@@ -442,7 +447,8 @@ function verifierDernierExport() {
             reader.readAsText(fichier);
         });
 
-function genererEmargement() {
+        // Les fonctions PDF restent identiques
+        function genererEmargement() {
     if (eleves.length === 0) {
         customConfirm("La liste est vide ! Ajoutez des élèves avant de générer le pointage.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
         return;
@@ -529,7 +535,7 @@ function genererEmargement() {
     doc.save(`pointage_${nomNettoye}_${dateFormattee}.pdf`);
 }
 
-function genererPDF() {
+        function genererPDF() {
     if (eleves.length === 0) {
         customConfirm("La liste est vide ! Ajoutez des élèves avant de générer le PDF.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
         return;
@@ -599,86 +605,11 @@ function genererPDF() {
     doc.save(nomFichier);
 }
 
-function genererEtiquettes() {
-    if (eleves.length === 0) {
-        customConfirm("La liste est vide ! Ajoutez des élèves avant de générer les étiquettes.", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]);
-        return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4');
-    
-    const margeConfig = 10;
-    const colonnes = 2;
-    const lignes = 4;
-    const largeurEtiquette = (210 - (margeConfig * 3)) / colonnes;
-    const hauteurEtiquette = (297 - (margeConfig * 5)) / lignes;
-
-    let elevesTries = [...eleves].sort((a, b) => {
-        const pA = a.identite.split(" ")[0], nA = a.identite.split(" ").slice(1).join(" ");
-        const pB = b.identite.split(" ")[0], nB = b.identite.split(" ").slice(1).join(" ");
-        return modeTriApp === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
-    });
-
-    let colActuelle = 0;
-    let ligneActuelle = 0;
-
-    elevesTries.forEach((el, index) => {
-        if (index > 0 && index % 8 === 0) {
-            doc.addPage();
-            colActuelle = 0;
-            ligneActuelle = 0;
-        }
-
-        const x = margeConfig + (colActuelle * (largeurEtiquette + margeConfig));
-        const y = margeConfig + (ligneActuelle * (hauteurEtiquette + margeConfig));
-
-        // Cadre de l'étiquette
-        doc.setDrawColor(180, 180, 180);
-        doc.setLineWidth(0.5);
-        doc.rect(x, y, largeurEtiquette, hauteurEtiquette);
-
-        // Niveau discret
-        doc.setFontSize(9);
-        doc.setTextColor(150, 150, 150);
-        doc.setFont("helvetica", "normal");
-        doc.text(el.niveau, x + 5, y + 7);
-
-        // Séparation Prénom / Nom
-        const pts = el.identite.split(" ");
-        const prenom = pts[0];
-        const nom = pts.slice(1).join(" ");
-        
-        const centreX = x + (largeurEtiquette / 2);
-        const centreY = y + (hauteurEtiquette / 2);
-
-        // Affichage du Prénom (en haut)
-        doc.setFontSize(26);
-        doc.setTextColor(0, 0, 0);
-        doc.setFont("helvetica", "bold");
-        doc.text(prenom, centreX, centreY - 2, { align: "center" });
-
-        // Affichage du Nom (en bas)
-        doc.setFontSize(16);
-        doc.setFont("helvetica", "normal");
-        doc.text(nom, centreX, centreY + 8, { align: "center" });
-
-        colActuelle++;
-        if (colActuelle >= colonnes) {
-            colActuelle = 0;
-            ligneActuelle++;
-        }
-    });
-
-    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
-    const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
-    doc.save(`etiquettes_prenom_nom_${nomNettoye}.pdf`);
-}
-
         window.onload = () => { 
             const nomStocke = localStorage.getItem('nom_enseignant') || "";
             document.getElementById('nomEnseignant').value = nomStocke;
             initDateSelectors(); appliquerCouleursSexe(); appliquerCouleursTheme(); render(); 
-			verifierDernierExport();
+            verifierDernierExport();
         };
     </script>
 </body>
