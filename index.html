@@ -32,7 +32,7 @@
         }
 
         body { 
-			transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
+			transition: background 0.3s, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-body); 
             color: var(--text-main);
@@ -42,7 +42,7 @@
 
 		body.slide-out {
 			transform: translateX(100%);
-			opacity: 0;
+			opacity: 1;
 		}
 
         /* --- TUILES STYLE "INSCRIPTIONS" 3D --- */
@@ -115,10 +115,10 @@
     <div class="w-full max-w-[360px]">
         <header class="flex justify-between items-center mb-8 px-1">
             <button onclick="goToSettings()" class="ui-btn active:scale-90">
-    <svg xmlns="http://www.w3.org/2000/center" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-</button>
+				<svg xmlns="http://www.w3.org/2000/center" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+				</svg>
+			</button>
             <h1 class="text-[15px] font-black tracking-[0.5em] uppercase opacity-90">Outils Profs</h1>
             <img src="outilsprofs_icone30.png" alt="Avatar" class="header-avatar">
         </header>
