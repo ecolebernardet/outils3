@@ -67,7 +67,7 @@
         .card-label {
             display: flex; align-items: center; justify-content: center; text-align: center;
             background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main);
-            height: 40px; border-radius: 0.75rem; cursor: pointer;
+            height: 30px; border-radius: 0.75rem; cursor: pointer;
             font-size: 0.75rem; font-weight: 800; text-transform: uppercase; transition: all 0.2s ease;
         }
         
@@ -89,9 +89,9 @@
         .input-autre:checked + .card-label { background: #8b5cf6; border-color: #8b5cf6; color: #fff; } 
 
         .student-item { 
-            background: var(--student-item-bg); padding: 8px 12px; border-radius: 40px; 
+            background: var(--student-item-bg); padding: 5px 12px; border-radius: 40px; 
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 6px; 
+            margin-bottom: 2px; 
             border: 1px solid var(--header-border); box-shadow: 0 2px 5px var(--shadow-color); cursor: pointer;
         }
 
@@ -100,8 +100,8 @@
         
         .btn-nav { font-weight: 800; padding: 12px 4px; border-radius: 50px; font-size: 8px; text-align: center; width: 100%; cursor: pointer; }
         .input-field { background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main); border-radius: 0.75rem; padding: 10px; outline: none; font-size: 0.75rem; font-weight: 600; }
-        .select-date { background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main); border-radius: 0.75rem; height: 42px; outline: none; font-size: 0.75rem; font-weight: 600; appearance: none; text-align: center; }
-        .stat-pill { padding: 4px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .select-date { background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main); border-radius: 0.75rem; height: 30px; outline: none; font-size: 0.75rem; font-weight: 600; appearance: none; text-align: center; }
+        .stat-pill { padding: 1px 10px; border-radius: 99px; font-size: 9px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
         .header-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--header-border); transition: transform 0.1s ease, background-color 0.3s ease; }
 
         #custom-confirm { display: none; position: fixed; inset: 0; z-index: 9999; background: var(--modal-bg); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
@@ -154,8 +154,8 @@
     <div class="max-w-4xl mx-auto p-4 mt-4">
         
         <div id="tab-classe" class="tab-content active">
-            <div id="profil-container" class="max-w-md mx-auto light-card p-4 mb-4 border-dashed border-2" style="border-color: var(--header-border)">
-                <div class="flex flex-col gap-2">
+            <div id="profil-container" class="max-w-md mx-auto light-card p-4 mb-4 border-dotted border-2" style="border-color: var(--header-border)">
+                <div class="flex flex-col gap-0">
                     <label class="text-[9px] font-black uppercase opacity-60 ml-1">Nom de l'enseignant :</label>
                     <input type="text" id="nomEnseignant" placeholder="ex: M. DURAND ou Mme MARTIN" 
                         class="input-field w-full border-none shadow-inner" 
@@ -195,12 +195,12 @@
 
             <div id="stats-container" class="max-w-md mx-auto mb-4 flex flex-wrap justify-center gap-2"></div>
 
-            <div id="sort-controls" class="max-w-md mx-auto mb-5 flex justify-center items-center p-2 rounded-xl border border-white/10" style="background: var(--card-bg);">
+            <div id="sort-controls" class="max-w-md mx-auto mb-5 flex justify-center items-center p-1 rounded-xl border border-white/10" style="background: var(--card-bg);">
                 <div class="flex items-center gap-3">
                     <span class="text-[9px] font-black uppercase opacity-60 leading-none">Trier par :</span>
                     <div class="flex gap-2">
-                        <button onclick="changerTriApp('prenom')" id="sort-prenom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Prénom</button>
-                        <button onclick="changerTriApp('nom')" id="sort-nom" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-lg border border-white/10 flex items-center justify-center">Nom</button>
+                        <button onclick="changerTriApp('prenom')" id="sort-prenom" class="text-[9px] font-black uppercase px-3 py-0.5 rounded-lg border border-white/10 flex items-center justify-center">Prénom</button>
+                        <button onclick="changerTriApp('nom')" id="sort-nom" class="text-[9px] font-black uppercase px-3 py-0.5 rounded-lg border border-white/10 flex items-center justify-center">Nom</button>
                     </div>
                 </div>
             </div>
@@ -374,10 +374,36 @@
         }
 
         function renderStats() {
-            const statsDiv = document.getElementById('stats-container');
-            if (eleves.length === 0) { statsDiv.innerHTML = ""; return; }
-            statsDiv.innerHTML = `<div class="stat-pill bg-white text-gray-800 border border-gray-300">Total: ${eleves.length}</div><div class="stat-pill bg-blue-100 text-blue-700 border border-blue-200">♂ ${eleves.filter(e => e.sexe === 'm').length}</div><div class="stat-pill bg-pink-100 text-pink-700 border border-pink-200">♀ ${eleves.filter(e => e.sexe === 'f').length}</div>`;
-        }
+			const statsDiv = document.getElementById('stats-container');
+			if (!statsDiv) return;
+			if (eleves.length === 0) { statsDiv.innerHTML = ""; return; }
+
+			// Récupération des couleurs dynamiques (Sexe)
+			const colorBoy = getComputedStyle(document.documentElement).getPropertyValue('--student-name-boy').trim() || '#3b82f6';
+			const colorGirl = getComputedStyle(document.documentElement).getPropertyValue('--student-name-girl').trim() || '#ec4899';
+
+			const nbGarcons = eleves.filter(e => e.sexe === 'm').length;
+			const nbFilles = eleves.filter(e => e.sexe === 'f').length;
+
+			// Construction des pills
+			// L'étiquette 'Total' utilise maintenant des variables CSS pour s'adapter au thème (clair/sombre)
+			statsDiv.innerHTML = `
+				<div class="stat-pill border border-black/100 dark:border-white/100" 
+					style="background-color: var(--bg-card); color: var(--text-main);">
+					Total: ${eleves.length}
+				</div>
+        
+				<div class="stat-pill border" 
+					style="background-color: ${colorBoy}15; border-color: ${colorBoy}; color: ${colorBoy}">
+					♂ ${nbGarcons}
+				</div>
+        
+				<div class="stat-pill border" 
+					style="background-color: ${colorGirl}15; border-color: ${colorGirl}; color: ${colorGirl}">
+					♀ ${nbFilles}
+				</div>
+			`;
+		}
 
         function render() {
             renderStats();
@@ -396,7 +422,7 @@
                 const couleurNiveau = couleurParNiveau[niv] || hexaTheme;
                 levelColumn.innerHTML = `<h3 style="color:${couleurNiveau}" class="text-[11px] font-black uppercase tracking-widest text-center mb-3">${niv}</h3>`;
                 const list = document.createElement('div');
-                list.className = "flex flex-col gap-1.5";
+                list.className = "flex flex-col gap-0.5";
                 
                 groupes[niv].sort((a, b) => {
                     const partsA = a.identite.split(" "); const partsB = b.identite.split(" ");
@@ -412,7 +438,7 @@
                     item.innerHTML = `
                         <div class="flex flex-col flex-grow overflow-hidden" onclick="preparerModification('${el.id}')">
                             <span class="text-[10px] font-black truncate leading-tight">${identiteAffiche}</span>
-                            ${el.dateNaissance ? `<span class="text-[8px] italic mt-0.5 text-gray-500">${el.dateNaissance}</span>` : ""}
+                            ${el.dateNaissance ? `<span class="text-[8px] mt-0.5 text-gray-500">${el.dateNaissance}</span>` : ""}
                         </div>
                         <button onclick="supprimer('${el.id}')" class="ml-1 opacity-20 hover:opacity-100 p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
