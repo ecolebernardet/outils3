@@ -175,6 +175,24 @@
             padding: 0 15px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+		
+		@keyframes blink-point {
+			0% { transform: scale(0.9); opacity: 0.5; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(0.9); opacity: 0.5; }
+		}
+		.mini-pastille {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background-color: #f97316;
+			border-radius: 50%;
+			margin-left: 4px;
+			margin-right: 2px;
+			box-shadow: 0 0 5px #f97316;
+			animation: blink-point 1.5s infinite;
+		}
+
     </style>
 </head>
 <body class="pb-10">
@@ -325,20 +343,19 @@
 
             <div id="gestion" class="tab-content">
                 <div class="card-warning">
-                    <h3 class="font-black text-xs uppercase mb-2" style="color: var(--warning-border)">!!! &ensp; Attention &ensp;!!!</h3>
+                    <h3 class="font-black text-xs uppercase mb-2" style="color: var(--warning-border)"><center>⚠️ Attention ⚠️</center></h3>
                     <p class="text-xs leading-relaxed">
-                        🛡️ Protégez votre travail : <strong>l'importance de l'exportation</strong><br>
+                        <br>
+						<strong>🛡️ Protégez votre travail : l'importance de l'exportation.</strong><br>
                         <br>Sur OutilsProfs, vos données (élèves, observations, 108 heures, mémos, liens) sont <strong>enregistrées localement</strong> dans la mémoire de votre navigateur. C'est ce qui vous permet d'y accéder instantanément, même sans connexion internet.<br>
-                        <br>Cependant, cette mémoire est <strong>fragile</strong> : un simple nettoyage des cookies ou du cache de votre téléphone peut tout effacer.
+                        <br>Cependant, <strong>cette mémoire est fragile</strong> : un simple nettoyage des cookies ou du cache de votre téléphone peut tout effacer.
                         <br>En cas de perte, de casse ou de changement d'appareil, vos données ne vous suivront pas automatiquement.<br>
-                        <br><strong>Le bon réflexe :</strong>
-                        <br>Prenez l'habitude d'utiliser le bouton <strong>"👆 exporter .txt 👆"</strong> une fois par semaine ou avant une mise à jour importante de votre appareil.<br>
+                        <br><strong>Le bon réflexe :</strong> prenez l'habitude d'utiliser le bouton <strong>"👆 exporter .txt 👆"</strong> à chaque changement effectué et une fois par semaine ou avant une mise à jour importante de votre appareil.<br>
                         <br>- <strong>Sécurité</strong> : en téléchargeant ces petits fichiers, vous créez une véritable sauvegarde physique de votre année scolaire.
                         <br>- <strong>Liberté</strong> : vous pourrez réimporter ce fichier en un clic sur un autre téléphone, une tablette ou votre ordinateur.
                         <br>- <strong>Sérénité</strong> : quoi qu'il arrive à votre navigateur, votre travail est à l'abri dans votre dossier "Téléchargements".<br>
-                        <br>Et pour encore plus de sécurité, si vous n'avez pas réalisé d'exportations de fichiers de sauvegarde .txt depuis plus de 7 jours, une pastille orange apparaitra à côté du bouton d'export pour vous rappeler de le faire.<br>
-                        <br>Un petit clic pour exporter, c'est l'assurance d'une année sans stress ! 📁✨
-                    </p>
+                        <br>Et pour encore plus de sécurité, si vous avez effectué une modification ou une suppression, ou encore si vous n'avez pas réalisé d'exportations de fichiers de sauvegarde .txt depuis plus de 7 jours, une <strong>pastille orange clignotante</strong><span class="mini-pastille"></span></strong> apparaitra sur le bouton d'export pour vous rappeler de le faire.<br>
+                        </p>
                 </div>
             </div>
 
