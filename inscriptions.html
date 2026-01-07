@@ -110,6 +110,24 @@
 
         .pinterest-grid { column-count: 2; column-gap: 12px; width: 100%; }
         .pinterest-item { break-inside: avoid; margin-bottom: 20px; display: inline-block; width: 100%; }
+		
+		@keyframes blink-point {
+			0% { transform: scale(0.9); opacity: 0.5; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(0.9); opacity: 0.5; }
+		}
+		.mini-pastille {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background-color: #f97316;
+			border-radius: 50%;
+			margin-left: 4px;
+			margin-right: 2px;
+			box-shadow: 0 0 5px #f97316;
+			animation: blink-point 1.5s infinite;
+		}
+		
     </style>
 </head>
 <body class="pb-10">
@@ -141,7 +159,7 @@
                 <br>• <strong>Générez</strong> des étiquettes au nom les élèves.
 				<br>• <strong>Générez</strong> des fiches de suivi pour vos élèves.
                 <br>
-                <br><strong>Pastille 🟠 :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde.
+                <br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
             </div>
             <button id="btn-fermer-aide" onclick="fermerAide()" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform">Fermer</button>
         </div>

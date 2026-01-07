@@ -58,6 +58,24 @@
         
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+		
+		@keyframes blink-point {
+			0% { transform: scale(0.9); opacity: 0.5; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(0.9); opacity: 0.5; }
+		}
+		.mini-pastille {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background-color: #f97316;
+			border-radius: 50%;
+			margin-left: 4px;
+			margin-right: 2px;
+			box-shadow: 0 0 5px #f97316;
+			animation: blink-point 1.5s infinite;
+		}
+		
     </style>
 </head>
 <body class="pb-10">
@@ -74,11 +92,8 @@
                         • Cliquez sur la poignée pour réorganiser les liens et les catégories.<br>
                         • Cliquez sur le crayon pour modifier un lien.<br>
                         • Cliquez sur la poubelle pour supprimer un lien.
+			<br><br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
             </p>
-            <div class="mt-4 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl text-left">
-                <p class="text-orange-500 font-black uppercase text-[9px] mb-1">🛡️ Sécurité des données</p>
-                <p class="text-[10px] opacity-90">Vos liens sont stockés sur ce téléphone. En cas de perte ou de panne, ils seront perdus. <b>Exportez votre sauvegarde régulièrement.</b></p>
-            </div>
         </div>
         <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-transform">Fermer</button>
     </div>
