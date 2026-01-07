@@ -78,6 +78,32 @@
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 1.5rem; width: 100%; max-width: 400px; border: 1px solid var(--border-color); position: relative; }
         .btns { display: flex; gap: 10px; margin-top: 20px; }
         .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 16px; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; }
+
+        /* Animation de la pastille */
+        @keyframes pulse-orange {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+        .badge-pulse { animation: pulse-orange 2s infinite; }
+		
+		@keyframes blink-point {
+			0% { transform: scale(0.9); opacity: 0.5; }
+			50% { transform: scale(1.2); opacity: 1; }
+			100% { transform: scale(0.9); opacity: 0.5; }
+		}
+		.mini-pastille {
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background-color: #f97316;
+			border-radius: 50%;
+			margin-left: 4px;
+			margin-right: 2px;
+			box-shadow: 0 0 5px #f97316;
+			animation: blink-point 1.5s infinite;
+		}
+		
     </style>
 </head>
 <body>
@@ -90,11 +116,8 @@
                         • Enregistrez des notes sous forme de pense-bête avec des couleurs personnalisables.<br>
                         • Réorganiser vos notes en utilisant la poignée.<br>
                         • Cliquez sur un mémo pour le mettre à jour ou l'effacer.<br>
-                </p>
-                <div class="mt-4 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl text-left">
-                    <p class="text-orange-500 font-black uppercase text-[9px] mb-1">🛡️ Sécurité des données</p>
-                    <p class="text-[10px] opacity-90">Vos mémos sont stockés uniquement sur ce téléphone. En cas de perte, casse ou changement d'appareil, ils seront perdus. <b>Exportez votre sauvegarde régulièrement.</b></p>
-                </div>
+						<br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
+				</p>
             </div>
             <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-transform">Fermer</button>
         </div>
@@ -165,7 +188,10 @@
                     👇importer .txt👇
                     <input type="file" id="importNotesFile" class="hidden" accept=".txt">
                 </label>
-                <button id="btn-export" onclick="exportNotesToFile()" class="nav-btn bg-black text-white flex-1">👆exporter .txt👆</button>
+                <button id="btn-export" onclick="exportNotesToFile()" class="nav-btn bg-black text-white flex-1 relative overflow-visible">
+                    👆exporter .txt👆
+                    <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-orange-500 rounded-full border-2 border-white badge-pulse"></span>
+                </button>
             </div>
             <button onclick="confirmResetAll()" class="nav-btn bg-red-500 text-white w-full shadow-lg">⚠️ effacer tous les mémos</button>
         </footer>
@@ -181,16 +207,29 @@
         let editingIndex = -1;
         let selectedColor = '#fef9c3';
 
-        // --- NOUVEAU : VÉRIFICATION EXPORT ---
-        function verifierDernierExport() {
-            const dernierExport = localStorage.getItem('last_export_memos');
-            const maintenant = new Date().getTime();
-            const septJours = 7 * 24 * 60 * 60 * 1000;
+        // --- LOGIQUE PASTILLE EXPORT ---
+        function updateExportBadge(needsExport) {
+            const badge = document.getElementById('badge-export');
             const btnExport = document.getElementById('btn-export');
-
-            if (btnExport && (!dernierExport || (maintenant - dernierExport > septJours))) {
-                btnExport.innerHTML = '👆exporter .txt 🟠';
+            if (needsExport) {
+                badge.classList.remove('hidden');
                 btnExport.style.border = '2px solid #f97316';
+                localStorage.setItem('memos_needs_export', 'true');
+            } else {
+                badge.classList.add('hidden');
+                btnExport.style.border = 'none';
+                localStorage.removeItem('memos_needs_export');
+                localStorage.setItem('memos_last_export_date', Date.now().toString());
+            }
+        }
+
+        function verifierBesoinExport() {
+            const needsExport = localStorage.getItem('memos_needs_export') === 'true';
+            const lastExport = localStorage.getItem('memos_last_export_date');
+            const septJours = 7 * 24 * 60 * 60 * 1000;
+
+            if (needsExport || !lastExport || (Date.now() - parseInt(lastExport) > septJours)) {
+                updateExportBadge(true);
             }
         }
 
@@ -267,6 +306,7 @@
                 notes.unshift({ title, content, color: selectedColor });
             }
             cancelEdit();
+            updateExportBadge(true); // <--- ICI
             saveAndRender();
         }
 
@@ -275,6 +315,7 @@
             afficherMessage("Supprimer ?", "Voulez-vous supprimer ce mémo ?", () => {
                 notes.splice(editingIndex, 1);
                 cancelEdit();
+                updateExportBadge(true); // <--- ICI
                 saveAndRender();
             });
         }
@@ -313,7 +354,19 @@
             }); 
         }
 
-        function setupSortable() { new Sortable(document.getElementById('notesGrid'), { handle: '.drag-handle', animation: 150, onEnd: function(){ const n=[]; document.querySelectorAll('.note-card').forEach(c=>n.push(notes[c.dataset.index])); notes=n; saveAndRender(); } }); }
+        function setupSortable() { 
+            new Sortable(document.getElementById('notesGrid'), { 
+                handle: '.drag-handle', 
+                animation: 150, 
+                onEnd: function(){ 
+                    const n=[]; 
+                    document.querySelectorAll('.note-card').forEach(c=>n.push(notes[c.dataset.index])); 
+                    notes=n; 
+                    updateExportBadge(true); // <--- ICI (changement d'ordre)
+                    saveAndRender(); 
+                } 
+            }); 
+        }
 
         function afficherMessage(titre, texte, callback) { 
             document.getElementById('alerte-titre').innerText = titre;
@@ -327,7 +380,14 @@
 
         function ouvrirAide() { appliquerTheme(); document.getElementById('modal-aide').style.display = 'flex'; }
         function fermerModal(id) { document.getElementById(id).style.display = 'none'; }
-        function confirmResetAll() { afficherMessage("Tout effacer ?", "Supprimer tous vos mémos ?", () => { notes=[]; saveAndRender(); }); }
+        
+        function confirmResetAll() { 
+            afficherMessage("Tout effacer ?", "Supprimer tous vos mémos ?", () => { 
+                notes=[]; 
+                updateExportBadge(true); // <--- ICI
+                saveAndRender(); 
+            }); 
+        }
 
         function setupImport() {
             const input = document.getElementById('importNotesFile');
@@ -360,13 +420,7 @@
             a.href = url; a.download = `outilsprofs_memos_${new Date().toISOString().slice(0,10)}.txt`; a.click();
             URL.revokeObjectURL(url);
 
-            // Mise à jour date export et reset pastille
-            localStorage.setItem('last_export_memos', new Date().getTime());
-            const btnExport = document.getElementById('btn-export');
-            if (btnExport) {
-                btnExport.innerHTML = '👆exporter .txt👆';
-                btnExport.style.border = 'none';
-            }
+            updateExportBadge(false); // <--- ICI (on cache la pastille après export réussi)
         }
 
         window.onload = () => { 
@@ -374,7 +428,7 @@
             setupColorPickers(); 
             setupSortable(); 
             setupImport(); 
-            verifierDernierExport();
+            verifierBesoinExport(); // <--- ICI au chargement
         };
     </script>
 </body>
