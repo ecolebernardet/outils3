@@ -170,7 +170,10 @@
                 👇importer .txt👇
                 <input type="file" id="importFile" class="hidden" accept=".txt">
             </label>
-            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white ">👆exporter .txt👆</button>
+            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">
+                👆exporter .txt👆
+                <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
+            </button>
             <button onclick="genererPDF()" class="nav-btn bg-neutral-800 text-white ">📄 récapitulatif PDF</button>
         </div>
         <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
@@ -181,7 +184,6 @@
             <h2 id="modalTitle" style="margin:0; font-size: 1.1rem; font-weight: 800; color: var(--text-main);">Élève</h2>
             <textarea id="commentInput" rows="8" placeholder="Écrire une observation..."></textarea>
             <div class="btns">
-                <button class="modal-btn btn-cancel" onclick="closeAllModals()">Fermer</button>
                 <button class="modal-btn btn-save" onclick="saveData()">Enregistrer</button>
             </div>
         </div>
@@ -216,6 +218,37 @@
         const ordreNiveaux = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', 'AUTRE'];
         const couleurParNiveau = { 'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#8b5cf6' };
         const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
+
+        function updateExportBadge(needsExport) {
+            const badge = document.getElementById('badge-export');
+            if (needsExport) {
+                badge.classList.remove('hidden');
+                localStorage.setItem('needsExport_obs', 'true');
+            } else {
+                badge.classList.add('hidden');
+                localStorage.removeItem('needsExport_obs');
+                localStorage.setItem('last_export_obs', Date.now());
+            }
+        }
+
+        function checkBadgeStatus() {
+            const lastExport = localStorage.getItem('last_export_obs');
+            const needsExport = localStorage.getItem('needsExport_obs') === 'true';
+            
+            if (needsExport) {
+                updateExportBadge(true);
+                return;
+            }
+
+            if (lastExport) {
+                const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+                if (Date.now() - parseInt(lastExport) > sevenDaysInMs) {
+                    updateExportBadge(true);
+                }
+            } else {
+                localStorage.setItem('last_export_obs', Date.now());
+            }
+        }
 
         function appliquerTheme() {
             const savedMode = localStorage.getItem('theme_mode');
@@ -316,7 +349,10 @@
             setTimeout(() => document.getElementById('commentInput').focus(), 100);
         }
 
-        function closeAllModals() { document.getElementById('modal').style.display = 'none'; }
+        function closeAllModals() { 
+            // La fermeture ne se fait plus que via saveData()
+            document.getElementById('modal').style.display = 'none'; 
+        }
 
         function saveData() {
             const val = document.getElementById('commentInput').value;
@@ -326,13 +362,16 @@
                 savedComments[currentStudentName] = val;
             }
             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
-            renderList(); closeAllModals();
+            updateExportBadge(true);
+            renderList(); 
+            closeAllModals(); // Seule manière de fermer la modale
         }
 
         function toutEffacer() {
             showAlert("Tout effacer ?", "Supprimer toutes les observations ?", () => {
                 savedComments = {};
                 localStorage.setItem('studentObservations', JSON.stringify(savedComments));
+                updateExportBadge(true);
                 renderList();
             });
         }
@@ -406,6 +445,8 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+
+            updateExportBadge(false);
         }
 
         document.getElementById('importFile').addEventListener('change', function(e) {
@@ -428,6 +469,7 @@
                         showAlert("Importer ?", "Fusionner avec les données existantes ?", () => {
                             savedComments = { ...savedComments, ...nouveauxComments };
                             localStorage.setItem('studentObservations', JSON.stringify(savedComments));
+                            updateExportBadge(false);
                             renderList();
                         });
                     }
@@ -469,10 +511,13 @@
         }
         function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
 
-        window.onload = () => { appliquerTheme(); renderList(); };
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) closeAllModals();
-        }
+        window.onload = () => { 
+            appliquerTheme(); 
+            renderList(); 
+            checkBadgeStatus();
+        };
+        
+        // Suppression du window.onclick global pour empêcher la fermeture au clic extérieur
     </script>
 </body>
 </html>
