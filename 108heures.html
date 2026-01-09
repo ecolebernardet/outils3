@@ -158,7 +158,6 @@
             animation: blink-point 1.5s infinite;
         }
 
-        /* Styling range slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]:focus { outline: none; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: var(--input-bg); border-radius: 10px; border: 1px solid var(--border-color); }
@@ -178,7 +177,6 @@
                 <p>• <b>Suivi :</b> Les jauges se remplissent selon les quotas officiels adaptés à votre quotité.</p>
                 <p>• <b>PDF :</b> Générez un bilan propre trié par rubriques.</p>
                 <br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
-            
             </div>
             <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full py-3 rounded-xl text-[10px] font-black uppercase">Fermer</button>
         </div>
@@ -298,7 +296,6 @@
     const hexaTheme = mapCouleurs[couleurH108] || '#f97316';
     const isDarkTextNeeded = ['yellow', 'lime', 'amber', 'cyan'].includes(couleurH108);
 
-    // Initialisation des quotas modifiables
     let QUOTAS = { "APC": 36 * 60, "PEDAGO": 48 * 60, "FORM": 18 * 60, "CONSEIL": 6 * 60 };
     let TOTAL_ANNUEL = 108 * 60;
     const LABELS_BASE = { "APC": "APC", "PEDAGO": "Réunions", "FORM": "Formation", "CONSEIL": "Conseils" };
@@ -310,13 +307,11 @@
     function initSelectors() {
         const sj = document.getElementById('sel-jour'), sm = document.getElementById('sel-mois'), sa = document.getElementById('sel-annee');
         const sh = document.getElementById('sel-h'), smin = document.getElementById('sel-m');
-        
         for(let i=1; i<=31; i++) sj.innerHTML += `<option value="${i<10?'0'+i:i}">${i}</option>`;
         const mois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
         mois.forEach((m, i) => sm.innerHTML += `<option value="${(i+1)<10?'0'+(i+1):(i+1)}">${m}</option>`);
         const an = new Date().getFullYear();
         for(let i=an-1; i<=an+1; i++) sa.innerHTML += `<option value="${i}">${i}</option>`;
-
         for(let i=0; i<=10; i++) sh.innerHTML += `<option value="${i}">${i} h</option>`;
         for(let i=0; i<60; i+=5) smin.innerHTML += `<option value="${i}">${i<10?'0'+i:i} min</option>`;
     }
@@ -324,7 +319,6 @@
     function updateQuotite(val) {
         document.getElementById('val-quotite').innerText = val + "%";
         localStorage.setItem('quotite_pro', val);
-        
         const ratio = val / 100;
         QUOTAS = { 
             "APC": (36 * 60) * ratio, 
@@ -351,7 +345,7 @@
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
 
     function resetHeures() {
-        customConfirm("Voulez-vous vraiment tout effacer ? Cette action est irréversible.", () => {
+        customConfirm("Voulez-vous vraiment tout effacer ?", () => {
             reunions = [];
             saveAndRender();
         });
@@ -362,6 +356,7 @@
         confirmAction = action;
         document.getElementById('custom-confirm').style.display = 'flex';
     }
+
     function closeConfirm(confirmed) {
         document.getElementById('custom-confirm').style.display = 'none';
         if (confirmed && confirmAction) confirmAction();
@@ -464,13 +459,14 @@
         container.innerHTML = "";
         let minutesGlobales = 0;
 
+        // Mise à jour du titre Total Annuel avec le quota dynamique
+        document.getElementById('stats-title').innerText = `Total Annuel (${formatDuree(TOTAL_ANNUEL)})`;
+
         Object.keys(QUOTAS).forEach(catKey => {
             const reuCat = reunions.filter(r => r.cat === catKey);
             const fait = reuCat.reduce((sum, r) => sum + r.minutes, 0);
             minutesGlobales += fait;
-            
             const depasse = fait > QUOTAS[catKey];
-
             const col = document.createElement('div');
             col.className = "level-column";
             col.innerHTML = `
@@ -545,7 +541,7 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    customConfirm("Remplacer les données actuelles ? (L'ancienne liste sera écrasée)", () => {
+                    customConfirm("Remplacer les données actuelles ?", () => {
                         reunions = imported; 
                         saveAndRender();
                         updateExportBadge(false);
@@ -562,10 +558,8 @@
         let quotite = localStorage.getItem('quotite_pro') || 100;
         const dateFichier = new Date().toISOString().split('T')[0];
         const element = document.createElement('div');
-        element.style.padding = "10px";
-        element.style.color = "black";
-        element.style.fontFamily = "Arial, sans-serif";
-        element.style.fontSize = "11px";
+        element.style.padding = "10px"; element.style.color = "black";
+        element.style.fontFamily = "Arial, sans-serif"; element.style.fontSize = "11px";
 
         let html = `<div style="text-align:center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
                 <h1 style="margin:0; text-transform:uppercase; font-size:18px;">Bilan des 108 heures</h1>
@@ -593,7 +587,6 @@
             }
             html += `</tbody></table></div>`;
         });
-
         element.innerHTML = html;
         const opt = { margin: 10, filename: `108h_${profNom}_${dateFichier}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
         html2pdf().set(opt).from(element).save();
@@ -602,12 +595,9 @@
     window.addEventListener('DOMContentLoaded', () => { 
         initSelectors();
         appliquerCouleursTheme(); 
-        
-        // Charger la quotité
         const savedQuotite = localStorage.getItem('quotite_pro') || 100;
         document.getElementById('range-quotite').value = savedQuotite;
         updateQuotite(savedQuotite);
-        
         initDate(); 
         if (localStorage.getItem('needsExport_108h') === 'true') {
             document.getElementById('badge-export').classList.remove('hidden');
