@@ -32,18 +32,12 @@
         }
 
         body { 
-			transition: background 0.3s, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-body); 
             color: var(--text-main);
             transition: all 0.3s ease;
             padding: calc(env(safe-area-inset-top) + 20px) 20px 40px;
         }
-
-		body.slide-out {
-			transform: translateX(100%);
-			opacity: 1;
-		}
 
         /* --- TUILES STYLE "INSCRIPTIONS" 3D --- */
         .menu-card { 
@@ -111,14 +105,18 @@
     </style>
 </head>
 <body class="flex flex-col items-center">
-
+    <script>
+        if (localStorage.getItem('theme_mode') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+    </script>
     <div class="w-full max-w-[360px]">
         <header class="flex justify-between items-center mb-8 px-1">
             <button onclick="goToSettings()" class="ui-btn active:scale-90">
-				<svg xmlns="http://www.w3.org/2000/center" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-				</svg>
-			</button>
+                <svg xmlns="http://www.w3.org/2000/center" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
             <h1 class="text-[15px] font-black tracking-[0.5em] uppercase opacity-90">Outils Profs</h1>
             <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar">
         </header>
@@ -201,13 +199,8 @@
 <script>
 
 function goToSettings() {
-    // On ajoute la classe qui fait glisser le corps de la page
-    document.body.classList.add('slide-out');
-    
-    // On attend la fin de l'animation (300ms) avant de changer de page
-    setTimeout(() => {
-        window.location.href = 'parametres.html';
-    }, 300);
+    // Redirection immédiate sans animation
+    window.location.href = 'parametres.html';
 }
 
     // 1. GESTION DU MODE SOMBRE / CLAIR
@@ -244,7 +237,6 @@ function goToSettings() {
                 iconBox.style.backgroundColor = `${hexColor}15`; 
                 iconBox.style.color = hexColor;
                 iconBox.style.borderColor = `${hexColor}30`;
-                // Petit effet de lueur en mode sombre
                 if (!isLight) {
                     iconBox.style.boxShadow = `0 0 15px ${hexColor}20`;
                 } else {

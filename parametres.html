@@ -35,7 +35,7 @@
             --warning-text: #7f1d1d;
         }
 
-        /* --- ANIMATIONS DE GLISSEMENT --- */
+        /* --- STYLE SANS ANIMATION DE GLISSEMENT --- */
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg-page); 
@@ -45,21 +45,7 @@
             padding-right: 15px;
             padding-bottom: 20px;
             overflow-x: hidden;
-            transition: background 0.3s, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
-            
-            /* État initial : masqué à gauche */
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-
-        body.slide-in {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        body.slide-out {
-            transform: translateX(-100%);
-            opacity: 0;
+            transition: background 0.3s;
         }
         
         header { 
@@ -175,23 +161,23 @@
             padding: 0 15px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-		
-		@keyframes blink-point {
-			0% { transform: scale(0.9); opacity: 0.5; }
-			50% { transform: scale(1.2); opacity: 1; }
-			100% { transform: scale(0.9); opacity: 0.5; }
-		}
-		.mini-pastille {
-			display: inline-block;
-			width: 8px;
-			height: 8px;
-			background-color: #f97316;
-			border-radius: 50%;
-			margin-left: 4px;
-			margin-right: 2px;
-			box-shadow: 0 0 5px #f97316;
-			animation: blink-point 1.5s infinite;
-		}
+        
+        @keyframes blink-point {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+        .mini-pastille {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #f97316;
+            border-radius: 50%;
+            margin-left: 4px;
+            margin-right: 2px;
+            box-shadow: 0 0 5px #f97316;
+            animation: blink-point 1.5s infinite;
+        }
 
     </style>
 </head>
@@ -239,17 +225,17 @@
                 <div class="card-info">
                     <h3 id="title-inscriptions" class="font-black text-xs uppercase mb-2">📌 Ma classe</h3>
                     <ul class="text-xs space-y-2 leading-relaxed">
-						<li><strong>C'est ici que vous créez votre base d'élèves.</strong></li>
-						<li><strong><u>Onglet "Enregistrement"</u></strong></li>
-						<li>&nbsp;&nbsp;• <strong>Saisissez</strong> votre nom dans le formulaire "Nom de l'enseignant"</li>
+                        <li><strong>C'est ici que vous créez votre base d'élèves.</strong></li>
+                        <li><strong><u>Onglet "Enregistrement"</u></strong></li>
+                        <li>&nbsp;&nbsp;• <strong>Saisissez</strong> votre nom dans le formulaire "Nom de l'enseignant"</li>
                         <li>&nbsp;&nbsp;• <strong>Enregistrez</strong> vos élèves en ajoutant le prénom, le nom, la date de naissance (optionnel). Choisissez le genre et le niveau, puis enregistrez.</li>
                         <li>&nbsp;&nbsp;• <strong>Import/Export :</strong> Utilisez ces boutons pour sauvegarder votre liste sur votre appareil ou la transférer vers un autre appareil au format <em>Prénom;NOM;genre;niveau;date-de-naissance</em>.</li>
-						<br><center><strong>La liste générée sera utilisée<br>dans les autres rubriques de l'application.</strong></center><br>
-						<li><strong><u>Onglet "Édition"</u></strong></li>
+                        <br><center><strong>La liste générée sera utilisée<br>dans les autres rubriques de l'application.</strong></center><br>
+                        <li><strong><u>Onglet "Édition"</u></strong></li>
                         <li>&nbsp;&nbsp;• <strong>Générez</strong> votre liste de classe en PDF après avoir décidé de ranger les élèves par prénoms ou par noms.</li>
                         <li>&nbsp;&nbsp;• <strong>Générez</strong> une liste de pointage avc 15 cases par élève.</li>
                         <li>&nbsp;&nbsp;• <strong>Générez</strong> des étiquettes au nom les élèves.</li>
-						<li>&nbsp;&nbsp;• <strong>Générez</strong> des fiches de suivi pour vos élèves.</li>
+                        <li>&nbsp;&nbsp;• <strong>Générez</strong> des fiches de suivi pour vos élèves.</li>
                     </ul>
                 </div>
 
@@ -268,7 +254,7 @@
                     <p class="text-xs leading-relaxed">
                         Gérez vos forfaits annuels (APC, Conseils, etc.) :<br>
                         • Entrez votre quotité de travail.<br>
-						• Saisissez une durée pour chaque événement.<br>
+                        • Saisissez une durée pour chaque événement.<br>
                         • Suivez vos totaux et le reliquat d'heures restant par catégorie.<br>
                         • Utilisez l'<strong>exportation</strong> pour conserver votre bilan officiel.<br>
                         • Corriger une information en cliquant sur la réunion en question.
@@ -346,7 +332,7 @@
                     <h3 class="font-black text-xs uppercase mb-2" style="color: var(--warning-border)"><center>⚠️ Attention ⚠️</center></h3>
                     <p class="text-xs leading-relaxed">
                         <br>
-						<strong>🛡️ Protégez votre travail : l'importance de l'exportation.</strong><br>
+                        <strong>🛡️ Protégez votre travail : l'importance de l'exportation.</strong><br>
                         <br>Sur OutilsProfs, vos données (élèves, observations, 108 heures, mémos, liens) sont <strong>enregistrées localement</strong> dans la mémoire de votre navigateur. C'est ce qui vous permet d'y accéder instantanément, même sans connexion internet.<br>
                         <br>Cependant, <strong>cette mémoire est fragile</strong> : un simple nettoyage des cookies ou du cache de votre téléphone peut tout effacer.
                         <br>En cas de perte, de casse ou de changement d'appareil, vos données ne vous suivront pas automatiquement.<br>
@@ -371,19 +357,9 @@
     </div>
 
     <script>
-        /* --- LOGIQUE D'ANIMATION --- */
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.body.classList.add('slide-in');
-            }, 50);
-        });
-
+        /* --- LOGIQUE SANS ANIMATION --- */
         function goBack() {
-            document.body.classList.remove('slide-in');
-            document.body.classList.add('slide-out');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 500);
+            window.location.href = 'index.html';
         }
 
         const mapCouleurs = {
