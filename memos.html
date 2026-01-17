@@ -413,14 +413,28 @@
 
         function exportNotesToFile() { 
             if(notes.length === 0) return; 
+            
+            // 1. Préparation des données
             const content = JSON.stringify(notes, null, 2);
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `outilsprofs_memos_${new Date().toISOString().slice(0,10)}.txt`; a.click();
-            URL.revokeObjectURL(url);
+            const nomFichier = `outilsprofs_memos_${new Date().toISOString().slice(0,10)}.txt`;
 
-            updateExportBadge(false); // <--- ICI (on cache la pastille après export réussi)
+            // 2. VÉRIFICATION ANDROID
+            if (window.Android && typeof window.Android.exportTxt === "function") {
+                // On envoie le contenu JSON à la fonction Kotlin de l'application
+                window.Android.exportTxt(content, nomFichier);
+            } else {
+                // Mode navigateur PC classique
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; 
+                a.download = nomFichier; 
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            // 3. Mise à jour de la pastille d'exportation
+            updateExportBadge(false); 
         }
 
         window.onload = () => { 

@@ -16,6 +16,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -395,53 +396,75 @@
         }
         
         async function genererPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const dateStr = new Date().toLocaleDateString('fr-FR');
-            
             if (Object.keys(savedComments).length === 0) {
-                showAlert("Vide", "Aucune observation à inclure dans le PDF.", null, false);
+                showAlert("Vide", "Aucune observation à inclure.", null, false);
                 return;
             }
 
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
-            doc.text("RÉCAPITULATIF DES OBSERVATIONS", 105, 20, { align: "center" });
+            if (typeof html2pdf === 'undefined') {
+                alert("Erreur : La bibliothèque n'est pas chargée.");
+                return;
+            }
+
+            const profNom = localStorage.getItem('nom_enseignant') || "Enseignant";
+            const dateStr = new Date().toLocaleDateString('fr-FR');
+            const fileName = `observations_${new Date().toISOString().split('T')[0]}.pdf`;
             
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Document généré le : ${dateStr}`, 105, 28, { align: "center" });
-            doc.line(20, 32, 190, 32);
+            // Création de l'élément invisible pour le rendu
+            const element = document.createElement('div');
+            element.style.padding = '20px';
+            element.style.color = 'black';
+            element.style.backgroundColor = 'white';
+            element.style.fontFamily = 'Arial, sans-serif';
 
-            let y = 45;
-            const margin = 20;
-            const pageHeight = 280;
+            let html = `
+                <div style="text-align:center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+                    <h1 style="font-size:18px; margin:0;">OBSERVATIONS DES ÉLÈVES</h1>
+                    <p style="margin:5px 0;">${profNom} - ${dateStr}</p>
+                </div>`;
 
-            elevesInscrits.forEach((eleve) => {
-                const note = savedComments[eleve.identite];
-                
-                if (note && note.trim() !== "") {
-                    if (y > pageHeight - 20) {
-                        doc.addPage();
-                        y = 20;
-                    }
-
-                    doc.setFont("helvetica", "bold");
-                    doc.setFontSize(12);
-                    doc.text(`${formatName(eleve.identite)} (${eleve.niveau})`, margin, y);
-                    y += 7;
-
-                    doc.setFont("helvetica", "normal");
-                    doc.setFontSize(10);
-                    const splitTitle = doc.splitTextToSize(note, 170);
-                    doc.text(splitTitle, margin, y);
-                    
-                    y += (splitTitle.length * 5) + 10;
+            const groupes = {};
+            elevesInscrits.forEach(el => {
+                const niv = el.niveau.toUpperCase();
+                if (savedComments[el.identite]) {
+                    if (!groupes[niv]) groupes[niv] = [];
+                    groupes[niv].push(el);
                 }
             });
 
-            const dateFichier = new Date().toISOString().split('T')[0];
-            doc.save(`outilsprofs_recap_observations_${dateFichier}.pdf`);
+            Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b)).forEach(niv => {
+                html += `<h2 style="background:#f0f0f0; padding:8px; font-size:14px; margin-top:15px; border-left:4px solid #333;">${niv}</h2>`;
+                groupes[niv].sort((a,b) => a.identite.localeCompare(b.identite)).forEach(el => {
+                    html += `
+                        <div style="margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:5px; page-break-inside:avoid;">
+                            <b style="font-size:12px;">${formatName(el.identite)}</b><br>
+                            <p style="font-size:11px; margin:4px 0; white-space:pre-wrap;">${savedComments[el.identite]}</p>
+                        </div>`;
+                });
+            });
+
+            element.innerHTML = html;
+
+            const opt = {
+                margin: 10,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // LOGIQUE D'EXPORTATION ANDROID
+            if (window.Android && window.Android.savePdfFromBase64) {
+                html2pdf().set(opt).from(element).output('datauristring').then((pdfBase64) => {
+                    const base64Clean = pdfBase64.split(',')[1];
+                    window.Android.savePdfFromBase64(base64Clean, fileName);
+                }).catch(err => {
+                    alert("Erreur PDF : " + err);
+                });
+            } else {
+                // Mode PC
+                html2pdf().set(opt).from(element).save();
+            }
         }
         
         function exportToFile() {
@@ -450,20 +473,31 @@
                 return;
             }
 
+            // 1. Préparation du contenu
             let contenu = Object.entries(savedComments)
                 .map(([nom, obs]) => `${nom};${obs.replace(/\n/g, '[BR]')}`)
                 .join("\n");
+            
+            const nomFichier = `outilsprofs_observations_${new Date().toISOString().split('T')[0]}.txt`;
 
-            const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' });
-            const dateStr = new Date().toISOString().split('T')[0];
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `outilsprofs_observations_${dateStr}.txt`; 
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // 2. VÉRIFICATION INTERFACE ANDROID
+            if (window.Android && typeof window.Android.exportTxt === "function") {
+                // Envoi à l'application Android
+                window.Android.exportTxt(contenu, nomFichier);
+            } else {
+                // Mode navigateur classique (PC)
+                const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomFichier; 
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
 
+            // 3. Mise à jour de la pastille
             updateExportBadge(false);
         }
 

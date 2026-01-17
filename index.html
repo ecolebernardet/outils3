@@ -12,7 +12,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap');
         
         :root {
-            /* MODE SOMBRE (Par défaut) */
             --bg-body: #121212;
             --card-bg: #1e1e1e;
             --text-main: #ffffff;
@@ -22,7 +21,6 @@
         }
 
         body.light-mode {
-            /* MODE CLAIR */
             --bg-body: #eeeeee;
             --card-bg: #ffffff;
             --text-main: #111827;
@@ -35,33 +33,32 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: var(--bg-body); 
             color: var(--text-main);
-            transition: all 0.3s ease;
-            padding: calc(env(safe-area-inset-top) + 20px) 20px 40px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding: calc(env(safe-area-inset-top) + 15px) 15px 20px;
         }
 
-        /* --- TUILES STYLE "INSCRIPTIONS" 3D --- */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
         .menu-card { 
             position: relative;
             background: var(--card-bg);
-            border-radius: 1.5rem;
+            border-radius: 1.25rem;
             border: 1px solid var(--border-color);
-            
-            /* Ombre 3D */
-            box-shadow: 0 10px 25px -5px var(--shadow-color), 
-                        0 8px 10px -6px var(--shadow-color);
-            
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            transition: transform 0.2s ease;
         }
         
         .menu-card:active { transform: scale(0.96); }
 
         .icon-box {
-            width: 50px; height: 50px;
-            border-radius: 16px;
+            width: 42px; height: 42px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
             background: rgba(128, 128, 128, 0.1);
-            margin-bottom: 8px;
-            font-size: 26px;
+            margin-bottom: 4px;
+            font-size: 22px;
             border: 1px solid var(--border-color);
         }
 
@@ -69,38 +66,37 @@
             color: var(--text-muted);
             margin-top: 1px;
             text-align: center;
+            line-height: 1.1;
         }
 
         .drag-handle {
             position: absolute;
-            top: 15px; right: 15px;
+            top: 10px; right: 10px;
             display: grid;
-            grid-template-columns: repeat(3, 3px);
-            gap: 3px;
+            grid-template-columns: repeat(3, 2px);
+            gap: 2px;
             cursor: grab;
-            opacity: 0.3;
+            opacity: 0.2;
         }
 
         .drag-handle span {
-            width: 3px; height: 3px;
+            width: 2px; height: 2px;
             background-color: var(--text-muted);
             border-radius: 50%;
         }
 
         .ui-btn {
-            width: 44px; height: 44px;
+            width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 12px;
+            border-radius: 10px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px var(--shadow-color);
         }
 
         .header-avatar {
-            width: 42px; height: 42px;
-            border-radius: 12px;
+            width: 38px; height: 38px;
+            border-radius: 10px;
             border: 2px solid var(--card-bg);
-            box-shadow: 0 4px 10px var(--shadow-color);
         }
     </style>
 </head>
@@ -110,103 +106,104 @@
             document.body.classList.add('light-mode');
         }
     </script>
+
     <div class="w-full max-w-[360px]">
-        <header class="flex justify-between items-center mb-8 px-1">
+        <header class="flex justify-between items-center mb-6 px-1">
             <button onclick="goToSettings()" class="ui-btn active:scale-90">
-                <svg xmlns="http://www.w3.org/2000/center" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <h1 class="text-[15px] font-black tracking-[0.5em] uppercase opacity-90">Outils Profs</h1>
+            <h1 class="text-[13px] font-black tracking-[0.4em] uppercase opacity-90">Outils Profs</h1>
             <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar">
         </header>
 
-        <nav id="grid-menu" class="grid grid-cols-2 gap-5">
-            <div data-id="inscr" class="menu-card p-4">
+        <nav id="grid-menu" class="grid grid-cols-2 gap-3">
+            <div data-id="inscr" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="maclasse.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📝</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Ma classe</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">enregistrement & édition</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Ma classe</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">enregistrement & édition</span>
                 </a>
             </div>
 
-            <div data-id="liens" class="menu-card p-4">
+            <div data-id="liens" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="liens.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🔗</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Liens</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">bibliothèque de favoris</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Liens</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">bibliothèque de favoris</span>
                 </a>
             </div>
 
-            <div data-id="h108" class="menu-card p-4">
+            <div data-id="h108" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="108heures.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">⏱️</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">108 heures</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">suivi des réunions</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">108 heures</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">suivi des réunions</span>
                 </a>
             </div>
 
-            <div data-id="memos" class="menu-card p-4">
+            <div data-id="memos" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="memos.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📒</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Mémos</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">pense-bêtes</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Mémos</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">pense-bêtes</span>
                 </a>
             </div>
 
-            <div data-id="tirage" class="menu-card p-4">
+            <div data-id="tirage" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="tirage.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🎲</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Tirage</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">nom au hasard</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Tirage</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">nom au hasard</span>
                 </a>
             </div>
 
-            <div data-id="equipes" class="menu-card p-4">
+            <div data-id="equipes" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="equipes.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">👥</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Équipes</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">groupes équilibrés</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Équipes</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">groupes équilibrés</span>
                 </a>
             </div>
 
-            <div data-id="obs" class="menu-card p-4">
+            <div data-id="obs" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="observations.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">✏️</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Observations</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">suivi des élèves</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Observations</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">suivi des élèves</span>
                 </a>
             </div>
 
-            <div data-id="compt" class="menu-card p-4">
+            <div data-id="compt" class="menu-card p-3">
                 <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
                 <a href="compteur.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🚥</div>
-                    <h2 class="font-bold text-[12px] uppercase tracking-wider">Compteur</h2>
-                    <span class="tile-subtitle text-[9px] font-semibold">suivi du comportement</span>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Compteur</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">comportement</span>
+                </a>
+            </div>
+
+            <div data-id="calc" class="menu-card p-3">
+                <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <a href="calcul.html" class="flex flex-col items-center text-center">
+                    <div class="icon-box">🧮</div>
+                    <h2 class="font-bold text-[11px] uppercase tracking-wider">Calcul Mental</h2>
+                    <span class="tile-subtitle text-[8px] font-semibold">générateur</span>
                 </a>
             </div>
         </nav>
     </div>
 
 <script>
-
-function goToSettings() {
-    // Redirection immédiate sans animation
-    window.location.href = 'parametres.html';
-}
-
-    // 1. GESTION DU MODE SOMBRE / CLAIR
-    if (localStorage.getItem('theme_mode') === 'light') {
-        document.body.classList.add('light-mode');
-    }
+    function goToSettings() { window.location.href = 'parametres.html'; }
 
     const colorMap = {
         'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
@@ -216,12 +213,11 @@ function goToSettings() {
         'rose': '#f43f5e'
     };
 
-    // 2. APPLICATION DES COULEURS DE TUILES
     function applyColors() {
         const isLight = document.body.classList.contains('light-mode');
         const defaultColors = {
             inscr: 'lime', h108: 'orange', liens: 'indigo', tirage: 'yellow', 
-            equipes: 'rose', memos: 'purple', obs: 'green', compt: 'sky'
+            equipes: 'rose', memos: 'purple', obs: 'green', compt: 'sky', calc: 'cyan'
         };
         const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || defaultColors;
 
@@ -229,7 +225,6 @@ function goToSettings() {
             const id = el.getAttribute('data-id');
             const colorName = prefs[id] || 'blue';
             const hexColor = colorMap[colorName];
-            
             const iconBox = el.querySelector('.icon-box');
             const title = el.querySelector('h2');
 
@@ -237,21 +232,14 @@ function goToSettings() {
                 iconBox.style.backgroundColor = `${hexColor}15`; 
                 iconBox.style.color = hexColor;
                 iconBox.style.borderColor = `${hexColor}30`;
-                if (!isLight) {
-                    iconBox.style.boxShadow = `0 0 15px ${hexColor}20`;
-                } else {
-                    iconBox.style.boxShadow = 'none';
-                }
+                iconBox.style.boxShadow = !isLight ? `0 0 12px ${hexColor}20` : 'none';
             }
-            if (title) {
-                title.style.color = hexColor;
-            }
+            if (title) title.style.color = hexColor;
         });
     }
 
     applyColors();
 
-    // 3. GESTION DE L'ORDRE (SORTABLE)
     const gridMenu = document.getElementById('grid-menu');
     const savedOrder = JSON.parse(localStorage.getItem('menu_order'));
     if (savedOrder) {

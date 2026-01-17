@@ -27,12 +27,23 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; }
         
         header { 
-            width: 100%; background: var(--header-bg); display: flex; align-items: center; 
+            background: var(--header-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
             justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            border-bottom: 1px solid var(--column-border); position: sticky; top: 0; z-index: 100; 
+            width: 100%; margin-bottom: 12px;
         }
 
-        .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
+        #btn-retour, #btn-aide { 
+            display: flex; align-items: center; justify-content: center; 
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; 
+        }
+
+        header h1 { 
+            font-size: 1.125rem; font-weight: 900; text-transform: uppercase; 
+            text-align: center; flex-grow: 1; 
+        }
+
+        .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 10px 15px 20px 15px; }
         .light-card, .column { background: var(--card-bg); border-radius: 1.5rem; padding: 15px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
         .column { scroll-margin-top: 90px; }
         .column-header { font-size: 10px; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; }
@@ -51,31 +62,23 @@
         .cat-btn { flex: 1; padding: 10px 4px; border-radius: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase; background: var(--input-bg); color: var(--item-text-url); border: 1px solid var(--column-border); transition: all 0.2s; }
         .cat-btn.active { background: #4b5563 !important; color: white !important; }
         .btn-add { width: 100%; padding: 12px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; color: white; }
-
-        .header-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--column-border); }
+        
         .bottom-nav { width: 100%; max-width: 500px; margin: 20px auto 0; padding-bottom: 40px; display: flex; flex-direction: column; gap: 8px; }
         .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
         
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
-		
-		@keyframes blink-point {
-			0% { transform: scale(0.9); opacity: 0.5; }
-			50% { transform: scale(1.2); opacity: 1; }
-			100% { transform: scale(0.9); opacity: 0.5; }
-		}
-		.mini-pastille {
-			display: inline-block;
-			width: 8px;
-			height: 8px;
-			background-color: #f97316;
-			border-radius: 50%;
-			margin-left: 4px;
-			margin-right: 2px;
-			box-shadow: 0 0 5px #f97316;
-			animation: blink-point 1.5s infinite;
-		}
-		
+        
+        @keyframes blink-point {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+        .mini-pastille {
+            display: inline-block; width: 8px; height: 8px; background-color: #f97316;
+            border-radius: 50%; margin-left: 4px; margin-right: 2px;
+            box-shadow: 0 0 5px #f97316; animation: blink-point 1.5s infinite;
+        }
     </style>
 </head>
 <body class="pb-10">
@@ -92,7 +95,7 @@
                         • Cliquez sur la poignée pour réorganiser les liens et les catégories.<br>
                         • Cliquez sur le crayon pour modifier un lien.<br>
                         • Cliquez sur la poubelle pour supprimer un lien.
-			<br><br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
+            <br><br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde.
             </p>
         </div>
         <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-transform">Fermer</button>
@@ -102,20 +105,22 @@
 <div id="modal-alerte" class="modal-overlay">
     <div class="modal-content">
         <h2 id="alerte-titre" class="text-lg font-black uppercase mb-4">Alerte</h2>
-        <div id="alerte-texte" class="text-[11px] leading-relaxed opacity-80 mb-6"></div>
-        <div id="alerte-actions" class="flex gap-3">
+        <div id="alerte-texte" class="text-[11px] leading-relaxed opacity-80 mb-6 text-center"></div>
+        <div class="flex gap-3">
             <button id="alerte-cancel" onclick="fermerModal('modal-alerte')" class="flex-1 py-3 bg-neutral-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest">Annuler</button>
-            <button id="alerte-confirm" class="flex-1 py-3 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirmer</button>
+            <button id="alerte-confirm" class="flex-1 py-3 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Confirmer</button>
         </div>
     </div>
 </div>
 
 <header>
-    <a href="index.html" id="btn-retour" class="header-btn shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    <a href="index.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
     </a>
-    <h1 class="text-lg font-black tracking-normal uppercase flex-grow text-center">Mes Liens</h1>
-    <button id="btn-aide" onclick="ouvrirAide()" class="header-btn shadow-lg text-lg">💡</button>
+    <h1 id="pageTitle">Mes Liens</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
 </header>
 
 <div class="main-wrapper">
@@ -135,14 +140,14 @@
 
     <footer class="bottom-nav">
         <div class="flex gap-2">
-            <label for="importFile" class="nav-btn bg-neutral-800 text-white cursor-pointer text-center flex-1">👇 importer .txt 👇</label>
+            <label for="importFile" class="nav-btn bg-black text-white cursor-pointer text-center flex-1">👇 importer .txt 👇</label>
             <input type="file" id="importFile" class="hidden" accept=".txt" onchange="importLinks(event)">
-            <button id="btn-export" onclick="exportLinks()" class="nav-btn bg-neutral-800 text-white flex-1 relative">
+            <button id="btn-export" onclick="exportLinks()" class="nav-btn bg-black text-white flex-1 relative overflow-visible">
                 👆 exporter .txt 👆
-                <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
+                <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-orange-500 rounded-full border-2 border-white animate-pulse"></span>
             </button>
         </div>
-        <button onclick="resetLinks()" class="nav-btn bg-red-500 text-white shadow-md">⚠️ effacer tous les liens</button>
+        <button onclick="resetLinks()" class="nav-btn bg-red-500 text-white shadow-lg">⚠️ effacer tous les liens</button>
     </footer>
 </div>
 
@@ -161,7 +166,6 @@
         'Autres': { text: 'text-emerald-500', border: 'border-emerald-500', emoji: '🌍' }
     };
 
-    // --- GESTION DU BADGE EXPORT ---
     function updateExportBadge(needsExport) {
         const badge = document.getElementById('badge-export');
         const btnExport = document.getElementById('btn-export');
@@ -180,19 +184,11 @@
     function checkBadgeStatus() {
         const lastExport = localStorage.getItem('last_export_liens');
         const needsExport = localStorage.getItem('needsExport_liens') === 'true';
-        
-        if (needsExport) {
-            updateExportBadge(true);
-            return;
-        }
-
+        if (needsExport) { updateExportBadge(true); return; }
         if (lastExport) {
             const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
-            if (Date.now() - parseInt(lastExport) > sevenDaysInMs) {
-                updateExportBadge(true);
-            }
+            if (Date.now() - parseInt(lastExport) > sevenDaysInMs) updateExportBadge(true);
         } else {
-            // Premier lancement ou jamais exporté
             localStorage.setItem('last_export_liens', Date.now());
         }
     }
@@ -311,19 +307,16 @@
     function exportLinks() {
         if (links.length === 0) return;
         const dataStr = JSON.stringify(links);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-        
-        const maintenant = new Date();
-        const annee = maintenant.getFullYear();
-        const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
-        const jour = String(maintenant.getDate()).padStart(2, '0');
-        const dateFormattee = `${annee}-${mois}-${jour}`;
-        
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', `outilsprofs_liens_${dateFormattee}.txt`);
-        linkElement.click();
-
+        const nomFichier = `outilsprofs_liens_${new Date().toISOString().split('T')[0]}.txt`;
+        if (window.Android && typeof window.Android.exportTxt === "function") {
+            window.Android.exportTxt(dataStr, nomFichier);
+        } else {
+            const blob = new Blob([dataStr], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = nomFichier; a.click();
+            URL.revokeObjectURL(url);
+        }
         updateExportBadge(false);
     }
 
@@ -333,11 +326,15 @@
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                links = JSON.parse(e.target.result);
-                localStorage.setItem('eduLinksList', JSON.stringify(links));
-                updateExportBadge(false);
-                render();
+                const imported = JSON.parse(e.target.result);
+                if(Array.isArray(imported)) {
+                    links = imported;
+                    localStorage.setItem('eduLinksList', JSON.stringify(links));
+                    updateExportBadge(false);
+                    render();
+                }
             } catch (err) {}
+            event.target.value = '';
         };
         reader.readAsText(file);
     }
@@ -354,8 +351,12 @@
         document.getElementById('alerte-titre').innerText = titre;
         document.getElementById('alerte-texte').innerText = texte;
         const modal = document.getElementById('modal-alerte');
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const hexa = mapCouleurs[themePrefs.liens || 'emerald'];
+        const confirmBtn = document.getElementById('alerte-confirm');
+        confirmBtn.style.backgroundColor = hexa;
         modal.style.display = 'flex';
-        document.getElementById('alerte-confirm').onclick = () => { modal.style.display = 'none'; callback(); };
+        confirmBtn.onclick = () => { modal.style.display = 'none'; callback(); };
     }
 
     function appliquerTheme() {
@@ -363,8 +364,9 @@
         const colPref = themePrefs.liens || 'emerald';
         const hexa = mapCouleurs[colPref];
         const isDark = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref);
+        const contrast = isDark ? '#000' : '#fff';
         [document.getElementById('mainAddBtn'), document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-fermer-aide')].forEach(el => {
-            if(el) { el.style.backgroundColor = hexa; el.style.color = isDark ? '#000' : '#fff'; }
+            if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
         });
         if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
     }
