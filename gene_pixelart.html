@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pixel Art - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        
+        header { 
+            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%; margin-bottom: 12px;
+        }
+
+        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
+
+        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+
+        .main-wrapper { width: 100%; max-width: 800px; margin: 0 auto; padding: 10px 15px 40px; }
+        
+        .main-container { display: flex; flex-direction: column; gap: 20px; }
+        @media (min-width: 768px) { .main-container { flex-direction: row; align-items: flex-start; } }
+
+        #pixel-canvas {
+            display: grid; background: white; border: 2px solid var(--column-border);
+            margin: 0 auto; cursor: crosshair; user-select: none; box-shadow: var(--shadow-custom);
+        }
+
+        .pixel { border: 1px solid rgba(0,0,0,0.05); aspect-ratio: 1/1; }
+
+        .controls { flex: 1; background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); }
+
+        .color-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; }
+        .color-swatch { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
+        .color-swatch.active { border-color: white; transform: scale(1.1); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-bottom: 5px; text-align: center; }
+        
+        input[type="number"], select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--column-border);
+            color: inherit; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; text-align: center; outline: none;
+        }
+
+        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-add:active { transform: scale(0.95); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+    </style>
+</head>
+<body>
+
+<script>
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+</script>
+
+<header>
+    <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
+    </a>
+    <h1>Pixel Art</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="ui-btn-round active:scale-90 text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div class="mb-4">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour aux générateurs
+        </a>
+    </div>
+
+    <div class="main-container">
+        <div class="flex-1 flex justify-center">
+            <div id="pixel-canvas"></div>
+        </div>
+
+        <aside class="controls">
+            <div class="input-group">
+                <label>Modèles rapides</label>
+                <select id="select-modele" onchange="chargerModele(this.value)">
+                    <option value="">-- Nouveau dessin --</option>
+                    <option value="coeur">❤️ Cœur</option>
+                    <option value="smiley">😊 Smiley</option>
+                    <option value="sapin">🎄 Sapin</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Taille de la grille</label>
+                <div class="flex gap-2">
+                    <input type="number" id="grid-size" value="15" min="5" max="30" onchange="initGrid()">
+                    <button onclick="clearGrid()" class="bg-red-500/20 text-red-500 px-3 rounded-lg text-[10px] font-black uppercase">Vider</button>
+                </div>
+            </div>
+
+            <label class="block text-[10px] font-black uppercase opacity-50 mb-3 tracking-widest text-center">Palette</label>
+            <div class="color-palette" id="palette"></div>
+
+            <button onclick="exportPDF()" id="btn-pdf" class="btn-add">Générer Fiche PDF</button>
+        </aside>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide Pixel Art</h2>
+        <div class="text-[11px] leading-relaxed space-y-3 opacity-80 font-semibold">
+            <p>1. Sélectionnez une couleur dans la palette.</p>
+            <p>2. Cliquez ou glissez sur la grille pour dessiner.</p>
+            <p>3. Utilisez la couleur blanche pour gommer.</p>
+            <p>4. Générez un PDF pour obtenir une fiche avec le modèle et une grille vide pour vos élèves.</p>
+        </div>
+        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-add mt-6">Fermer</button>
+    </div>
+</div>
+
+<script>
+    let currentColor = '#000000';
+    let isDrawing = false;
+    const colors = ['#000000', '#ffffff', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#78350f'];
+
+    const modeles = {
+        coeur: { size: 10, data: {"13":"#ef4444","14":"#ef4444","16":"#ef4444","17":"#ef4444","22":"#ef4444","23":"#ef4444","24":"#ef4444","25":"#ef4444","26":"#ef4444","27":"#ef4444","28":"#ef4444","31":"#ef4444","32":"#ef4444","33":"#ef4444","34":"#ef4444","35":"#ef4444","36":"#ef4444","37":"#ef4444","38":"#ef4444","39":"#ef4444","41":"#ef4444","42":"#ef4444","43":"#ef4444","44":"#ef4444","45":"#ef4444","46":"#ef4444","47":"#ef4444","48":"#ef4444","49":"#ef4444","51":"#ef4444","52":"#ef4444","53":"#ef4444","54":"#ef4444","55":"#ef4444","56":"#ef4444","57":"#ef4444","58":"#ef4444","59":"#ef4444","62":"#ef4444","63":"#ef4444","64":"#ef4444","65":"#ef4444","66":"#ef4444","67":"#ef4444","68":"#ef4444","73":"#ef4444","74":"#ef4444","75":"#ef4444","76":"#ef4444","77":"#ef4444","84":"#ef4444","85":"#ef4444","86":"#ef4444","95":"#ef4444"} },
+        smiley: { size: 10, data: {"23":"#eab308","24":"#eab308","25":"#eab308","26":"#eab308","32":"#eab308","33":"#000000","34":"#eab308","35":"#eab308","36":"#000000","37":"#eab308","41":"#eab308","48":"#eab308","51":"#eab308","58":"#eab308","62":"#eab308","63":"#000000","64":"#000000","65":"#000000","66":"#000000","67":"#eab308","73":"#eab308","74":"#eab308","75":"#eab308","76":"#eab308"} },
+        sapin: { size: 10, data: {"15":"#22c55e","24":"#22c55e","25":"#22c55e","26":"#22c55e","33":"#22c55e","34":"#22c55e","35":"#22c55e","36":"#22c55e","37":"#22c55e","42":"#22c55e","43":"#22c55e","44":"#22c55e","45":"#22c55e","46":"#22c55e","47":"#22c55e","48":"#22c55e","54":"#78350f","64":"#78350f","74":"#78350f"} }
+    };
+
+    function initPalette() {
+        const p = document.getElementById('palette');
+        p.innerHTML = '';
+        colors.forEach(c => {
+            const s = document.createElement('div');
+            s.className = 'color-swatch';
+            s.style.backgroundColor = c;
+            if(c === '#ffffff') s.style.border = '1px solid #ddd';
+            s.onclick = () => {
+                document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+                s.classList.add('active');
+                currentColor = c;
+            };
+            p.appendChild(s);
+        });
+        p.firstChild.classList.add('active');
+    }
+
+    function initGrid() {
+        const size = document.getElementById('grid-size').value;
+        const canvas = document.getElementById('pixel-canvas');
+        const side = Math.min(window.innerWidth - 50, 400);
+        canvas.style.width = side + 'px';
+        canvas.style.height = side + 'px';
+        canvas.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        canvas.innerHTML = '';
+
+        for (let i = 0; i < size * size; i++) {
+            const pixel = document.createElement('div');
+            pixel.className = 'pixel';
+            pixel.style.backgroundColor = '#ffffff';
+            pixel.onmousedown = (e) => { e.preventDefault(); isDrawing = true; pixel.style.backgroundColor = currentColor; };
+            pixel.onmouseover = () => { if(isDrawing) pixel.style.backgroundColor = currentColor; };
+            canvas.appendChild(pixel);
+        }
+    }
+
+    function chargerModele(key) {
+        if(!key) return;
+        const m = modeles[key];
+        document.getElementById('grid-size').value = m.size;
+        initGrid();
+        const pixels = document.querySelectorAll('.pixel');
+        Object.entries(m.data).forEach(([idx, col]) => {
+            if(pixels[idx]) pixels[idx].style.backgroundColor = col;
+        });
+    }
+
+    function clearGrid() { if(confirm("Effacer le dessin ?")) initGrid(); }
+    window.onmouseup = () => isDrawing = false;
+
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+
+    async function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const size = parseInt(document.getElementById('grid-size').value);
+        const pixels = document.querySelectorAll('.pixel');
+        const cellSize = 100 / size;
+        const startX = 55;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("MODÈLE PIXEL ART", 105, 25, { align: "center" });
+
+        pixels.forEach((p, i) => {
+            const x = startX + (i % size) * cellSize;
+            const y = 40 + Math.floor(i / size) * cellSize;
+            const rgb = p.style.backgroundColor.match(/\d+/g);
+            if(rgb) doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+            else doc.setFillColor(255,255,255);
+            doc.rect(x, y, cellSize, cellSize, 'F');
+            doc.setDrawColor(200); doc.rect(x, y, cellSize, cellSize, 'D');
+        });
+
+        doc.text("À TOI DE REPRODUIRE", 105, 160, { align: "center" });
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                doc.setDrawColor(180);
+                doc.rect(startX + j * cellSize, 175 + i * cellSize, cellSize, cellSize, 'D');
+            }
+        }
+        doc.save("pixelart-fiche.pdf");
+    }
+
+    function appliquerTheme() {
+        const map = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
+        const col = (JSON.parse(localStorage.getItem('theme_tuiles')) || {}).gen || 'cyan';
+        const hexa = map[col];
+        const isDark = ['yellow', 'lime', 'amber', 'cyan'].includes(col);
+        const contrast = isDark ? '#000' : '#fff';
+        
+        [
+            document.getElementById('btn-retour-header'),
+            document.getElementById('btn-retour-liste'),
+            document.getElementById('btn-aide'),
+            document.getElementById('btn-pdf'),
+            document.getElementById('btn-fermer-aide')
+        ].forEach(el => {
+            if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
+        });
+        if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
+    }
+
+    window.onload = () => { initPalette(); initGrid(); appliquerTheme(); };
+</script>
+</body>
+</html>
