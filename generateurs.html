@@ -109,19 +109,11 @@
             </div>
         </a>
 
-        <a href="gene_trous.html" class="tool-card">
-            <div class="icon-box" id="icon-trous">🕳️</div>
+		<a href="gene_operations.html" class="tool-card">
+            <div class="icon-box" id="icon-ops">📅</div>
             <div>
-                <h2 class="font-black text-[13px] uppercase tracking-wide" id="title-trous">Texte à trous</h2>
-                <p class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">Générateur d'exercices de lecture</p>
-            </div>
-        </a>
-
-        <a href="gene_geometrie.html" class="tool-card">
-            <div class="icon-box" id="icon-geo">📐</div>
-            <div>
-                <h2 class="font-black text-[13px] uppercase tracking-wide" id="title-geo">Géométrie</h2>
-                <p class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">Quadrillages, symétrie et repères</p>
+                <h2 class="font-black text-[13px] uppercase tracking-wide" id="title-ops">Rituel Opérations</h2>
+                <p class="text-[10px] font-bold opacity-50 uppercase tracking-tighter">Planificateur de calcul hebdomadaire</p>
             </div>
         </a>
         
@@ -142,6 +134,7 @@
             <p>Le <strong>Générateur de Calcul Mental</strong> vous permet de créer des fiches PDF ou de lancer des sessions chrono.</p>
             <p>Le <strong>Générateur de mots mêlés</strong> crée des grilles personnalisées avec correction.</p>
             <p>Le <strong>Générateur de textes à trous</strong> permet de créer des textes à trous.</p>
+			<p>Le <strong>Rituel Opérations</strong> permet de configurer une semaine complète de calculs quotidiens (du CP au CM2) avec un contrôle précis des termes.</p>
         </div>
         <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close active:scale-95">Fermer</button>
     </div>
@@ -183,10 +176,9 @@
 
     // 3. Liste des tuiles (Vérifiez bien que ces IDs existent dans votre HTML)
     const outils = [
-        { icon: 'icon-calc', title: 'title-calc' },
+        { icon: 'icon-ops', title: 'title-ops' },
+		{ icon: 'icon-calc', title: 'title-calc' },
         { icon: 'icon-mots', title: 'title-mots' },
-        { icon: 'icon-trous', title: 'title-trous' },
-        { icon: 'icon-geo', title: 'title-geo' },
     ];
 
     outils.forEach(outil => {
