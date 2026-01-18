@@ -45,13 +45,21 @@
 
         .day-box { background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 12px; border: 1px solid var(--column-border); }
         
-        .counter-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .counter-input { width: 35px; height: 28px; background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 6px; text-align: center; font-weight: 900; font-size: 12px; color: var(--accent-color); outline: none; }
-
+        .counter-group button { transition: all 0.1s ease; border: 1px solid var(--column-border); color: var(--text-main); }
+        .counter-group button:active { background: var(--accent-color); color: #000; transform: scale(0.9); }
+		.counter-group svg {
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+    }
+    
+    /* Animation pour montrer que le changement a eu lieu */
+    [id^="cnt-"] {
+        transition: transform 0.1s ease;
+    }
+    .active-scale { transform: scale(1.3); }
+	
         .q-card { background: var(--card-bg); border-radius: 0.75rem; padding: 12px; border: 1px solid var(--column-border); display: flex; justify-content: space-between; align-items: center; }
         .res-text { color: #10b981; font-weight: 800; }
 
-        /* Modale Styles */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px;
@@ -75,7 +83,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
     </a>
-    <h1>Générateur de rituel Opérations</h1>
+    <h1>Rituel Opérations</h1>
     <button id="btn-aide" onclick="ouvrirAide()" class="ui-btn-round active:scale-90 text-lg">💡</button>
 </header>
 
@@ -109,7 +117,7 @@
         <div class="light-card space-y-5">
             <label class="block text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest text-center">3. Réglages des termes</label>
             
-            <div class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+            <div id="group-settings-as" class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                 <span class="block text-[9px] font-black opacity-30 uppercase text-center">Additions & Soustractions</span>
                 <div class="flex gap-3">
                     <div class="flex-1"><label class="block text-[8px] opacity-50 mb-1 ml-1">Mini</label><input type="number" id="as-min" class="input-field" value="100000"></div>
@@ -117,7 +125,7 @@
                 </div>
             </div>
 
-            <div class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+            <div id="group-settings-mult" class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                 <span class="block text-[9px] font-black opacity-30 uppercase text-center">Multiplications</span>
                 <div class="flex gap-3">
                     <div class="flex-1"><label class="block text-[8px] opacity-50 mb-1 ml-1">Chiffres T1</label><input type="number" id="mult-t1" class="input-field" value="4"></div>
@@ -125,7 +133,7 @@
                 </div>
             </div>
 
-            <div class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+            <div id="group-settings-div" class="space-y-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                 <span class="block text-[9px] font-black opacity-30 uppercase text-center">Divisions</span>
                 <div class="flex gap-3">
                     <div class="flex-1"><label class="block text-[8px] opacity-50 mb-1 ml-1">Chiffres Dividende</label><input type="number" id="div-t1" class="input-field" value="4"></div>
@@ -155,21 +163,7 @@
                 <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/10 text-xs">🏫</div>
                 <div>
                     <h3 class="font-black uppercase tracking-wider mb-0.5" style="color: var(--accent-color)">Niveaux & Presets</h3>
-                    <p class="opacity-70 text-[10px]">Le sélecteur de niveau charge des valeurs types (CP à CM2). Vous pouvez ensuite les affiner manuellement.</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-3">
-                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/10 text-xs">📅</div>
-                <div>
-                    <h3 class="font-black uppercase tracking-wider mb-0.5" style="color: var(--accent-color)">Planification Hebdo</h3>
-                    <p class="opacity-70 text-[10px]">Choisissez la répartition des opérations pour Lundi, Mardi, Jeudi et Vendredi (max 4 par jour).</p>
-                </div>
-            </div>
-            <div class="flex items-start gap-3">
-                <div class="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/10 text-xs">📄</div>
-                <div>
-                    <h3 class="font-black uppercase tracking-wider mb-0.5" style="color: var(--accent-color)">Impression</h3>
-                    <p class="opacity-70 text-[10px]">Le bouton imprimer masque les interfaces pour ne garder que vos exercices sur papier.</p>
+                    <p class="opacity-70 text-[10px]">L'interface s'adapte selon le niveau. CP : +/- uniquement. CE1 : +/-/x. Autres : toutes opérations.</p>
                 </div>
             </div>
         </div>
@@ -188,18 +182,45 @@
 
     function init() {
         const container = document.getElementById('days-container');
+        const niv = document.getElementById('niveau-select').value;
+        container.innerHTML = ''; 
+
         jours.forEach((j, dayIdx) => {
             let html = `<div class="day-box">
                 <div class="text-[10px] font-black mb-3 opacity-60 uppercase text-center">${j}</div>
                 <div class="flex justify-around items-center">`;
+            
             ops.forEach((op, opIdx) => {
+                if (niv === 'cp' && (op.id === 'mul' || op.id === 'div')) return;
+                if (niv === 'ce1' && op.id === 'div') return;
+
                 const val = (opIdx === 0) ? 4 : 0; 
-                html += `<div class="counter-group">
-                    <span class="text-[10px] font-black" style="color:${op.color}">${op.label}</span>
-                    <input type="number" min="0" max="4" value="${val}" 
-                        data-day="${dayIdx}" data-op="${op.id}"
-                        onchange="checkTotal(this, ${dayIdx})"
-                        class="counter-input">
+                html += `<div class="counter-group flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center mb-2 shadow-inner" 
+                         style="background: ${op.color}20; border: 1.5px solid ${op.color}">
+                        <span class="text-lg font-black" style="color:${op.color}">${op.label}</span>
+                    </div>
+                    
+                    <div class="flex flex-col items-center bg-black/10 rounded-xl p-1 border border-white/5">
+                        <button onclick="changeVal(${dayIdx}, '${op.id}', 1)" 
+                                class="w-9 h-7 flex items-center justify-center text-white/40 hover:text-white active:scale-75">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        
+                        <div id="cnt-${dayIdx}-${op.id}" class="w-9 h-6 flex items-center justify-center font-black text-sm text-[var(--accent-color)]">
+                            ${val}
+                        </div>
+                        
+                        <button onclick="changeVal(${dayIdx}, '${op.id}', -1)" 
+                                class="w-9 h-7 flex items-center justify-center text-white/40 hover:text-white active:scale-75">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <input type="hidden" data-day="${dayIdx}" data-op="${op.id}" value="${val}">
+                    </div>
                 </div>`;
             });
             html += `</div></div>`;
@@ -208,11 +229,23 @@
         appliquerTheme();
     }
 
-    function checkTotal(input, dayIdx) {
-        const inputs = document.querySelectorAll(`input[data-day="${dayIdx}"]`);
-        let total = 0;
-        inputs.forEach(i => total += parseInt(i.value) || 0);
-        if (total > 4) { alert("Max 4 opérations par jour."); input.value = 0; }
+    function changeVal(dayIdx, opId, delta) {
+        const hiddenInput = document.querySelector(`input[data-day="${dayIdx}"][data-op="${opId}"]`);
+        const displayDiv = document.getElementById(`cnt-${dayIdx}-${opId}`);
+        const allDayInputs = document.querySelectorAll(`input[data-day="${dayIdx}"]`);
+        
+        let currentTotal = 0;
+        allDayInputs.forEach(i => currentTotal += parseInt(i.value) || 0);
+        
+        let newVal = (parseInt(hiddenInput.value) || 0) + delta;
+        if (newVal < 0) return;
+        if (delta > 0 && currentTotal >= 4) return;
+
+        hiddenInput.value = newVal;
+        displayDiv.innerText = newVal;
+		// Petit effet de "pop" sur le chiffre
+		displayDiv.classList.add('active-scale');
+		setTimeout(() => displayDiv.classList.remove('active-scale'), 100);
     }
 
     function appliquerPresetsNiveau() {
@@ -231,6 +264,15 @@
         document.getElementById('mult-t2').value = p[3];
         document.getElementById('div-t1').value = p[4];
         document.getElementById('div-t2').value = p[5];
+
+        const multBlock = document.getElementById('group-settings-mult');
+        const divBlock = document.getElementById('group-settings-div');
+        
+        // Affichage des réglages termes selon niveau
+        multBlock.style.display = (niv === 'cp') ? 'none' : 'block';
+        divBlock.style.display = (niv === 'cp' || niv === 'ce1') ? 'none' : 'block';
+
+        init(); 
     }
 
     function getRandomNDigits(n) {
@@ -278,9 +320,7 @@
         document.getElementById('result-zone').classList.remove('hidden');
     }
 
-    function toggleCorrection() {
-        document.querySelectorAll('.res-text').forEach(e => e.classList.toggle('hidden'));
-    }
+    function toggleCorrection() { document.querySelectorAll('.res-text').forEach(e => e.classList.toggle('hidden')); }
 
     function appliquerTheme() {
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
@@ -288,20 +328,10 @@
         const map = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
         const hexa = map[colPref];
         const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref) ? '#000' : '#fff';
-
         document.documentElement.style.setProperty('--accent-color', hexa);
-
-        [
-            document.getElementById('btn-retour-header'),
-            document.getElementById('btn-retour-liste'),
-            document.getElementById('btn-aide'),
-            document.querySelector('.btn-add'),
-            document.getElementById('btn-fermer-aide')
-        ].forEach(el => {
+        [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('btn-aide'), document.querySelector('.btn-add'), document.getElementById('btn-fermer-aide')].forEach(el => {
             if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
         });
-        
-        if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
     }
 
     function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
