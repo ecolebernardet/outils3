@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Niveau Sonore - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
+            --header-bg: #1e1e1e; --card-bg: #1e1e1e;
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
+            --header-bg: #ffffff; --card-bg: #ffffff;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; overflow: hidden; height: 100vh; transition: background 0.3s; }
+        
+        header { 
+            background: var(--header-bg); border-bottom: 1px solid var(--column-border);
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
+        }
+
+        #btn-retour { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; padding: 20px; }
+
+        /* Cercle de progression */
+        .visualizer-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; }
+        
+        svg.progress-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.1s, stroke 0.3s;
+            stroke-linecap: round;
+        }
+
+        #emoji-status { font-size: 80px; position: absolute; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .controls { width: 100%; max-width: 320px; background: var(--card-bg); padding: 20px; border-radius: 24px; border: 1px solid var(--column-border); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        input[type=range] { width: 100%; accent-color: var(--theme-color); cursor: pointer; }
+
+        .btn-start {
+            width: 100%; padding: 16px; border-radius: 16px; font-weight: 900; 
+            text-transform: uppercase; font-size: 13px; cursor: pointer; border: none;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        /* Animation d'alerte */
+        @keyframes flash-red {
+            0% { background-color: var(--bg-page); }
+            50% { background-color: rgba(239, 68, 68, 0.2); }
+            100% { background-color: var(--bg-page); }
+        }
+        .is-alerting { animation: flash-red 0.5s infinite; }
+    </style>
+</head>
+<body class="flex flex-col">
+
+<header>
+    <a href="outils.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
+    </a>
+    <h1 id="pageTitle">Moniteur de Bruit</h1>
+    <div style="width:38px"></div>
+</header>
+
+<div class="main-content">
+    <div class="visualizer-container">
+        <svg class="progress-ring" width="280" height="280">
+            <circle class="opacity-10" stroke="currentColor" stroke-width="12" fill="transparent" r="120" cx="140" cy="140"/>
+            <circle id="progress-bar" class="progress-ring__circle" stroke="var(--theme-color)" stroke-width="12" stroke-dasharray="753.98" stroke-dashoffset="753.98" fill="transparent" r="120" cx="140" cy="140"/>
+        </svg>
+        <div id="emoji-status">🤫</div>
+    </div>
+
+    <div class="controls">
+        <div class="flex justify-between mb-2">
+            <span class="text-[10px] font-black uppercase opacity-60">Sensibilité du seuil</span>
+            <span id="threshold-value" class="text-[10px] font-black">70%</span>
+        </div>
+        <input type="range" id="threshold-slider" min="10" max="100" value="70">
+        <button id="btn-action" class="btn-start mt-6" onclick="toggleMic()">Démarrer l'écoute</button>
+    </div>
+</div>
+
+<script>
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+
+    const mapCouleurs = { 
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
+        'rose': '#f43f5e' 
+    };
+
+    const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+    const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+
+    const btnAction = document.getElementById('btn-action');
+    const btnRetour = document.getElementById('btn-retour');
+    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
+    const contrast = isDarkText ? '#000' : '#fff';
+
+    btnAction.style.backgroundColor = themeColor;
+    btnAction.style.color = contrast;
+    btnRetour.style.backgroundColor = themeColor;
+    btnRetour.style.color = contrast;
+
+    const circle = document.getElementById('progress-bar');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    const emoji = document.getElementById('emoji-status');
+    const slider = document.getElementById('threshold-slider');
+
+    let audioContext, analyser, microphone, javascriptNode, isListening = false;
+
+    function setProgress(percent) {
+        const offset = circumference - (percent / 100 * circumference);
+        circle.style.strokeDashoffset = offset;
+    }
+
+    slider.oninput = () => {
+        document.getElementById('threshold-value').textContent = slider.value + '%';
+    };
+
+    async function toggleMic() {
+        if (isListening) { stopMic(); return; }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            microphone = audioContext.createMediaStreamSource(stream);
+            javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+            analyser.fftSize = 256;
+            microphone.connect(analyser);
+            analyser.connect(javascriptNode);
+            javascriptNode.connect(audioContext.destination);
+
+            javascriptNode.onaudioprocess = () => {
+                const array = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(array);
+                let values = 0;
+                for (let i = 0; i < array.length; i++) values += array[i];
+                const average = values / array.length;
+                const volume = Math.min(100, Math.round((average / 100) * 100));
+                updateUI(volume);
+            };
+            btnAction.textContent = "Arrêter";
+            btnAction.style.backgroundColor = "#555";
+            btnAction.style.color = "#fff";
+            isListening = true;
+        } catch (err) { alert("Micro non accessible."); }
+    }
+
+    function stopMic() {
+        if (audioContext) audioContext.close();
+        btnAction.textContent = "Démarrer l'écoute";
+        btnAction.style.backgroundColor = themeColor;
+        btnAction.style.color = contrast;
+        isListening = false;
+        updateUI(0);
+        document.body.classList.remove('is-alerting');
+    }
+
+    function updateUI(vol) {
+        setProgress(vol);
+        const threshold = parseInt(slider.value);
+        
+        // Gestion de l'emoji et des couleurs
+        if (vol === 0) {
+            emoji.textContent = "🤫";
+            circle.style.stroke = "var(--theme-color)";
+        } else if (vol > threshold) {
+            emoji.textContent = "😡";
+            emoji.style.transform = "scale(1.3)";
+            circle.style.stroke = "#ef4444";
+            document.body.classList.add('is-alerting');
+        } else if (vol > threshold * 0.7) {
+            emoji.textContent = "😟";
+            emoji.style.transform = "scale(1.1)";
+            circle.style.stroke = "#f97316";
+            document.body.classList.remove('is-alerting');
+        } else {
+            emoji.textContent = "😊";
+            emoji.style.transform = "scale(1)";
+            circle.style.stroke = "#22c55e";
+            document.body.classList.remove('is-alerting');
+        }
+    }
+</script>
+</body>
+</html>

@@ -399,15 +399,16 @@
             { id: 'equipes', label: 'Équipes', emoji: '👥' },
             { id: 'obs', label: 'Observations', emoji: '✏️' },
             { id: 'compt', label: 'Compteur', emoji: '🚥' },
-            { id: 'gen', label: 'Générateurs', emoji: '🛠️' }
+            { id: 'gen', label: 'Générateurs', emoji: '🛠️' },
+			{ id: 'outils', label: 'Outils', emoji: '🧰' }
         ];
 
         const couleurs = Object.keys(mapCouleurs);
         let prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {
-            fille: 'pink', garcon: 'blue', inscr: 'lime', h108: 'orange', 
-            liens: 'indigo', tirage: 'yellow', equipes: 'rose', 
-            memos: 'purple', obs: 'green', compt: 'blue', gen: 'cyan'
-        };
+			fille: 'pink', garcon: 'blue', inscr: 'lime', h108: 'orange', 
+			liens: 'indigo', tirage: 'yellow', equipes: 'rose', 
+			memos: 'purple', obs: 'green', compt: 'blue', gen: 'cyan', outils: 'blue'
+		};
 
         function selectTheme(mode) {
             document.body.classList.toggle('light-mode', mode === 'light');
@@ -475,10 +476,11 @@
             if (avatar) avatar.style.filter = isLight ? 'drop-shadow(4px 4px 8px rgba(0,0,0,0.5))' : 'drop-shadow(4px 4px 8px rgba(255,255,255,0.15))';
 
             const mapping = {
-                'title-inscriptions': 'inscr', 'title-liens': 'liens', 'title-108h': 'h108',
-                'title-memos': 'memos', 'title-tirage': 'tirage', 'title-equipes': 'equipes',
-                'title-observations': 'obs', 'title-compteur': 'compt', 'title-gen': 'gen'
-            };
+				'title-inscriptions': 'inscr', 'title-liens': 'liens', 'title-108h': 'h108',
+				'title-memos': 'memos', 'title-tirage': 'tirage', 'title-equipes': 'equipes',
+				'title-observations': 'obs', 'title-compteur': 'compt', 'title-gen': 'gen',
+				'title-outils': 'outils' // Ajout du mapping
+			};
             for (let [elId, prefId] of Object.entries(mapping)) {
                 const el = document.getElementById(elId);
                 if (el) el.style.color = mapCouleurs[prefs[prefId] || 'blue'];
