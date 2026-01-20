@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Minuteur & Chrono - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
+            --header-bg: #1e1e1e; --card-bg: #1e1e1e;
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
+            --header-bg: #ffffff; --card-bg: #ffffff;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; overflow-x: hidden; }
+        
+        header { 
+            background: var(--header-bg); border-bottom: 1px solid var(--column-border);
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
+
+        .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; background: var(--card-bg); padding: 5px; border-radius: 15px; border: 1px solid var(--column-border); }
+        .tab-btn { padding: 8px 20px; border-radius: 10px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .tab-btn.active { background: var(--theme-color); color: var(--contrast-color); }
+
+        .timer-display { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
+        svg.progress-ring { transform: rotate(-90deg); }
+        .progress-ring__circle { transition: stroke-dashoffset 0.1s linear; stroke-linecap: round; }
+        .time-text { position: absolute; font-size: 3.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+        .controls { display: flex; gap: 15px; width: 100%; justify-content: center; }
+        .btn-circle { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; transition: transform 0.2s; }
+        .btn-circle:active { transform: scale(0.9); }
+        .btn-play { background: var(--theme-color); color: var(--contrast-color); }
+        .btn-reset { background: rgba(128,128,128,0.2); color: var(--text-page); }
+
+        .preset-btn { background: var(--card-bg); border: 1px solid var(--column-border); padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+        .btn-modal-close { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="outils.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
+    </a>
+    <h1 id="pageTitle">Temps</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div class="tabs">
+        <div class="tab-btn active" onclick="switchMode('timer')">Minuteur</div>
+        <div class="tab-btn" onclick="switchMode('chrono')">Chrono</div>
+    </div>
+
+    <div class="timer-display">
+        <svg class="progress-ring" width="260" height="260">
+            <circle class="opacity-10" stroke="currentColor" stroke-width="10" fill="transparent" r="115" cx="130" cy="130"/>
+            <circle id="progress-bar" class="progress-ring__circle" stroke="var(--theme-color)" stroke-width="10" stroke-dasharray="722.56" stroke-dashoffset="0" fill="transparent" r="115" cx="130" cy="130"/>
+        </svg>
+        <div class="time-text" id="display">05:00</div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-circle btn-reset" onclick="reset()">🔄</button>
+        <button class="btn-circle btn-play" id="btn-start" onclick="toggleMain()">▶️</button>
+    </div>
+
+    <div id="presets" class="w-full mt-8">
+        <div class="flex items-center gap-2 mb-4">
+            <div class="flex flex-1 gap-1">
+                <input type="number" id="custom-min" placeholder="Min" class="w-full bg-[var(--card-bg)] border border-[var(--column-border)] rounded-xl py-3 font-bold text-center outline-none focus:border-[var(--theme-color)] transition-colors" min="0">
+                <input type="number" id="custom-sec" placeholder="Sec" class="w-full bg-[var(--card-bg)] border border-[var(--column-border)] rounded-xl py-3 font-bold text-center outline-none focus:border-[var(--theme-color)] transition-colors" min="0" max="59">
+            </div>
+            <button onclick="setCustomTimer()" class="px-5 rounded-xl font-black text-[11px] uppercase py-4" style="background: var(--theme-color); color: var(--contrast-color);">OK</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+            <button class="preset-btn" onclick="setTimer(1)">1 min</button>
+            <button class="preset-btn" onclick="setTimer(5)">5 min</button>
+            <button class="preset-btn" onclick="setTimer(10)">10 min</button>
+            <button class="preset-btn" onclick="setTimer(15)">15 min</button>
+            <button class="preset-btn" onclick="setTimer(30)">30 min</button>
+            <button class="preset-btn" onclick="setTimer(60)">60 min</button>
+        </div>
+
+        <div class="mt-6 w-full">
+            <label class="text-[10px] font-black uppercase opacity-60 mb-2 block">Sonnerie d'alerte</label>
+            <div class="flex gap-2">
+                <select id="alarm-selector" class="flex-grow bg-[var(--card-bg)] border border-[var(--column-border)] rounded-xl px-4 py-3 font-bold text-[12px] outline-none focus:border-[var(--theme-color)] transition-colors">
+                    <option value="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3">Bip Digital</option>
+                    <option value="https://assets.mixkit.co/active_storage/sfx/1017/1017-preview.mp3">Cloche d'école</option>
+                    <option value="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3">Alerte Douce</option>
+                    <option value="https://cdn.pixabay.com/audio/2022/03/15/audio_273117565c.mp3">Zen / Bol Tibétain</option>
+                    <option value="https://assets.mixkit.co/active_storage/sfx/2513/2513-preview.mp3">Trompette Victoire</option>
+                </select>
+                <button onclick="testerSon()" class="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--card-bg)] border border-[var(--column-border)] active:scale-90 transition-transform">🔊</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide : Temps</h2>
+        <div class="text-[11px] leading-relaxed space-y-3 opacity-80 font-semibold">
+            <p><strong>Minuteur :</strong> Réglez la durée souhaitée et lancez le décompte.</p>
+            <p><strong>Chronomètre :</strong> Mesurez le temps de vos activités.</p>
+            <p>🔊 Testez le son avec le bouton haut-parleur avant de lancer.</p>
+        </div>
+        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close" style="background: var(--theme-color); color: var(--contrast-color);">Fermer</button>
+    </div>
+</div>
+
+<audio id="alarm-sound" preload="auto"></audio>
+
+<script>
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+
+    const mapCouleurs = { 
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
+        'rose': '#f43f5e' 
+    };
+
+    const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+    const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
+    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
+    const contrast = isDarkText ? '#000' : '#fff';
+
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+    document.documentElement.style.setProperty('--contrast-color', contrast);
+
+    document.getElementById('btn-retour').style.backgroundColor = themeColor;
+    document.getElementById('btn-retour').style.color = contrast;
+    document.getElementById('btn-aide').style.backgroundColor = themeColor;
+    document.getElementById('btn-aide').style.color = contrast;
+    document.getElementById('titre-aide').style.color = themeColor;
+
+    let mode = 'timer', timeLeft = 300, totalTime = 300, chronoTime = 0, timerId = null, isRunning = false;
+    const display = document.getElementById('display'), progressBar = document.getElementById('progress-bar'), btnStart = document.getElementById('btn-start');
+    const circumference = 115 * 2 * Math.PI;
+
+    function updateDisplay() {
+        let t = (mode === 'timer') ? timeLeft : chronoTime;
+        let mins = Math.floor(t / 60), secs = t % 60;
+        display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if(mode === 'timer') {
+            let offset = circumference - (timeLeft / totalTime) * circumference;
+            progressBar.style.strokeDashoffset = offset;
+        } else {
+            progressBar.style.strokeDashoffset = 0;
+        }
+    }
+
+    function toggleMain() {
+        if(isRunning) {
+            clearInterval(timerId);
+            btnStart.textContent = '▶️';
+        } else {
+            timerId = setInterval(() => {
+                if(mode === 'timer') {
+                    if(timeLeft > 0) { timeLeft--; updateDisplay(); } 
+                    else {
+                        clearInterval(timerId);
+                        lancerAlarme();
+                        reset();
+                    }
+                } else { chronoTime++; updateDisplay(); }
+            }, 1000);
+            btnStart.textContent = '⏸️';
+        }
+        isRunning = !isRunning;
+    }
+
+    function lancerAlarme() {
+        const alarm = document.getElementById('alarm-sound');
+        alarm.src = document.getElementById('alarm-selector').value;
+        alarm.load();
+        alarm.play().catch(e => console.log("L'audio nécessite une interaction."));
+    }
+
+    function testerSon() {
+        const alarm = document.getElementById('alarm-sound');
+        alarm.src = document.getElementById('alarm-selector').value;
+        alarm.load();
+        alarm.play().catch(e => alert("Erreur de lecture. Vérifiez votre connexion."));
+    }
+
+    function reset() {
+        clearInterval(timerId);
+        isRunning = false;
+        btnStart.textContent = '▶️';
+        if(mode === 'timer') timeLeft = totalTime; else chronoTime = 0;
+        updateDisplay();
+    }
+
+    function setTimer(mins) {
+        totalTime = mins * 60;
+        timeLeft = totalTime;
+        reset();
+    }
+
+    function setCustomTimer() {
+        let m = parseInt(document.getElementById('custom-min').value) || 0;
+        let s = parseInt(document.getElementById('custom-sec').value) || 0;
+        if (m > 0 || s > 0) {
+            totalTime = (m * 60) + s;
+            timeLeft = totalTime;
+            reset();
+            document.getElementById('custom-min').value = '';
+            document.getElementById('custom-sec').value = '';
+        }
+    }
+
+    function switchMode(newMode) {
+        if(isRunning) reset();
+        mode = newMode;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.getElementById('presets').style.display = (mode === 'timer') ? 'block' : 'none';
+        reset();
+    }
+
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+
+    updateDisplay();
+</script>
+</body>
+</html>
