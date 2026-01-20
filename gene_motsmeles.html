@@ -236,27 +236,28 @@
 
 <script>
     const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
-    const themes = {
-        animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin",
-        ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle",
-        corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux",
-        noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel",
-        fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron",
-        pays: "France, Italie, Espagne, Belgique, Suisse, Canada, Japon, Bresil, Maroc, Algerie, Chine, Inde",
-        sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski",
-        musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour",
-        espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute",
-        couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige",
-        voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage",
-        cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette",
-        metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin",
-        vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure",
-        maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree",
-        meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel",
-        insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole",
-        ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile",
-        geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite"
-    };
+    const themes = { 
+		animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin, tortue, vipere, aigle, moineau, grenouille, sardine", 
+		ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle, cour, recreation, francais, mathematiques, histoire, geographie, sciences", 
+		corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux, cheville, coude, cou", 
+		noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel, lumiere, cheminee", 
+		fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron, abricot, framboise, myrtille, groseille", 
+		pays: "France, Italie, Espagne, Belgique, Suisse, Monaco, Andorre, Allemagne, Canada, Japon, Bresil, Maroc, Algerie, Tunisie, Turquie, Chine, Inde, Pakistan, Suede, Norvege, Mexique", 
+		sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski, handball, gymnastique, surf", 
+		musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour", 
+		espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute", 
+		couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige", 
+		voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage", 
+		cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette", 
+		metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin", 
+		vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure", 
+		maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree",
+		meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel", 
+		insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole", 
+		ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile", 
+		geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite" 
+	};
+
 
     let finalGrid = [];
     let gridSize = 10;
@@ -308,10 +309,17 @@
         gridSize = parseInt(document.getElementById('grid-size').value) || 10;
         if (!rawWords.trim()) return;
 
-        const words = rawWords.split(',').map(w => w.trim().toUpperCase()).filter(w => w.length > 0);
+        // On filtre les mots trop longs et on mélange l'ordre pour varier les succès de placement
+        const words = rawWords.split(',')
+            .map(w => w.trim().toUpperCase())
+            .filter(w => w.length > 0 && w.length <= gridSize)
+            .sort(() => Math.random() - 0.5); 
+
         finalGrid = Array(gridSize).fill().map(() => Array(gridSize).fill(''));
         window.placedWords = [];
         isRevealed = false;
+
+        const wordsActuallyPlaced = [];
 
         words.forEach(word => {
             let placed = false, attempts = 0;
@@ -332,6 +340,7 @@
                 if (canPlace(word, r, c, dr, dc)) {
                     for (let i = 0; i < word.length; i++) finalGrid[r + i * dr][c + i * dc] = { char: word[i], isSolution: true };
                     window.placedWords.push({ r1: r, c1: c, r2: r + (word.length - 1) * dr, c2: c + (word.length - 1) * dc });
+                    wordsActuallyPlaced.push(word);
                     placed = true;
                 }
                 attempts++;
@@ -343,7 +352,9 @@
                 if (finalGrid[r][c] === '') finalGrid[r][c] = { char: String.fromCharCode(65 + Math.floor(Math.random() * 26)), isSolution: false };
             }
         }
-        renderGrid(title, words);
+        
+        // On n'affiche que les mots qui ont été placés avec succès
+        renderGrid(title, wordsActuallyPlaced);
     }
 
     function renderGrid(title, words) {
