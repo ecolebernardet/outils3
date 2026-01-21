@@ -25,7 +25,8 @@
             margin: 0; padding: 0; 
             overflow: hidden; 
             height: 100vh; 
-            transition: background-color 1.5s ease; /* Transition douce pour la couleur */
+            /* Transition très lente pour un effet de fondu permanent */
+            transition: background-color 2.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         header { 
@@ -35,11 +36,7 @@
             position: relative; z-index: 20;
         }
 
-        #btn-retour, #btn-aide { 
-            width: 38px; height: 38px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-        }
-
+        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
 
         .main-content { 
@@ -56,13 +53,9 @@
             transform-origin: center; z-index: 10;
         }
 
-        .controls.is-compact {
-            max-width: 180px; padding: 15px; opacity: 0.15; transform: scale(0.8);
-        }
+        .controls.is-compact { max-width: 180px; padding: 15px; opacity: 0.15; transform: scale(0.8); }
         .controls.is-compact:hover { opacity: 1; transform: scale(1); }
-        .controls.is-compact .settings-group, 
-        .controls.is-compact .history-container { display: none; }
-        .controls.is-compact .btn-start { margin-top: 0; padding: 12px; font-size: 11px; }
+        .controls.is-compact .settings-group, .controls.is-compact .history-container { display: none; }
 
         input[type=range] { width: 100%; accent-color: var(--theme-color); cursor: pointer; height: 10px; border-radius: 5px; }
 
@@ -79,13 +72,13 @@
 
         @keyframes flash-red {
             0% { background-color: #ff0000; }
-            50% { background-color: #660000; }
+            50% { background-color: #440000; }
             100% { background-color: #ff0000; }
         }
-        .is-alerting { animation: flash-red 1s infinite !important; }
+        .is-alerting { animation: flash-red 1.2s infinite !important; }
 
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: 2rem; border: 1px solid var(--column-border); padding: 40px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: 2rem; padding: 40px; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -111,7 +104,7 @@
     <div class="controls">
         <div class="settings-group">
             <div class="mb-6 text-center">
-                <p class="text-[13px] font-black uppercase opacity-40 tracking-widest">Moyenne intelligente</p>
+                <p class="text-[13px] font-black uppercase opacity-40 tracking-widest">Inertie Longue (5s)</p>
             </div>
             <div class="flex justify-between mb-3">
                 <span class="text-[11px] font-black uppercase opacity-70">Tolérance au bruit</span>
@@ -126,14 +119,13 @@
 
 <div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="titre-aide" class="text-xl font-black uppercase mb-6 text-center">💡 Guide : Niveau Sonore</h2>
+        <h2 id="titre-aide" class="text-xl font-black uppercase mb-6 text-center">💡 Couleurs nuancées</h2>
         <div class="text-[13px] leading-relaxed space-y-4 opacity-90 font-medium">
-            <p>Cet outil ignore les bruits courts et accidentels.</p>
-            <p>📊 <strong>Moyenne sur 3s :</strong> La couleur change seulement si le bruit persiste.</p>
-            <p>🟢 <strong>Calme :</strong> Vert.</p>
-            <p>🔴 <strong>Bruit continu :</strong> Le rouge s'installe progressivement.</p>
+            <p>La couleur change sur une moyenne de 5 secondes.</p>
+            <p>🟢 <strong>Calme :</strong> Vert.<br>🟡 <strong>Bruit léger :</strong> Jaune.<br>🟠 <strong>Bavardages :</strong> Orange.<br>🔴 <strong>Bruit fort :</strong> Rouge.</p>
+            <p>⏳ <strong>Inertie :</strong> Le retour au vert est volontairement très lent pour encourager le calme durable.</p>
         </div>
-        <button onclick="fermerAide()" class="w-full p-4 rounded-xl font-bold uppercase mt-4 bg-white text-black">C'est parti</button>
+        <button onclick="fermerAide()" class="w-full p-4 rounded-xl font-bold uppercase mt-4 bg-white text-black">C'est clair</button>
     </div>
 </div>
 
@@ -172,16 +164,24 @@
     let animationId;
     let historyData = Array(50).fill(0);
     
-    // --- LOGIQUE MOYENNE GLISSANTE ---
-    // On stocke les 120 dernières mesures (environ 2 secondes à 60fps)
+    // LOGIQUE MOYENNE LONGUE (5 secondes à ~60fps = 300 points)
     let bufferVolume = [];
-    const bufferSize = 120; 
+    const bufferSize = 300; 
+    let currentDisplayVol = 0; // Volume lissé pour l'affichage couleur
 
     function setPageColor(avgVol) {
-        // La couleur se base sur la MOYENNE du buffer
-        const hue = Math.max(0, 120 - (avgVol * 1.5)); 
-        const sat = 40 + (avgVol * 0.4);
-        const light = Math.max(20, 35 - (avgVol * 0.1));
+        // Inertie asymétrique : on monte vite vers le bruit, mais on descend TRES doucement
+        if (avgVol > currentDisplayVol) {
+            currentDisplayVol += (avgVol - currentDisplayVol) * 0.05; // Montée
+        } else {
+            currentDisplayVol += (avgVol - currentDisplayVol) * 0.005; // Descente beaucoup plus lente
+        }
+
+        // Calcul des paliers HSL
+        // 120 (vert) -> 60 (jaune) -> 30 (orange) -> 0 (rouge)
+        const hue = Math.max(0, 120 - (currentDisplayVol * 1.6)); 
+        const sat = 45 + (currentDisplayVol * 0.4);
+        const light = Math.max(18, 35 - (currentDisplayVol * 0.1));
 
         if (isListening) {
             document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, ${light}%)`;
@@ -204,7 +204,8 @@
             btnAction.textContent = "Arrêter";
             btnAction.style.backgroundColor = "#444";
             btnAction.style.color = "#fff";
-            bufferVolume = []; // Reset du buffer
+            bufferVolume = [];
+            currentDisplayVol = 0;
             loop();
         } catch (err) { alert("Micro non accessible."); }
     }
@@ -228,30 +229,29 @@
         
         let sumMeasure = 0;
         for (let i = 0; i < array.length; i++) sumMeasure += array[i];
-        let instantVol = Math.min(100, Math.round((sumMeasure / array.length) * 2.8)); 
+        let instantVol = Math.min(100, Math.round((sumMeasure / array.length) * 3.0)); 
         
-        // Ajouter au buffer et limiter sa taille
         bufferVolume.push(instantVol);
         if (bufferVolume.length > bufferSize) bufferVolume.shift();
 
-        // Calculer la moyenne glissante
         let sumBuffer = bufferVolume.reduce((a, b) => a + b, 0);
         let averageVol = sumBuffer / bufferVolume.length;
 
         setPageColor(averageVol);
         
         const threshold = parseInt(slider.value);
-        if (averageVol > threshold) {
+        // On déclenche l'alerte sur la moyenne lissée
+        if (currentDisplayVol > threshold) {
             document.body.classList.add('is-alerting');
         } else {
             document.body.classList.remove('is-alerting');
         }
         
-        updateHistory(instantVol, averageVol);
+        updateHistory(instantVol);
         animationId = requestAnimationFrame(loop);
     }
 
-    function updateHistory(instant, average) {
+    function updateHistory(instant) {
         historyData.push(instant);
         historyData.shift();
         const historyContainer = document.getElementById('history');
@@ -260,9 +260,8 @@
             const bar = document.createElement('div');
             bar.className = 'history-bar';
             bar.style.height = `${v}%`;
-            // Barre rouge si l'instant dépasse, mais fond de la barre plus sombre
             bar.style.backgroundColor = v > parseInt(slider.value) ? '#ff4444' : 'var(--theme-color)';
-            bar.style.opacity = "0.5";
+            bar.style.opacity = "0.4";
             historyContainer.appendChild(bar);
         });
     }
