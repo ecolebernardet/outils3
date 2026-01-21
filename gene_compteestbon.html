@@ -20,7 +20,17 @@
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-page); 
+            color: var(--text-main); 
+            margin: 0; 
+            padding: 0; 
+            transition: background 0.3s ease;
+            /* Optimisation des polices pour écrans haute résolution */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
         
         header { 
             background: var(--card-bg); border-bottom: 1px solid var(--column-border);
@@ -32,7 +42,27 @@
         .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
         header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
 
-        .main-wrapper { width: 100%; max-width: 380px; margin: 0 auto; padding: 10px 15px 40px; }
+        /* Adaptation PC : max-width augmenté */
+        .main-wrapper { 
+            width: 100%; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 10px 15px 40px; 
+        }
+
+        /* Mise en page PC pour le jeu */
+        @media (min-width: 768px) {
+            #game-zone.game-active {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                align-items: start;
+            }
+            .target-card { grid-column: span 2; }
+            .game-controls-wrapper { grid-column: span 2; }
+            #btn-solution { grid-column: span 2; max-width: 400px; margin: 0 auto 1.5rem; }
+        }
+
         .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
         
         .input-field { background: var(--input-bg); border: 1px solid var(--column-border);
@@ -100,7 +130,7 @@
             </div>
         </div>
 
-<div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 gap-3">
             <div>
                 <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Petites (1-10)</label>
                 <select id="count-small" onchange="adjustPlates('small')" class="input-field">
@@ -118,7 +148,7 @@
                 </select>
             </div>
         </div>
-		
+        
         <div class="grid grid-cols-2 gap-3">
             <div>
                 <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Cible Mini</label>
@@ -153,7 +183,7 @@
             💡 Afficher la solution
         </button>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 game-controls-wrapper">
             <button onclick="retourReglages()" class="btn-add bg-gray-500 !text-white">Réglages</button>
             <button onclick="generateGame()" class="btn-add bg-amber-500 !text-white">Nouveau</button>
         </div>
@@ -250,7 +280,6 @@
         return ops;
     }
 
-// Garantit que le total des plaques est toujours égal à 6
     function adjustPlates(source) {
         const small = document.getElementById('count-small');
         const large = document.getElementById('count-large');
@@ -260,7 +289,7 @@
             small.value = 6 - parseInt(large.value);
         }
     }
-	
+    
     function generateGame() {
         const minCible = parseInt(document.getElementById('target-min').value) || 10;
         const maxCible = parseInt(document.getElementById('target-max').value) || 100;
@@ -279,10 +308,9 @@
 
         while ((cible < minCible || cible > maxCible) && tentativesGénérales < 60) {
             let petitesDispo = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10];
-            let grandesDispo = [25, 25, 50, 50, 75, 75, 100, 100]; // Doublé pour permettre d'en tirer 6
+            let grandesDispo = [25, 25, 50, 50, 75, 75, 100, 100];
             let plaques = [];
             
-            // Tirage selon les réglages utilisateur
             for(let i=0; i<nbSmall; i++) plaques.push(petitesDispo.splice(Math.floor(Math.random()*petitesDispo.length), 1)[0]);
             for(let i=0; i<nbLarge; i++) plaques.push(grandesDispo.splice(Math.floor(Math.random()*grandesDispo.length), 1)[0]);
 
@@ -319,7 +347,9 @@
         document.getElementById('solution-zone').classList.add('hidden');
         document.getElementById('btn-solution').classList.remove('hidden');
         document.getElementById('setup-zone').classList.add('hidden');
-        document.getElementById('game-zone').classList.remove('hidden');
+        const gameZone = document.getElementById('game-zone');
+        gameZone.classList.remove('hidden');
+        gameZone.classList.add('game-active');
     }
 
     function findShortestSolution(initialNumbers, target) {
@@ -373,7 +403,9 @@
 
     function retourReglages() {
         document.getElementById('setup-zone').classList.remove('hidden');
-        document.getElementById('game-zone').classList.add('hidden');
+        const gameZone = document.getElementById('game-zone');
+        gameZone.classList.add('hidden');
+        gameZone.classList.remove('game-active');
     }
 
     function appliquerTheme() {

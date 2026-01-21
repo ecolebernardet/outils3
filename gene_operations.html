@@ -33,8 +33,8 @@
         .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; background: var(--accent-color); color: #000; }
         header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
 
-        .main-wrapper { width: 100%; max-width: 450px; margin: 0 auto; padding: 1px 1px 40px; }
-        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 10px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 10px; }
+        .main-wrapper { width: 100%; max-width: 450px; margin: 0 auto; padding: 1px 15px 40px; transition: max-width 0.3s ease; }
+        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 15px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 15px; }
         
         .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 10px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; text-align: center; }
         
@@ -42,23 +42,39 @@
 
         .day-box { background: rgba(122,122,122,0.05); border-radius: 1rem; padding: 8px; border: 1px solid var(--column-border); }
         
-        .q-card { background: var(--card-bg); border-radius: 0.75rem; padding: 10px; border: 1px solid var(--column-border); display: flex; justify-content: space-between; align-items: center; }
+        .q-card { background: var(--card-bg); border-radius: 0.75rem; padding: 12px; border: 1px solid var(--column-border); display: flex; justify-content: space-between; align-items: center; }
         .res-text { color: #10b981; font-weight: 800; }
 
-        /* Styles Seyes pour le PDF */
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; color: var(--text-main); }
+
+        /* Styles Seyes PDF */
         .seyes-container { position: relative; height: 48mm; width: 100%; background: white; border: 1px solid #cbd5e1; overflow: hidden; box-sizing: border-box; }
         .seyes-vertical-lines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(90deg, rgba(173, 216, 230, 1) 1px, transparent 1px); background-size: 8mm 100%; z-index: 1; }
         .seyes-line { position: absolute; left: 0; right: 0; height: 1px; z-index: 2; }
         .line-principale { background: rgba(138, 43, 226, 0.4); height: 1.5px; }
         .line-interligne { background: rgba(173, 216, 230, 1); }
-        .empty-frame-pdf { height: 48mm; width: 100%; background: transparent; }
 
-        /* Modale Aide */
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; color: var(--text-main); }
+        @media (min-width: 1024px) {
+            .main-wrapper { max-width: 950px; }
+            #setup-zone:not(.hidden) { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+            #setup-zone .light-card { margin-bottom: 0; height: 100%; }
+            #setup-zone > button.btn-add { grid-column: span 2; margin-top: 10px; font-size: 14px; }
+            #questions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            #questions-grid .col-span-full { grid-column: span 2; font-size: 12px; margin-top: 30px; }
+            .q-card span.text-[13px] { font-size: 1.1rem; }
+            .res-text { font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
+
+<script>
+    // Appliquer le mode clair dès le début du chargement
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+</script>
 
 <header>
     <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
@@ -69,26 +85,36 @@
 </header>
 
 <div class="main-wrapper">
-    <div id="setup-zone" class="space-y-4">
-        <div class="light-card">
-            <label class="block text-[10px] font-black uppercase opacity-60 mb-3 tracking-widest text-center">1. Niveau Scolaire</label>
-            <select id="niveau-select" class="input-field" onchange="appliquerPresetsNiveau()">
-                <option value="cp">CP</option>
-                <option value="ce1">CE1</option>
-                <option value="ce2">CE2</option>
-                <option value="cm1">CM1</option>
-                <option value="cm2" selected>CM2</option>
-            </select>
-        </div>
+    <div class="mb-4">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour aux générateurs
+        </a>
+    </div>
 
-        <div class="light-card">
-            <label class="block text-[10px] font-black uppercase opacity-60 mb-4 tracking-widest text-center">2. Quantité par jour (Total 4)</label>
-            <div id="days-container" class="grid grid-cols-1 gap-3"></div>
+    <div id="setup-zone" class="space-y-4">
+        <div class="space-y-4">
+            <div class="light-card">
+                <label class="block text-[10px] font-black uppercase opacity-60 mb-3 tracking-widest text-center">1. Niveau Scolaire</label>
+                <select id="niveau-select" class="input-field" onchange="appliquerPresetsNiveau()">
+                    <option value="cp">CP</option>
+                    <option value="ce1">CE1</option>
+                    <option value="ce2">CE2</option>
+                    <option value="cm1">CM1</option>
+                    <option value="cm2" selected>CM2</option>
+                </select>
+            </div>
+
+            <div class="light-card">
+                <label class="block text-[10px] font-black uppercase opacity-60 mb-4 tracking-widest text-center">2. Quantité par jour (Total 4)</label>
+                <div id="days-container" class="grid grid-cols-1 gap-3"></div>
+            </div>
         </div>
 
         <div class="light-card space-y-5">
             <label class="block text-[10px] font-black uppercase opacity-60 mb-2 tracking-widest text-center">3. Réglages des termes</label>
-            
             <div id="group-settings-retenues" class="p-3 bg-white/5 rounded-2xl border border-white/5 text-center mb-2 space-y-2">
                 <label class="flex items-center justify-center gap-3 cursor-pointer">
                     <input type="checkbox" id="add-sans-retenues" class="w-4 h-4 accent-[var(--accent-color)]">
@@ -122,14 +148,14 @@
                 </div>
             </div>
         </div>
-        <button onclick="genererRituel()" class="btn-add">Générer la semaine</button>
+        <button onclick="genererRituel()" class="btn-add" id="btn-generer-main">Générer la semaine</button>
     </div>
 
     <div id="result-zone" class="hidden space-y-4">
-        <div id="questions-grid" class="grid grid-cols-1 gap-2"></div>
+        <div id="questions-grid"></div>
         <div class="grid grid-cols-2 gap-3 pt-6">
-            <button onclick="location.reload()" class="flex items-center justify-center gap-2 py-3 rounded-3xl text-[10px] font-black uppercase tracking-widest bg-gray-500/10 border border-gray-500/20 text-gray-500 hover:bg-gray-500/20 transition-all active:scale-95">Configuration</button>
-            <button onclick="exportPDF()" class="btn-add flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-color)]/20">Exporter PDF</button>
+            <button onclick="retourConfiguration()" class="flex items-center justify-center gap-2 py-3 rounded-3xl text-[10px] font-black uppercase tracking-widest bg-gray-500/10 border border-gray-500/20 text-gray-500 hover:bg-gray-500/20 transition-all active:scale-95">Configuration</button>
+            <button onclick="exportPDF()" class="btn-add flex items-center justify-center gap-2 shadow-lg shadow-[var(--accent-color)]/20" id="btn-export">Exporter PDF</button>
             <button onclick="toggleCorrection()" class="col-span-2 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-all active:scale-95">Afficher la correction</button>
         </div>
     </div>
@@ -137,24 +163,12 @@
 
 <div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="text-lg font-black uppercase mb-4 text-center">💡 Rituel opérations</h2>
+        <h2 class="text-lg font-black uppercase mb-4 text-center" id="titre-aide">💡 Rituel opérations</h2>
         <div class="text-[11px] leading-relaxed space-y-4 opacity-90">
-            <div>
-                <p class="font-black uppercase text-[9px] mb-1 opacity-50 tracking-wider">Fonctionnement</p>
-                <p>Générez un programme d'entraînement hebdomadaire avec jusqu'à <b>4 opérations par jour</b>.</p>
-            </div>
-            <div>
-                <p class="font-black uppercase text-[9px] mb-1 opacity-50 tracking-wider">Réglages & Retenues</p>
-                <p>Les réglages s'adaptent selon le niveau. Utilisez les options <b>"Sans retenues"</b> pour forcer des calculs simplifiés.</p>
-            </div>
-            <div>
-                <p class="font-black uppercase text-[9px] mb-1 opacity-50 tracking-wider">Export PDF</p>
-                <p>Génère un <b>quadrillage Seyes complet</b> pour aider les élèves à poser les opérations correctement.</p>
-            </div>
+            <p>Générez un programme hebdomadaire avec <b>4 opérations par jour</b>.</p>
+            <p>L'export PDF génère un <b>quadrillage Seyes complet</b>.</p>
         </div>
-        <button id="btn-fermer-aide" onclick="fermerAide()" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform">
-            Compris
-        </button>
+        <button id="btn-fermer-aide" onclick="fermerAide()" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-transform">Compris</button>
     </div>
 </div>
 
@@ -193,7 +207,7 @@
         const total = Array.from(document.querySelectorAll(`input[data-day="${dayIdx}"]`)).reduce((a, b) => a + (parseInt(b.value)||0), 0);
         let newVal = (parseInt(input.value)||0) + delta;
         if (newVal < 0 || (delta > 0 && total >= 4)) return;
-        input.value = newVal; display.innerText = newVal;
+        input.value = newVal; if(display) display.innerText = newVal;
     }
 
     function appliquerPresetsNiveau() {
@@ -201,7 +215,6 @@
         const config = { 'cp':[1,50,1,1,1,2], 'ce1':[10,99,1,1,1,5], 'ce2':[100,9999,2,1,2,9], 'cm1':[1000,99999,3,2,3,9], 'cm2':[1000,999999,3,2,4,15] };
         const p = config[niv];
         ['as-min','as-max','mult-t1','mult-t2','div-t1','div-t2'].forEach((id,i) => document.getElementById(id).value = p[i]);
-        
         document.getElementById('group-settings-mult').style.display = (niv==='cp')?'none':'block';
         document.getElementById('group-settings-div').style.display = (niv==='cp'||niv==='ce1')?'none':'block';
         init();
@@ -213,16 +226,8 @@
         let sA = a.toString(), sB = b.toString();
         let len = Math.max(sA.length, sB.length);
         sA = sA.padStart(len, '0'); sB = sB.padStart(len, '0');
-        
-        if (type === 'add') {
-            for(let k=0; k<len; k++) {
-                if (parseInt(sA[k]) + parseInt(sB[k]) > 9) return false;
-            }
-        } else if (type === 'sub') {
-            for(let k=0; k<len; k++) {
-                if (parseInt(sA[k]) < parseInt(sB[k])) return false;
-            }
-        }
+        if (type === 'add') { for(let k=0; k<len; k++) { if (parseInt(sA[k]) + parseInt(sB[k]) > 9) return false; } }
+        else if (type === 'sub') { for(let k=0; k<len; k++) { if (parseInt(sA[k]) < parseInt(sB[k])) return false; } }
         return true;
     }
 
@@ -231,7 +236,6 @@
         grid.innerHTML = '';
         const addSansRetenues = document.getElementById('add-sans-retenues').checked;
         const subSansRetenues = document.getElementById('sub-sans-retenues').checked;
-
         jours.forEach((j, dayIdx) => {
             grid.innerHTML += `<div class="col-span-full font-black text-center py-1 mt-4 opacity-30 text-[10px] tracking-widest uppercase border-b border-white/10">• ${j} •</div>`;
             document.querySelectorAll(`input[data-day="${dayIdx}"]`).forEach(input => {
@@ -246,7 +250,6 @@
                             attempts++;
                             var needsCheck = (type === 'add' && addSansRetenues) || (type === 'sub' && subSansRetenues);
                         } while(needsCheck && !checkSansRetenue(a, b, type) && attempts < 500);
-                        
                         if(type==='add'){opSign='+'; res=a+b;}else{opSign='-'; res=a-b;}
                     } else if(type==='mul'){
                         a=getRandomNDigits(document.getElementById('mult-t1').value); b=getRandomNDigits(document.getElementById('mult-t2').value); opSign='x'; res=a*b;
@@ -260,11 +263,15 @@
         document.getElementById('setup-zone').classList.add('hidden'); document.getElementById('result-zone').classList.remove('hidden');
     }
 
+    function retourConfiguration() {
+        document.getElementById('result-zone').classList.add('hidden');
+        document.getElementById('setup-zone').classList.remove('hidden');
+    }
+
     function exportPDF() {
         const niv = document.getElementById('niveau-select').value.toUpperCase();
         const container = document.createElement('div');
         Object.assign(container.style, { width: "175mm", margin: "0 auto", padding: "0mm", backgroundColor: "white", display: "block", boxSizing: "border-box" });
-
         let currentDay = ""; 
         document.querySelectorAll('.q-card').forEach(q => {
             const day = q.getAttribute('data-day-name');
@@ -274,26 +281,22 @@
                 }
                 currentDay = day;
                 const h = document.createElement('div'); h.innerHTML = `• ${day} •`;
-                Object.assign(h.style, { textAlign:"center", fontWeight:"900", padding:"4px", borderBottom:"1.5px solid black", marginBottom:"6px", marginTop: (day === "Mardi" || day === "Vendredi") ? "10px" : "0px", fontSize:"14px", textTransform:"uppercase", width: "100%", color: "black" });
+                Object.assign(h.style, { textAlign:"center", fontWeight:"900", padding:"4px", borderBottom:"1.5px solid black", marginBottom:"6px", marginTop: "10px", fontSize:"14px", textTransform:"uppercase", width: "100%", color: "black" });
                 container.appendChild(h);
                 const currentGrid = document.createElement('div');
                 Object.assign(currentGrid.style, { display:"grid", gridTemplateColumns:"1fr 1fr", gap:"6mm", marginBottom:"10px", width: "100%" });
                 container.appendChild(currentGrid);
-                q.parentElement._currentGrid = currentGrid;
             }
-
             const card = document.createElement('div');
             const enonce = q.querySelector('span:first-child').innerText;
             const isDiv = enonce.includes('÷');
-            Object.assign(card.style, { border: isDiv ? "none" : "1px solid #e2e8f0", padding: "5px", borderRadius: "6px", boxSizing: "border-box" });
-            let frameContent = isDiv ? `<div class="empty-frame-pdf"></div>` : `<div class="seyes-container"><div class="seyes-vertical-lines"></div>${Array.from({length:25}, (_,i)=>`<div class="seyes-line ${i%4===0?'line-principale':'line-interligne'}" style="top:${i*2}mm"></div>`).join('')}</div>`;
+            Object.assign(card.style, { border: isDiv ? "none" : "1px solid #e2e8f0", padding: "5px", borderRadius: "6px" });
+            let frameContent = isDiv ? `<div style="height:48mm"></div>` : `<div class="seyes-container"><div class="seyes-vertical-lines"></div>${Array.from({length:25}, (_,i)=>`<div class="seyes-line ${i%4===0?'line-principale':'line-interligne'}" style="top:${i*2}mm"></div>`).join('')}</div>`;
             card.innerHTML = `<div style="font-weight:bold; font-size:13px; margin-bottom:3px; color:black;">${enonce}</div>${frameContent}`;
-            const activeGrid = Array.from(container.querySelectorAll('div[style*="display: grid"]')).pop();
-            activeGrid.appendChild(card);
+            const activeGrids = container.querySelectorAll('div[style*="display: grid"]');
+            activeGrids[activeGrids.length-1].appendChild(card);
         });
-
-        const opt = { margin: [8, 10], filename: `rituel_operations_${niv}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3, useCORS: true, backgroundColor: '#ffffff', scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-        html2pdf().set(opt).from(container).save();
+        html2pdf().set({ margin: [8, 10], filename: `rituel_${niv}.pdf`, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container).save();
     }
 
     function toggleCorrection() { document.querySelectorAll('.res-text').forEach(e => e.classList.toggle('hidden')); }
@@ -301,23 +304,32 @@
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
 
     function appliquerTheme() {
-        const col = (JSON.parse(localStorage.getItem('theme_tuiles')) || {}).gen || 'amber';
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.gen || 'amber'; 
         const map = { 'red':'#ef4444','orange':'#f97316','amber':'#f59e0b','yellow':'#eab308','lime':'#84cc16','green':'#22c55e','emerald':'#10b981','teal':'#14b8a6','cyan':'#06b6d4','sky':'#0ea5e9','blue':'#3b82f6','indigo':'#6366f1','violet':'#8b5cf6','purple':'#a855f7','fuchsia':'#d946ef','pink':'#ec4899','rose':'#f43f5e','gray':'#6b7280' };
-        document.documentElement.style.setProperty('--accent-color', map[col]);
-        const hexa = map[col]; 
-        const contrast = ['yellow','lime','amber','cyan'].includes(col) ? '#000' : '#fff';
+        const hexa = map[colPref]; 
+        const isDarkText = ['yellow','lime','amber','cyan'].includes(colPref);
+        const contrast = isDarkText ? '#000' : '#fff';
         
-        [document.getElementById('btn-retour-header'), document.getElementById('btn-aide'), document.querySelector('.btn-add'), document.getElementById('btn-fermer-aide')].forEach(el => { 
+        document.documentElement.style.setProperty('--accent-color', hexa);
+        
+        [
+            document.getElementById('btn-retour-header'), 
+            document.getElementById('btn-retour-liste'), 
+            document.getElementById('btn-aide'), 
+            document.getElementById('btn-generer-main'), 
+            document.getElementById('btn-export'), 
+            document.getElementById('btn-fermer-aide')
+        ].forEach(el => { 
             if(el){ el.style.backgroundColor = hexa; el.style.color = contrast; }
         });
-
-        if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
-        else document.body.classList.remove('light-mode');
+        
+        if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
     }
 
-    window.onload = function() {
-        appliquerPresetsNiveau();
-        appliquerTheme();
+    window.onload = function() { 
+        appliquerPresetsNiveau(); 
+        appliquerTheme(); 
     };
 </script>
 </body>
