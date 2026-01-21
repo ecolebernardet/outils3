@@ -18,25 +18,36 @@
             --header-bg: #ffffff; --card-bg: #ffffff;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; overflow: hidden; height: 100vh; transition: background 0.3s; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            color: var(--text-page); 
+            margin: 0; padding: 0; 
+            overflow: hidden; 
+            height: 100vh; 
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
         
         header { 
             background: var(--header-bg); border-bottom: 1px solid var(--column-border);
             padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
             display: flex; align-items: center; justify-content: space-between; width: 100%;
+            position: relative; z-index: 20;
         }
 
-        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        /* Boutons circulaires du header */
+        #btn-retour, #btn-aide { 
+            width: 38px; height: 38px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: transform 0.1s;
+        }
+
         header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
 
         .main-content { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px;
-            height: calc(100vh - 80px);
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; padding: 20px;
+            height: calc(100vh - 120px);
         }
 
         .controls { 
@@ -44,16 +55,11 @@
             border-radius: 32px; border: 1px solid var(--column-border); 
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: center;
-            z-index: 10;
+            transform-origin: center; z-index: 10;
         }
 
-        /* État réduit quand le micro est actif */
         .controls.is-compact {
-            max-width: 180px;
-            padding: 15px;
-            opacity: 0.3;
-            transform: scale(0.8);
+            max-width: 180px; padding: 15px; opacity: 0.2; transform: scale(0.8);
         }
         .controls.is-compact:hover { opacity: 1; transform: scale(1); }
         .controls.is-compact .settings-group, 
@@ -66,26 +72,23 @@
             width: 100%; padding: 20px; border-radius: 20px; font-weight: 900; 
             text-transform: uppercase; font-size: 14px; cursor: pointer; border: none;
             box-shadow: 0 5px 0 rgba(0,0,0,0.2);
-            transition: transform 0.1s, background-color 0.2s;
         }
-        .btn-start:active { transform: translateY(3px); }
 
         .history-container {
             width: 100%; height: 50px; display: flex; align-items: flex-end; gap: 3px;
-            margin-top: 25px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.08);
+            margin-top: 25px; overflow: hidden; border-radius: 8px; background: rgba(0,0,0,0.1);
         }
-        .history-bar { flex: 1; background: var(--theme-color); opacity: 0.7; min-width: 4px; border-radius: 3px 3px 0 0; }
-
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: 2rem; border: 1px solid var(--column-border); padding: 40px; position: relative; }
-        .btn-modal-close { width: 100%; padding: 16px; border-radius: 14px; font-weight: 900; font-size: 12px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
+        .history-bar { flex: 1; min-width: 4px; border-radius: 3px 3px 0 0; }
 
         @keyframes flash-red {
-            0% { background-color: #ef4444; }
-            50% { background-color: #7f1d1d; }
-            100% { background-color: #ef4444; }
+            0% { background-color: #ff0000; }
+            50% { background-color: #660000; }
+            100% { background-color: #ff0000; }
         }
-        .is-alerting { animation: flash-red 0.5s infinite !important; }
+        .is-alerting { animation: flash-red 0.4s infinite !important; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 500px; border-radius: 2rem; border: 1px solid var(--column-border); padding: 40px; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -100,6 +103,13 @@
     <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
 </header>
 
+<div class="max-w-[1200px] mx-auto w-full px-5 mt-6 flex justify-start">
+    <a href="outils.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] font-black uppercase transition-transform active:scale-95 shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+        Retour aux outils
+    </a>
+</div>
+
 <div class="main-content">
     <div class="controls">
         <div class="settings-group">
@@ -112,9 +122,7 @@
             </div>
             <input type="range" id="threshold-slider" min="5" max="100" value="70">
         </div>
-        
         <div id="history" class="history-container"></div>
-
         <button id="btn-action" class="btn-start mt-8" onclick="toggleMic()">Démarrer l'écoute</button>
     </div>
 </div>
@@ -123,13 +131,13 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 id="titre-aide" class="text-xl font-black uppercase mb-6 text-center">💡 Guide : Niveau Sonore</h2>
         <div class="text-[13px] leading-relaxed space-y-4 opacity-90 font-medium">
-            <p>Cet outil transforme l'écran en indicateur de bruit géant.</p>
-            <p>1️⃣ Cliquez sur <strong>"Démarrer"</strong>. Le formulaire se réduira pour laisser place à la couleur.</p>
-            <p>2️⃣ Réglez la <strong>tolérance</strong> selon le calme souhaité.</p>
-            <p>3️⃣ Le fond passe du <strong>vert au rouge</strong>. S'il clignote, le seuil est dépassé !</p>
-            <p>4️⃣ Survolez le bouton <strong>"Arrêter"</strong> pour faire réapparaître les réglages.</p>
+            <p>L'écran réagit dynamiquement au bruit de la classe :</p>
+            <p>🟢 <strong>Silence :</strong> Fond vert.</p>
+            <p>🟡 <strong>Murmure :</strong> Jaune / Orange.</p>
+            <p>🔴 <strong>Bruit :</strong> Rouge vif.</p>
+            <p>🔥 <strong>Alerte :</strong> Clignotement si le seuil est dépassé.</p>
         </div>
-        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close active:scale-95">Compris !</button>
+        <button onclick="fermerAide()" class="w-full p-4 rounded-xl font-bold uppercase mt-4 bg-white text-black">C'est clair</button>
     </div>
 </div>
 
@@ -140,8 +148,7 @@
         'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
         'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
         'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
-        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
-        'rose': '#f43f5e' 
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' 
     };
 
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
@@ -150,37 +157,35 @@
 
     const btnAction = document.getElementById('btn-action');
     const btnRetour = document.getElementById('btn-retour');
+    const btnRetourListe = document.getElementById('btn-retour-liste');
     const btnAide = document.getElementById('btn-aide');
-    const btnFermerAide = document.getElementById('btn-fermer-aide');
-    const historyContainer = document.getElementById('history');
     const slider = document.getElementById('threshold-slider');
     const controls = document.querySelector('.controls');
     
     const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
     const contrast = isDarkText ? '#000' : '#fff';
 
-    [btnAction, btnRetour, btnAide, btnFermerAide].forEach(btn => {
+    [btnAction, btnRetour, btnRetourListe, btnAide].forEach(btn => {
         if(btn) {
             btn.style.backgroundColor = themeColor;
             btn.style.color = contrast;
         }
     });
-    
-    if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = themeColor;
 
     let audioContext, analyser, microphone, isListening = false;
-    let animationId;
+    let animationId, smoothedVolume = 0;
     let historyData = Array(50).fill(0);
+    const smoothingFactor = 0.12; 
 
-    function setPageColor(percent) {
-        // Dégradé de 120 (vert) à 0 (rouge)
-        const hue = Math.max(0, 120 - (percent * 1.2)); 
-        document.body.style.backgroundColor = `hsl(${hue}, 70%, 40%)`;
+    function setPageColor(vol) {
+        smoothedVolume += (vol - smoothedVolume) * smoothingFactor;
+        const hue = Math.max(0, 120 - (smoothedVolume * 1.5)); 
+        const sat = 50 + (smoothedVolume * 0.4);
+        const light = Math.max(25, 40 - (smoothedVolume * 0.15));
+        if (isListening) document.body.style.backgroundColor = `hsl(${hue}, ${sat}%, ${light}%)`;
     }
 
-    slider.oninput = () => {
-        document.getElementById('threshold-value').textContent = slider.value + '%';
-    };
+    slider.oninput = () => { document.getElementById('threshold-value').textContent = slider.value + '%'; };
 
     async function toggleMic() {
         if (isListening) { stopMic(); return; }
@@ -189,15 +194,13 @@
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
             microphone = audioContext.createMediaStreamSource(stream);
-            analyser.fftSize = 256;
+            analyser.fftSize = 512;
             microphone.connect(analyser);
-
             isListening = true;
             controls.classList.add('is-compact');
             btnAction.textContent = "Arrêter";
             btnAction.style.backgroundColor = "#444";
             btnAction.style.color = "#fff";
-            
             loop();
         } catch (err) { alert("Micro non accessible."); }
     }
@@ -206,56 +209,50 @@
         isListening = false;
         cancelAnimationFrame(animationId);
         if (audioContext) audioContext.close();
-        
         controls.classList.remove('is-compact');
         btnAction.textContent = "Démarrer l'écoute";
         btnAction.style.backgroundColor = themeColor;
         btnAction.style.color = contrast;
         document.body.style.backgroundColor = "";
         document.body.classList.remove('is-alerting');
+        smoothedVolume = 0;
     }
 
     function loop() {
         if (!isListening) return;
         const array = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(array);
-        
         let sum = 0;
         for (let i = 0; i < array.length; i++) sum += array[i];
         let average = sum / array.length;
-        let volume = Math.min(100, Math.round(average * 1.8)); 
-        
-        updateUI(volume);
+        let volume = Math.min(100, Math.round(average * 2.5)); 
+        setPageColor(volume);
+        if (volume > parseInt(slider.value)) {
+            document.body.classList.add('is-alerting');
+        } else {
+            document.body.classList.remove('is-alerting');
+        }
         updateHistory(volume);
-        
         animationId = requestAnimationFrame(loop);
     }
 
     function updateHistory(vol) {
         historyData.push(vol);
         historyData.shift();
+        const historyContainer = document.getElementById('history');
         historyContainer.innerHTML = '';
         historyData.forEach(v => {
             const bar = document.createElement('div');
             bar.className = 'history-bar';
             bar.style.height = `${v}%`;
-            if (v > parseInt(slider.value)) bar.style.background = '#ef4444';
+            bar.style.backgroundColor = v > parseInt(slider.value) ? '#ff4444' : 'var(--theme-color)';
             historyContainer.appendChild(bar);
         });
     }
 
-    function updateUI(vol) {
-        setPageColor(vol);
-        const threshold = parseInt(slider.value);
-        if (vol > threshold) {
-            document.body.classList.add('is-alerting');
-        } else {
-            document.body.classList.remove('is-alerting');
-        }
-    }
-
     function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
     function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+    if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = themeColor;
 </script>
 </body>
 </html>
