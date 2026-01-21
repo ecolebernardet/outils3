@@ -33,7 +33,13 @@
         .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
         header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
 
-        .main-wrapper { width: 100%; max-width: 450px; margin: 0 auto; padding: 10px 15px 40px; }
+        .main-wrapper { 
+            width: 100%; 
+            max-width: 1000px; /* Augmenté légèrement pour laisser de la place au duo grille+mots */
+            margin: 0 auto; 
+            padding: 10px 15px 40px; 
+        }
+		
         .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
         
         .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 12px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; }
@@ -42,16 +48,24 @@
             border: none; cursor: pointer; transition: transform 0.1s; }
         .btn-add:active { transform: scale(0.95); }
 
-        .grid-container { position: relative; margin: 10px auto; width: fit-content; border-radius: 8px; overflow: hidden; }
+        .grid-container { 
+            position: relative; 
+            margin: 10px auto; 
+            width: fit-content; 
+            max-width: 100%; /* Empêche la grille de sortir de l'écran */
+            overflow-x: auto; /* Ajoute un scroll interne si vraiment trop grand sur petit PC */
+            border-radius: 8px; 
+        }
+		
         #word-grid { display: grid; gap: 2px; background: var(--column-border); border: 2px solid var(--column-border); position: relative; z-index: 2; }
         .grid-cell { width: 100%; height: 100%; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; position: relative; z-index: 3; cursor: pointer; user-select: none; transition: background 0.2s; }
         .grid-cell.selected { color: white; border-radius: 4px; }
 
-		.word-found { text-decoration: line-through; opacity: 0.3; transition: all 0.3s ease; color: gray !important; }
+        .word-found { text-decoration: line-through; opacity: 0.3; transition: all 0.3s ease; color: gray !important; }
 
         #correction-canvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 1; }
 
-        .bottom-nav { width: 100%; max-width: 450px; margin: 20px auto 0; display: flex; flex-direction: column; gap: 8px; }
+        .bottom-nav { width: 100%; max-width: 600px; margin: 20px auto 0; display: flex; flex-direction: column; gap: 8px; }
         .nav-group { display: flex; gap: 8px; width: 100%; }
         .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
 
@@ -100,15 +114,15 @@
                 <option value="musique">🎸 Instruments</option>
                 <option value="espace">🚀 Espace</option>
                 <option value="couleurs">🎨 Couleurs</option>
-				<option value="voiture">🚗 Voiture</option>
-				<option value="cuisine">🍳 Cuisine</option>
-				<option value="metiers">👷 Métiers</option>
-				<option value="vetements">👕 Vêtements</option>
-				<option value="maison">🏠 Maison</option>
-				<option value="meteo">☁️ Météo</option>
-				<option value="insectes">🐝 Insectes</option>
-				<option value="ocean">🌊 Océan</option>
-				<option value="geometrie">📐 Géométrie</option>
+                <option value="voiture">🚗 Voiture</option>
+                <option value="cuisine">🍳 Cuisine</option>
+                <option value="metiers">👷 Métiers</option>
+                <option value="vetements">👕 Vêtements</option>
+                <option value="maison">🏠 Maison</option>
+                <option value="meteo">☁️ Météo</option>
+                <option value="insectes">🐝 Insectes</option>
+                <option value="ocean">🌊 Océan</option>
+                <option value="geometrie">📐 Géométrie</option>
             </select>
         </div>
 
@@ -153,15 +167,17 @@
     </div>
     
     <div id="game-zone" class="hidden space-y-6">
-        <h2 id="display-title" class="text-center font-black uppercase tracking-widest"></h2>
+        <h2 id="display-title" class="text-center font-black uppercase tracking-widest text-xl"></h2>
         
-        <div class="grid-container">
-            <canvas id="correction-canvas"></canvas>
-            <div id="word-grid"></div>
+        <div id="game-layout" class="flex flex-col md:flex-row md:items-start md:justify-center gap-8">
+            <div class="grid-container !m-0">
+                <canvas id="correction-canvas"></canvas>
+                <div id="word-grid"></div>
+            </div>
+
+            <div id="words-to-find" class="grid grid-cols-3 md:grid-cols-2 gap-x-4 gap-y-1 text-[10px] font-bold opacity-70 w-full md:max-w-[250px]"></div>
         </div>
 
-        <div id="words-to-find" class="grid grid-cols-3 gap-x-4 gap-y-1 text-[10px] font-bold opacity-70 max-w-[300px] mx-auto"></div>
-        
         <div class="flex flex-col items-center gap-3 mt-10">
             <button id="btn-reveal" onclick="toggleCorrection()" class="flex items-center gap-2 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform shadow-md">
                 👁️ Afficher la correction
@@ -236,28 +252,7 @@
 
 <script>
     const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
-    const themes = { 
-		animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin, tortue, vipere, aigle, moineau, grenouille, sardine", 
-		ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle, cour, recreation, francais, mathematiques, histoire, geographie, sciences", 
-		corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux, cheville, coude, cou", 
-		noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel, lumiere, cheminee", 
-		fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron, abricot, framboise, myrtille, groseille", 
-		pays: "France, Italie, Espagne, Belgique, Suisse, Monaco, Andorre, Allemagne, Canada, Japon, Bresil, Maroc, Algerie, Tunisie, Turquie, Chine, Inde, Pakistan, Suede, Norvege, Mexique", 
-		sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski, handball, gymnastique, surf", 
-		musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour", 
-		espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute", 
-		couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige", 
-		voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage", 
-		cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette", 
-		metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin", 
-		vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure", 
-		maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree",
-		meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel", 
-		insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole", 
-		ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile", 
-		geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite" 
-	};
-
+    const themes = { animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin, tortue, vipere, aigle, moineau, grenouille, sardine", ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle, cour, recreation, francais, mathematiques, histoire, geographie, sciences", corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux, cheville, coude, cou", noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel, lumiere, cheminee", fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron, abricot, framboise, myrtille, groseille", pays: "France, Italie, Espagne, Belgique, Suisse, Monaco, Andorre, Allemagne, Canada, Japon, Bresil, Maroc, Algerie, Tunisie, Turquie, Chine, Inde, Pakistan, Suede, Norvege, Mexique", sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski, handball, gymnastique, surf", musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour", espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute", couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige", voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage", cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette", metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin", vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure", maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree", meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel", insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole", ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile", geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite" };
 
     let finalGrid = [];
     let gridSize = 10;
@@ -309,16 +304,10 @@
         gridSize = parseInt(document.getElementById('grid-size').value) || 10;
         if (!rawWords.trim()) return;
 
-        // On filtre les mots trop longs et on mélange l'ordre pour varier les succès de placement
-        const words = rawWords.split(',')
-            .map(w => w.trim().toUpperCase())
-            .filter(w => w.length > 0 && w.length <= gridSize)
-            .sort(() => Math.random() - 0.5); 
-
+        const words = rawWords.split(',').map(w => w.trim().toUpperCase()).filter(w => w.length > 0 && w.length <= gridSize).sort(() => Math.random() - 0.5); 
         finalGrid = Array(gridSize).fill().map(() => Array(gridSize).fill(''));
         window.placedWords = [];
         isRevealed = false;
-
         const wordsActuallyPlaced = [];
 
         words.forEach(word => {
@@ -326,16 +315,9 @@
             const diff = document.getElementById('difficulty').value;
             while (!placed && attempts < 150) {
                 let dr = 0, dc = 0;
-                if (diff === 'easy') {
-                    Math.random() < 0.5 ? dc = 1 : dr = 1;
-                } else if (diff === 'hard') {
-                    let r = Math.random();
-                    if (r < 0.33) dc = 1; else if (r < 0.66) dr = 1; else { dr = 1; dc = 1; }
-                } else {
-                    const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,-1],[1,-1],[-1,1]];
-                    const d = dirs[Math.floor(Math.random() * dirs.length)];
-                    dr = d[0]; dc = d[1];
-                }
+                if (diff === 'easy') { Math.random() < 0.5 ? dc = 1 : dr = 1; } 
+                else if (diff === 'hard') { let r = Math.random(); if (r < 0.33) dc = 1; else if (r < 0.66) dr = 1; else { dr = 1; dc = 1; } } 
+                else { const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,-1],[1,-1],[-1,1]]; const d = dirs[Math.floor(Math.random() * dirs.length)]; dr = d[0]; dc = d[1]; }
                 let r = Math.floor(Math.random() * gridSize), c = Math.floor(Math.random() * gridSize);
                 if (canPlace(word, r, c, dr, dc)) {
                     for (let i = 0; i < word.length; i++) finalGrid[r + i * dr][c + i * dc] = { char: word[i], isSolution: true };
@@ -352,16 +334,19 @@
                 if (finalGrid[r][c] === '') finalGrid[r][c] = { char: String.fromCharCode(65 + Math.floor(Math.random() * 26)), isSolution: false };
             }
         }
-        
-        // On n'affiche que les mots qui ont été placés avec succès
         renderGrid(title, wordsActuallyPlaced);
     }
 
     function renderGrid(title, words) {
         const gridEl = document.getElementById('word-grid');
         const canvas = document.getElementById('correction-canvas');
-        const cellSize = Math.max(18, 40 - (gridSize * 1.1)); 
-        const fontSize = Math.max(9, cellSize * 0.6);
+        
+        const isDesktop = window.innerWidth > 768;
+        // On réduit un peu la baseSize PC (de 55 à 48) pour éviter le débordement
+        const baseSize = isDesktop ? 48 : 40; 
+        const cellSize = Math.max(isDesktop ? 20 : 18, baseSize - (gridSize * 1.1)); 
+        
+        const fontSize = Math.max(isDesktop ? 12 : 9, cellSize * 0.6);
         const gap = 2;
         
         gridEl.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -371,22 +356,20 @@
         
         const totalSize = (gridSize * cellSize) + ((gridSize + 1) * gap);
         canvas.width = totalSize; canvas.height = totalSize;
-        
         document.getElementById('display-title').innerText = title;
 
         const sortedWords = words.sort((a, b) => a.localeCompare(b, 'fr'));
         const nbMots = sortedWords.length;
-        const nbParCol = Math.ceil(nbMots / 3);
+        const nbCols = isDesktop ? 2 : 3;
+        const nbParCol = Math.ceil(nbMots / nbCols);
         
         let htmlWords = '';
         for (let i = 0; i < nbParCol; i++) {
-            [i, i + nbParCol, i + 2 * nbParCol].forEach(index => {
-                if (index < nbMots) {
-                    htmlWords += `<span class="truncate">• ${sortedWords[index]}</span>`;
-                } else {
-                    htmlWords += `<span></span>`; 
-                }
-            });
+            for (let j = 0; j < nbCols; j++) {
+                const index = i + (j * nbParCol);
+                if (index < nbMots) htmlWords += `<span class="truncate">• ${sortedWords[index]}</span>`;
+                else htmlWords += `<span></span>`; 
+            }
         }
         document.getElementById('words-to-find').innerHTML = htmlWords;
         
@@ -408,54 +391,34 @@
     function checkVictory() {
         const wordSpans = document.querySelectorAll('#words-to-find span');
         const selectedCells = Array.from(document.querySelectorAll('.grid-cell.selected'));
-        
-        // Récupération des coordonnées des cellules sélectionnées
         const selectedCoords = selectedCells.map(cell => {
             const index = Array.from(cell.parentNode.children).indexOf(cell);
             return { r: Math.floor(index / gridSize), c: index % gridSize };
         });
 
-        // 1. Parcours de tous les mots placés pour barrer ceux qui sont complets
         window.placedWords.forEach((wordObj) => {
-            // Recalculer les coordonnées exactes du mot dans la grille
             const dr = wordObj.r2 === wordObj.r1 ? 0 : (wordObj.r2 > wordObj.r1 ? 1 : -1);
             const dc = wordObj.c2 === wordObj.c1 ? 0 : (wordObj.c2 > wordObj.c1 ? 1 : -1);
             const len = Math.max(Math.abs(wordObj.r2 - wordObj.r1), Math.abs(wordObj.c2 - wordObj.c1)) + 1;
-            
             let allLettersSelected = true;
             let wordString = "";
             for(let i=0; i<len; i++) {
-                const currR = wordObj.r1 + (i * dr);
-                const currC = wordObj.c1 + (i * dc);
+                const currR = wordObj.r1 + (i * dr); const currC = wordObj.c1 + (i * dc);
                 wordString += finalGrid[currR][currC].char;
-                if (!selectedCoords.some(cp => cp.r === currR && cp.c === currC)) {
-                    allLettersSelected = false;
-                }
+                if (!selectedCoords.some(cp => cp.r === currR && cp.c === currC)) allLettersSelected = false;
             }
-
-            // On cherche le span qui contient exactement ce mot pour le barrer
             wordSpans.forEach(span => {
-                // On nettoie le texte du span (on enlève la puce "• ")
                 const cleanSpanText = span.innerText.replace('• ', '').trim();
-                if (cleanSpanText === wordString) {
-                    if (allLettersSelected) {
-                        span.classList.add('word-found');
-                    } else {
-                        span.classList.remove('word-found');
-                    }
-                }
+                if (cleanSpanText === wordString) span.classList.toggle('word-found', allLettersSelected);
             });
         });
 
-        // 2. Vérification de la victoire globale
         const solCells = document.querySelectorAll('.grid-cell[data-sol="true"]');
         const selSolCells = document.querySelectorAll('.grid-cell.selected[data-sol="true"]');
         const wrongCells = document.querySelectorAll('.grid-cell.selected[data-sol="false"]');
-
         if (solCells.length > 0 && solCells.length === selSolCells.length && wrongCells.length === 0) {
             const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-            const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
-            document.getElementById('bravo-titre').style.color = hexa;
+            document.getElementById('bravo-titre').style.color = mapCouleurs[themePrefs.gen || 'cyan'];
             document.getElementById('modal-bravo').style.display = 'flex';
         }
     }
@@ -469,19 +432,15 @@
         const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
         const cellSize = parseFloat(cells[0].style.width);
         const gap = 2;
-
         isRevealed = !isRevealed;
 
         if (isRevealed) {
             btn.innerHTML = "🙈 Cacher la correction";
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = hexa; ctx.lineWidth = cellSize * 0.8; ctx.lineCap = "round"; ctx.globalAlpha = 0.5;
-
             window.placedWords.forEach(w => {
-                const x1 = gap + w.c1 * (cellSize + gap) + cellSize/2;
-                const y1 = gap + w.r1 * (cellSize + gap) + cellSize/2;
-                const x2 = gap + w.c2 * (cellSize + gap) + cellSize/2;
-                const y2 = gap + w.r2 * (cellSize + gap) + cellSize/2;
+                const x1 = gap + w.c1 * (cellSize + gap) + cellSize/2; const y1 = gap + w.r1 * (cellSize + gap) + cellSize/2;
+                const x2 = gap + w.c2 * (cellSize + gap) + cellSize/2; const y2 = gap + w.r2 * (cellSize + gap) + cellSize/2;
                 ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             });
             cells.forEach(c => c.style.background = "transparent");
@@ -496,62 +455,41 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const rawTitle = document.getElementById('grid-title').value || "Mots Mêlés";
-        const cleanTitle = cleanStringForFilename(rawTitle);
         const mots = document.getElementById('word-list').value.split(',').map(w => w.trim().toUpperCase()).filter(w => w.length > 0).sort((a,b)=>a.localeCompare(b,'fr'));
         const cellSize = 8, startX = (210 - (gridSize * cellSize)) / 2, startY = 40;
 
         const dessinerListeMots = (yDepart) => {
-            const listStartY = yDepart + 15;
-            doc.setGState(new doc.GState({ opacity: 1 }));
-            doc.setTextColor(0).setFont("helvetica", "bold").setFontSize(12).text("Mots à trouver :", startX, listStartY);
+            doc.setTextColor(0).setFont("helvetica", "bold").setFontSize(12).text("Mots à trouver :", startX, yDepart + 15);
             doc.setFont("helvetica", "normal").setFontSize(10);
-            const nbMots = mots.length;
-            const nbParCol = Math.ceil(nbMots / 3);
-            const colWidth = 50;
+            const nbParCol = Math.ceil(mots.length / 3);
             mots.forEach((mot, i) => {
-                const col = Math.floor(i / nbParCol);
-                const rowInCol = i % nbParCol;
-                const x = startX + (col * colWidth);
-                const y = listStartY + 7 + (rowInCol * 5);
-                doc.text("• " + mot, x, y);
+                doc.text("• " + mot, startX + (Math.floor(i / nbParCol) * 50), yDepart + 22 + ((i % nbParCol) * 5));
             });
         };
 
         doc.setFont("helvetica", "bold").setFontSize(18).text(rawTitle, 105, 20, { align: "center" });
-        finalGrid.forEach((row, r) => {
-            row.forEach((obj, c) => {
-                const x = startX + (c * cellSize), y = startY + (r * cellSize);
-                doc.setDrawColor(180).setLineWidth(0.1).rect(x, y, cellSize, cellSize);
-                doc.setTextColor(0).setFont("helvetica", "normal").setFontSize(11).text(obj.char, x + 4, y + 5.5, { align: "center" });
-            });
-        });
+        finalGrid.forEach((row, r) => row.forEach((obj, c) => {
+            const x = startX + (c * cellSize), y = startY + (r * cellSize);
+            doc.setDrawColor(180).setLineWidth(0.1).rect(x, y, cellSize, cellSize);
+            doc.setTextColor(0).setFontSize(11).text(obj.char, x + 4, y + 5.5, { align: "center" });
+        }));
         dessinerListeMots(startY + (gridSize * cellSize));
 
         doc.addPage().setFont("helvetica", "bold").setFontSize(18).text(rawTitle + " (CORRECTION)", 105, 20, { align: "center" });
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
-        
-        doc.setDrawColor(hexa).setLineWidth(cellSize - 3).setLineCap(1); 
+        doc.setDrawColor(mapCouleurs[themePrefs.gen || 'cyan']).setLineWidth(cellSize - 3).setLineCap(1);
         window.placedWords.forEach(w => {
             doc.setGState(new doc.GState({ opacity: 0.35 }));
-            const x1 = startX + (w.c1 * cellSize) + (cellSize / 2);
-            const y1 = startY + (w.r1 * cellSize) + (cellSize / 2);
-            const x2 = startX + (w.c2 * cellSize) + (cellSize / 2);
-            const y2 = startY + (w.r2 * cellSize) + (cellSize / 2);
-            doc.line(x1, y1, x2, y2);
+            doc.line(startX + (w.c1 * cellSize) + cellSize/2, startY + (w.r1 * cellSize) + cellSize/2, startX + (w.c2 * cellSize) + cellSize/2, startY + (w.r2 * cellSize) + cellSize/2);
         });
-
-        finalGrid.forEach((row, r) => {
-            row.forEach((obj, c) => {
-                const x = startX + (c * cellSize), y = startY + (r * cellSize);
-                doc.setGState(new doc.GState({ opacity: 1 }));
-                doc.setDrawColor(220).setLineWidth(0.1).rect(x, y, cellSize, cellSize);
-                doc.setTextColor(0).setFontSize(11).text(obj.char, x + 4, y + 5.5, { align: "center" });
-            });
-        });
+        finalGrid.forEach((row, r) => row.forEach((obj, c) => {
+            const x = startX + (c * cellSize), y = startY + (r * cellSize);
+            doc.setGState(new doc.GState({ opacity: 1 }));
+            doc.setDrawColor(220).rect(x, y, cellSize, cellSize);
+            doc.setTextColor(0).text(obj.char, x + 4, y + 5.5, { align: "center" });
+        }));
         dessinerListeMots(startY + (gridSize * cellSize));
-
-        doc.save(`outilsprofs_mots_meles_${cleanTitle}.pdf`);
+        doc.save(`outilsprofs_mots_meles_${cleanStringForFilename(rawTitle)}.pdf`);
     }
 
     function exportToTXT() {
@@ -584,13 +522,8 @@
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
         const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.gen || 'cyan') ? '#000' : '#fff';
-        
         if (document.getElementById('aide-titre-dynamique')) document.getElementById('aide-titre-dynamique').style.color = hexa;
-        if (document.getElementById('btn-fermer-aide')) {
-            document.getElementById('btn-fermer-aide').style.backgroundColor = hexa;
-            document.getElementById('btn-fermer-aide').style.color = contrast;
-        }
-        
+        if (document.getElementById('btn-fermer-aide')) { document.getElementById('btn-fermer-aide').style.backgroundColor = hexa; document.getElementById('btn-fermer-aide').style.color = contrast; }
         [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('btn-aide'), document.getElementById('mainAddBtn'), document.getElementById('btn-shuffle'), document.getElementById('btn-reveal')].forEach(el => {
             if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
         });
