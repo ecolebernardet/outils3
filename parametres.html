@@ -313,13 +313,22 @@
                 <div class="card-info">
                     <h3 id="title-gen" class="font-black text-xs uppercase mb-2">🛠️ Générateurs</h3>
                     <p class="text-xs leading-relaxed">
-                        Générez des outils et exercices personnalisés :<br>
-                        • <strong>Calcul Mental, mots mêlés...</strong><br>
+                        Générez des acitivités et des exercices personnalisés : <strong>calcul mental, rituel opérations, mots mêlés, le compte est bon, pixel art...</strong><br><br>
+						• <strong>Configuration</strong> : Paramétrez chaque rituel en fonction du niveau de la classe ou selon vos propres critères.<br>
                         • <strong>Export</strong> : Générez un PDF prêt à imprimer incluant les exercices et la correction.<br>
-                        • <em>D'autres générateurs seront ajoutés prochainement pour enrichir cette section.</em>
                     </p>
                 </div>
                 
+				<div class="card-info">
+                    <h3 id="title-outils" class="font-black text-xs uppercase mb-2">🧰 Outils</h3>
+                    <p class="text-xs leading-relaxed">
+                        Optimisez l'organisation de vos séances avec des outils interactifs conçus pour le quotidien des professeurs : 
+						<strong>chronométrage, gestion du bruit, ambiances sonores et signalétique visuelle.</strong><br><br>
+        				• <strong>Autonomie</strong> : Utilisez les feux de classe et le minuteur pour aider les élèves à se repérer dans le temps et les consignes.<br>
+						• <strong>Climat scolaire</strong> : Régulez le volume de la classe avec le capteur sonore et créez une atmosphère propice à la concentration avec les sons d'ambiance.<br><br>
+                    </p>
+                </div>
+				
             </div>
 
             <div id="perso" class="tab-content">
@@ -512,7 +521,7 @@
                 { id: 'title-memos', key: 'aide_memos' }, { id: 'title-108h', key: 'aide_h108' },
                 { id: 'title-tirage', key: 'aide_tirage' }, { id: 'title-equipes', key: 'aide_equipes' },
                 { id: 'title-observations', key: 'aide_obs' }, { id: 'title-compteur', key: 'aide_compt_text' },
-                { id: 'title-gen', key: 'aide_gen'}
+                { id: 'title-gen', key: 'aide_gen'}, { id: 'title-outils', key: 'aide_outils'}
             ];
             rubriques.forEach(item => {
                 const titreEl = document.getElementById(item.id);

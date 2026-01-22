@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pixel Art - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --accent-color: #06b6d4;
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; touch-action: manipulation; }
+        
+        header { 
+            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%; margin-bottom: 12px;
+        }
+
+        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
+        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+
+        .main-wrapper { width: 100%; max-width: 800px; margin: 0 auto; padding: 10px 15px 40px; }
+        .main-container { display: flex; flex-direction: column; gap: 20px; }
+        @media (min-width: 768px) { .main-container { flex-direction: row; align-items: flex-start; } }
+
+        #pixel-canvas {
+            display: grid; background: white; border: 2px solid var(--column-border);
+            margin: 0 auto; cursor: crosshair; user-select: none; box-shadow: var(--shadow-custom);
+            touch-action: none;
+        }
+
+        .pixel { border: 1px solid rgba(0,0,0,0.05); aspect-ratio: 1/1; }
+
+        .controls { flex: 1; background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); }
+
+        .color-palette { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; }
+        .color-swatch { width: 32px; height: 32px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+        .color-swatch.active { border-color: var(--text-main); transform: scale(1.15); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin-bottom: 5px; text-align: center; }
+        
+        select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--column-border);
+            color: inherit; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; text-align: center; outline: none;
+        }
+
+        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-add:active { transform: scale(0.95); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+    </style>
+</head>
+<body>
+
+<script>
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+</script>
+
+<header>
+    <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1>Pixel Art</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="ui-btn-round active:scale-90 text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div class="mb-4">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux générateurs
+        </a>
+    </div>
+
+    <div class="main-container">
+        <div class="flex-1 flex justify-center">
+            <div id="pixel-canvas"></div>
+        </div>
+
+        <aside class="controls">
+            <div class="input-group">
+                <label>Modèles rapides</label>
+                <select id="select-modele" onchange="chargerModele(this.value)">
+                    <option value="">-- Nouveau dessin --</option>
+                    <option value="coeur">❤️ Cœur</option>
+                    <option value="smiley">😊 Smiley</option>
+                    <option value="mario">🍄 Mario</option>
+                    <option value="fantome">👻 Fantôme</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Taille de la grille</label>
+                <div class="flex gap-2">
+                    <div class="flex items-center bg-[var(--input-bg)] border border-[var(--column-border)] rounded-xl overflow-hidden flex-1">
+                        <button onclick="changeGridSize(-1)" class="w-10 h-10 flex items-center justify-center font-black text-lg hover:bg-black/10 active:bg-black/20">-</button>
+                        <div id="grid-size-display" class="flex-1 text-center font-bold text-sm">15</div>
+                        <button onclick="changeGridSize(1)" class="w-10 h-10 flex items-center justify-center font-black text-lg hover:bg-black/10 active:bg-black/20">+</button>
+                    </div>
+                    <button onclick="clearGrid()" class="bg-red-500/20 text-red-500 px-3 rounded-xl text-[10px] font-black uppercase">Vider</button>
+                </div>
+                <input type="hidden" id="grid-size" value="15">
+            </div>
+
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-[8px] font-black uppercase opacity-40 tracking-tighter">Gommer</span>
+                    <button onclick="activerGomme()" id="btn-gomme" class="w-10 h-10 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center text-xl bg-white/5 transition-all active:scale-90">🧼</button>
+                </div>
+            </div>
+
+            <label class="block text-[10px] font-black uppercase opacity-50 mb-3 tracking-widest text-center">Palette</label>
+            <div class="color-palette" id="palette"></div>
+
+            <button onclick="exportPDF()" id="btn-pdf" class="btn-add">Générer Fiche PDF</button>
+            <button onclick="genererCodeModele()" class="btn-add mt-2 border-2 border-[var(--accent-color)] !bg-transparent !text-[var(--accent-color)]">Exporter le Code</button>
+        </aside>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4 text-center">💡 Aide Pixel Art</h2>
+        <div class="text-[11px] leading-relaxed space-y-3 opacity-80 font-semibold">
+            <p>1. Sélectionnez une couleur dans la palette.</p>
+            <p>2. Cliquez ou glissez sur la grille pour dessiner.</p>
+            <p>3. Utilisez l'outil 🧼 Gomme pour effacer.</p>
+            <p>4. <b>Export PDF :</b> Crée une fiche d'exercice pour vos élèves.</p>
+            <p>5. <b>Exporter le Code :</b> Récupère le code de votre dessin pour l'enregistrer dans la liste des modèles.</p>
+        </div>
+        <button onclick="fermerAide()" class="btn-add mt-6">Fermer</button>
+    </div>
+</div>
+
+<div id="modal-confirm" class="modal-overlay" onclick="fermerConfirm()">
+    <div class="modal-content text-center" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4" style="color: var(--accent-color)">⚠️ Tout effacer ?</h2>
+        <p class="text-[11px] opacity-80 font-semibold mb-6">Êtes-vous sûr de vouloir vider toute la grille ?</p>
+        <div class="flex gap-3">
+            <button onclick="fermerConfirm()" class="btn-add bg-gray-500/20 !text-current">Annuler</button>
+            <button onclick="confirmClearGrid()" class="btn-add !bg-red-500 !text-white">Effacer</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-export" class="modal-overlay" onclick="fermerExport()">
+    <div class="modal-content !max-w-xl" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4 text-center" style="color: var(--accent-color)">💾 Code de votre dessin</h2>
+        <textarea id="output-code" readonly class="w-full h-40 p-4 bg-black/20 rounded-xl font-mono text-[10px] border border-[var(--column-border)] text-inherit outline-none"></textarea>
+        <div class="flex gap-3 mt-6">
+            <button onclick="copierCode()" class="btn-add flex-1">Copier le code</button>
+            <button onclick="fermerExport()" class="btn-add flex-1 bg-gray-500/20 !text-current">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentColor = '#000000';
+    let isDrawing = false;
+    const colors = ['#000000', '#ffffff', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#78350f'];
+
+    const modeles = {
+        coeur: { size: 16, data: {"36":"#ef4444","37":"#ef4444","38":"#ef4444","41":"#ef4444","42":"#ef4444","43":"#ef4444","51":"#ef4444","52":"#ef4444","53":"#ef4444","54":"#ef4444","55":"#ef4444","56":"#ef4444","57":"#ef4444","58":"#ef4444","59":"#ef4444","60":"#ef4444","66":"#ef4444","67":"#ef4444","68":"#ef4444","69":"#ef4444","70":"#ef4444","71":"#ef4444","72":"#ef4444","73":"#ef4444","74":"#ef4444","75":"#ef4444","76":"#ef4444","77":"#ef4444","82":"#ef4444","83":"#ef4444","84":"#ef4444","85":"#ef4444","86":"#ef4444","87":"#ef4444","88":"#ef4444","89":"#ef4444","90":"#ef4444","91":"#ef4444","92":"#ef4444","93":"#ef4444","99":"#ef4444","100":"#ef4444","101":"#ef4444","102":"#ef4444","103":"#ef4444","104":"#ef4444","105":"#ef4444","106":"#ef4444","107":"#ef4444","108":"#ef4444","116":"#ef4444","117":"#ef4444","118":"#ef4444","119":"#ef4444","120":"#ef4444","121":"#ef4444","122":"#ef4444","123":"#ef4444","133":"#ef4444","134":"#ef4444","135":"#ef4444","136":"#ef4444","137":"#ef4444","138":"#ef4444","150":"#ef4444","151":"#ef4444","152":"#ef4444","153":"#ef4444","167":"#ef4444","168":"#ef4444"} },
+        mario: { size: 16, data: {"36":"#ef4444","37":"#ef4444","38":"#ef4444","39":"#ef4444","40":"#ef4444","51":"#ef4444","52":"#ef4444","53":"#ef4444","54":"#ef4444","55":"#ef4444","56":"#ef4444","57":"#ef4444","58":"#ef4444","59":"#ef4444","67":"#78350f","68":"#78350f","69":"#78350f","70":"#f97316","71":"#f97316","72":"#000000","73":"#f97316","82":"#78350f","83":"#f97316","84":"#78350f","85":"#f97316","86":"#f97316","87":"#f97316","88":"#f97316","89":"#000000","90":"#f97316","91":"#f97316","92":"#f97316","98":"#78350f","99":"#f97316","100":"#78350f","101":"#78350f","102":"#f97316","103":"#f97316","104":"#f97316","105":"#f97316","106":"#000000","107":"#f97316","108":"#f97316","115":"#78350f","116":"#78350f","117":"#f97316","118":"#f97316","119":"#f97316","120":"#f97316","121":"#000000","122":"#000000","123":"#000000","124":"#000000","133":"#f97316","134":"#f97316","135":"#f97316","136":"#f97316","137":"#f97316","138":"#f97316","139":"#f97316","140":"#f97316","148":"#ef4444","149":"#ef4444","150":"#3b82f6","151":"#ef4444","152":"#ef4444","153":"#3b82f6","154":"#ef4444","155":"#ef4444","164":"#ef4444","165":"#ef4444","166":"#ef4444","167":"#3b82f6","168":"#3b82f6","169":"#3b82f6","170":"#3b82f6","171":"#ef4444","172":"#ef4444"} },
+        nom_du_dessin: { size: 16, data: {"21":"#eab308","22":"#eab308","23":"#eab308","24":"#eab308","25":"#eab308","26":"#eab308","36":"#eab308","37":"#eab308","38":"#eab308","39":"#eab308","40":"#eab308","41":"#eab308","42":"#eab308","43":"#eab308","51":"#eab308","52":"#eab308","53":"#eab308","54":"#eab308","55":"#eab308","56":"#eab308","57":"#eab308","58":"#eab308","59":"#eab308","60":"#eab308","66":"#eab308","67":"#eab308","68":"#eab308","69":"#eab308","70":"#eab308","71":"#eab308","72":"#eab308","73":"#eab308","74":"#eab308","75":"#eab308","76":"#eab308","77":"#eab308","81":"#eab308","82":"#eab308","83":"#eab308","84":"#000000","85":"#000000","86":"#eab308","87":"#eab308","88":"#eab308","89":"#eab308","90":"#000000","91":"#000000","92":"#eab308","93":"#eab308","94":"#eab308","97":"#eab308","98":"#eab308","99":"#eab308","100":"#000000","101":"#000000","102":"#eab308","103":"#eab308","104":"#eab308","105":"#eab308","106":"#000000","107":"#000000","108":"#eab308","109":"#eab308","110":"#eab308","113":"#eab308","114":"#eab308","115":"#eab308","116":"#eab308","117":"#eab308","118":"#eab308","119":"#eab308","120":"#eab308","121":"#eab308","122":"#eab308","123":"#eab308","124":"#eab308","125":"#eab308","126":"#eab308","129":"#eab308","130":"#eab308","131":"#eab308","132":"#eab308","133":"#eab308","134":"#eab308","135":"#eab308","136":"#eab308","137":"#eab308","138":"#eab308","139":"#eab308","140":"#eab308","141":"#eab308","142":"#eab308","145":"#eab308","146":"#eab308","147":"#eab308","148":"#eab308","149":"#eab308","150":"#eab308","151":"#eab308","152":"#eab308","153":"#eab308","154":"#eab308","155":"#eab308","156":"#eab308","157":"#eab308","158":"#eab308","161":"#eab308","162":"#eab308","163":"#eab308","164":"#000000","165":"#eab308","166":"#eab308","167":"#eab308","168":"#eab308","169":"#eab308","170":"#eab308","171":"#000000","172":"#eab308","173":"#eab308","174":"#eab308","178":"#eab308","179":"#eab308","180":"#eab308","181":"#000000","182":"#eab308","183":"#eab308","184":"#eab308","185":"#eab308","186":"#000000","187":"#eab308","188":"#eab308","189":"#eab308","195":"#eab308","196":"#eab308","197":"#eab308","198":"#000000","199":"#000000","200":"#000000","201":"#000000","202":"#eab308","203":"#eab308","204":"#eab308","212":"#eab308","213":"#eab308","214":"#eab308","215":"#eab308","216":"#eab308","217":"#eab308","218":"#eab308","219":"#eab308","229":"#eab308","230":"#eab308","231":"#eab308","232":"#eab308","233":"#eab308","234":"#eab308"} },
+        fantome: { size: 16, data: {"52":"#eeeeee","53":"#eeeeee","54":"#eeeeee","55":"#eeeeee","56":"#eeeeee","57":"#eeeeee","58":"#eeeeee","59":"#eeeeee","67":"#eeeeee","68":"#eeeeee","69":"#eeeeee","70":"#eeeeee","71":"#eeeeee","72":"#eeeeee","73":"#eeeeee","74":"#eeeeee","75":"#eeeeee","76":"#eeeeee","82":"#eeeeee","83":"#eeeeee","84":"#000000","85":"#eeeeee","86":"#eeeeee","87":"#eeeeee","88":"#eeeeee","89":"#000000","90":"#eeeeee","91":"#eeeeee","92":"#eeeeee","93":"#eeeeee","98":"#eeeeee","99":"#eeeeee","100":"#000000","101":"#eeeeee","102":"#eeeeee","103":"#eeeeee","104":"#eeeeee","105":"#000000","106":"#eeeeee","107":"#eeeeee","108":"#eeeeee","109":"#eeeeee","114":"#eeeeee","115":"#eeeeee","116":"#eeeeee","117":"#eeeeee","118":"#eeeeee","119":"#eeeeee","120":"#eeeeee","121":"#eeeeee","122":"#eeeeee","123":"#eeeeee","124":"#eeeeee","125":"#eeeeee","130":"#eeeeee","131":"#eeeeee","132":"#eeeeee","133":"#eeeeee","134":"#eeeeee","135":"#eeeeee","136":"#eeeeee","137":"#eeeeee","138":"#eeeeee","139":"#eeeeee","140":"#eeeeee","141":"#eeeeee","146":"#eeeeee","147":"#eeeeee","148":"#eeeeee","149":"#eeeeee","150":"#eeeeee","151":"#eeeeee","152":"#eeeeee","153":"#eeeeee","154":"#eeeeee","155":"#eeeeee","156":"#eeeeee","157":"#eeeeee","162":"#eeeeee","163":"#eeeeee","165":"#eeeeee","166":"#eeeeee","168":"#eeeeee","169":"#eeeeee","171":"#eeeeee","172":"#eeeeee","173":"#eeeeee"} }
+    };
+
+    function initPalette() {
+        const p = document.getElementById('palette');
+        p.innerHTML = '';
+        colors.forEach(c => {
+            const s = document.createElement('div');
+            s.className = 'color-swatch';
+            s.style.backgroundColor = c;
+            if(c === '#ffffff') s.style.border = '1px solid #ddd';
+            s.onclick = () => {
+                document.getElementById('btn-gomme').style.borderColor = 'rgba(255,255,255,0.2)';
+                document.getElementById('btn-gomme').style.backgroundColor = 'rgba(255,255,255,0.05)';
+                document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+                s.classList.add('active');
+                currentColor = c;
+            };
+            p.appendChild(s);
+        });
+        p.firstChild.classList.add('active');
+    }
+
+    function activerGomme() {
+        currentColor = '#ffffff';
+        document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+        const btn = document.getElementById('btn-gomme');
+        btn.style.borderColor = 'var(--accent-color)';
+        btn.style.backgroundColor = 'rgba(255,255,255,0.2)';
+    }
+
+    function changeGridSize(delta) {
+        const input = document.getElementById('grid-size');
+        let newSize = parseInt(input.value) + delta;
+        if (newSize >= 5 && newSize <= 30) {
+            input.value = newSize;
+            initGrid();
+            saveCurrentDrawing();
+        }
+    }
+
+    function saveCurrentDrawing() {
+        const pixels = document.querySelectorAll('.pixel');
+        const data = {};
+        pixels.forEach((p, i) => {
+            const bg = p.style.backgroundColor;
+            if (bg && bg !== 'rgb(255, 255, 255)' && bg !== '#ffffff') {
+                data[i] = bg;
+            }
+        });
+        localStorage.setItem('pixelArt_save', JSON.stringify({
+            size: document.getElementById('grid-size').value,
+            data: data
+        }));
+    }
+
+    function initGrid() {
+        const sizeInput = document.getElementById('grid-size');
+        const canvas = document.getElementById('pixel-canvas');
+        const saved = JSON.parse(localStorage.getItem('pixelArt_save') || '{}');
+        const size = saved.size ? parseInt(saved.size) : parseInt(sizeInput.value);
+        
+        sizeInput.value = size;
+        document.getElementById('grid-size-display').innerText = size;
+
+        const side = Math.min(window.innerWidth - 50, 400);
+        canvas.style.width = side + 'px';
+        canvas.style.height = side + 'px';
+        canvas.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        canvas.innerHTML = '';
+
+        for (let i = 0; i < size * size; i++) {
+            const pixel = document.createElement('div');
+            pixel.className = 'pixel';
+            pixel.style.backgroundColor = (saved.data && saved.data[i]) ? saved.data[i] : '#ffffff';
+            
+            const paint = (e) => { 
+                e.preventDefault(); 
+                pixel.style.backgroundColor = currentColor; 
+                saveCurrentDrawing();
+            };
+            pixel.onmousedown = (e) => { isDrawing = true; paint(e); };
+            pixel.onmouseover = () => { if(isDrawing) { pixel.style.backgroundColor = currentColor; saveCurrentDrawing(); } };
+            pixel.ontouchstart = (e) => { paint(e); };
+            canvas.appendChild(pixel);
+        }
+    }
+
+    function chargerModele(key) {
+        if(!key) return;
+        const m = modeles[key];
+        document.getElementById('grid-size').value = m.size;
+        localStorage.removeItem('pixelArt_save');
+        initGrid();
+        const pixels = document.querySelectorAll('.pixel');
+        Object.entries(m.data).forEach(([idx, col]) => { if(pixels[idx]) pixels[idx].style.backgroundColor = col; });
+        saveCurrentDrawing();
+    }
+
+    function clearGrid() { document.getElementById('modal-confirm').style.display = 'flex'; }
+    function fermerConfirm() { document.getElementById('modal-confirm').style.display = 'none'; }
+    function confirmClearGrid() {
+        localStorage.removeItem('pixelArt_save');
+        initGrid();
+        fermerConfirm();
+    }
+
+    function genererCodeModele() {
+        const size = document.getElementById('grid-size').value;
+        const pixels = document.querySelectorAll('.pixel');
+        const data = {};
+        pixels.forEach((p, i) => {
+            const bg = p.style.backgroundColor;
+            if (bg && bg !== 'rgb(255, 255, 255)' && bg !== '#ffffff') {
+                const rgb = bg.match(/\d+/g);
+                const hex = "#" + ((1 << 24) + (parseInt(rgb[0]) << 16) + (parseInt(rgb[1]) << 8) + parseInt(rgb[2])).toString(16).slice(1);
+                data[i] = hex;
+            }
+        });
+        const codeFinal = `nom_du_dessin: {\n  size: ${size},\n  data: ${JSON.stringify(data)}\n},`;
+        document.getElementById('output-code').value = codeFinal;
+        document.getElementById('modal-export').style.display = 'flex';
+    }
+
+    function fermerExport() { document.getElementById('modal-export').style.display = 'none'; }
+    function copierCode() {
+        const textArea = document.getElementById('output-code');
+        textArea.select();
+        document.execCommand('copy');
+        alert("Code copié !");
+    }
+
+    window.onmouseup = () => isDrawing = false;
+
+    async function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const size = parseInt(document.getElementById('grid-size').value);
+        const pixels = document.querySelectorAll('.pixel');
+        const cellSize = 100 / size;
+        const startX = (210 - 100) / 2;
+
+        doc.setFont("helvetica", "bold");
+        doc.text("MODÈLE PIXEL ART", 105, 25, { align: "center" });
+        pixels.forEach((p, i) => {
+            const x = startX + (i % size) * cellSize;
+            const y = 40 + Math.floor(i / size) * cellSize;
+            const rgb = p.style.backgroundColor.match(/\d+/g);
+            if(rgb) doc.setFillColor(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
+            else doc.setFillColor(255,255,255);
+            doc.rect(x, y, cellSize, cellSize, 'F');
+            doc.setDrawColor(200); doc.rect(x, y, cellSize, cellSize, 'D');
+        });
+        doc.text("À TOI DE REPRODUIRE", 105, 160, { align: "center" });
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                doc.setDrawColor(180);
+                doc.rect(startX + j * cellSize, 175 + i * cellSize, cellSize, cellSize, 'D');
+            }
+        }
+        doc.save("pixelart-fiche.pdf");
+    }
+
+    function appliquerTheme() {
+        const map = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
+        const col = (JSON.parse(localStorage.getItem('theme_tuiles')) || {}).gen || 'cyan';
+        const hexa = map[col];
+        const isDark = ['yellow', 'lime', 'amber', 'cyan'].includes(col);
+        const contrast = isDark ? '#000' : '#fff';
+        document.documentElement.style.setProperty('--accent-color', hexa);
+        [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('btn-aide'), document.getElementById('btn-pdf'), document.getElementById('btn-fermer-aide')].forEach(el => {
+            if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
+        });
+        if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
+    }
+
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+    
+    window.onload = () => { initPalette(); initGrid(); appliquerTheme(); };
+</script>
+</body>
+</html>
