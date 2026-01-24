@@ -27,10 +27,20 @@
             position: sticky; top: 0; z-index: 100;
         }
 
-        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        #btn-retour:active, #btn-aide:active { transform: scale(0.9); }
+        
         header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
 
         .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; display: flex; flex-direction: column; align-items: center; }
+
+        #container-retour-liste { width: 100%; margin-bottom: 1.5rem; text-align: left; }
+        #btn-retour-liste {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
+            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
+            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        #btn-retour-liste:active { transform: scale(0.95); }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 30px; background: var(--card-bg); padding: 5px; border-radius: 15px; border: 1px solid var(--column-border); }
         .tab-btn { padding: 8px 20px; border-radius: 10px; font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
@@ -57,7 +67,7 @@
 <body>
 
 <header>
-    <a href="outils.html" id="btn-retour">
+    <a href="index.html" id="btn-retour">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
@@ -67,6 +77,13 @@
 </header>
 
 <div class="main-wrapper">
+    <div id="container-retour-liste">
+        <a href="outils.html" id="btn-retour-liste">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux outils
+        </a>
+    </div>
+
     <div class="tabs">
         <div class="tab-btn active" onclick="switchMode('timer')">Minuteur</div>
         <div class="tab-btn" onclick="switchMode('chrono')">Chrono</div>
@@ -142,18 +159,12 @@
     let audioUnlocked = false;
 
     function unlockAudio() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         audioUnlocked = true;
     }
 
-    if (localStorage.getItem('theme_mode') === 'light') {
-        document.body.classList.add('light-mode');
-    }
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
 
     const mapCouleurs = { 
         red:'#ef4444', orange:'#f97316', amber:'#f59e0b', yellow:'#eab308',
@@ -164,30 +175,26 @@
 
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
     const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    const isDarkText = ['yellow','lime','amber','cyan'].includes(themePrefs.outils || 'blue');
-    const contrast = isDarkText ? '#000' : '#fff';
+    const contrast = ['yellow','lime','amber','cyan'].includes(themePrefs.outils || 'blue') ? '#000' : '#fff';
 
     document.documentElement.style.setProperty('--theme-color', themeColor);
     document.documentElement.style.setProperty('--contrast-color', contrast);
 
-    let mode = 'timer';
-    let timeLeft = 300;
-    let totalTime = 300;
-    let chronoTime = 0;
-    let timerId = null;
-    let isRunning = false;
+    // Application du thème aux boutons du header et de navigation
+    const targets = ['btn-retour', 'btn-aide', 'btn-retour-liste'];
+    targets.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; }
+    });
 
-    const display = document.getElementById('display');
-    const progressBar = document.getElementById('progress-bar');
-    const btnStart = document.getElementById('btn-start');
+    let mode = 'timer', timeLeft = 300, totalTime = 300, chronoTime = 0, timerId = null, isRunning = false;
+    const display = document.getElementById('display'), progressBar = document.getElementById('progress-bar'), btnStart = document.getElementById('btn-start');
     const circumference = 115 * 2 * Math.PI;
 
     function updateDisplay() {
         const t = (mode === 'timer') ? timeLeft : chronoTime;
-        const m = Math.floor(t / 60);
-        const s = t % 60;
+        const m = Math.floor(t / 60), s = t % 60;
         display.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-
         if (mode === 'timer') {
             const offset = circumference - (timeLeft / totalTime) * circumference;
             progressBar.style.strokeDashoffset = offset;
@@ -198,87 +205,44 @@
 
     function playGong() {
         if (!audioUnlocked || !audioCtx) return;
-
         const now = audioCtx.currentTime;
-
         function tone(freq, gainVal, duration) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-
-            gain.gain.setValueAtTime(gainVal, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            osc.stop(now + duration);
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.value = freq;
+            gain.gain.setValueAtTime(gainVal, now); gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(now); osc.stop(now + duration);
         }
-
-        tone(880, 0.4, 2.5);
-        tone(1325, 0.15, 1.5);
+        tone(880, 0.4, 2.5); tone(1325, 0.15, 1.5);
     }
 
     function toggleMain() {
         unlockAudio();
-
         if (isRunning) {
-            clearInterval(timerId);
-            isRunning = false;
-            btnStart.innerHTML = playIcon();
-            btnStart.style.paddingLeft = "3px";
+            clearInterval(timerId); isRunning = false;
+            btnStart.innerHTML = playIcon(); btnStart.style.paddingLeft = "3px";
             return;
         }
-
-        isRunning = true;
-        btnStart.innerHTML = pauseIcon();
-        btnStart.style.paddingLeft = "0px";
-
+        isRunning = true; btnStart.innerHTML = pauseIcon(); btnStart.style.paddingLeft = "0px";
         timerId = setInterval(() => {
             if (mode === 'timer') {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateDisplay();
-                } else {
-                    clearInterval(timerId);
-                    isRunning = false;
-                    playGong();
-                    reset();
-                }
-            } else {
-                chronoTime++;
-                updateDisplay();
-            }
+                if (timeLeft > 0) { timeLeft--; updateDisplay(); } 
+                else { clearInterval(timerId); isRunning = false; playGong(); reset(); }
+            } else { chronoTime++; updateDisplay(); }
         }, 1000);
     }
 
     function reset() {
-        clearInterval(timerId);
-        isRunning = false;
-        btnStart.innerHTML = playIcon();
-        btnStart.style.paddingLeft = "3px";
-        if (mode === 'timer') timeLeft = totalTime;
-        else chronoTime = 0;
+        clearInterval(timerId); isRunning = false;
+        btnStart.innerHTML = playIcon(); btnStart.style.paddingLeft = "3px";
+        if (mode === 'timer') timeLeft = totalTime; else chronoTime = 0;
         updateDisplay();
     }
 
-    function setTimer(mins) {
-        totalTime = mins * 60;
-        timeLeft = totalTime;
-        reset();
-    }
-
+    function setTimer(mins) { totalTime = mins * 60; timeLeft = totalTime; reset(); }
     function setCustomTimer() {
-        const m = parseInt(document.getElementById('custom-min').value) || 0;
-        const s = parseInt(document.getElementById('custom-sec').value) || 0;
-        if (m || s) {
-            totalTime = m * 60 + s;
-            timeLeft = totalTime;
-            reset();
-        }
+        const m = parseInt(document.getElementById('custom-min').value) || 0, s = parseInt(document.getElementById('custom-sec').value) || 0;
+        if (m || s) { totalTime = m * 60 + s; timeLeft = totalTime; reset(); }
     }
 
     function switchMode(newMode) {
@@ -290,24 +254,12 @@
         reset();
     }
 
-    function playIcon() {
-        return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-    }
-
-    function pauseIcon() {
-        return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-    }
-
-    function ouvrirAide() {
-        document.getElementById('modal-aide').style.display = 'flex';
-    }
-
-    function fermerAide() {
-        document.getElementById('modal-aide').style.display = 'none';
-    }
+    function playIcon() { return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; }
+    function pauseIcon() { return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; }
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
 
     updateDisplay();
 </script>
-
 </body>
 </html>
