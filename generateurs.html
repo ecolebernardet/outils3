@@ -51,10 +51,25 @@
         /* Système de grille adaptative */
         #tools-list {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes sur mobile */
+            gap: 12px; /* Réduction légère de l'écart pour le mobile */
         }
 
+/* Styles Spécifiques PC */
+        @media (min-width: 768px) {
+            .main-wrapper { max-width: 900px; }
+            #tools-list { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 20px; 
+            }
+            .tool-card:hover { 
+                transform: translateY(-4px); 
+                border-color: currentColor; 
+                background: rgba(128, 128, 128, 0.03);
+            }
+            .tool-card:hover .icon-box { transform: rotate(-5deg) scale(1.1); }
+        }
+		
         .tool-card {
             background: var(--card-bg);
             border-radius: 1.5rem;

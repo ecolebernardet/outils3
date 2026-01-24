@@ -68,7 +68,7 @@
     <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
     </a>
-    <h1>Gene_Fractions</h1>
+    <h1>Générateur de fractions</h1>
     <button id="btn-aide" onclick="document.getElementById('modal-aide').style.display='flex'" class="ui-btn-round active:scale-90 text-lg">💡</button>
 </header>
 
@@ -97,13 +97,17 @@
             <div>
                 <label class="block text-[9px] font-black uppercase opacity-50 mb-2 text-center">Mode de rendu</label>
                 <div class="grid grid-cols-2 gap-1 bg-black/10 p-1 rounded-xl">
-                    <button onclick="setMode('prof')" id="mode-prof" class="mode-selector p-2 rounded-lg text-[9px] font-bold uppercase transition-all">Prof</button>
-                    <button onclick="setMode('eleve')" id="mode-eleve" class="mode-selector p-2 rounded-lg text-[9px] font-bold uppercase transition-all">Élève</button>
+                    <button onclick="setMode('prof')" id="mode-prof" class="p-2 text-[9px] font-bold uppercase transition-all">Prof</button>
+                    <button onclick="setMode('eleve')" id="mode-eleve" class="p-2 text-[9px] font-bold uppercase transition-all">Élève</button>
                 </div>
             </div>
             <div>
-                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 text-center">Chrono (sec)</label>
-                <input type="number" id="t-sec" value="60" class="input-field text-center">
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 text-center">Chrono (min : sec)</label>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="t-min" value="1" class="input-field text-center">
+                    <span class="font-bold">:</span>
+                    <input type="number" id="t-sec" value="0" class="input-field text-center">
+                </div>
             </div>
         </div>
         <button id="mainAddBtn" onclick="generateQuiz()" class="btn-add">Lancer le Générateur</button>
@@ -128,7 +132,7 @@
         <div class="text-[11px] leading-relaxed space-y-4">
             <p>1. <b>Saisie :</b> Écrivez une fraction par ligne au format :<br><code class="bg-black/20 p-1 rounded">Numérateur/Dénominateur ; Forme</code></p>
             <p>2. <b>Formes :</b> Vous pouvez choisir entre <b class="text-cyan-500">disque</b> ou <b class="text-cyan-500">bande</b>.</p>
-            <p>3. <b>Modes :</b><br>• <b>Prof :</b> Les formes sont déjà coloriées (idéal pour les leçons).<br>• <b>Élève :</b> Les formes sont vides et cliquables pour s'entraîner.</p>
+            <p>3. <b>Modes :</b><br>• <b>Prof :</b> Les formes sont déjà coloriées.<br>• <b>Élève :</b> Les formes sont vides et cliquables.</p>
             <p>4. <b>PDF :</b> Génère une fiche propre prête à imprimer.</p>
         </div>
         <button onclick="document.getElementById('modal-aide').style.display='none'" id="btn-fermer-aide" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">J'ai compris</button>
@@ -155,18 +159,32 @@
         ];
         btns.forEach(b => { if(b) { b.style.backgroundColor = hexa; b.style.color = contrast; } });
         if(document.getElementById('titre-aide')) document.getElementById('titre-aide').style.color = hexa;
+        setMode(currentMode);
     }
 
     function setMode(m) {
         currentMode = m;
-        document.querySelectorAll('.mode-selector').forEach(b => b.classList.remove('bg-[var(--accent-color)]', 'text-white'));
-        document.getElementById('mode-' + m).style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
-        document.getElementById('mode-' + m).style.color = 'white';
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+        const btnProf = document.getElementById('mode-prof');
+        const btnEleve = document.getElementById('mode-eleve');
+        
+        if(!btnProf || !btnEleve) return;
+
+        btnProf.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;";
+        btnEleve.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;";
+
+        const activeBtn = document.getElementById('mode-' + m);
+        const isLight = ['yellow', 'lime', 'amber', 'cyan'].some(c => accent.toLowerCase().includes(c));
+        activeBtn.style.cssText = `background-color: ${accent} !important; color: ${isLight ? '#000' : '#fff'} !important; border-radius: 9999px;`;
     }
 
     function addExample() {
-        document.getElementById('quiz-title').value = "Révisions : Les Fractions";
-        document.getElementById('quiz-data').value = "1/2 ; disque\n2/3 ; bande\n3/4 ; disque\n5/8 ; bande";
+        document.getElementById('quiz-title').value = "Révisions : les fractions";
+        const exemples = [];
+        for(let i = 1; i <= 10; i++) {
+            exemples.push(`${i}/${i+1} ; ${i % 2 === 0 ? 'disque' : 'bande'}`);
+        }
+        document.getElementById('quiz-data').value = exemples.join('\n');
     }
 
     function createFractionSVG(item, qIdx) {
@@ -202,15 +220,26 @@
     function generateQuiz() {
         const text = document.getElementById('quiz-data').value.trim();
         if (!text) return;
+        let lines = text.split('\n').filter(l => l.trim() !== '');
+        if (lines.length > 50) lines = lines.slice(0, 50);
+        
         userAnswers = {}; isCorr = false;
-        currentQuestions = text.split('\n').map(line => {
+        currentQuestions = lines.map(line => {
             const p = line.split(';');
             const f = p[0].trim();
             return { frac: f, num: parseInt(f.split('/')[0]), den: parseInt(f.split('/')[1]), type: p[1]?.toLowerCase().includes('bande') ? 'bande' : 'disque' };
         }).filter(q => !isNaN(q.num));
 
         render();
-        startTimer();
+
+        // Gestion du chrono selon le mode
+        if (currentMode === 'prof') {
+            clearInterval(countdown);
+            document.getElementById('timer-display').classList.add('hidden');
+        } else {
+            startTimer();
+        }
+
         document.getElementById('validate-btn').style.display = (currentMode === 'prof') ? 'none' : 'flex';
         document.getElementById('setup-zone').classList.add('hidden');
         document.getElementById('container-retour-liste').classList.add('hidden');
@@ -220,6 +249,14 @@
     function render() {
         const grid = document.getElementById('questions-grid');
         grid.innerHTML = '';
+        
+        // Application de 2 colonnes sur mobile uniquement en mode Prof
+        if (currentMode === 'prof') {
+            grid.className = "grid grid-cols-2 md:grid-cols-3 gap-3";
+        } else {
+            grid.className = "grid grid-cols-1 md:grid-cols-3 gap-3";
+        }
+
         currentQuestions.forEach((q, i) => {
             const [n, d] = q.frac.split('/');
             grid.innerHTML += `<div class="q-card">
@@ -232,11 +269,16 @@
 
     function startTimer() {
         clearInterval(countdown);
-        let tl = parseInt(document.getElementById('t-sec').value) || 0;
+        const mins = parseInt(document.getElementById('t-min').value) || 0;
+        const secs = parseInt(document.getElementById('t-sec').value) || 0;
+        let tl = (mins * 60) + secs;
+
         if (tl <= 0) { document.getElementById('timer-display').classList.add('hidden'); return; }
         document.getElementById('timer-display').classList.remove('hidden');
+        
+        const display = document.getElementById('seconds-left');
         countdown = setInterval(() => {
-            document.getElementById('seconds-left').innerText = `${Math.floor(tl/60)}:${(tl%60).toString().padStart(2,'0')}`;
+            display.innerText = `${Math.floor(tl/60)}:${(tl%60).toString().padStart(2,'0')}`;
             if (tl-- <= 0) { clearInterval(countdown); showCorrection(); }
         }, 1000);
     }
@@ -256,7 +298,6 @@
         const doc = new jsPDF();
         const titre = document.getElementById('quiz-title').value || "Fractions";
         const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-        
         doc.setFontSize(18); doc.text(titre, 105, 20, { align: "center" });
         let x = 20, y = 45;
 
@@ -301,7 +342,7 @@
         document.getElementById('container-retour-liste').classList.remove('hidden');
     }
 
-    window.onload = () => { appliquerTheme(); setMode('prof'); };
+    window.onload = () => { appliquerTheme(); };
 </script>
 </body>
 </html>
