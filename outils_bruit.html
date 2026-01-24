@@ -92,6 +92,15 @@
             width: 100%; max-width: 400px; padding: 16px; border-radius: 12px; font-weight: 900; 
             text-transform: uppercase; cursor: pointer; border: none; margin: 20px auto; display: block;
         }
+		
+		#container-retour-liste { margin-bottom: 1rem; text-align: left; }
+        #btn-retour-liste {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
+            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
+            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+		
+        #btn-retour-liste:active { transform: scale(0.95); }
 
         input[type=range] { width: 100%; accent-color: var(--theme-color); }
     </style>
@@ -107,6 +116,14 @@
 </header>
 
 <div class="main-wrapper">
+	<div class="main-wrapper">
+    <div id="container-retour-liste">
+        <a href="outils.html" id="btn-retour-liste">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux outils
+        </a>
+    </div>
+    <div class="gauge-container">
     <div class="gauge-container">
         <p class="text-[10px] font-black opacity-50 uppercase tracking-widest mb-6">Mesure Microphone</p>
         
@@ -160,6 +177,14 @@
     document.getElementById('btn-start').style.color = contrast;
     document.getElementById('btn-retour').style.backgroundColor = themeColor;
     document.getElementById('btn-retour').style.color = contrast;
+    
+    // Application du thème au nouveau bouton de retour liste
+    const btnListe = document.getElementById('btn-retour-liste');
+    if(btnListe) {
+        btnListe.style.backgroundColor = themeColor;
+        btnListe.style.color = contrast;
+    }
+
     document.documentElement.style.setProperty('--theme-color', themeColor);
 
     let audioContext, analyser, microphone, javascriptNode, isListening = false;
