@@ -102,6 +102,12 @@
 </header>
 
 <div class="main-wrapper">
+	<div id="container-retour-liste" class="mb-4 text-left">
+		<a href="outils.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform shadow-sm">
+			<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+			Retour aux outils
+		</a>
+	</div>
     <div class="gauge-container">
         <div class="mic-monitor-bg relative flex items-center justify-center mt-2">
             <div id="mic-bar" class="absolute left-0 top-0 h-full"></div>
@@ -194,9 +200,9 @@
     const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue') ? '#000' : '#fff';
     
     document.documentElement.style.setProperty('--theme-color', themeColor);
-    document.querySelectorAll('#btn-start, #btn-reset, #btn-retour, #btn-aide, #btn-fermer-aide').forEach(el => {
-        if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; }
-    });
+    document.querySelectorAll('#btn-start, #btn-reset, #btn-retour, #btn-retour-liste, #btn-aide, #btn-fermer-aide').forEach(el => {
+		if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; }
+	});
 
     let audioContext, analyser, javascriptNode, stream, isPlaying = false, progress = 0, lastTime = 0, currentMode = 'pixels';
     const gridContainer = document.getElementById('pixel-grid');
