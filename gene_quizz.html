@@ -275,7 +275,7 @@
     function getFileName(ext) {
         const rawTitle = document.getElementById('quiz-title').value.trim() || "quizz";
         const cleanTitle = rawTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        return `outilsprofs_${cleanTitle}_${getFormattedDate()}.${ext}`;
+        return `outilsprofs_quizz_${cleanTitle}_${getFormattedDate()}.${ext}`;
     }
 
     function importFromTXT(input) {
