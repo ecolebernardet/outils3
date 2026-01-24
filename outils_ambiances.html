@@ -32,21 +32,20 @@
 
         .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
 
+        #container-retour-liste { margin-bottom: 1rem; text-align: left; }
+        #btn-retour-liste {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
+            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
+            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
         .ambient-card {
-            background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 15px;
-            border: 1px solid var(--column-border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
+            background: var(--card-bg); border-radius: 1.5rem; padding: 15px; border: 1px solid var(--column-border);
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
             animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .ambient-card.active { border-color: var(--theme-color); border-width: 2px; }
 
         .play-btn {
             width: 45px; height: 45px; border-radius: 50%;
@@ -54,59 +53,97 @@
             background: var(--theme-color); color: white; border: none; cursor: pointer;
         }
 
-        #player-zone { position: fixed; top: -1000px; left: 0; width: 300px; height: 200px; z-index: -1; }
-
         .stop-indicator {
-            display: none;
-            background: #ff4444;
-            color: white;
-            padding: 12px;
-            border-radius: 1rem;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 900;
-            font-size: 11px;
-            text-transform: uppercase;
-            cursor: pointer;
+            display: none; background: #ff4444; color: white; padding: 12px; border-radius: 1rem;
+            margin-bottom: 20px; text-align: center; font-weight: 900; font-size: 11px;
+            text-transform: uppercase; cursor: pointer;
         }
 
-        input { width: 100%; border: 1px solid var(--column-border); background: rgba(0,0,0,0.05); color: inherit; border-radius: 12px; }
+        input { width: 100%; border: 1px solid var(--column-border); background: rgba(0,0,0,0.05); color: inherit; border-radius: 12px; outline: none; transition: border-color 0.2s; }
         body.light-mode input { background: #fff; }
+
+        .bottom-nav { width: 100%; max-width: 500px; margin: 25px auto 0; padding-bottom: 40px; }
+        .nav-btn { font-weight: 800; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+        #modal-aide.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="outils.html" id="btn-retour">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-        </svg>
+    <a href="index.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
     </a>
     <h1 id="pageTitle">Mix Ambiances</h1>
     <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
 </header>
 
 <div class="main-wrapper">
+    <div id="container-retour-liste">
+        <a href="outils.html" id="btn-retour-liste">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux outils
+        </a>
+    </div>
+
     <div class="bg-[var(--card-bg)] p-5 rounded-[1.5rem] border border-[var(--column-border)] mb-6">
-        <h2 class="text-[10px] font-black uppercase opacity-60 mb-3">Ajouter un nouveau son</h2>
+        <h2 id="form-legend" class="text-[10px] font-black uppercase opacity-60 mb-3">Ajouter un nouveau son</h2>
         <div class="flex flex-col gap-3">
-            <input type="text" id="media-title" placeholder="Nom de la musique (ex: Lofi Zen, Pluie...)" class="p-3 text-[12px] outline-none border-2 focus:border-[var(--theme-color)]">
-            <input type="text" id="media-url" placeholder="Lien YouTube ou Spotify..." class="p-3 text-[12px] outline-none border-2 focus:border-[var(--theme-color)]">
+            <input type="text" id="media-title" placeholder="Nom de la musique (ex: Lofi Zen...)" class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
+            <input type="text" id="media-url" placeholder="Lien YouTube ou Spotify..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
             
-            <button onclick="ajouterAmbiance()" id="btn-ajouter-action" class="p-3 rounded-xl font-black uppercase text-[11px] transition-transform active:scale-95">Créer le bouton</button>
+            <div class="flex flex-col gap-2">
+                <button onclick="ajouterAmbiance()" id="btn-ajouter-action" class="w-full p-3 rounded-xl font-black uppercase text-[11px] transition-transform active:scale-95">Créer le bouton</button>
+                <div id="edit-buttons" class="hidden flex gap-2">
+                    <button onclick="supprimerViaForm()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-red-500 text-white shadow-lg">Supprimer</button>
+                    <button onclick="annulerModification()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-neutral-500 text-white">Annuler</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="stop-music" class="stop-indicator" onclick="couperSon()">
-        ⏹️ Arrêter l'ambiance sonore
-    </div>
+    <div id="stop-music" class="stop-indicator" onclick="couperSon()">⏹️ Arrêter l'ambiance sonore</div>
 
     <div id="ambiances-list"></div>
+
+    <footer class="bottom-nav flex flex-col gap-3">
+        <div class="flex gap-2">
+            <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">
+                👇importer .txt👇
+                <input type="file" id="importFile" class="hidden" accept=".txt">
+            </label>
+            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">
+                👆exporter .txt👆
+                <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
+            </button>
+        </div>
+        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
+    </footer>
 </div>
 
-<div id="player-zone">
-    <div id="player-container"></div>
+<div id="modal-aide" onclick="fermerAideParOverlay(event)" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-[2rem] border border-[var(--column-border)] p-6 text-center" onclick="event.stopPropagation()">
+        <div class="text-4xl mb-4">💡</div>
+        <h3 class="text-lg font-black uppercase mb-4">Aide & Astuces</h3>
+        <p class="text-sm opacity-80 mb-4 text-left">• <strong>Modifier :</strong> Cliquez sur le titre d'une ambiance pour la modifier ou la supprimer via le formulaire en haut.</p>
+        <p class="text-sm opacity-80 mb-6 text-left">• <strong>Sauvegarde :</strong> Pensez à exporter votre liste régulièrement pour ne pas la perdre.</p>
+        <button onclick="fermerAide()" id="btn-compris" class="w-full p-4 rounded-xl font-black uppercase text-[12px]">J'ai compris</button>
+    </div>
 </div>
+
+<div id="alertModal" onclick="closeAlert()" class="fixed inset-0 bg-black/85 z-[3000] hidden items-center justify-center p-5">
+    <div class="bg-white p-6 rounded-[24px] w-full max-w-[350px] shadow-2xl" onclick="event.stopPropagation()">
+        <h3 id="alertTitle" class="text-lg font-black uppercase text-center mb-2 text-black">Confirmation</h3>
+        <p id="alertText" class="text-sm font-semibold text-center text-gray-600 mb-6">Message</p>
+        <div class="flex gap-2">
+            <button id="alertCancelBtn" class="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase bg-gray-100 text-gray-500" onclick="closeAlert()">Annuler</button>
+            <button id="alertConfirmBtn" class="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase text-white">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<div id="player-zone" class="hidden"><div id="player-container"></div></div>
 
 <script>
     if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
@@ -114,102 +151,204 @@
     const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
     const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    document.documentElement.style.setProperty('--theme-color', themeColor);
-    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
-    const contrast = isDarkText ? '#000' : '#fff';
+    const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue') ? '#000' : '#fff';
 
-    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action').forEach(btn => {
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action, #btn-compris, #btn-retour-liste').forEach(btn => {
         if(btn) { btn.style.backgroundColor = themeColor; btn.style.color = contrast; }
     });
 
+    let mesAmbiances = JSON.parse(localStorage.getItem('ambiances_zen')) || [];
+    let editModeUrl = null; 
     const listContainer = document.getElementById('ambiances-list');
-    const playerContainer = document.getElementById('player-container');
-    const stopIndicator = document.getElementById('stop-music');
 
+    window.onload = () => {
+        renderList();
+        checkBadgeStatus();
+    };
+
+    function renderList() {
+        listContainer.innerHTML = "";
+        mesAmbiances.forEach(data => creerCarte(data));
+    }
+
+    // --- LOGIQUE MODALES ---
+    function showAlert(title, text, onConfirm, showCancel = true) {
+        document.getElementById('alertTitle').innerText = title;
+        document.getElementById('alertText').innerText = text;
+        const confirmBtn = document.getElementById('alertConfirmBtn');
+        const cancelBtn = document.getElementById('alertCancelBtn');
+        confirmBtn.style.backgroundColor = themeColor;
+        confirmBtn.style.color = contrast;
+        cancelBtn.style.display = showCancel ? 'block' : 'none';
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+        newBtn.onclick = () => { closeAlert(); if(onConfirm) onConfirm(); };
+        document.getElementById('alertModal').style.display = 'flex';
+    }
+
+    function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
+    function ouvrirAide() { document.getElementById('modal-aide').classList.remove('hidden'); document.getElementById('modal-aide').classList.add('active'); }
+    function fermerAide() { document.getElementById('modal-aide').classList.add('hidden'); document.getElementById('modal-aide').classList.remove('active'); }
+    function fermerAideParOverlay(e) { if (e.target.id === 'modal-aide') fermerAide(); }
+
+    // --- LOGIQUE EDITION ---
+    function remplirFormulaire(titre, url) {
+        editModeUrl = url;
+        document.getElementById('media-title').value = titre;
+        document.getElementById('media-url').value = url;
+        document.getElementById('form-legend').innerText = "Modifier l'ambiance";
+        document.getElementById('btn-ajouter-action').innerText = "Mettre à jour";
+        document.getElementById('edit-buttons').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Petit effet de focus visuel
+        const inputs = [document.getElementById('media-title'), document.getElementById('media-url')];
+        inputs.forEach(input => {
+            input.style.borderColor = themeColor;
+            setTimeout(() => { input.style.borderColor = ''; }, 1000);
+        });
+    }
+
+    function annulerModification() {
+        editModeUrl = null;
+        document.getElementById('media-title').value = "";
+        document.getElementById('media-url').value = "";
+        document.getElementById('form-legend').innerText = "Ajouter un nouveau son";
+        document.getElementById('btn-ajouter-action').innerText = "Créer le bouton";
+        document.getElementById('edit-buttons').classList.add('hidden');
+    }
+
+    function supprimerViaForm() {
+        if (!editModeUrl) return;
+        showAlert("Supprimer ?", "Voulez-vous retirer ce son de la liste ?", () => {
+            mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl);
+            localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
+            renderList();
+            annulerModification();
+            updateExportBadge(true);
+        });
+    }
+
+    // --- ACTIONS CORE ---
     function ajouterAmbiance() {
         const url = document.getElementById('media-url').value.trim();
         const customTitle = document.getElementById('media-title').value.trim();
-        
-        if (!url) { alert("Veuillez coller un lien."); return; }
-        if (!customTitle) { alert("Veuillez donner un nom à ce bouton."); return; }
+        if (!url || !customTitle) return;
+
+        // Si modification, on retire l'ancien pour le remplacer
+        if (editModeUrl) {
+            mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl);
+        }
 
         let data = { title: customTitle, thumb: "", embedUrl: "", type: "" };
-
-        // Gestion de YouTube (Lien classique, raccourci youtu.be, ou URL Shorts)
-        if (url.includes('youtube.com') || url.includes('youtu.be')) {
-            let videoId = "";
-            if (url.includes('v=')) {
-                videoId = url.split('v=')[1].split('&')[0];
-            } else if (url.includes('youtu.be/')) {
-                videoId = url.split('youtu.be/')[1].split('?')[0];
-            } else if (url.includes('shorts/')) {
-                videoId = url.split('shorts/')[1].split('?')[0];
-            }
-
-            if (videoId) {
-                data.thumb = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-                data.embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-                data.type = "YouTube";
-            }
-        } 
-        // Gestion de Spotify
-        else if (url.includes('spotify.com')) {
-            const cleanUrl = url.split('?')[0];
-            data.embedUrl = cleanUrl.replace("spotify.com/", "spotify.com/embed/");
+        if (url.includes('youtube') || url.includes('youtu.be')) {
+            let videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop().split('?')[0];
+            data.thumb = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+            data.embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            data.type = "YouTube";
+        } else if (url.includes('spotify')) {
+            data.embedUrl = url.includes('embed') ? url : url.replace("https://open.spotify.com/", "https://open.spotify.com/embed/");
             data.thumb = "https://cdn-icons-png.flaticon.com/512/174/174872.png";
             data.type = "Spotify";
         }
 
         if (data.embedUrl) {
-            creerCarte(data);
-            document.getElementById('media-url').value = "";
-            document.getElementById('media-title').value = "";
-        } else {
-            alert("Lien non reconnu. Veuillez utiliser un lien YouTube ou Spotify valide.");
+            mesAmbiances.unshift(data);
+            localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
+            renderList();
+            annulerModification();
+            updateExportBadge(true);
         }
     }
 
     function creerCarte(data) {
         const card = document.createElement('div');
-        card.className = 'ambient-card';
+        card.className = 'ambient-card cursor-pointer active:scale-[0.98] transition-transform';
+        // Sécurisation de la chaîne de titre pour le onclick
+        const escapedTitle = data.title.replace(/'/g, "\\'");
         card.innerHTML = `
-            <div class="flex items-center gap-4 overflow-hidden">
-                <img src="${data.thumb}" class="w-12 h-12 rounded-lg object-cover bg-gray-800 flex-shrink-0">
+            <div class="flex items-center gap-4 overflow-hidden flex-1" onclick="remplirFormulaire('${escapedTitle}', '${data.embedUrl}')">
+                <img src="${data.thumb}" class="w-12 h-12 rounded-lg object-cover bg-gray-800">
                 <div class="overflow-hidden">
                     <h2 class="font-black text-[12px] uppercase truncate">${data.title}</h2>
                     <p class="text-[9px] font-bold opacity-50 uppercase">${data.type}</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button class="play-btn" onclick="chargerLecteur('${data.embedUrl}', this)">▶️</button>
-                <button onclick="this.closest('.ambient-card').remove()" class="opacity-20 hover:opacity-100 p-2 text-xs">✕</button>
-            </div>
+            <button class="play-btn" onclick="chargerLecteur('${data.embedUrl}', this)" style="background:${themeColor}; color:${contrast}">▶️</button>
         `;
-        const btn = card.querySelector('.play-btn');
-        btn.style.backgroundColor = themeColor;
-        btn.style.color = contrast;
-        listContainer.prepend(card);
+        listContainer.appendChild(card);
     }
 
-    function chargerLecteur(embedUrl, btn) {
+    function chargerLecteur(url, btn) {
         document.querySelectorAll('.play-btn').forEach(b => b.textContent = '▶️');
-        document.querySelectorAll('.ambient-card').forEach(c => c.classList.remove('active'));
-        
-        btn.closest('.ambient-card').classList.add('active');
         btn.textContent = '🔊';
-        stopIndicator.style.display = 'block';
-
-        playerContainer.innerHTML = `<iframe src="${embedUrl}" width="300" height="200" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+        document.getElementById('stop-music').style.display = 'block';
+        document.getElementById('player-container').innerHTML = `<iframe src="${url}" width="100%" height="200" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
     }
 
     function couperSon() {
-        playerContainer.innerHTML = "";
-        stopIndicator.style.display = 'none';
+        document.getElementById('player-container').innerHTML = "";
+        document.getElementById('stop-music').style.display = 'none';
         document.querySelectorAll('.play-btn').forEach(b => b.textContent = '▶️');
-        document.querySelectorAll('.ambient-card').forEach(c => c.classList.remove('active'));
     }
 
-    function ouvrirAide() { alert("1. Donnez un nom.\n2. Collez le lien.\n3. Cliquez sur Créer."); }
+    function toutEffacer() {
+        showAlert("Tout effacer ?", "Supprimer définitivement tous vos sons ?", () => {
+            mesAmbiances = [];
+            localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
+            renderList();
+            updateExportBadge(true);
+        });
+    }
+
+    // --- GESTION EXPORT / IMPORT ---
+    function updateExportBadge(needsExport) {
+        const badge = document.getElementById('badge-export');
+        if (needsExport) { badge.classList.remove('hidden'); localStorage.setItem('needsExport_ambiances', 'true'); }
+        else { badge.classList.add('hidden'); localStorage.removeItem('needsExport_ambiances'); }
+    }
+    function checkBadgeStatus() { if (localStorage.getItem('needsExport_ambiances') === 'true') updateExportBadge(true); }
+
+    function exportToFile() {
+        if (mesAmbiances.length === 0) return;
+        let contenu = mesAmbiances.map(a => `${a.title};${a.embedUrl};${a.thumb};${a.type}`).join("\n");
+        const nomFichier = `outilsprofs_ambiances_${new Date().toISOString().split('T')[0]}.txt`;
+        if (window.Android && typeof window.Android.exportTxt === "function") {
+            window.Android.exportTxt(contenu, nomFichier);
+        } else {
+            const blob = new Blob([contenu], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = nomFichier; a.click();
+            URL.revokeObjectURL(url);
+        }
+        updateExportBadge(false);
+    }
+
+    document.getElementById('importFile').addEventListener('change', function(e) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const lignes = event.target.result.split(/\r?\n/);
+                const nouvelles = [];
+                lignes.forEach(l => {
+                    const p = l.split(";");
+                    if (p.length === 4) nouvelles.push({ title: p[0], embedUrl: p[1], thumb: p[2], type: p[3] });
+                });
+                if (nouvelles.length > 0) {
+                    showAlert("Importer ?", `Ajouter les ${nouvelles.length} sons détectés ?`, () => {
+                        mesAmbiances = [...nouvelles, ...mesAmbiances];
+                        localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
+                        renderList();
+                        updateExportBadge(false);
+                    });
+                }
+            } catch (err) { showAlert("Erreur", "Fichier invalide.", null, false); }
+        };
+        if(e.target.files[0]) reader.readAsText(e.target.files[0]);
+        this.value = "";
+    });
 </script>
 </body>
 </html>
