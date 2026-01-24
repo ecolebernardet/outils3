@@ -47,29 +47,30 @@
 
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Barre de progression */
-        .progress-container { position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: rgba(0,0,0,0.2); display: none; }
-        .progress-bar { height: 100%; width: 0%; background: var(--theme-color); transition: width 0.3s linear; }
+        .play-btn-container { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 75px; }
+        .time-display { font-size: 9px; font-weight: 800; font-family: monospace; opacity: 0.6; white-space: nowrap; }
+
+        .progress-container { 
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; 
+            background: rgba(0,0,0,0.1); display: none; cursor: pointer; z-index: 20;
+        }
+        .progress-bar { height: 100%; width: 0%; background: var(--theme-color); transition: width 0.2s linear; }
 
         .play-btn {
-            width: 48px; height: 48px; border-radius: 16px;
+            width: 44px; height: 44px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             background: var(--theme-color); color: white; border: none; cursor: pointer;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10;
         }
 
-        .play-btn:active { transform: scale(0.9); }
-        .play-btn.is-playing { background: #ff4444 !important; color: white !important; border-radius: 50%; }
+        .play-btn.is-playing { background: #ff4444 !important; border-radius: 50%; }
 
         input { width: 100%; border: 1px solid var(--column-border); background: rgba(0,0,0,0.05); color: inherit; border-radius: 12px; outline: none; }
         body.light-mode input { background: #fff; }
 
         .bottom-nav { width: 100%; max-width: 500px; margin: 25px auto 0; padding-bottom: 40px; }
         .nav-btn { font-weight: 800; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
-
-        #modal-aide.active { display: flex; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -90,10 +91,10 @@
         </a>
     </div>
 
-    <div class="bg-[var(--card-bg)] p-5 rounded-[1.5rem] border border-[var(--column-border)] mb-6">
+    <div class="bg-[var(--card-bg)] p-5 rounded-[1.5rem] border border-[var(--column-border)] mb-6 shadow-sm">
         <h2 id="form-legend" class="text-[10px] font-black uppercase opacity-60 mb-3">Ajouter un nouveau son</h2>
         <div class="flex flex-col gap-3">
-            <input type="text" id="media-title" placeholder="Nom de la musique..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
+            <input type="text" id="media-title" placeholder="Nom du son..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
             <input type="text" id="media-url" placeholder="Lien YouTube ou Spotify..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
             
             <div class="flex flex-col gap-2">
@@ -110,126 +111,122 @@
 
     <footer class="bottom-nav flex flex-col gap-3">
         <div class="flex gap-2">
-            <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">
-                👇importer .txt👇
-                <input type="file" id="importFile" class="hidden" accept=".txt">
-            </label>
-            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">
-                👆exporter .txt👆
-                <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
-            </button>
+            <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">👇importer .txt👇<input type="file" id="importFile" class="hidden" accept=".txt"></label>
+            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">👆exporter .txt👆<span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span></button>
         </div>
-        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
+        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100">⚠️ effacer les données</button>
     </footer>
-</div>
-
-<div id="modal-aide" onclick="fermerAideParOverlay(event)" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-[2rem] border border-[var(--column-border)] p-6 text-center" onclick="event.stopPropagation()">
-        <div class="text-4xl mb-4">💡</div>
-        <h3 class="text-lg font-black uppercase mb-4">Aide</h3>
-        <p class="text-sm opacity-80 mb-4 text-left">• <strong>Modifier :</strong> Cliquez sur le titre d'une ambiance.</p>
-        <p class="text-sm opacity-80 mb-6 text-left">• <strong>Lecture :</strong> Le bouton change de forme et de couleur. Une barre de progression apparaît en bas de l'étiquette.</p>
-        <button onclick="fermerAide()" id="btn-compris" class="w-full p-4 rounded-xl font-black uppercase text-[12px]">J'ai compris</button>
-    </div>
-</div>
-
-<div id="alertModal" onclick="closeAlert()" class="fixed inset-0 bg-black/85 z-[3000] hidden items-center justify-center p-5">
-    <div class="bg-white p-6 rounded-[24px] w-full max-w-[350px] shadow-2xl" onclick="event.stopPropagation()">
-        <h3 id="alertTitle" class="text-lg font-black uppercase text-center mb-2 text-black">Confirmation</h3>
-        <p id="alertText" class="text-sm font-semibold text-center text-gray-600 mb-6">Message</p>
-        <div class="flex gap-2">
-            <button id="alertCancelBtn" class="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase bg-gray-100 text-gray-500" onclick="closeAlert()">Annuler</button>
-            <button id="alertConfirmBtn" class="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase text-white">Confirmer</button>
-        </div>
-    </div>
 </div>
 
 <div id="yt-player" class="hidden"></div>
 <div id="player-container" class="hidden"></div>
 
+<div id="modal-aide" onclick="fermerAideParOverlay(event)" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-[var(--card-bg)] w-full max-w-md rounded-[2rem] border border-[var(--column-border)] p-6 text-center" onclick="event.stopPropagation()">
+        <h3 class="text-lg font-black uppercase mb-4">Aide</h3>
+        <p class="text-sm opacity-80 mb-4 text-left">• <strong>Modifier :</strong> Cliquez sur le titre.<br>• <strong>Navigation :</strong> Cliquez sur la barre colorée en bas pour naviguer.<br>• <strong>Temps :</strong> La durée s'affiche au-dessus du bouton.</p>
+        <button onclick="fermerAide()" id="btn-compris" class="w-full p-4 rounded-xl font-black uppercase text-[12px]">J'ai compris</button>
+    </div>
+</div>
+
+<div id="alertModal" onclick="closeAlert()" class="fixed inset-0 bg-black/85 z-[3000] hidden items-center justify-center p-5">
+    <div class="bg-white p-6 rounded-[24px] w-full max-w-[350px]" onclick="event.stopPropagation()">
+        <h3 id="alertTitle" class="text-lg font-black uppercase text-center mb-2 text-black">Confirmation</h3>
+        <p id="alertText" class="text-sm font-semibold text-center text-gray-600 mb-6"></p>
+        <button id="alertConfirmBtn" class="w-full py-4 rounded-2xl font-black text-[11px] uppercase text-white">Confirmer</button>
+    </div>
+</div>
+
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
     if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
-
-    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
     const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
     const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue') ? '#000' : '#fff';
 
     document.documentElement.style.setProperty('--theme-color', themeColor);
-    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action, #btn-compris, #btn-retour-liste').forEach(btn => {
-        if(btn) { btn.style.backgroundColor = themeColor; btn.style.color = contrast; }
-    });
+    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action, #btn-compris, #btn-retour-liste').forEach(b => { if(b){b.style.backgroundColor = themeColor; b.style.color = contrast;} });
 
     let mesAmbiances = JSON.parse(localStorage.getItem('ambiances_zen')) || [];
     let ytPlayer = null;
     let progressInterval = null;
     let editModeUrl = null;
-    const listContainer = document.getElementById('ambiances-list');
 
-    function onYouTubeIframeAPIReady() {}
-
-    window.onload = () => { renderList(); checkBadgeStatus(); };
-
-    function renderList() {
-        listContainer.innerHTML = "";
-        mesAmbiances.forEach((data, index) => creerCarte(data, index));
+    function formatTime(s) {
+        if (isNaN(s)) return "00:00";
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
     }
 
-    // --- LECTEUR ---
+    function renderList() {
+        const list = document.getElementById('ambiances-list');
+        list.innerHTML = "";
+        mesAmbiances.forEach((data, index) => {
+            const cardId = `card-${index}`;
+            const div = document.createElement('div');
+            div.id = cardId;
+            div.className = 'ambient-card cursor-pointer active:scale-[0.98] transition-transform';
+            div.innerHTML = `
+                <div class="flex items-center gap-4 overflow-hidden flex-1" onclick="remplirFormulaire('${data.title.replace(/'/g, "\\'")}', '${data.embedUrl}')">
+                    <img src="${data.thumb}" class="w-12 h-12 rounded-lg object-cover bg-gray-800">
+                    <div class="overflow-hidden">
+                        <h2 class="font-black text-[12px] uppercase truncate">${data.title}</h2>
+                        <p class="text-[9px] font-bold opacity-50 uppercase">${data.type}</p>
+                    </div>
+                </div>
+                <div class="play-btn-container">
+                    <span class="time-display" id="time-${cardId}">00:00 / 00:00</span>
+                    <button class="play-btn" onclick="toggleLecteur('${data.embedUrl}', this, '${cardId}')" style="background:${themeColor}; color:${contrast}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </button>
+                </div>
+                <div class="progress-container" onclick="seekAudio(event, this)"><div class="progress-bar"></div></div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
     function toggleLecteur(url, btn, cardId) {
         const isPlaying = btn.classList.contains('is-playing');
-        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>';
-        const stopIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" /></svg>';
+        const timeDisplay = document.getElementById(`time-${cardId}`);
+        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+        const stopIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 10h6v4H9z" /></svg>';
 
-        // Reset global
         clearInterval(progressInterval);
         document.querySelectorAll('.progress-container').forEach(c => c.style.display = 'none');
-        document.querySelectorAll('.progress-bar').forEach(b => b.style.width = '0%');
-        document.querySelectorAll('.play-btn').forEach(b => {
-            b.classList.remove('is-playing');
-            b.style.backgroundColor = themeColor;
-            b.innerHTML = playIcon;
-        });
+        document.querySelectorAll('.time-display').forEach(t => t.innerText = '00:00 / 00:00');
+        document.querySelectorAll('.play-btn').forEach(b => { b.classList.remove('is-playing'); b.style.backgroundColor = themeColor; b.innerHTML = playIcon; });
 
         if (!isPlaying) {
-            btn.classList.add('is-playing');
-            btn.innerHTML = stopIcon;
-            
-            const card = document.getElementById(cardId);
-            const container = card.querySelector('.progress-container');
-            const bar = card.querySelector('.progress-bar');
-            container.style.display = 'block';
+            btn.classList.add('is-playing'); btn.innerHTML = stopIcon;
+            const bar = document.getElementById(cardId).querySelector('.progress-bar');
+            document.getElementById(cardId).querySelector('.progress-container').style.display = 'block';
 
             if (url.includes('youtube.com') || url.includes('youtube.be')) {
-                // Utilisation de l'API YouTube pour le curseur réel
                 const videoId = url.split('embed/')[1]?.split('?')[0];
                 if (ytPlayer) ytPlayer.destroy();
-                
                 ytPlayer = new YT.Player('yt-player', {
                     height: '0', width: '0', videoId: videoId,
                     playerVars: { 'autoplay': 1, 'controls': 0 },
                     events: {
                         onReady: (e) => {
                             e.target.playVideo();
+                            const total = formatTime(e.target.getDuration());
                             progressInterval = setInterval(() => {
-                                let p = (e.target.getCurrentTime() / e.target.getDuration()) * 100;
-                                bar.style.width = p + '%';
+                                const cur = e.target.getCurrentTime();
+                                const dur = e.target.getDuration();
+                                bar.style.width = (cur / dur * 100) + '%';
+                                timeDisplay.innerText = `${formatTime(cur)} / ${total}`;
                             }, 1000);
                         },
-                        onStateChange: (e) => {
-                            if (e.data === YT.PlayerState.ENDED) toggleLecteur(url, btn, cardId);
-                        }
+                        onStateChange: (e) => { if (e.data === YT.PlayerState.ENDED) toggleLecteur(url, btn, cardId); }
                     }
                 });
             } else {
-                // Simulation pour Spotify
                 document.getElementById('player-container').innerHTML = `<iframe src="${url}" width="100%" height="200" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
-                let mockP = 0;
-                progressInterval = setInterval(() => {
-                    mockP += 0.2;
-                    bar.style.width = (mockP % 100) + '%';
-                }, 1000);
+                timeDisplay.innerText = "Spotify / Direct";
             }
         } else {
             if (ytPlayer) ytPlayer.stopVideo();
@@ -237,11 +234,18 @@
         }
     }
 
-    // --- FORMULAIRE & EDITION ---
-    function remplirFormulaire(titre, url) {
-        editModeUrl = url;
-        document.getElementById('media-title').value = titre;
-        document.getElementById('media-url').value = url;
+    function seekAudio(event, container) {
+        event.stopPropagation();
+        if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
+        const rect = container.getBoundingClientRect();
+        const p = (event.clientX - rect.left) / rect.width;
+        ytPlayer.seekTo(ytPlayer.getDuration() * p, true);
+    }
+
+    function remplirFormulaire(t, u) {
+        editModeUrl = u;
+        document.getElementById('media-title').value = t;
+        document.getElementById('media-url').value = u;
         document.getElementById('form-legend').innerText = "Modifier l'ambiance";
         document.getElementById('btn-ajouter-action').innerText = "Mettre à jour";
         document.getElementById('edit-buttons').classList.remove('hidden');
@@ -250,104 +254,49 @@
 
     function annulerModification() {
         editModeUrl = null;
-        document.getElementById('media-title').value = "";
-        document.getElementById('media-url').value = "";
+        document.getElementById('media-title').value = ""; document.getElementById('media-url').value = "";
         document.getElementById('form-legend').innerText = "Ajouter un nouveau son";
         document.getElementById('btn-ajouter-action').innerText = "Créer le bouton";
         document.getElementById('edit-buttons').classList.add('hidden');
     }
 
     function ajouterAmbiance() {
-        const url = document.getElementById('media-url').value.trim();
-        const customTitle = document.getElementById('media-title').value.trim();
-        if (!url || !customTitle) return;
-
+        const u = document.getElementById('media-url').value.trim();
+        const t = document.getElementById('media-title').value.trim();
+        if (!u || !t) return;
         if (editModeUrl) mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl);
-
-        let data = { title: customTitle, thumb: "", embedUrl: "", type: "" };
-        if (url.includes('youtube') || url.includes('youtu.be')) {
-            let videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop().split('?')[0];
-            data.thumb = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-            data.embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
-            data.type = "YouTube";
-        } else if (url.includes('spotify')) {
-            data.embedUrl = url.includes('embed') ? url : url.replace("open.spotify.com", "open.spotify.com/embed");
-            data.thumb = "https://cdn-icons-png.flaticon.com/512/174/174872.png";
+        let data = { title: t, thumb: "", embedUrl: "", type: "YouTube" };
+        if (u.includes('youtube') || u.includes('youtu.be')) {
+            let id = u.includes('v=') ? u.split('v=')[1].split('&')[0] : u.split('/').pop().split('?')[0];
+            data.thumb = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+            data.embedUrl = `https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`;
+        } else {
             data.type = "Spotify";
+            data.thumb = "https://cdn-icons-png.flaticon.com/512/174/174872.png";
+            data.embedUrl = u.includes('embed') ? u : u.replace("open.spotify.com", "open.spotify.com/embed");
         }
-
-        if (data.embedUrl) {
-            mesAmbiances.unshift(data);
-            localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
-            renderList();
-            annulerModification();
-            updateExportBadge(true);
-        }
+        mesAmbiances.unshift(data);
+        localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
+        renderList(); annulerModification();
     }
 
-    function creerCarte(data, index) {
-        const cardId = `card-${index}`;
-        const card = document.createElement('div');
-        card.id = cardId;
-        card.className = 'ambient-card cursor-pointer active:scale-[0.98] transition-transform';
-        const escapedTitle = data.title.replace(/'/g, "\\'");
-        card.innerHTML = `
-            <div class="flex items-center gap-4 overflow-hidden flex-1" onclick="remplirFormulaire('${escapedTitle}', '${data.embedUrl}')">
-                <img src="${data.thumb}" class="w-12 h-12 rounded-lg object-cover bg-gray-800">
-                <div class="overflow-hidden">
-                    <h2 class="font-black text-[12px] uppercase truncate">${data.title}</h2>
-                    <p class="text-[9px] font-bold opacity-50 uppercase">${data.type}</p>
-                </div>
-            </div>
-            <button class="play-btn" onclick="toggleLecteur('${data.embedUrl}', this, '${cardId}')" style="background:${themeColor}; color:${contrast}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
-            </button>
-            <div class="progress-container"><div class="progress-bar"></div></div>
-        `;
-        listContainer.appendChild(card);
-    }
-
-    // --- SYSTEME MODALES ---
-    function showAlert(title, text, onConfirm, showCancel = true) {
-        document.getElementById('alertTitle').innerText = title;
-        document.getElementById('alertText').innerText = text;
-        const confirmBtn = document.getElementById('alertConfirmBtn');
-        const cancelBtn = document.getElementById('alertCancelBtn');
-        confirmBtn.style.backgroundColor = themeColor;
-        confirmBtn.style.color = contrast;
-        cancelBtn.style.display = showCancel ? 'block' : 'none';
-        const newBtn = confirmBtn.cloneNode(true);
-        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-        newBtn.onclick = () => { closeAlert(); if(onConfirm) onConfirm(); };
+    function showAlert(t, tx, c) {
+        document.getElementById('alertTitle').innerText = t; document.getElementById('alertText').innerText = tx;
+        const b = document.getElementById('alertConfirmBtn'); b.style.backgroundColor = themeColor;
+        b.onclick = () => { closeAlert(); c(); };
         document.getElementById('alertModal').style.display = 'flex';
     }
     function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
     function ouvrirAide() { document.getElementById('modal-aide').classList.add('active'); }
     function fermerAide() { document.getElementById('modal-aide').classList.remove('active'); }
     function fermerAideParOverlay(e) { if (e.target.id === 'modal-aide') fermerAide(); }
-
-    function toutEffacer() {
-        showAlert("Tout effacer ?", "Voulez-vous vider toute votre liste ?", () => {
-            mesAmbiances = []; localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
-            renderList(); updateExportBadge(true);
-        });
-    }
-
-    function updateExportBadge(needsExport) {
-        const badge = document.getElementById('badge-export');
-        if (needsExport) { badge.classList.remove('hidden'); localStorage.setItem('needsExport_ambiances', 'true'); }
-        else { badge.classList.add('hidden'); localStorage.removeItem('needsExport_ambiances'); }
-    }
-    function checkBadgeStatus() { if (localStorage.getItem('needsExport_ambiances') === 'true') updateExportBadge(true); }
-
+    function toutEffacer() { showAlert("Tout effacer ?", "Vider la liste ?", () => { mesAmbiances = []; localStorage.setItem('ambiances_zen', JSON.stringify([])); renderList(); }); }
     function exportToFile() {
-        if (mesAmbiances.length === 0) return;
-        let contenu = mesAmbiances.map(a => `${a.title};${a.embedUrl};${a.thumb};${a.type}`).join("\n");
-        const blob = new Blob([contenu], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob); a.download = `ambiances_zen_${new Date().toISOString().split('T')[0]}.txt`; a.click();
-        updateExportBadge(false);
+        let txt = mesAmbiances.map(a => `${a.title};${a.embedUrl};${a.thumb};${a.type}`).join("\n");
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'})); a.download = 'ambiances.txt'; a.click();
     }
+    window.onYouTubeIframeAPIReady = () => {};
+    window.onload = () => { renderList(); if (localStorage.getItem('needsExport_ambiances')) document.getElementById('badge-export').classList.remove('hidden'); };
 </script>
 </body>
 </html>
