@@ -62,7 +62,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
     </a>
-    <h1 id="pageTitle">Temps</h1>
+    <h1 id="pageTitle">Minuteur et chronomètre</h1>
     <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
 </header>
 
@@ -81,8 +81,16 @@
     </div>
 
     <div class="controls">
-        <button class="btn-circle btn-reset" onclick="reset()">🔄</button>
-        <button class="btn-circle btn-play" id="btn-start" onclick="toggleMain()">▶️</button>
+        <button class="btn-circle btn-reset" onclick="reset()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+        </button>
+        <button class="btn-circle btn-play" id="btn-start" onclick="toggleMain()" style="padding-left: 3px;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+            </svg>
+        </button>
     </div>
 
     <div id="presets" class="w-full mt-8">
@@ -104,16 +112,12 @@
         </div>
 
         <div class="mt-6 w-full">
-            <label class="text-[10px] font-black uppercase opacity-60 mb-2 block">Sonnerie d'alerte</label>
+            <label class="text-[10px] font-black uppercase opacity-60 mb-2 block text-center">Sonnerie de fin</label>
             <div class="flex gap-2">
-                <select id="alarm-selector" class="flex-grow bg-[var(--card-bg)] border border-[var(--column-border)] rounded-xl px-4 py-3 font-bold text-[12px] outline-none focus:border-[var(--theme-color)] transition-colors">
-                    <option value="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3">Bip Digital</option>
-                    <option value="https://assets.mixkit.co/active_storage/sfx/1017/1017-preview.mp3">Cloche d'école</option>
-                    <option value="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3">Alerte Douce</option>
-                    <option value="https://cdn.pixabay.com/audio/2022/03/15/audio_273117565c.mp3">Zen / Bol Tibétain</option>
-                    <option value="https://assets.mixkit.co/active_storage/sfx/2513/2513-preview.mp3">Trompette Victoire</option>
-                </select>
-                <button onclick="testerSon()" class="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--card-bg)] border border-[var(--column-border)] active:scale-90 transition-transform">🔊</button>
+                <div class="flex-grow bg-[var(--card-bg)] border border-[var(--column-border)] rounded-xl px-4 py-3 font-bold text-[12px] flex items-center justify-center">
+                    🔔 Gong (Zen Bowl)
+                </div>
+                <button onclick="playGong()" class="w-12 h-12 flex items-center justify-center rounded-xl bg-[var(--card-bg)] border border-[var(--column-border)] active:scale-90 transition-transform">🔊</button>
             </div>
         </div>
     </div>
@@ -134,85 +138,130 @@
 <audio id="alarm-sound" preload="auto"></audio>
 
 <script>
-    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        audioUnlocked = true;
+    }
+
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
 
     const mapCouleurs = { 
-        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
-        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
-        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
-        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
-        'rose': '#f43f5e' 
+        red:'#ef4444', orange:'#f97316', amber:'#f59e0b', yellow:'#eab308',
+        lime:'#84cc16', green:'#22c55e', emerald:'#10b981', teal:'#14b8a6',
+        cyan:'#06b6d4', sky:'#0ea5e9', blue:'#3b82f6', indigo:'#6366f1',
+        violet:'#8b5cf6', purple:'#a855f7', fuchsia:'#d946ef', pink:'#ec4899', rose:'#f43f5e'
     };
 
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
     const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
+    const isDarkText = ['yellow','lime','amber','cyan'].includes(themePrefs.outils || 'blue');
     const contrast = isDarkText ? '#000' : '#fff';
 
     document.documentElement.style.setProperty('--theme-color', themeColor);
     document.documentElement.style.setProperty('--contrast-color', contrast);
 
-    document.getElementById('btn-retour').style.backgroundColor = themeColor;
-    document.getElementById('btn-retour').style.color = contrast;
-    document.getElementById('btn-aide').style.backgroundColor = themeColor;
-    document.getElementById('btn-aide').style.color = contrast;
-    document.getElementById('titre-aide').style.color = themeColor;
+    let mode = 'timer';
+    let timeLeft = 300;
+    let totalTime = 300;
+    let chronoTime = 0;
+    let timerId = null;
+    let isRunning = false;
 
-    let mode = 'timer', timeLeft = 300, totalTime = 300, chronoTime = 0, timerId = null, isRunning = false;
-    const display = document.getElementById('display'), progressBar = document.getElementById('progress-bar'), btnStart = document.getElementById('btn-start');
+    const display = document.getElementById('display');
+    const progressBar = document.getElementById('progress-bar');
+    const btnStart = document.getElementById('btn-start');
     const circumference = 115 * 2 * Math.PI;
 
     function updateDisplay() {
-        let t = (mode === 'timer') ? timeLeft : chronoTime;
-        let mins = Math.floor(t / 60), secs = t % 60;
-        display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        if(mode === 'timer') {
-            let offset = circumference - (timeLeft / totalTime) * circumference;
+        const t = (mode === 'timer') ? timeLeft : chronoTime;
+        const m = Math.floor(t / 60);
+        const s = t % 60;
+        display.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+
+        if (mode === 'timer') {
+            const offset = circumference - (timeLeft / totalTime) * circumference;
             progressBar.style.strokeDashoffset = offset;
         } else {
             progressBar.style.strokeDashoffset = 0;
         }
     }
 
-    function toggleMain() {
-        if(isRunning) {
-            clearInterval(timerId);
-            btnStart.textContent = '▶️';
-        } else {
-            timerId = setInterval(() => {
-                if(mode === 'timer') {
-                    if(timeLeft > 0) { timeLeft--; updateDisplay(); } 
-                    else {
-                        clearInterval(timerId);
-                        lancerAlarme();
-                        reset();
-                    }
-                } else { chronoTime++; updateDisplay(); }
-            }, 1000);
-            btnStart.textContent = '⏸️';
+    function playGong() {
+        if (!audioUnlocked || !audioCtx) return;
+
+        const now = audioCtx.currentTime;
+
+        function tone(freq, gainVal, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            gain.gain.setValueAtTime(gainVal, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + duration);
         }
-        isRunning = !isRunning;
+
+        tone(880, 0.4, 2.5);
+        tone(1325, 0.15, 1.5);
     }
 
-    function lancerAlarme() {
-        const alarm = document.getElementById('alarm-sound');
-        alarm.src = document.getElementById('alarm-selector').value;
-        alarm.load();
-        alarm.play().catch(e => console.log("L'audio nécessite une interaction."));
-    }
+    function toggleMain() {
+        unlockAudio();
 
-    function testerSon() {
-        const alarm = document.getElementById('alarm-sound');
-        alarm.src = document.getElementById('alarm-selector').value;
-        alarm.load();
-        alarm.play().catch(e => alert("Erreur de lecture. Vérifiez votre connexion."));
+        if (isRunning) {
+            clearInterval(timerId);
+            isRunning = false;
+            btnStart.innerHTML = playIcon();
+            btnStart.style.paddingLeft = "3px";
+            return;
+        }
+
+        isRunning = true;
+        btnStart.innerHTML = pauseIcon();
+        btnStart.style.paddingLeft = "0px";
+
+        timerId = setInterval(() => {
+            if (mode === 'timer') {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerId);
+                    isRunning = false;
+                    playGong();
+                    reset();
+                }
+            } else {
+                chronoTime++;
+                updateDisplay();
+            }
+        }, 1000);
     }
 
     function reset() {
         clearInterval(timerId);
         isRunning = false;
-        btnStart.textContent = '▶️';
-        if(mode === 'timer') timeLeft = totalTime; else chronoTime = 0;
+        btnStart.innerHTML = playIcon();
+        btnStart.style.paddingLeft = "3px";
+        if (mode === 'timer') timeLeft = totalTime;
+        else chronoTime = 0;
         updateDisplay();
     }
 
@@ -223,30 +272,42 @@
     }
 
     function setCustomTimer() {
-        let m = parseInt(document.getElementById('custom-min').value) || 0;
-        let s = parseInt(document.getElementById('custom-sec').value) || 0;
-        if (m > 0 || s > 0) {
-            totalTime = (m * 60) + s;
+        const m = parseInt(document.getElementById('custom-min').value) || 0;
+        const s = parseInt(document.getElementById('custom-sec').value) || 0;
+        if (m || s) {
+            totalTime = m * 60 + s;
             timeLeft = totalTime;
             reset();
-            document.getElementById('custom-min').value = '';
-            document.getElementById('custom-sec').value = '';
         }
     }
 
     function switchMode(newMode) {
-        if(isRunning) reset();
+        if (isRunning) reset();
         mode = newMode;
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         event.currentTarget.classList.add('active');
         document.getElementById('presets').style.display = (mode === 'timer') ? 'block' : 'none';
         reset();
     }
 
-    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
-    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+    function playIcon() {
+        return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    }
+
+    function pauseIcon() {
+        return '<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+    }
+
+    function ouvrirAide() {
+        document.getElementById('modal-aide').style.display = 'flex';
+    }
+
+    function fermerAide() {
+        document.getElementById('modal-aide').style.display = 'none';
+    }
 
     updateDisplay();
 </script>
+
 </body>
 </html>
