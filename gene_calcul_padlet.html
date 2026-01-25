@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Calcul Mental - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        
+        header { 
+            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%; margin-bottom: 12px;
+        }
+
+        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease; cursor: pointer; border: none; flex-shrink: 0; }
+        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+
+        .main-wrapper { width: 100%; max-width: 380px; margin: 0 auto; padding: 10px 15px 40px; }
+        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
+        
+        .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 10px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; text-align: center; }
+        
+        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
+        
+        .btn-game-action { height: 40px; border-radius: 9999px; font-size: 10px; font-weight: 900; color: white; transition: all 0.2s ease; text-transform: uppercase; padding: 0 15px; }
+
+        .op-btn-frame { border: 2px solid var(--column-border); border-radius: 1rem; padding: 2px; transition: all 0.2s ease; background: var(--input-bg); }
+        .op-checkbox:checked + .op-btn-frame, .table-checkbox:checked + .op-btn-frame, .mode-radio:checked + .op-btn-frame, #check-all-tables:checked + .op-btn-frame { 
+            border-color: var(--accent-color, #06b6d4); background-color: var(--accent-color, #06b6d4); color: white !important;
+        }
+
+        #questions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        
+        /* Centrage global de la carte */
+        .q-card { background: var(--card-bg); border-radius: 0.75rem; padding: 10px; border: 1px solid var(--column-border); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80px; overflow: hidden; text-align: center; }
+        
+        .answer-input { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.4rem; width: 60px; height: 32px; text-align: center; font-weight: 800; font-size: 0.9rem; color: var(--text-main); outline: none; margin-top: 6px; }
+        
+        .res-text { color: #10b981 !important; font-weight: 900; line-height: 1.2; margin-top: 4px; display: block; width: 100%; }
+
+        .vpi-text { font-size: 1.2rem !important; white-space: nowrap; font-weight: 900; letter-spacing: -0.02em; }
+        .vpi-res { font-size: 1.15rem !important; }
+
+        @media (min-width: 768px) {
+            .main-wrapper { max-width: 950px; }
+            #setup-zone:not(.hidden) { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+            #mainAddBtn { grid-column: span 2; }
+            #questions-grid { grid-template-columns: repeat(3, 1fr); gap: 15px; }
+            .vpi-text { font-size: 1.8rem !important; }
+            .vpi-res { font-size: 1.6rem !important; }
+        }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="flex items-center gap-2">
+        
+    </div>
+    <h1>Calcul Mental</h1>
+    <button onclick="ouvrirAide()" class="ui-btn-round active:scale-90 text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div id="container-retour-liste" class="mb-4 text-center">
+        
+    </div>
+
+    <div id="setup-zone" class="light-card space-y-4">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Opérations</label>
+                <div class="grid grid-cols-4 gap-2">
+                    <label class="cursor-pointer"><input type="checkbox" class="hidden op-checkbox" value="+" checked><div class="op-btn-frame h-12 flex items-center justify-center rounded-lg font-black text-lg">+</div></label>
+                    <label class="cursor-pointer"><input type="checkbox" class="hidden op-checkbox" value="-"><div class="op-btn-frame h-12 flex items-center justify-center rounded-lg font-black text-lg">-</div></label>
+                    <label class="cursor-pointer"><input type="checkbox" class="hidden op-checkbox" value="x"><div class="op-btn-frame h-12 flex items-center justify-center rounded-lg font-black text-lg">x</div></label>
+                    <label class="cursor-pointer"><input type="checkbox" class="hidden op-checkbox" value=":"><div class="op-btn-frame h-12 flex items-center justify-center rounded-lg font-black text-lg">÷</div></label>
+                </div>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Tables</label>
+                <div id="tables-container" class="space-y-2"></div>
+            </div>
+            <div>
+    <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Temps imparti</label>
+    <div class="flex items-center gap-2 bg-[var(--input-bg)] px-3 py-2 rounded-xl border border-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div class="flex items-center flex-1 justify-center gap-1">
+            <input type="number" id="timer-min" value="1" min="0" max="59" class="bg-transparent w-10 text-right font-black text-sm outline-none"><span class="text-[10px] opacity-40 font-bold mr-1">min &nbsp;&nbsp;</span>
+            <span class="opacity-20 font-black">:</span>
+            <input type="number" id="timer-sec" value="0" min="0" max="59" class="bg-transparent w-10 text-right font-black text-sm outline-none"><span class="text-[10px] opacity-40 font-bold">s&nbsp;&nbsp;</span>
+        </div>
+    </div>
+</div>
+        </div>
+
+        <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-2">
+                <div><label class="block text-[9px] font-black uppercase opacity-50 mb-1 tracking-widest text-center">Min</label><input type="number" id="min-val" value="1" class="input-field"></div>
+                <div><label class="block text-[9px] font-black uppercase opacity-50 mb-1 tracking-widest text-center">Max</label><input type="number" id="max-val" value="50" class="input-field"></div>
+                <div><label class="block text-[9px] font-black uppercase opacity-50 mb-1 tracking-widest text-center">Nb</label><input type="number" id="nb-val" value="10" class="input-field"></div>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Mode de jeu</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="cursor-pointer"><input type="radio" name="game-mode" value="solo" class="hidden mode-radio" checked><div class="op-btn-frame h-12 flex flex-col items-center justify-center rounded-lg"><span class="text-xs font-black">SOLO</span><span class="text-[8px] opacity-60">Individuel</span></div></label>
+                    <label class="cursor-pointer"><input type="radio" name="game-mode" value="vpi" class="hidden mode-radio"><div class="op-btn-frame h-12 flex flex-col items-center justify-center rounded-lg"><span class="text-xs font-black">VPI</span><span class="text-[8px] opacity-60">Projection</span></div></label>
+                </div>
+            </div>
+            <button onclick="generateSeries()" id="mainAddBtn" class="btn-add">Démarrer</button>
+        </div>
+    </div>
+
+    <div id="game-zone" class="hidden space-y-4">
+        <div id="timer-display" class="hidden text-center p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <div id="seconds-left" class="text-2xl font-black text-amber-500">0:00</div>
+        </div>
+        <div id="questions-grid"></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-4">
+            <button onclick="retourReglages()" class="btn-game-action bg-gray-500">⬅️ Retour</button>
+            <button id="validate-btn" onclick="showCorrection()" class="btn-game-action bg-green-500">👁️ Correction</button>
+            <button onclick="generateSeries()" class="btn-game-action bg-amber-500">🔄 Nouveau</button>
+            <button onclick="exportToPDF()" class="btn-game-action bg-blue-500">📄 PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-xl font-black uppercase mb-4">💡 Mode d'emploi</h2>
+        <div class="text-sm space-y-3 opacity-90 mb-6 text-left">
+            <p><strong>1. Configuration :</strong> Sélectionnez vos opérations. Pour la multiplication et la division, choisissez les tables spécifiques ou cliquez sur "Toutes".</p>
+            <p><strong>2. Nombres :</strong> Définissez les valeurs Min et Max des nombres générés ainsi que la quantité totale de calculs (jusqu'à 50).</p>
+            <p><strong>3. Modes de jeu :</strong> 
+                <br>• <b style="color:var(--accent-color)">SOLO :</b> Entraînement avec saisie au clavier et calcul automatique du score final.
+                <br>• <b style="color:var(--accent-color)">VPI :</b> Affichage géant sans zone de saisie, idéal pour une correction collective projetée au tableau.</p>
+            <p><strong>4. Correction :</strong> L'œil permet d'afficher les résultats. Si vous avez mis un chrono, la correction s'active d'elle-même à la fin du temps.</p>
+        </div>
+        <button onclick="fermerModal('modal-aide')" class="w-full btn-add">J'ai compris</button>
+    </div>
+</div>
+
+<script>
+    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
+    let currentCalculs = [];
+    let countdown;
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme_mode', isLight ? 'light' : 'dark');
+    }
+
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+
+    function initTables() {
+        const container = document.getElementById('tables-container');
+        let html = '<div class="flex gap-2 justify-center">';
+        for (let i = 2; i <= 10; i++) {
+            if(i === 7) html += '</div><div class="flex gap-2 justify-center mt-2">';
+            html += `<label class="cursor-pointer"><input type="checkbox" class="hidden table-checkbox" value="${i}"><div class="op-btn-frame w-10 h-10 flex items-center justify-center rounded-lg font-black text-xs">${i}</div></label>`;
+        }
+        html += `<label class="cursor-pointer"><input type="checkbox" id="check-all-tables" class="hidden" onchange="toggleAllTables(this)"><div class="op-btn-frame px-3 h-10 flex items-center justify-center rounded-lg font-black text-[10px] uppercase">Toutes</div></label></div>`;
+        container.innerHTML = html;
+    }
+
+    function toggleAllTables(source) { document.querySelectorAll('.table-checkbox').forEach(cb => cb.checked = source.checked); }
+
+    function startTimer() {
+        clearInterval(countdown);
+        const mins = parseInt(document.getElementById('timer-min').value) || 0;
+        const secs = parseInt(document.getElementById('timer-sec').value) || 0;
+        let timeLeft = (mins * 60) + secs;
+        if (timeLeft <= 0) { document.getElementById('timer-display').classList.add('hidden'); return; }
+        document.getElementById('timer-display').classList.remove('hidden');
+        const updateDisplay = () => {
+            let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
+            document.getElementById('seconds-left').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            if (timeLeft <= 0) { clearInterval(countdown); showCorrection(); }
+            timeLeft--;
+        };
+        updateDisplay(); countdown = setInterval(updateDisplay, 1000);
+    }
+
+    function generateSeries() {
+        const selectedOps = Array.from(document.querySelectorAll('.op-checkbox:checked')).map(el => el.value);
+        const selectedTables = Array.from(document.querySelectorAll('.table-checkbox:checked')).map(el => parseInt(el.value));
+        const mode = document.querySelector('input[name="game-mode"]:checked').value;
+        const min = parseInt(document.getElementById('min-val').value) || 1;
+        const max = parseInt(document.getElementById('max-val').value) || 5000;
+        const nb = Math.min(Math.max(parseInt(document.getElementById('nb-val').value) || 10, 1), 50);
+
+        currentCalculs = [];
+        let attempts = 0;
+        while (currentCalculs.length < nb && attempts < nb * 100) {
+            attempts++;
+            const op = selectedOps[Math.floor(Math.random() * selectedOps.length)];
+            let a, b, res, q;
+            if (op === 'x' || op === ':') {
+                const tables = selectedTables.length > 0 ? selectedTables : [1,2,3,4,5,6,7,8,9,10];
+                b = tables[Math.floor(Math.random() * tables.length)];
+                const f = Math.floor(Math.random() * 10) + 1;
+                if (op === 'x') { a = f; res = a * b; q = `${a} x ${b}`; }
+                else { a = f * b; res = f; q = `${a} ÷ ${b}`; }
+            } else {
+                a = Math.floor(Math.random() * (max - min + 1)) + min;
+                b = Math.floor(Math.random() * (max - min + 1)) + min;
+                if (op === '+') { res = a + b; q = `${a} + ${b}`; }
+                else { if (a < b) [a, b] = [b, a]; res = a - b; q = `${a} - ${b}`; }
+            }
+            if (!currentCalculs.some(c => c.q === q)) currentCalculs.push({ q: q, r: res });
+        }
+
+        const grid = document.getElementById('questions-grid');
+        grid.innerHTML = '';
+        const oldScore = document.getElementById('score-display'); if (oldScore) oldScore.remove();
+        
+        const btnActions = document.querySelectorAll('.btn-game-action');
+        btnActions.forEach(btn => {
+            if (btn.innerText.includes('Retour')) btn.style.backgroundColor = '#6b7280';
+            if (btn.id === 'validate-btn' || btn.innerText.includes('Correction') || btn.innerText.includes('Masquer')) {
+                btn.innerText = "👁️ Correction"; 
+                btn.style.backgroundColor = '#22c55e';
+            }
+            if (btn.innerText.includes('Nouveau')) btn.style.backgroundColor = '#f59e0b';
+            if (btn.innerText.includes('PDF')) btn.style.backgroundColor = '#3b82f6';
+        });
+
+        currentCalculs.forEach((calc, i) => {
+            const textClass = mode === 'vpi' ? 'vpi-text' : 'solo-text';
+            const resClass = mode === 'vpi' ? 'vpi-res' : 'solo-res';
+            
+            let interactivePart = mode === 'solo' 
+                ? `<input type="text" inputmode="decimal" class="answer-input" placeholder="?">`
+                : ``;
+            
+            grid.innerHTML += `
+                <div class="q-card relative">
+                    <span class="absolute top-1 left-2 opacity-30 text-[9px] font-black">${i+1}</span>
+                    <div class="flex items-center justify-center w-full">
+                        <span class="${textClass}">${calc.q} =</span>
+                    </div>
+                    ${interactivePart}
+                    <span class="res-text hidden ${resClass}">${calc.r}</span>
+                </div>`;
+        });
+
+        startTimer();
+        document.getElementById('setup-zone').classList.add('hidden');
+        document.getElementById('container-retour-liste').classList.add('hidden');
+        document.getElementById('game-zone').classList.remove('hidden');
+    }
+
+    function showCorrection() {
+        const inputs = document.querySelectorAll('.answer-input');
+        const firstRes = document.querySelector('.res-text');
+        const btn = document.getElementById('validate-btn');
+        if (!firstRes) return;
+        const isShowing = !firstRes.classList.contains('hidden');
+
+        if (isShowing) {
+            const scoreDiv = document.getElementById('score-display'); if (scoreDiv) scoreDiv.remove();
+            document.querySelectorAll('.res-text').forEach(el => el.classList.add('hidden'));
+            btn.innerText = "👁️ Correction";
+        } else {
+            clearInterval(countdown);
+            let score = 0;
+            
+            if (inputs.length > 0) {
+                inputs.forEach((input, i) => {
+                    const val = input.value.trim().replace(',', '.');
+                    const isCorrect = val !== "" && parseFloat(val) === currentCalculs[i].r;
+                    const resElement = input.closest('.q-card').querySelector('.res-text');
+
+                    if (isCorrect) {
+                        input.style.borderColor = "#10b981"; 
+                        input.style.backgroundColor = "rgba(16, 185, 129, 0.1)"; 
+                        score++;
+                        // Si c'est juste, on laisse la correction masquée
+                        resElement.classList.add('hidden');
+                    } else {
+                        input.style.borderColor = "#ef4444"; 
+                        input.style.backgroundColor = "rgba(239, 68, 68, 0.1)";
+                        // Si c'est faux ou vide, on affiche la correction
+                        resElement.classList.remove('hidden');
+                    }
+                });
+                
+                const scoreHtml = `<div id="score-display" class="w-full text-center p-4 mb-4 rounded-2xl border-2 border-dashed border-[var(--accent-color)]"><span class="text-3xl font-black" style="color:var(--accent-color)">Score : ${score} / ${currentCalculs.length}</span></div>`;
+                document.getElementById('questions-grid').insertAdjacentHTML('beforebegin', scoreHtml);
+            } else {
+                // Mode VPI (pas d'inputs), on affiche tout
+                document.querySelectorAll('.res-text').forEach(el => el.classList.remove('hidden'));
+            }
+            
+            btn.innerText = "🙈 Masquer";
+        }
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        doc.text("Calcul Mental", 105, 20, { align: "center" });
+        currentCalculs.forEach((c, i) => doc.text(`${i+1}) ${c.q} = .......`, 20, 40 + (i*10)));
+        doc.addPage(); doc.text("Correction", 105, 20, { align: "center" });
+        currentCalculs.forEach((c, i) => doc.text(`${i+1}) ${c.q} = ${c.r}`, 20, 40 + (i*10)));
+        doc.save(`calculs.pdf`);
+    }
+
+    function retourReglages() { clearInterval(countdown); document.getElementById('setup-zone').classList.remove('hidden'); document.getElementById('container-retour-liste').classList.remove('hidden'); document.getElementById('game-zone').classList.add('hidden'); }
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerModal(id) { document.getElementById(id).style.display = 'none'; }
+    function appliquerTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.gen || 'cyan'; 
+        const hexa = mapCouleurs[colPref] || '#06b6d4';
+        document.documentElement.style.setProperty('--accent-color', hexa);
+        
+        const elements = document.querySelectorAll('.btn-add, .ui-btn-round, #btn-retour-liste, #mainAddBtn, .btn-game-action');
+        elements.forEach(el => { 
+            if (el) {
+                el.style.backgroundColor = hexa; 
+                el.style.color = '#fff'; 
+            }
+        });
+    }
+    window.onload = () => { appliquerTheme(); initTables(); };
+</script>
+</body>
+</html>
