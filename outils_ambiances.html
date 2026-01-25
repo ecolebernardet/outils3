@@ -32,13 +32,6 @@
 
         .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 20px 15px; }
 
-        #container-retour-liste { margin-bottom: 1rem; text-align: left; }
-        #btn-retour-liste {
-            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
-            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
-            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        }
-
         .ambient-card {
             background: var(--card-bg); border-radius: 1.5rem; padding: 15px; border: 1px solid var(--column-border);
             display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
@@ -55,13 +48,12 @@
             position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; 
             background: rgba(0,0,0,0.1); display: none; cursor: pointer; z-index: 20;
         }
-        .progress-bar { height: 100%; width: 0%; background: var(--theme-color); transition: width 0.2s linear; }
+        .progress-bar { height: 100%; width: 0%; background: var(--theme-color); transition: width 0.1s linear; }
 
         .play-btn {
             width: 44px; height: 44px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             background: var(--theme-color); color: white; border: none; cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 10;
         }
 
@@ -71,19 +63,15 @@
             width: 38px; height: 38px; border-radius: 12px;
             display: none; align-items: center; justify-content: center;
             background: rgba(255, 255, 255, 0.1); border: 1px solid var(--column-border);
-            color: var(--text-page); cursor: pointer; transition: all 0.2s;
+            color: var(--text-page); cursor: pointer;
         }
-        body.light-mode .pause-btn { background: rgba(0, 0, 0, 0.05); }
         .is-playing + .pause-btn { display: flex; }
 
-        input { width: 100%; border: 1px solid var(--column-border); background: rgba(0,0,0,0.05); color: inherit; border-radius: 12px; outline: none; }
-        body.light-mode input { background: #fff; }
-
-        /* MODALE AIDE FIX */
         #modal-aide { display: none; }
         #modal-aide.active { display: flex !important; }
 
-        .bottom-nav { width: 100%; max-width: 500px; margin: 25px auto 0; padding-bottom: 40px; }
+        input { width: 100%; border: 1px solid var(--column-border); background: rgba(0,0,0,0.05); color: inherit; border-radius: 12px; outline: none; }
+        body.light-mode input { background: #fff; }
         .nav-btn { font-weight: 800; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
     </style>
 </head>
@@ -98,55 +86,52 @@
 </header>
 
 <div class="main-wrapper">
-    <div id="container-retour-liste">
-        <a href="outils.html" id="btn-retour-liste">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
-            Retour aux outils
-        </a>
-    </div>
-
     <div class="bg-[var(--card-bg)] p-5 rounded-[1.5rem] border border-[var(--column-border)] mb-6 shadow-sm">
-        <h2 id="form-legend" class="text-[10px] font-black uppercase opacity-60 mb-3">Ajouter un son YouTube</h2>
+        <h2 id="form-legend" class="text-[10px] font-black uppercase opacity-60 mb-3">Ajouter un son (YouTube ou MP3)</h2>
         <div class="flex flex-col gap-3">
-            <input type="text" id="media-title" placeholder="Nom de l'ambiance..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
-            <input type="text" id="media-url" placeholder="Lien YouTube..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
-            
-            <div class="flex flex-col gap-2">
-                <button onclick="ajouterAmbiance()" id="btn-ajouter-action" class="w-full p-3 rounded-xl font-black uppercase text-[11px] transition-transform active:scale-95">Créer le bouton</button>
-                <div id="edit-buttons" class="hidden flex gap-2">
-                    <button onclick="supprimerViaForm()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-red-500 text-white">Supprimer</button>
-                    <button onclick="annulerModification()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-neutral-500 text-white">Annuler</button>
-                </div>
+            <input type="text" id="media-title" placeholder="Nom du son..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)] transition-all">
+            <input type="text" id="media-url" placeholder="Lien YouTube ou URL .mp3..." class="p-3 text-[12px] border-2 focus:border-[var(--theme-color)]">
+            <button onclick="ajouterAmbiance()" id="btn-ajouter-action" class="w-full p-3 rounded-xl font-black uppercase text-[11px]">Créer le bouton</button>
+            <div id="edit-buttons" class="hidden flex gap-2">
+                <button onclick="supprimerViaForm()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-red-500 text-white">Supprimer</button>
+                <button onclick="annulerModification()" class="flex-1 p-3 rounded-xl font-black uppercase text-[11px] bg-neutral-500 text-white">Annuler</button>
+            </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-[var(--column-border)]">
+            <p class="text-[10px] font-black uppercase opacity-60 mb-2">Suggestions (Sans Pubs)</p>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="suggerer('Pluie Fine', 'https://cdn.pixabay.com/audio/2022/07/04/audio_3d3390f70e.mp3')" class="text-[10px] bg-neutral-800 text-white px-3 py-1.5 rounded-full hover:opacity-80">🌧️ Pluie</button>
+                <button onclick="suggerer('Forêt Zen', 'https://cdn.pixabay.com/audio/2022/01/18/audio_607af00392.mp3')" class="text-[10px] bg-neutral-800 text-white px-3 py-1.5 rounded-full hover:opacity-80">🌳 Forêt</button>
+                <button onclick="suggerer('Lofi Café', 'https://cdn.pixabay.com/audio/2022/05/27/audio_18087374ad.mp3')" class="text-[10px] bg-neutral-800 text-white px-3 py-1.5 rounded-full hover:opacity-80">☕ Lofi</button>
+                <button onclick="suggerer('Méditation', 'https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e0390.mp3')" class="text-[10px] bg-neutral-800 text-white px-3 py-1.5 rounded-full hover:opacity-80">🧘 Zen</button>
             </div>
         </div>
     </div>
 
     <div id="ambiances-list"></div>
 
-    <footer class="bottom-nav flex flex-col gap-3">
+    <footer class="mt-10 flex flex-col gap-3">
         <div class="flex gap-2">
-            <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">👇importer .txt👇<input type="file" id="importFile" class="hidden" accept=".txt"></label>
-            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">👆exporter .txt👆<span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span></button>
+            <label class="nav-btn bg-neutral-800 text-white cursor-pointer"><input type="file" id="importFile" class="hidden" accept=".txt">👇 Importer</label>
+            <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white">👆 Exporter</button>
         </div>
-        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100">⚠️ effacer les données</button>
+        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-white">⚠️ Effacer tout</button>
     </footer>
 </div>
 
-<div id="yt-player" style="width: 1px; height: 1px; position: absolute; opacity: 0.01; pointer-events: none;"></div>
+<div id="yt-player" style="width: 1px; height: 1px; position: absolute; opacity: 0.01;"></div>
+<audio id="audio-player" class="hidden"></audio>
 
 <div id="modal-aide" onclick="fermerAideParOverlay(event)" class="fixed inset-0 z-[200] items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="bg-[var(--card-bg)] w-full max-w-md rounded-[2rem] border border-[var(--column-border)] p-6 text-center" onclick="event.stopPropagation()">
         <h3 class="text-lg font-black uppercase mb-4">Aide</h3>
-        <p class="text-sm opacity-80 mb-4 text-left">• <strong>Modifier :</strong> Cliquez sur le titre.<br>• <strong>Pause :</strong> Un bouton pause apparaît dès que la lecture commence.<br>• <strong>Mobile :</strong> Si le son ne sort pas, assurez-vous que votre téléphone n'est pas en mode "silencieux".</p>
-        <button onclick="fermerAide()" id="btn-compris" class="w-full p-4 rounded-xl font-black uppercase text-[12px]">J'ai compris</button>
-    </div>
-</div>
-
-<div id="alertModal" onclick="closeAlert()" class="fixed inset-0 bg-black/85 z-[3000] hidden items-center justify-center p-5">
-    <div class="bg-white p-6 rounded-[24px] w-full max-w-[350px]" onclick="event.stopPropagation()">
-        <h3 id="alertTitle" class="text-lg font-black uppercase text-center mb-2 text-black">Confirmation</h3>
-        <p id="alertText" class="text-sm font-semibold text-center text-gray-600 mb-6"></p>
-        <button id="alertConfirmBtn" class="w-full py-4 rounded-2xl font-black text-[11px] uppercase text-white">Confirmer</button>
+        <p class="text-sm opacity-80 mb-4 text-left">
+            • <strong>MP3 :</strong> Pour éviter les pubs, utilisez des liens directs finit par .mp3.<br>
+            • <strong>Mobile :</strong> Activez le son de votre téléphone (pas de mode vibreur).<br>
+            • <strong>Pause :</strong> Cliquez sur le bouton pause à côté du stop.
+        </p>
+        <button onclick="fermerAide()" id="btn-compris" class="w-full p-4 rounded-xl font-black uppercase text-[12px]">Compris</button>
     </div>
 </div>
 
@@ -154,15 +139,16 @@
 <script>
     if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
-    const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue') ? '#000' : '#fff';
+    const mapCouleurs = { 'red': '#ef4444', 'blue': '#3b82f6', 'green': '#22c55e', 'orange': '#f97316' };
+    const themeColor = mapCouleurs[themePrefs.outils || 'blue'] || '#3b82f6';
+    const contrast = '#fff';
 
     document.documentElement.style.setProperty('--theme-color', themeColor);
-    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action, #btn-compris, #btn-retour-liste').forEach(b => { if(b){b.style.backgroundColor = themeColor; b.style.color = contrast;} });
+    document.querySelectorAll('#btn-retour, #btn-aide, #btn-ajouter-action, #btn-compris').forEach(b => { if(b){b.style.backgroundColor = themeColor; b.style.color = contrast;} });
 
     let mesAmbiances = JSON.parse(localStorage.getItem('ambiances_zen')) || [];
     let ytPlayer = null;
+    let audioPlayer = document.getElementById('audio-player');
     let progressInterval = null;
     let editModeUrl = null;
 
@@ -178,24 +164,25 @@
         list.innerHTML = "";
         mesAmbiances.forEach((data, index) => {
             const cardId = `card-${index}`;
+            const isMp3 = data.embedUrl.includes('.mp3');
             const div = document.createElement('div');
+            div.className = 'ambient-card';
             div.id = cardId;
-            div.className = 'ambient-card cursor-pointer active:scale-[0.98] transition-transform';
             div.innerHTML = `
                 <div class="flex items-center gap-4 overflow-hidden flex-1" onclick="remplirFormulaire('${data.title.replace(/'/g, "\\'")}', '${data.embedUrl}')">
-                    <img src="${data.thumb}" class="w-12 h-12 rounded-lg object-cover bg-gray-800">
+                    <div class="w-12 h-12 rounded-lg bg-neutral-800 flex items-center justify-center text-xl">${isMp3 ? '🎵' : '📺'}</div>
                     <div class="overflow-hidden">
                         <h2 class="font-black text-[12px] uppercase truncate">${data.title}</h2>
-                        <p class="text-[9px] font-bold opacity-50 uppercase">YouTube</p>
+                        <p class="text-[9px] font-bold opacity-50 uppercase">${isMp3 ? 'Fichier Audio' : 'YouTube'}</p>
                     </div>
                 </div>
                 <div class="play-btn-container">
                     <span class="time-display" id="time-${cardId}">00:00 / 00:00</span>
                     <div class="controls-group">
-                        <button class="play-btn" onclick="toggleLecteur('${data.embedUrl}', this, '${cardId}')" style="background:${themeColor}; color:${contrast}">
+                        <button class="play-btn" onclick="toggleLecteur('${data.embedUrl}', this, '${cardId}')">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </button>
-                        <button class="pause-btn" onclick="pauseLecteur(event)" title="Pause">
+                        <button class="pause-btn" onclick="pauseLecteur(event)">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 9v6m4-6v6" /></svg>
                         </button>
                     </div>
@@ -206,171 +193,133 @@
         });
     }
 
-    function ouvrirAide() { document.getElementById('modal-aide').classList.add('active'); }
-    function fermerAide() { document.getElementById('modal-aide').classList.remove('active'); }
-    function fermerAideParOverlay(e) { if (e.target.id === 'modal-aide') fermerAide(); }
-
-    function pauseLecteur(event) {
-        event.stopPropagation();
-        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-            const state = ytPlayer.getPlayerState();
-            if (state === YT.PlayerState.PLAYING) {
-                ytPlayer.pauseVideo();
-                event.currentTarget.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>';
-            } else {
-                ytPlayer.playVideo();
-                event.currentTarget.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 9v6m4-6v6" /></svg>';
-            }
-        }
+    function suggerer(titre, url) {
+        document.getElementById('media-title').value = titre;
+        document.getElementById('media-url').value = url;
+        document.getElementById('media-title').focus();
     }
 
     function toggleLecteur(url, btn, cardId) {
-    const isPlaying = btn.classList.contains('is-playing');
-    const timeDisplay = document.getElementById(`time-${cardId}`);
-    const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-    const stopIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 10h6v4H9z" /></svg>';
+        const isPlaying = btn.classList.contains('is-playing');
+        resetUI();
 
-    clearInterval(progressInterval);
-    
-    // Reset de l'interface
-    document.querySelectorAll('.progress-container').forEach(c => c.style.display = 'none');
-    document.querySelectorAll('.time-display').forEach(t => t.innerText = '00:00 / 00:00');
-    document.querySelectorAll('.play-btn').forEach(b => { 
-        b.classList.remove('is-playing'); 
-        b.style.backgroundColor = themeColor; 
-        b.innerHTML = playIcon; 
-    });
+        if (!isPlaying) {
+            btn.classList.add('is-playing');
+            btn.innerHTML = '■';
+            const bar = document.getElementById(cardId).querySelector('.progress-bar');
+            const timeDisp = document.getElementById(`time-${cardId}`);
+            document.getElementById(cardId).querySelector('.progress-container').style.display = 'block';
 
-    if (!isPlaying) {
-        btn.classList.add('is-playing'); 
-        btn.innerHTML = stopIcon;
-        const bar = document.getElementById(cardId).querySelector('.progress-bar');
-        document.getElementById(cardId).querySelector('.progress-container').style.display = 'block';
-
-        const videoId = url.split('embed/')[1]?.split('?')[0];
-        
-        if (ytPlayer) {
-            ytPlayer.destroy();
-        }
-        
-        // Création du lecteur (Mobile friendly)
-        ytPlayer = new YT.Player('yt-player', {
-            height: '1',
-            width: '1',
-            videoId: videoId,
-            playerVars: { 
-                'autoplay': 1, 
-                'controls': 0, 
-                'playsinline': 1, // Crucial pour iOS
-                'enablejsapi': 1,
-                'origin': window.location.origin
-            },
-            events: {
-                onReady: (e) => {
-                    // Sur certains mobiles, il faut un deuxième déclenchement explicite
-                    e.target.mute(); // Optionnel: certains navigateurs autorisent l'autoplay si muet au départ
-                    e.target.playVideo();
-                    setTimeout(() => { e.target.unMute(); e.target.setVolume(100); }, 100);
-                    
-                    const total = formatTime(e.target.getDuration());
-                    progressInterval = setInterval(() => {
-                        if(e.target.getPlayerState() === YT.PlayerState.PLAYING) {
-                            const cur = e.target.getCurrentTime();
-                            const dur = e.target.getDuration();
-                            bar.style.width = (cur / dur * 100) + '%';
-                            timeDisplay.innerText = `${formatTime(cur)} / ${total}`;
+            if (url.endsWith('.mp3') || url.includes('pixabay.com')) {
+                audioPlayer.src = url;
+                audioPlayer.play();
+                progressInterval = setInterval(() => {
+                    const cur = audioPlayer.currentTime;
+                    const dur = audioPlayer.duration;
+                    bar.style.width = (cur / dur * 100) + '%';
+                    timeDisp.innerText = `${formatTime(cur)} / ${formatTime(dur)}`;
+                }, 500);
+            } else {
+                const videoId = url.split('embed/')[1]?.split('?')[0] || url.split('v=')[1]?.split('&')[0];
+                if(ytPlayer) ytPlayer.destroy();
+                ytPlayer = new YT.Player('yt-player', {
+                    videoId: videoId,
+                    playerVars: { 'autoplay': 1, 'playsinline': 1, 'controls': 0 },
+                    events: {
+                        onReady: (e) => {
+                            e.target.playVideo();
+                            progressInterval = setInterval(() => {
+                                const cur = e.target.getCurrentTime();
+                                const dur = e.target.getDuration();
+                                bar.style.width = (cur / dur * 100) + '%';
+                                timeDisp.innerText = `${formatTime(cur)} / ${formatTime(dur)}`;
+                            }, 1000);
                         }
-                    }, 1000);
-                },
-                onStateChange: (e) => { 
-                    if (e.data === YT.PlayerState.ENDED) toggleLecteur(url, btn, cardId); 
-                }
+                    }
+                });
             }
-        });
-    } else {
-        if (ytPlayer) {
-            ytPlayer.stopVideo();
-            ytPlayer.destroy();
-            ytPlayer = null;
+        } else {
+            stopTout();
         }
     }
-}
+
+    function pauseLecteur(event) {
+        event.stopPropagation();
+        if (!audioPlayer.paused) { audioPlayer.pause(); } 
+        else if (ytPlayer && ytPlayer.getPlayerState() === 1) { ytPlayer.pauseVideo(); }
+        else { audioPlayer.play(); if(ytPlayer) ytPlayer.playVideo(); }
+    }
+
+    function resetUI() {
+        clearInterval(progressInterval);
+        document.querySelectorAll('.play-btn').forEach(b => { 
+            b.classList.remove('is-playing'); 
+            b.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'; 
+        });
+        document.querySelectorAll('.progress-container').forEach(c => c.style.display = 'none');
+    }
+
+    function stopTout() {
+        audioPlayer.pause(); audioPlayer.src = "";
+        if(ytPlayer) { try { ytPlayer.stopVideo(); ytPlayer.destroy(); } catch(e){} ytPlayer = null; }
+        resetUI();
+    }
 
     function seekAudio(event, container) {
-        event.stopPropagation();
-        if (!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
         const rect = container.getBoundingClientRect();
         const p = (event.clientX - rect.left) / rect.width;
-        ytPlayer.seekTo(ytPlayer.getDuration() * p, true);
-    }
-
-    function remplirFormulaire(t, u) {
-        editModeUrl = u;
-        document.getElementById('media-title').value = t;
-        document.getElementById('media-url').value = u;
-        document.getElementById('form-legend').innerText = "Modifier l'ambiance";
-        document.getElementById('btn-ajouter-action').innerText = "Mettre à jour";
-        document.getElementById('edit-buttons').classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function annulerModification() {
-        editModeUrl = null;
-        document.getElementById('media-title').value = ""; document.getElementById('media-url').value = "";
-        document.getElementById('form-legend').innerText = "Ajouter un son YouTube";
-        document.getElementById('btn-ajouter-action').innerText = "Créer le bouton";
-        document.getElementById('edit-buttons').classList.add('hidden');
+        if (audioPlayer.src) audioPlayer.currentTime = audioPlayer.duration * p;
+        if (ytPlayer) ytPlayer.seekTo(ytPlayer.getDuration() * p, true);
     }
 
     function ajouterAmbiance() {
         const u = document.getElementById('media-url').value.trim();
         const t = document.getElementById('media-title').value.trim();
         if (!u || !t) return;
-        let id = u.includes('v=') ? u.split('v=')[1].split('&')[0] : u.split('/').pop().split('?')[0];
         if (editModeUrl) mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl);
-        let data = { title: t, thumb: `https://img.youtube.com/vi/${id}/mqdefault.jpg`, embedUrl: `https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`, type: "YouTube" };
-        mesAmbiances.unshift(data);
+        
+        let finalUrl = u;
+        if (u.includes('youtube.com') && !u.includes('embed')) {
+            const id = u.split('v=')[1]?.split('&')[0];
+            if(id) finalUrl = `https://www.youtube.com/embed/${id}?enablejsapi=1&autoplay=1`;
+        }
+        
+        mesAmbiances.unshift({ title: t, embedUrl: finalUrl });
         localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
         renderList(); annulerModification();
     }
 
-    function showAlert(t, tx, c) {
-        document.getElementById('alertTitle').innerText = t; document.getElementById('alertText').innerText = tx;
-        const b = document.getElementById('alertConfirmBtn'); b.style.backgroundColor = themeColor;
-        b.onclick = () => { closeAlert(); c(); };
-        document.getElementById('alertModal').style.display = 'flex';
-    }
-    function closeAlert() { document.getElementById('alertModal').style.display = 'none'; }
-    function toutEffacer() { showAlert("Tout effacer ?", "Vider la liste ?", () => { mesAmbiances = []; localStorage.setItem('ambiances_zen', JSON.stringify([])); renderList(); }); }
     function exportToFile() {
-    // Génération de la date au format AAAAMMJJ
-    const maintenant = new Date();
-    const annee = maintenant.getFullYear();
-    const mois = String(maintenant.getMonth() + 1).padStart(2, '0');
-    const jour = String(maintenant.getDate()).padStart(2, '0');
-    const dateFormatee = `${annee}-${mois}-${jour}`;
-
-    // Contenu du fichier
-    let txt = mesAmbiances.map(a => `${a.title};${a.embedUrl};${a.thumb};${a.type}`).join("\n");
-    
-    // Création du lien de téléchargement avec le nouveau nom
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
-    a.download = `outilsprofs_ambiances_${dateFormatee}.txt`;
-    a.click();
-}
-    function supprimerViaForm() {
-        if (editModeUrl) {
-            showAlert("Supprimer ?", "Supprimer cet élément ?", () => {
-                mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl);
-                localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances));
-                renderList(); annulerModification();
-            });
-        }
+        const d = new Date().toISOString().slice(0,10).replace(/-/g,"");
+        const txt = JSON.stringify(mesAmbiances);
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
+        a.download = `outilsprofs_ambiances_${d}.txt`;
+        a.click();
     }
+
+    function ouvrirAide() { document.getElementById('modal-aide').classList.add('active'); }
+    function fermerAide() { document.getElementById('modal-aide').classList.remove('active'); }
+    function fermerAideParOverlay(e) { if (e.target.id === 'modal-aide') fermerAide(); }
+    function remplirFormulaire(t, u) { 
+        document.getElementById('media-title').value = t; 
+        document.getElementById('media-url').value = u; 
+        editModeUrl = u; 
+        document.getElementById('edit-buttons').classList.remove('hidden'); 
+        document.getElementById('form-legend').innerText = "Modifier le son";
+    }
+    function annulerModification() { 
+        editModeUrl = null; 
+        document.getElementById('media-title').value = ""; 
+        document.getElementById('media-url').value = ""; 
+        document.getElementById('edit-buttons').classList.add('hidden'); 
+        document.getElementById('form-legend').innerText = "Ajouter un son (YouTube ou MP3)";
+    }
+    function toutEffacer() { if(confirm("Effacer tout ?")) { mesAmbiances = []; localStorage.setItem('ambiances_zen', "[]"); renderList(); } }
+    function supprimerViaForm() { if(editModeUrl) { mesAmbiances = mesAmbiances.filter(a => a.embedUrl !== editModeUrl); localStorage.setItem('ambiances_zen', JSON.stringify(mesAmbiances)); renderList(); annulerModification(); } }
 
     window.onYouTubeIframeAPIReady = () => {};
-    window.onload = () => { renderList(); };
+    window.onload = renderList;
 </script>
 </body>
 </html>
