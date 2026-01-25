@@ -132,7 +132,7 @@
     </footer>
 </div>
 
-<div id="yt-player" style="position: absolute; top: -9999px; left: -9999px;"></div>
+<div id="yt-player" style="width: 1px; height: 1px; position: absolute; opacity: 0.01; pointer-events: none;"></div>
 
 <div id="modal-aide" onclick="fermerAideParOverlay(event)" class="fixed inset-0 z-[200] items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
     <div class="bg-[var(--card-bg)] w-full max-w-md rounded-[2rem] border border-[var(--column-border)] p-6 text-center" onclick="event.stopPropagation()">
@@ -225,49 +225,76 @@
     }
 
     function toggleLecteur(url, btn, cardId) {
-        const isPlaying = btn.classList.contains('is-playing');
-        const timeDisplay = document.getElementById(`time-${cardId}`);
-        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-        const stopIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 10h6v4H9z" /></svg>';
-        const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 9v6m4-6v6" /></svg>';
+    const isPlaying = btn.classList.contains('is-playing');
+    const timeDisplay = document.getElementById(`time-${cardId}`);
+    const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+    const stopIcon = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 10h6v4H9z" /></svg>';
 
-        clearInterval(progressInterval);
-        document.querySelectorAll('.progress-container').forEach(c => c.style.display = 'none');
-        document.querySelectorAll('.time-display').forEach(t => t.innerText = '00:00 / 00:00');
-        document.querySelectorAll('.play-btn').forEach(b => { b.classList.remove('is-playing'); b.style.backgroundColor = themeColor; b.innerHTML = playIcon; });
-        document.querySelectorAll('.pause-btn').forEach(pb => pb.innerHTML = pauseIcon);
+    clearInterval(progressInterval);
+    
+    // Reset de l'interface
+    document.querySelectorAll('.progress-container').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.time-display').forEach(t => t.innerText = '00:00 / 00:00');
+    document.querySelectorAll('.play-btn').forEach(b => { 
+        b.classList.remove('is-playing'); 
+        b.style.backgroundColor = themeColor; 
+        b.innerHTML = playIcon; 
+    });
 
-        if (!isPlaying) {
-            btn.classList.add('is-playing'); btn.innerHTML = stopIcon;
-            const bar = document.getElementById(cardId).querySelector('.progress-bar');
-            document.getElementById(cardId).querySelector('.progress-container').style.display = 'block';
+    if (!isPlaying) {
+        btn.classList.add('is-playing'); 
+        btn.innerHTML = stopIcon;
+        const bar = document.getElementById(cardId).querySelector('.progress-bar');
+        document.getElementById(cardId).querySelector('.progress-container').style.display = 'block';
 
-            const videoId = url.split('embed/')[1]?.split('?')[0];
-            if (ytPlayer) ytPlayer.destroy();
-            
-            ytPlayer = new YT.Player('yt-player', {
-                height: '0', width: '0', videoId: videoId,
-                playerVars: { 'autoplay': 1, 'controls': 0, 'playsinline': 1 },
-                events: {
-                    onReady: (e) => {
-                        e.target.playVideo();
-                        const total = formatTime(e.target.getDuration());
-                        progressInterval = setInterval(() => {
-                            if(e.target.getPlayerState() === YT.PlayerState.PLAYING) {
-                                const cur = e.target.getCurrentTime();
-                                const dur = e.target.getDuration();
-                                bar.style.width = (cur / dur * 100) + '%';
-                                timeDisplay.innerText = `${formatTime(cur)} / ${total}`;
-                            }
-                        }, 1000);
-                    },
-                    onStateChange: (e) => { if (e.data === YT.PlayerState.ENDED) toggleLecteur(url, btn, cardId); }
+        const videoId = url.split('embed/')[1]?.split('?')[0];
+        
+        if (ytPlayer) {
+            ytPlayer.destroy();
+        }
+        
+        // Création du lecteur (Mobile friendly)
+        ytPlayer = new YT.Player('yt-player', {
+            height: '1',
+            width: '1',
+            videoId: videoId,
+            playerVars: { 
+                'autoplay': 1, 
+                'controls': 0, 
+                'playsinline': 1, // Crucial pour iOS
+                'enablejsapi': 1,
+                'origin': window.location.origin
+            },
+            events: {
+                onReady: (e) => {
+                    // Sur certains mobiles, il faut un deuxième déclenchement explicite
+                    e.target.mute(); // Optionnel: certains navigateurs autorisent l'autoplay si muet au départ
+                    e.target.playVideo();
+                    setTimeout(() => { e.target.unMute(); e.target.setVolume(100); }, 100);
+                    
+                    const total = formatTime(e.target.getDuration());
+                    progressInterval = setInterval(() => {
+                        if(e.target.getPlayerState() === YT.PlayerState.PLAYING) {
+                            const cur = e.target.getCurrentTime();
+                            const dur = e.target.getDuration();
+                            bar.style.width = (cur / dur * 100) + '%';
+                            timeDisplay.innerText = `${formatTime(cur)} / ${total}`;
+                        }
+                    }, 1000);
+                },
+                onStateChange: (e) => { 
+                    if (e.data === YT.PlayerState.ENDED) toggleLecteur(url, btn, cardId); 
                 }
-            });
-        } else {
-            if (ytPlayer) ytPlayer.stopVideo();
+            }
+        });
+    } else {
+        if (ytPlayer) {
+            ytPlayer.stopVideo();
+            ytPlayer.destroy();
+            ytPlayer = null;
         }
     }
+}
 
     function seekAudio(event, container) {
         event.stopPropagation();
