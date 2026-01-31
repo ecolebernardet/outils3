@@ -356,12 +356,19 @@
         const gridEl = document.getElementById('word-grid');
         const canvas = document.getElementById('correction-canvas');
         
+        // 1. On affiche d'abord la zone pour que le navigateur puisse calculer les dimensions réelles
+        document.getElementById('setup-zone').classList.add('hidden');
+        document.getElementById('game-zone').classList.remove('hidden');
+
         const isDesktop = window.innerWidth > 768;
-        // On réduit un peu la baseSize PC (de 55 à 48) pour éviter le débordement
-        const baseSize = isDesktop ? 48 : 40; 
-        const cellSize = Math.max(isDesktop ? 20 : 18, baseSize - (gridSize * 1.1)); 
         
-        const fontSize = Math.max(isDesktop ? 12 : 9, cellSize * 0.6);
+        // 2. Maintenant on calcule la largeur disponible réelle
+        const containerWidth = document.querySelector('.main-wrapper').offsetWidth - 30;
+        const maxCellSize = Math.floor(containerWidth / gridSize);
+        
+        // On limite la taille sur PC pour ne pas avoir des carreaux géants
+        const cellSize = isDesktop ? Math.min(42, maxCellSize) : maxCellSize;
+        const fontSize = Math.max(10, cellSize * 0.55);
         const gap = 2;
         
         gridEl.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -369,7 +376,7 @@
             `<div class="grid-cell" onclick="toggleCell(this)" data-sol="${obj.isSolution}" style="font-size: ${fontSize}px; width:${cellSize}px; height:${cellSize}px;">${obj.char}</div>`
         ).join('');
         
-        const totalSize = (gridSize * cellSize) + ((gridSize + 1) * gap);
+        const totalSize = (gridSize * cellSize) + ((gridSize - 1) * gap);
         canvas.width = totalSize; canvas.height = totalSize;
         document.getElementById('display-title').innerText = title;
 
@@ -388,8 +395,6 @@
         }
         document.getElementById('words-to-find').innerHTML = htmlWords;
         
-        document.getElementById('setup-zone').classList.add('hidden');
-        document.getElementById('game-zone').classList.remove('hidden');
         document.getElementById('btn-reveal').innerHTML = "👁️ Afficher la correction";
         appliquerTheme();
     }
