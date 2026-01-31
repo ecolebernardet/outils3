@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sudokus - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --accent-color: #06b6d4; --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-mode {
+            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        
+        header { 
+            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%; margin-bottom: 12px;
+        }
+
+        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
+        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+
+        .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 10px 15px 40px; }
+        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
+        
+        .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 10px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; }
+        
+        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-add:active { transform: scale(0.95); }
+
+        .btn-game-action { height: 40px; border-radius: 9999px; font-size: 10px; font-weight: 900; color: white; transition: all 0.2s ease; text-transform: uppercase; padding: 0 15px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+        .q-card { background: var(--card-bg); border-radius: 0.75rem; padding: 15px; border: 1px solid var(--column-border); display: flex; flex-direction: column; align-items: center; }
+        
+        .sudoku-grid { 
+            display: grid; 
+            border: 2px solid #000000; 
+            width: 100%; 
+            max-width: 320px; 
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            background: #000000;
+            gap: 0px;
+        }
+
+        .sudoku-cell {
+            background: #ffffff !important;
+            border: 0.5px solid rgba(0,0,0,0.15); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 18px; 
+            font-weight: 900; 
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            appearance: none;
+            -moz-appearance: textfield;
+            margin: 0;
+            padding: 0;
+            border-radius: 0;
+            outline: none;
+            color: #000000;
+        }
+
+        .cell-fixed { color: #000000; opacity: 0.75; cursor: default; }
+        .cell-input { color: #000000; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+
+        @media (min-width: 768px) {
+            .main-wrapper { max-width: 950px; }
+            #questions-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+</script>
+
+<header>
+    <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1>Générateur Sudoku</h1>
+    <button id="btn-aide" onclick="document.getElementById('modal-aide').style.display='flex'" class="ui-btn-round active:scale-90 text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div id="container-retour-liste" class="mb-4 text-left">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux générateurs
+        </a>
+    </div>
+
+    <div id="setup-zone" class="light-card space-y-4">
+        <div>
+            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Titre de la fiche</label>
+            <input type="text" id="quiz-title" class="input-field mb-4" placeholder="Ex: Défi Sudoku">
+            
+            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Taille de la grille</label>
+            <div class="grid grid-cols-2 gap-1 bg-black/10 p-1 rounded-xl mb-4">
+                <button onclick="setGridSize(6)" id="size-6" class="p-2 text-[9px] font-bold transition-all">6 x 6</button>
+                <button onclick="setGridSize(9)" id="size-9" class="p-2 text-[9px] font-bold transition-all">9 x 9</button>
+            </div>
+
+            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Nombre de cases vides</label>
+            <input type="range" id="difficulty" min="15" max="55" value="35" class="w-full accent-cyan-500">
+        </div>
+
+        <button id="mainAddBtn" onclick="generateSudokus()" class="btn-add">Générer les grilles</button>
+    </div>
+
+    <div id="game-zone" class="hidden space-y-6">
+        <div id="questions-grid" class="grid grid-cols-1 gap-4"></div>
+        <div class="flex flex-wrap justify-center gap-3 pt-4">
+            <button onclick="retourReglages()" class="btn-game-action bg-gray-500">⬅️ retour</button>
+            <button id="btn-reponses" onclick="document.getElementById('modal-confirm-reponses').style.display='flex'" class="btn-game-action bg-orange-500">🔓 réponses</button>
+            <button id="validate-btn" onclick="showCorrection()" class="btn-game-action bg-green-500">👁️ correction</button>
+            <button onclick="exportToPDF()" class="btn-game-action bg-blue-500">📄 PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-confirm-reponses" class="modal-overlay">
+    <div class="modal-content text-center">
+        <h2 class="text-xl font-black uppercase mb-2">Voir les solutions ?</h2>
+        <div class="flex gap-3 mt-6">
+            <button onclick="document.getElementById('modal-confirm-reponses').style.display='none'" class="flex-1 py-3 rounded-xl bg-gray-500 text-white">Non</button>
+            <button onclick="validerVoirReponses()" class="flex-1 py-3 rounded-xl bg-orange-500 text-white">Oui</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
+    let currentGrids = [], currentSize = 9;
+
+    function appliquerTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.gen || 'cyan'; 
+        const hexa = mapCouleurs[colPref];
+        const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref) ? '#000' : '#fff';
+        document.documentElement.style.setProperty('--accent-color', hexa);
+        const btns = [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('mainAddBtn')];
+        btns.forEach(b => { if(b) { b.style.backgroundColor = hexa; b.style.color = contrast; } });
+        setGridSize(9);
+    }
+
+    function setGridSize(s) {
+        currentSize = s;
+        const b6 = document.getElementById('size-6'), b9 = document.getElementById('size-9');
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+        [b6, b9].forEach(b => b.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;");
+        const active = (s === 6) ? b6 : b9;
+        active.style.cssText = `background-color: ${accent} !important; color: white !important; border-radius: 9999px;`;
+    }
+
+    function generateSudokuData() {
+        const s = currentSize;
+        const bW = 3, bH = (s === 6) ? 2 : 3;
+        let grid = Array.from({length: s}, () => Array(s).fill(0));
+
+        const isValid = (g, r, c, v) => {
+            for(let i=0; i<s; i++) if(g[r][i] === v || g[i][c] === v) return false;
+            let sR = Math.floor(r / bH) * bH, sC = Math.floor(c / bW) * bW;
+            for(let i=0; i<bH; i++) for(let j=0; j<bW; j++) if(g[i+sR][j+sC] === v) return false;
+            return true;
+        };
+
+        const solve = (g) => {
+            for(let r=0; r<s; r++) for(let c=0; c<s; c++) {
+                if(g[r][c] === 0) {
+                    let nums = Array.from({length: s}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+                    for(let v of nums) if(isValid(g, r, c, v)) {
+                        g[r][c] = v; if(solve(g)) return true; g[r][c] = 0;
+                    }
+                    return false;
+                }
+            } return true;
+        };
+
+        solve(grid);
+        let puzzle = grid.map(row => [...row]);
+        let holes = parseInt(document.getElementById('difficulty').value);
+        if(s === 6) holes = Math.floor(holes * 0.5);
+        while(holes > 0) {
+            let r = Math.floor(Math.random()*s), c = Math.floor(Math.random()*s);
+            if(puzzle[r][c] !== 0) { puzzle[r][c] = 0; holes--; }
+        }
+        return { solution: grid, puzzle: puzzle, size: s, bW, bH };
+    }
+
+    function renderSudokuHTML(data) {
+        let html = `<div class="sudoku-grid" style="grid-template-columns: repeat(${data.size}, 1fr);">`;
+        data.puzzle.forEach((row, r) => {
+            row.forEach((val, c) => {
+                let border = "";
+                if((c+1) % data.bW === 0 && (c+1) < data.size) border += "border-right: 2.5px solid #000000;";
+                if((r+1) % data.bH === 0 && (r+1) < data.size) border += "border-bottom: 2.5px solid #000000;";
+                if(val !== 0) {
+                    html += `<div class="sudoku-cell cell-fixed" style="${border}">${val}</div>`;
+                } else {
+                    html += `<input type="tel" maxlength="1" class="sudoku-cell cell-input user-input" style="${border}" 
+                                data-ans="${data.solution[r][c]}" 
+                                onclick="if(this.style.color === 'rgb(239, 68, 68)') { this.value = ''; this.style.setProperty('color', '#000000', 'important'); }"
+                                oninput="this.value=this.value.replace(/[^1-${data.size}]/g,''); this.style.setProperty('color', '#000000', 'important');">`;
+                }
+            });
+        });
+        return html + "</div>";
+    }
+
+    function generateSudokus() {
+        currentGrids = [generateSudokuData(), generateSudokuData()];
+        const gridContainer = document.getElementById('questions-grid');
+        gridContainer.innerHTML = '';
+        currentGrids.forEach((g, i) => {
+            gridContainer.innerHTML += `<div class="q-card"><div class="text-[9px] font-black uppercase opacity-40 mb-2">Grille n°${i+1}</div>${renderSudokuHTML(g)}</div>`;
+        });
+        document.getElementById('setup-zone').classList.add('hidden');
+        document.getElementById('game-zone').classList.remove('hidden');
+    }
+
+    function showCorrection() {
+        document.querySelectorAll('.user-input').forEach(input => {
+            const userVal = input.value.trim();
+            const correctVal = String(input.dataset.ans);
+            if (userVal === correctVal) input.style.setProperty('color', '#22c55e', 'important');
+            else if (userVal !== "") input.style.setProperty('color', '#ef4444', 'important');
+        });
+    }
+
+    function validerVoirReponses() {
+        document.querySelectorAll('.user-input').forEach(input => {
+            input.value = input.dataset.ans;
+            input.style.setProperty('color', '#000000', 'important');
+            input.readOnly = true;
+        });
+        document.getElementById('modal-confirm-reponses').style.display = 'none';
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const date = new Date().toISOString().slice(0,10).replace(/-/g,"");
+        const filename = `outilsprofs_sudoku_${currentSize}x${currentSize}_${date}.pdf`;
+
+        const draw = (data, startX, startY, isCorr) => {
+            const size = 70, cellSize = size / data.size;
+            doc.setDrawColor(180);
+            data.puzzle.forEach((row, r) => row.forEach((val, c) => {
+                const x = startX + c*cellSize, y = startY + r*cellSize;
+                doc.rect(x, y, cellSize, cellSize);
+                let v = val !== 0 ? val : (isCorr ? data.solution[r][c] : "");
+                if(v) {
+                    doc.setFontSize(14);
+                    doc.setTextColor(val === 0 && isCorr ? 220 : 0, 0, 0);
+                    doc.text(String(v), x + cellSize/2, y + cellSize/2 + 2, {align:"center"});
+                }
+            }));
+            doc.setDrawColor(0); doc.setLineWidth(0.8);
+            for(let i=0; i<=data.size; i++) {
+                if(i % data.bW === 0) doc.line(startX + i*cellSize, startY, startX + i*cellSize, startY + size);
+                if(i % data.bH === 0) doc.line(startX, startY + i*cellSize, startX + size, startY + i*cellSize);
+            }
+        };
+
+        const title = document.getElementById('quiz-title').value || "Sudoku";
+        doc.text(title, 105, 15, {align:"center"});
+        draw(currentGrids[0], 20, 30, false); draw(currentGrids[1], 115, 30, false);
+        doc.addPage();
+        doc.text(title + " (Correction)", 105, 15, {align:"center"});
+        draw(currentGrids[0], 20, 30, true); draw(currentGrids[1], 115, 30, true);
+
+        // Méthode compatible Android
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function retourReglages() { 
+        document.getElementById('game-zone').classList.add('hidden');
+        document.getElementById('setup-zone').classList.remove('hidden');
+    }
+
+    window.onload = appliquerTheme;
+</script>
+</body>
+</html>
