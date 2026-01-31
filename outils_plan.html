@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Plan Vectoriel Pro - OutilsProfs</title>
+    <title>Plan de la classe - OutilsProfs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -285,6 +285,10 @@
             
             const text = document.createElementNS(SVG_NS, "text");
             text.setAttribute("class", "desk-label");
+			text.setAttribute("x", "0"); // Centre par rapport au milieu du groupe
+			text.setAttribute("y", "0"); // Aligne verticalement au centre du groupe
+			text.setAttribute("text-anchor", "middle"); // Doublon de sécurité pour le PDF
+			text.setAttribute("dominant-baseline", "central"); // Centrage vertical précis
             text.textContent = student.name;
             
             g.appendChild(rect); g.appendChild(chair); g.appendChild(text);
@@ -391,25 +395,67 @@
     function confirmerToutEffacer() { document.getElementById('modal-confirm').style.display = 'flex'; }
     function toutEffacer() { pushHistory(); studentData = []; selectedIndex = null; sync(); fermerModale('modal-confirm'); }
 
+function getExportFileName(extension) {
+    // Récupération du nom de l'enseignant depuis le localStorage
+    // (Clé utilisée dans maclasse.html pour l'input #nomEnseignant)
+    const nomEnregistre = localStorage.getItem('nom_enseignant') || "enseignant";
+    
+    // Nettoyage du nom : minuscule, remplace espaces par underscores, retire les caractères spéciaux
+    const nomPropre = nomEnregistre
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents
+        .replace(/[^a-z0-9]/g, '_') // Remplace tout ce qui n'est pas alphanumérique par _
+        .replace(/_+/g, '_'); // Évite les doubles underscores
+    
+    // Date au format AAAAMMJJ
+    const maintenant = new Date();
+    const dateStr = maintenant.getFullYear() + 
+                    String(maintenant.getMonth() + 1).padStart(2, '0') + 
+                    String(maintenant.getDate()).padStart(2, '0');
+    
+    return `outilsprofs_plan_de_la_classe_${nomPropre}_${dateStr}.${extension}`;
+}
+
     function exportPDF() {
-        const svg = document.getElementById('plan-svg');
-        const { jsPDF } = window.jspdf;
-        const svgClone = svg.cloneNode(true);
-        svgClone.style.backgroundColor = "white";
-        svgClone.querySelectorAll('.desk-group').forEach(g => g.classList.remove('selected'));
-        const svgData = new XMLSerializer().serializeToString(svgClone);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-        canvas.width = 1500; canvas.height = 1800;
-        img.onload = function() {
-            ctx.fillStyle = "white"; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0);
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: [1500, 1800] });
-            pdf.addImage(canvas.toDataURL("image/jpeg", 1.0), 'JPEG', 0, 0, 1500, 1800);
-            pdf.save("plan_classe.pdf");
-        };
-        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
-    }
+    const svg = document.getElementById('plan-svg');
+    const { jsPDF } = window.jspdf;
+    const svgClone = svg.cloneNode(true);
+    
+    svgClone.querySelectorAll('.desk-label').forEach(label => {
+        label.style.fontSize = "45px"; // Force une taille plus grande pour le PDF
+    });
+    // ---------------------------------------------------------------------
+
+    svgClone.style.backgroundColor = "white";
+    svgClone.querySelectorAll('.desk-group').forEach(g => g.classList.remove('selected'));
+    
+    const svgData = new XMLSerializer().serializeToString(svgClone);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    
+    canvas.width = 1500; 
+    canvas.height = 1800;
+    
+    img.onload = function() {
+        // Un court délai de 100ms assure que le rendu est stable sur mobile
+        setTimeout(() => {
+            ctx.fillStyle = "white"; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height); 
+            ctx.drawImage(img, 0, 0);
+            
+            const pdf = new jsPDF({ 
+                orientation: 'portrait', 
+                unit: 'pt', 
+                format: [1500, 1800] 
+            });
+            
+            pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), 'JPEG', 0, 0, 1500, 1800);
+            pdf.save(getExportFileName('pdf'));
+        }, 100);
+    };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
+}
 
     function toggleLock() {
         isLocked = !isLocked;
@@ -419,9 +465,12 @@
     }
 
     function exporterPlan() {
-        const blob = new Blob([JSON.stringify(studentData)], {type: "application/json"});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'plan.json'; a.click();
-    }
+    const blob = new Blob([JSON.stringify(studentData)], {type: "application/json"});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = getExportFileName('json');
+    a.click();
+}
 
     function importerPlan() {
         const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
