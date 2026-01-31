@@ -327,24 +327,22 @@
             });
         };
 
+        // Génération des pages
         drawContent(false);
         doc.addPage();
         drawContent(true);
 
-        // Méthode optimisée pour Android (Blob + lien invisible)
-        const blob = doc.output('blob');
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        
-        // Nettoyage
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }, 100);
+        // --- PARTIE CORRIGÉE POUR ANDROID ---
+        // On transforme le PDF en données Base64
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+        // On envoie à l'interface "Android" définie dans ton MainActivity.kt
+        if (window.Android && window.Android.savePdfFromBase64) {
+            window.Android.savePdfFromBase64(pdfBase64, filename);
+        } else {
+            // Option de secours si tu testes dans un navigateur classique
+            doc.save(filename);
+        }
     }
 
     function retourReglages() { 

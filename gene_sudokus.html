@@ -316,62 +316,61 @@
     }
 
     function exportToPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const date = new Date().toISOString().slice(0,10).replace(/-/g,"");
-        const filename = `outilsprofs_sudoku_${currentSize}x${currentSize}_${date}.pdf`;
-        const draw = (data, startX, startY, isCorr) => {
-		const size = 70, cellSize = size / data.size;
-		const fontSize = data.size === 4 ? 24 : (data.size === 6 ? 18 : 14);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const date = new Date().toISOString().slice(0,10).replace(/-/g,"");
+    const filename = `outilsprofs_sudoku_${currentSize}x${currentSize}_${date}.pdf`;
     
-		data.puzzle.forEach((row, r) => row.forEach((val, c) => {
-			const x = startX + c * cellSize, y = startY + r * cellSize;
-        
-			// 1. GESTION DU FOND GRIS FONCÉ POUR LES RÉPONSES
-			if (val === 0 && isCorr) {
-				doc.setFillColor(60, 60, 60); // Gris foncé
-				doc.rect(x, y, cellSize, cellSize, 'F'); 
-			}
-	
-			// 2. BORDURE DE LA CELLULE
-			doc.setDrawColor(180);
-			doc.setLineWidth(0.1);
-			doc.rect(x, y, cellSize, cellSize, 'D');
-	
-			// 3. AFFICHAGE DU TEXTE
-			let v = val !== 0 ? val : (isCorr ? data.solution[r][c] : "");
-			if (v) {
-				doc.setFontSize(fontSize);
-				
-				// Si c'est une réponse (fond gris), on écrit en BLANC (255)
-				// Sinon (énoncé), on écrit en NOIR (0)
-				if (val === 0 && isCorr) {
-					doc.setTextColor(255, 255, 255); 
-				} else {
-					doc.setTextColor(0, 0, 0);
-				}
-				
-				doc.text(String(v), x + cellSize / 2, y + cellSize / 2 + (fontSize / 7), { align: "center" });
-				}
-			}));
-	
-			// 4. TRACÉ DES LIGNES ÉPAISSES (BLOCS)
-			doc.setDrawColor(0); 
-			doc.setLineWidth(0.8);
-			for (let i = 0; i <= data.size; i++) {
-				if (i % data.bW === 0) doc.line(startX + i * cellSize, startY, startX + i * cellSize, startY + size);
-				if (i % data.bH === 0) doc.line(startX, startY + i * cellSize, startX + size, startY + i * cellSize);
-			}
-		};
-				const title = document.getElementById('quiz-title').value || "Sudoku";
-				doc.setFont("helvetica", "bold"); doc.setFontSize(18);
-				doc.text(title, 105, 15, {align:"center"});
-				draw(currentGrids[0], 20, 30, false); draw(currentGrids[1], 115, 30, false);
-				doc.addPage();
-				doc.text(title + " (Correction)", 105, 15, {align:"center"});
-				draw(currentGrids[0], 20, 30, true); draw(currentGrids[1], 115, 30, true);
-				doc.save(filename);
-			}
+    const draw = (data, startX, startY, isCorr) => {
+        const size = 70, cellSize = size / data.size;
+        const fontSize = data.size === 4 ? 24 : (data.size === 6 ? 18 : 14);
+
+        data.puzzle.forEach((row, r) => row.forEach((val, c) => {
+            const x = startX + c * cellSize, y = startY + r * cellSize;
+            if (val === 0 && isCorr) {
+                doc.setFillColor(60, 60, 60);
+                doc.rect(x, y, cellSize, cellSize, 'F'); 
+            }
+            doc.setDrawColor(180);
+            doc.setLineWidth(0.1);
+            doc.rect(x, y, cellSize, cellSize, 'D');
+            let v = val !== 0 ? val : (isCorr ? data.solution[r][c] : "");
+            if (v) {
+                doc.setFontSize(fontSize);
+                if (val === 0 && isCorr) {
+                    doc.setTextColor(255, 255, 255); 
+                } else {
+                    doc.setTextColor(0, 0, 0);
+                }
+                doc.text(String(v), x + cellSize / 2, y + cellSize / 2 + (fontSize / 7), { align: "center" });
+            }
+        }));
+
+        doc.setDrawColor(0); 
+        doc.setLineWidth(0.8);
+        for (let i = 0; i <= data.size; i++) {
+            if (i % data.bW === 0) doc.line(startX + i * cellSize, startY, startX + i * cellSize, startY + size);
+            if (i % data.bH === 0) doc.line(startX, startY + i * cellSize, startX + size, startY + i * cellSize);
+        }
+    };
+
+    const title = document.getElementById('quiz-title').value || "Sudoku";
+    doc.setFont("helvetica", "bold"); doc.setFontSize(18);
+    doc.text(title, 105, 15, {align:"center"});
+    draw(currentGrids[0], 20, 30, false); draw(currentGrids[1], 115, 30, false);
+    doc.addPage();
+    doc.text(title + " (Correction)", 105, 15, {align:"center"});
+    draw(currentGrids[0], 20, 30, true); draw(currentGrids[1], 115, 30, true);
+
+    // --- MODIFICATION ICI ---
+    // Au lieu de doc.save(), on convertit en Base64 et on envoie à Android
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    if (window.Android && window.Android.savePdfFromBase64) {
+        window.Android.savePdfFromBase64(pdfBase64, filename);
+    } else {
+        doc.save(filename); // Secours pour le navigateur classique
+    }
+}
 
     function retourReglages() { 
         document.getElementById('game-zone').classList.add('hidden');

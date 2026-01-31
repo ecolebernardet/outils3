@@ -73,11 +73,22 @@
         .chair-rect { fill: #2e7d32; rx: 2; }
 
         .toolbar {
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-            background: var(--header-bg); width: 96%; max-width: 700px; padding: 6px;
-            border-radius: 18px; border: 1px solid rgba(128,128,128,0.3);
-            display: flex; justify-content: space-around; gap: 4px; z-index: 200;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: fixed; 
+            /* On remplace bottom: 15px par un calcul dynamique */
+            bottom: calc(env(safe-area-inset-bottom) + 20px); 
+            left: 50%; 
+            transform: translateX(-50%);
+            background: var(--header-bg); 
+            width: 96%; 
+            max-width: 700px; 
+            padding: 8px; /* Un peu plus de padding pour le confort */
+            border-radius: 24px; /* Arrondi plus prononcé pour un look moderne */
+            border: 1px solid rgba(128,128,128,0.3);
+            display: flex; 
+            justify-content: space-around; 
+            gap: 4px; 
+            z-index: 200;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
         .btn-tool { flex: 1; height: 42px; border-radius: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); transition: all 0.2s; border: none; color: inherit; }
@@ -417,45 +428,51 @@ function getExportFileName(extension) {
 }
 
     function exportPDF() {
-    const svg = document.getElementById('plan-svg');
-    const { jsPDF } = window.jspdf;
-    const svgClone = svg.cloneNode(true);
-    
-    svgClone.querySelectorAll('.desk-label').forEach(label => {
-        label.style.fontSize = "45px"; // Force une taille plus grande pour le PDF
-    });
-    // ---------------------------------------------------------------------
+        const svg = document.getElementById('plan-svg');
+        const { jsPDF } = window.jspdf;
+        const svgClone = svg.cloneNode(true);
+        const filename = getExportFileName('pdf');
+        
+        svgClone.querySelectorAll('.desk-label').forEach(label => {
+            label.style.fontSize = "45px"; 
+        });
 
-    svgClone.style.backgroundColor = "white";
-    svgClone.querySelectorAll('.desk-group').forEach(g => g.classList.remove('selected'));
-    
-    const svgData = new XMLSerializer().serializeToString(svgClone);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    
-    canvas.width = 1500; 
-    canvas.height = 1800;
-    
-    img.onload = function() {
-        // Un court délai de 100ms assure que le rendu est stable sur mobile
-        setTimeout(() => {
-            ctx.fillStyle = "white"; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height); 
-            ctx.drawImage(img, 0, 0);
-            
-            const pdf = new jsPDF({ 
-                orientation: 'portrait', 
-                unit: 'pt', 
-                format: [1500, 1800] 
-            });
-            
-            pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), 'JPEG', 0, 0, 1500, 1800);
-            pdf.save(getExportFileName('pdf'));
-        }, 100);
-    };
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
-}
+        svgClone.style.backgroundColor = "white";
+        svgClone.querySelectorAll('.desk-group').forEach(g => g.classList.remove('selected'));
+        
+        const svgData = new XMLSerializer().serializeToString(svgClone);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        
+        canvas.width = 1500; 
+        canvas.height = 1800;
+        
+        img.onload = function() {
+            setTimeout(() => {
+                ctx.fillStyle = "white"; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height); 
+                ctx.drawImage(img, 0, 0);
+                
+                const pdf = new jsPDF({ 
+                    orientation: 'portrait', 
+                    unit: 'pt', 
+                    format: [1500, 1800] 
+                });
+                
+                pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), 'JPEG', 0, 0, 1500, 1800);
+
+                // --- MODIFICATION ANDROID ---
+                const pdfBase64 = pdf.output('datauristring').split(',')[1];
+                if (window.Android && window.Android.savePdfFromBase64) {
+                    window.Android.savePdfFromBase64(pdfBase64, filename);
+                } else {
+                    pdf.save(filename);
+                }
+            }, 100);
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
+    }
 
     function toggleLock() {
         isLocked = !isLocked;
@@ -465,20 +482,57 @@ function getExportFileName(extension) {
     }
 
     function exporterPlan() {
-    const blob = new Blob([JSON.stringify(studentData)], {type: "application/json"});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = getExportFileName('json');
-    a.click();
-}
+        const jsonString = JSON.stringify(studentData);
+        const filename = getExportFileName('json');
+
+        // Conversion en Base64 (compatible UTF-8 pour les accents des prénoms)
+        const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+
+        if (window.Android && window.Android.savePdfFromBase64) {
+            // On utilise la même passerelle Android
+            window.Android.savePdfFromBase64(base64Content, filename);
+        } else {
+            // Secours navigateur
+            const blob = new Blob([jsonString], {type: "application/json"});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+    }
 
     function importerPlan() {
-        const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
+        const inp = document.createElement('input'); 
+        inp.type = 'file'; 
+        inp.accept = '.json';
+        
         inp.onchange = e => {
-            const r = new FileReader();
-            r.onload = ev => { pushHistory(); studentData = JSON.parse(ev.target.result); selectedIndex = null; sync(); };
-            r.readAsText(e.target.files[0]);
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const importedData = JSON.parse(ev.target.result);
+                    if (Array.isArray(importedData)) {
+                        pushHistory();
+                        studentData = importedData;
+                        selectedIndex = null;
+                        sync();
+                    } else {
+                        alert("Le fichier JSON n'est pas au bon format.");
+                    }
+                } catch (err) {
+                    alert("Erreur lors de la lecture du fichier : " + err.message);
+                }
+            };
+            reader.readAsText(file);
+            
+            // On retire l'élément après usage
+            inp.remove();
         };
+        
         inp.click();
     }
 

@@ -312,19 +312,37 @@
     }
 
     function saveToTXT() {
-        const data = document.getElementById('quiz-data').value.trim();
-        const titre = document.getElementById('quiz-title').value.trim() || "mes_dominos";
-        if (!data) { document.getElementById('modal-erreur').style.display = 'flex'; return; }
+    const data = document.getElementById('quiz-data').value.trim();
+    const titre = document.getElementById('quiz-title').value.trim() || "mes_dominos";
+    if (!data) { 
+        document.getElementById('modal-erreur').style.display = 'flex'; 
+        return; 
+    }
 
-        const fileContent = `TITRE:${titre}\n${data}`;
+    const fileContent = `TITRE:${titre}\n${data}`;
+    const filename = `outilsprofs_dominos_${titre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+
+    // --- CORRECTION POUR ANDROID ---
+    
+    // On convertit le texte en Base64 (btoa gère les caractères standards)
+    // On utilise un petit hack pour supporter les accents (UTF-8)
+    const base64Content = btoa(unescape(encodeURIComponent(fileContent)));
+
+    if (window.Android && window.Android.savePdfFromBase64) {
+        // On réutilise la même fonction Kotlin ! 
+        // Elle enregistrera juste un .txt au lieu d'un .pdf
+        window.Android.savePdfFromBase64(base64Content, filename);
+    } else {
+        // Secours pour navigateur classique
         const blob = new Blob([fileContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `outilsprofs_dominos_${titre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+        link.download = filename;
         link.click();
         URL.revokeObjectURL(url);
     }
+}
 
     function loadFromTXT(event) {
         const file = event.target.files[0];
@@ -388,29 +406,69 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const titreDoc = document.getElementById('quiz-title').value.trim() || "Dominos";
+        
+        // Nom du fichier pour l'export
+        const filename = `outilsprofs_dominos_${titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
+
         doc.setFontSize(16);
         doc.text(titreDoc, 105, 15, { align: "center" });
 
         let x = 20, y = 25, w = 80, h = 30;
+        
+        // Premier bloc (titre / départ)
         doc.setDrawColor(150); doc.setLineWidth(0.5); doc.rect(x, y, w, h);
         doc.setFontSize(14); doc.setFont("helvetica", "bold");
         doc.text(titreDoc, x + w/2, y + h/2 + 2, { align: "center", maxWidth: w - 10 });
         
         x += w + 10;
+        
+        // Génération des dominos
         pairs.forEach((pair, i) => {
             const prevA = (i === 0) ? pairs[pairs.length - 1].a : pairs[i-1].a;
-            if (y > 260) { doc.addPage(); x = 20; y = 20; }
-            doc.setDrawColor(150); doc.rect(x, y, w, h); doc.line(x + w/2, y, x + w/2, y + h);
+            
+            // Gestion du saut de page
+            if (y > 260) { 
+                doc.addPage(); 
+                x = 20; 
+                y = 20; 
+            }
+
+            doc.setDrawColor(150); 
+            doc.rect(x, y, w, h); 
+            doc.line(x + w/2, y, x + w/2, y + h);
+            
             const drawText = (t, px, py) => {
-                let fs = 18; doc.setFontSize(fs);
-                while (doc.getTextWidth(t) > (w/2-6) && fs > 6) { fs--; doc.setFontSize(fs); }
-                doc.text(t, px, py, { align: "center" });
+                let fs = 18; 
+                doc.setFontSize(fs);
+                // Ajustement automatique de la taille du texte si trop long
+                while (doc.getTextWidth(String(t)) > (w/2-6) && fs > 6) { 
+                    fs--; 
+                    doc.setFontSize(fs); 
+                }
+                doc.text(String(t), px, py, { align: "center" });
             };
-            drawText(String(prevA), x + w/4, y + h/2 + 3);
-            drawText(String(pair.q), x + (3*w/4), y + h/2 + 3);
-            x += w + 10; if (x > 150) { x = 20; y += h + 10; }
+
+            drawText(prevA, x + w/4, y + h/2 + 3);
+            drawText(pair.q, x + (3*w/4), y + h/2 + 3);
+
+            // Placement du prochain domino
+            x += w + 10; 
+            if (x > 150) { 
+                x = 20; 
+                y += h + 10; 
+            }
         });
-        doc.save(`outilsprofs_dominos_${titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`);
+
+        // --- PARTIE CORRIGÉE POUR ANDROID ---
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+        if (window.Android && window.Android.savePdfFromBase64) {
+            // Envoi vers le code Kotlin de ton app
+            window.Android.savePdfFromBase64(pdfBase64, filename);
+        } else {
+            // Secours pour navigateur classique
+            doc.save(filename);
+        }
     }
 
     function retourReglages() {
