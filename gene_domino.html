@@ -273,14 +273,14 @@
         doc.setDrawColor(150);
         doc.setLineWidth(0.5);
         doc.rect(x, y, w, h);
-        doc.setFontSize(14); // Titre un peu plus grand que le contenu
+        doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
         doc.text(titreDoc, x + w/2, y + h/2 + 2, { align: "center", maxWidth: w - 10 });
         
         x += w + 10;
 
         // 2. GÉNÉRATION DES DOMINOS DE JEU
-        doc.setFont("helvetica", "bold"); // Applique le gras pour tout le contenu
+        doc.setFont("helvetica", "bold");
         doc.setLineWidth(0.2);
         
         pairs.forEach((pair, i) => {
@@ -292,13 +292,27 @@
             doc.rect(x, y, w, h); 
             doc.line(x + w/2, y, x + w/2, y + h); 
             
-            // Taille augmentée à 18 comme demandé
-            doc.setFontSize(18); 
             doc.setTextColor(0);
-            
-            // Affichage avec maxWidth ajusté pour éviter que le texte ne touche les bords avec la taille 18
-            doc.text(prevA, x + w/4, y + h/2 + 3, { align: "center", maxWidth: w/2 - 8 });
-            doc.text(pair.q, x + (3*w/4), y + h/2 + 3, { align: "center", maxWidth: w/2 - 8 });
+
+            // Fonction interne pour adapter la taille du texte à la cellule
+            const drawAutoScaledText = (text, posX, posY, maxW) => {
+                let fontSize = 18; // Taille de base souhaitée
+                doc.setFontSize(fontSize);
+                
+                // Réduction de la taille si le texte dépasse la largeur max
+                while (doc.getTextWidth(text) > maxW && fontSize > 6) {
+                    fontSize -= 1;
+                    doc.setFontSize(fontSize);
+                }
+                doc.text(text, posX, posY, { align: "center" });
+            };
+
+            const maxCellWidth = w / 2 - 6; // Marge de sécurité
+            const textHeightOffset = 3;
+
+            // Affichage avec adaptation automatique
+            drawAutoScaledText(String(prevA), x + w/4, y + h/2 + textHeightOffset, maxCellWidth);
+            drawAutoScaledText(String(pair.q), x + (3*w/4), y + h/2 + textHeightOffset, maxCellWidth);
 
             x += w + 10;
             if (x > 150) { 
@@ -308,7 +322,21 @@
         });
         
         const cleanTitre = titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        doc.save(`outilsprofs_dominos_${cleanTitre}.pdf`);
+        const fileName = `outilsprofs_dominos_${cleanTitre}.pdf`;
+
+        // COMPATIBILITÉ ANDROID / WEBVIEW
+        // Au lieu de save(), on utilise output('bloburl') qui est mieux géré par les navigateurs mobiles
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+            const blob = doc.output('blob');
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        } else {
+            doc.save(fileName);
+        }
     }
 
     function retourReglages() {
