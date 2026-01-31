@@ -3,295 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Plan de Classe Final - OutilsProfs</title>
+    <title>Plan Vectoriel Pro - OutilsProfs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
-        :root {
+        :root { 
             --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
             --header-bg: #1e1e1e; --card-bg: #1e1e1e;
         }
-
-        body.light-mode {
+        body.light-mode { 
             --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
             --header-bg: #ffffff; --card-bg: #ffffff;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; overflow: hidden; position: fixed; width: 100%; height: 100%; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
         
         header { 
             background: var(--header-bg); border-bottom: 1px solid var(--column-border);
             padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between; width: 100%; z-index: 100;
         }
 
-        #btn-retour, #btn-aide { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+        header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
 
-        .classroom-area {
-            position: relative;
-            width: 100vw;
-            height: calc(100vh - 140px);
-            background-image: radial-gradient(var(--column-border) 1px, transparent 1px);
-            background-size: 20px 20px;
-            overflow: hidden;
-            touch-action: none;
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
+        #container-retour-liste { width: 100%; max-width: 2000px; padding: 15px 20px 0 20px; text-align: left; z-index: 50; pointer-events: none; position: absolute; }
+        #btn-retour-liste {
+            pointer-events: auto;
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
+            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
+            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
-        .desk {
-            position: absolute;
-            width: 75px;
-            height: 55px;
-            background: #5d4037;
-            border: 2px solid rgba(0,0,0,0.2);
-            border-radius: 4px;
+        #canvas-container {
+            flex-grow: 1;
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            cursor: grab;
-            user-select: none;
-            touch-action: none;
-            transition: transform 0.2s ease-out;
+            align-items: flex-start;
+            background: var(--bg-page);
+            overflow: hidden;
+            padding: 10px;
+            padding-bottom: 90px; /* Espace pour la toolbar */
         }
 
-        .desk::before {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            width: 30px;
-            height: 6px;
-            background: #2e7d32;
-            border-radius: 2px;
+        svg {
+            height: 100%; /* Se cale sur la hauteur de l'écran */
+            width: auto;
+            aspect-ratio: 1500 / 1800; /* Garde le ratio de la classe */
+            max-width: 100%;
+            background-image: radial-gradient(rgba(128,128,128,0.2) 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+            touch-action: none;
+            display: block;
+            border: none;
         }
+
+        body.light-mode svg { background-image: radial-gradient(rgba(0,0,0,0.1) 1.5px, transparent 1.5px); }
+
+        .desk-group { cursor: grab; user-select: none; }
+        .desk-rect { stroke: rgba(0,0,0,0.3); stroke-width: 2; rx: 5; }
+        .desk-label { fill: white; font-size: 20px; font-weight: 900; text-anchor: middle; dominant-baseline: middle; pointer-events: none; text-transform: uppercase; }
+        .chair-rect { fill: #2e7d32; rx: 2; }
 
         .toolbar {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--header-bg);
-            width: 96%;
-            max-width: 550px;
-            padding: 6px;
-            border-radius: 18px;
-            border: 1px solid var(--column-border);
-            display: flex;
-            justify-content: space-around;
-            gap: 2px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 200;
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            background: var(--header-bg); width: 96%; max-width: 650px; padding: 6px;
+            border-radius: 18px; border: 1px solid rgba(128,128,128,0.3);
+            display: flex; justify-content: space-around; gap: 4px; z-index: 200;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        .btn-tool { flex: 1; height: 40px; border-radius: 10px; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; background: rgba(128,128,128,0.1); }
-        .btn-tool:active { transform: scale(0.9); }
-        .btn-tool:disabled { opacity: 0.2; pointer-events: none; }
-
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: var(--card-bg); width: 100%; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 20px; }
+        .btn-tool { flex: 1; height: 42px; border-radius: 12px; font-size: 18px; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.1); transition: all 0.2s; border: none; color: inherit; }
+        .btn-tool:disabled { opacity: 0.15; pointer-events: none; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+        .btn-modal-action { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="outils.html" id="btn-retour">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    <a href="index.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
     </a>
-    <h1 class="font-black uppercase tracking-widest text-[10px]">Plan de Classe</h1>
-    <button id="btn-aide" onclick="ouvrirAide()">💡</button>
+    <h1 id="pageTitle">Plan Vectoriel</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
 </header>
 
-<div class="classroom-area" id="canvas"></div>
+<div class="main-content">
+    <div id="container-retour-liste">
+        <a href="outils.html" id="btn-retour-liste">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux outils
+        </a>
+    </div>
+
+    <div id="canvas-container">
+        <svg id="plan-svg" viewBox="0 0 1500 1800" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <g id="main-layer"></g>
+        </svg>
+    </div>
+</div>
 
 <div class="toolbar">
     <button class="btn-tool" id="btn-mode" onclick="toggleLock()">🔓</button>
     <button class="btn-tool" id="btn-undo" onclick="undo()">↶</button>
     <button class="btn-tool" id="btn-redo" onclick="redo()">↷</button>
-    <button class="btn-tool" id="btn-shuffle" onclick="shuffleNames()" style="background: var(--theme-color); color: var(--contrast-color);">🔀</button>
-    <button class="btn-tool" onclick="ouvrirConfig()">👥</button>
+    <button class="btn-tool" id="btn-shuffle" style="background: var(--theme-color); color: var(--contrast-color);">🔀</button>
+    <button class="btn-tool" onclick="genererTablesDepuisClasse()" title="Générer les tables">➕</button>
+    <button class="btn-tool" onclick="confirmerToutEffacer()" title="Tout effacer">🗑️</button>
     <button class="btn-tool" onclick="exporterPlan()">💾</button>
     <button class="btn-tool" onclick="importerPlan()">📂</button>
+    <button class="btn-tool" onclick="exportPDF()" title="Télécharger PDF">📄</button>
 </div>
 
-<div id="modal-config" class="modal-overlay">
-    <div class="modal-content">
-        <h2 class="font-black uppercase mb-2 text-sm text-center">Liste des élèves</h2>
-        <textarea id="liste-input" class="w-full h-40 bg-black/20 border border-[var(--column-border)] p-3 rounded-xl text-white outline-none font-bold text-xs" placeholder="Un nom par ligne..."></textarea>
-        <div class="flex gap-2 mt-4">
-            <button onclick="fermerConfig()" class="flex-1 py-3 rounded-xl font-black uppercase text-[10px] bg-white/5">Fermer</button>
-            <button onclick="saveAndReload()" class="flex-[2] py-3 rounded-xl font-black uppercase text-[10px]" style="background: var(--theme-color); color: var(--contrast-color);">Appliquer</button>
+<div id="modal-confirm" class="modal-overlay">
+    <div class="modal-content text-center">
+        <h2 class="font-black uppercase mb-2">⚠️ Attention</h2>
+        <p class="text-xs opacity-70 mb-6 font-semibold">Voulez-vous vraiment supprimer toutes les tables et vider le plan ?</p>
+        <div class="flex gap-2">
+            <button onclick="fermerConfirm()" class="flex-1 btn-modal-action bg-gray-500/20">Annuler</button>
+            <button onclick="toutEffacer()" class="flex-1 btn-modal-action bg-red-600 text-white">Supprimer</button>
         </div>
     </div>
 </div>
 
 <script>
     if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+
+    const mapCouleurs = { 
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
+        'rose': '#f43f5e' 
+    };
+
     const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-    const mapCouleurs = { red:'#ef4444', orange:'#f97316', amber:'#f59e0b', yellow:'#eab308', lime:'#84cc16', green:'#22c55e', emerald:'#10b981', teal:'#14b8a6', cyan:'#06b6d4', sky:'#0ea5e9', blue:'#3b82f6', indigo:'#6366f1', violet:'#8b5cf6', purple:'#a855f7', fuchsia:'#d946ef', pink:'#ec4899', rose:'#f43f5e' };
     const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    const contrast = ['yellow','amber','cyan','lime'].includes(themePrefs.outils) ? '#000' : '#fff';
+    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
+    const contrast = isDarkText ? '#000' : '#fff';
+
     document.documentElement.style.setProperty('--theme-color', themeColor);
     document.documentElement.style.setProperty('--contrast-color', contrast);
-    document.getElementById('btn-retour').style.backgroundColor = themeColor;
-    document.getElementById('btn-retour').style.color = contrast;
+
+    const uiElements = [
+        document.getElementById('btn-retour'),
+        document.getElementById('btn-aide'),
+        document.getElementById('btn-retour-liste'),
+        document.getElementById('btn-shuffle')
+    ];
+    uiElements.forEach(el => {
+        if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; }
+    });
 
     let isLocked = false;
-    let studentData = JSON.parse(localStorage.getItem('plan_gynzy_v3')) || [];
-    let historyStack = [];
-    let redoStack = [];
+    let studentData = JSON.parse(localStorage.getItem('plan_vector_v1')) || [];
+    let historyStack = [], redoStack = [];
+    
+    // Dimensions ajustées pour garder de l'espace dans le plan 1500x1800
+    const SVG_NS = "http://www.w3.org/2000/svg", DESK_W = 140, DESK_H = 90;
+    const couleurParNiveau = { 'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#8b5cf6' };
+    const couleurDefautBureau = '#5d4037';
 
     function pushHistory() {
         historyStack.push(JSON.stringify(studentData));
-        if (historyStack.length > 30) historyStack.shift();
-        redoStack = []; 
-        updateUndoButtons();
+        if (historyStack.length > 40) historyStack.shift();
+        redoStack = []; updateButtons();
     }
 
-    function undo() {
-        if (historyStack.length === 0) return;
-        redoStack.push(JSON.stringify(studentData));
-        studentData = JSON.parse(historyStack.pop());
-        sync();
+    function undo() { if (historyStack.length > 0) { redoStack.push(JSON.stringify(studentData)); studentData = JSON.parse(historyStack.pop()); sync(); } }
+    function redo() { if (redoStack.length > 0) { historyStack.push(JSON.stringify(studentData)); studentData = JSON.parse(redoStack.pop()); sync(); } }
+    function sync() { localStorage.setItem('plan_vector_v1', JSON.stringify(studentData)); drawPlan(); updateButtons(); }
+    function updateButtons() { 
+        document.getElementById('btn-undo').disabled = historyStack.length === 0; 
+        document.getElementById('btn-redo').disabled = redoStack.length === 0; 
     }
 
-    function redo() {
-        if (redoStack.length === 0) return;
-        historyStack.push(JSON.stringify(studentData));
-        studentData = JSON.parse(redoStack.pop());
-        sync();
-    }
+    function drawPlan() {
+    const layer = document.getElementById('main-layer');
+    layer.innerHTML = '';
 
-    function sync() {
-        localStorage.setItem('plan_gynzy_v3', JSON.stringify(studentData));
-        initClassroom();
-        updateUndoButtons();
-    }
+    // AJOUT DES MURS : Un rectangle qui fait tout le tour du canvas
+    const walls = document.createElementNS(SVG_NS, "rect");
+    walls.setAttribute("x", 0);
+    walls.setAttribute("y", 0);
+    walls.setAttribute("width", 1500);
+    walls.setAttribute("height", 1800);
+    walls.setAttribute("fill", "none");
+    walls.setAttribute("stroke", "var(--column-border)"); // Couleur des murs selon le mode
+    walls.setAttribute("stroke-width", "10"); // Épaisseur des murs
+    layer.appendChild(walls);
 
-    function updateUndoButtons() {
-        document.getElementById('btn-undo').disabled = historyStack.length === 0;
-        document.getElementById('btn-redo').disabled = redoStack.length === 0;
-    }
-
-    function initClassroom() {
-        const canvas = document.getElementById('canvas');
-        canvas.innerHTML = '';
-        studentData.forEach((student, index) => {
-            const el = document.createElement('div');
-            el.className = 'desk';
-            el.textContent = student.name;
-            const x = student.x || 20, y = student.y || 20, r = student.r || 0;
-            el.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
-            el.setAttribute('data-x', x); el.setAttribute('data-y', y); el.setAttribute('data-r', r);
+    studentData.forEach((student, index) => {
+            const g = document.createElementNS(SVG_NS, "g");
+            g.setAttribute("class", "desk-group");
+            g.setAttribute("id", `desk-${index}`);
+            const x = student.x || 200, y = student.y || 200, r = student.r || 0;
+            g.setAttribute("transform", `translate(${x},${y}) rotate(${r})`);
+            g.setAttribute("data-x", x); g.setAttribute("data-y", y); g.setAttribute("data-r", r);
             
-            el.addEventListener('dblclick', function() {
-                if(isLocked) return;
-                pushHistory();
-                let curR = (parseInt(this.dataset.r) + 45) % 360;
-                this.dataset.r = curR;
-                this.style.transform = `translate(${this.dataset.x}px, ${this.dataset.y}px) rotate(${curR}deg)`;
-                savePositionsSilent();
-            });
-            canvas.appendChild(el);
+            const couleurBureau = couleurParNiveau[student.niveau] || couleurDefautBureau;
+            
+            const rect = document.createElementNS(SVG_NS, "rect");
+            rect.setAttribute("class", "desk-rect");
+            rect.setAttribute("x", -DESK_W/2); rect.setAttribute("y", -DESK_H/2);
+            rect.setAttribute("width", DESK_W); rect.setAttribute("height", DESK_H);
+            rect.style.fill = couleurBureau;
+            rect.setAttribute("data-color", couleurBureau);
+            
+            const chair = document.createElementNS(SVG_NS, "rect");
+            chair.setAttribute("class", "chair-rect");
+            chair.setAttribute("x", -30); chair.setAttribute("y", DESK_H/2 + 5);
+            chair.setAttribute("width", 60); chair.setAttribute("height", 15);
+            
+            const text = document.createElementNS(SVG_NS, "text");
+            text.setAttribute("class", "desk-label");
+            text.textContent = student.name;
+            
+            g.appendChild(rect); g.appendChild(chair); g.appendChild(text);
+            g.addEventListener('dblclick', () => { if(!isLocked) { pushHistory(); student.r = (parseInt(student.r || 0) + 45) % 360; sync(); } });
+            layer.appendChild(g);
         });
-        setupDrag();
-        updateUndoButtons();
+        setupInteract();
     }
 
-    function setupDrag() {
-        interact('.desk').draggable({
+    function setupInteract() {
+        interact('.desk-group').draggable({
             onstart: () => { if(!isLocked) pushHistory(); },
             listeners: {
                 move(event) {
                     if(isLocked) return;
-                    let { x, y, r } = event.target.dataset;
-                    x = (parseFloat(x) || 0) + event.dx;
-                    y = (parseFloat(y) || 0) + event.dy;
-                    event.target.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
-                    Object.assign(event.target.dataset, { x, y });
+                    const target = event.target, svg = document.getElementById('plan-svg');
+                    const point = svg.createSVGPoint();
+                    point.x = event.dx; point.y = event.dy;
+                    const ctm = svg.getScreenCTM().inverse();
+                    const deltaX = point.x * ctm.a, deltaY = point.y * ctm.d;
+                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + deltaX;
+                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + deltaY;
+                    let r = target.getAttribute('data-r');
+                    target.setAttribute('transform', `translate(${x},${y}) rotate(${r})`);
+                    target.setAttribute('data-x', x); target.setAttribute('data-y', y);
                 },
-                end: savePositionsSilent
+                end(event) {
+                    const idx = event.target.id.split('-')[1];
+                    studentData[idx].x = parseFloat(event.target.getAttribute('data-x'));
+                    studentData[idx].y = parseFloat(event.target.getAttribute('data-y'));
+                    localStorage.setItem('plan_vector_v1', JSON.stringify(studentData));
+                }
             }
         });
     }
 
-    function savePositionsSilent() {
-        const desks = document.querySelectorAll('.desk');
-        studentData = Array.from(desks).map(d => ({
-            name: d.textContent,
-            x: parseFloat(d.dataset.x),
-            y: parseFloat(d.dataset.y),
-            r: parseInt(d.dataset.r) || 0
-        }));
-        localStorage.setItem('plan_gynzy_v3', JSON.stringify(studentData));
-    }
-
-    function toggleLock() {
-        isLocked = !isLocked;
-        const btn = document.getElementById('btn-mode');
-        btn.textContent = isLocked ? '🔒' : '🔓';
-        btn.style.background = isLocked ? themeColor : 'rgba(128,128,128,0.2)';
-        btn.style.color = isLocked ? contrast : 'white';
-    }
-
-    function shuffleNames() {
+    function genererTablesDepuisClasse() {
+        const listeBrute = localStorage.getItem('maListeEleves');
+        if (!listeBrute) { alert("Aucune liste d'élèves trouvée dans 'Ma Classe'."); return; }
+        const elevesMaClasse = JSON.parse(listeBrute);
+        if (elevesMaClasse.length === 0) { alert("La liste est vide."); return; }
         pushHistory();
-        const desks = document.querySelectorAll('.desk');
-        let names = Array.from(desks).map(d => d.textContent);
+        studentData = elevesMaClasse.map((el, i) => {
+            const prenom = el.identite.split(' ')[0];
+            const existant = studentData.find(s => s.name === prenom);
+            if (existant) return { ...existant, niveau: el.niveau };
+            return { name: prenom, niveau: el.niveau, x: 200 + ((i % 6) * 220), y: 150 + (Math.floor(i / 6) * 180), r: 0 };
+        });
+        sync();
+    }
+
+    function confirmerToutEffacer() { document.getElementById('modal-confirm').style.display = 'flex'; }
+    function fermerConfirm() { document.getElementById('modal-confirm').style.display = 'none'; }
+    function toutEffacer() { pushHistory(); studentData = []; sync(); fermerConfirm(); }
+
+    function exportPDF() {
+    const svg = document.getElementById('plan-svg');
+    const { jsPDF } = window.jspdf;
+    const svgClone = svg.cloneNode(true);
+
+    // Préparation du clone pour un rendu propre sur PDF (fond blanc)
+    svgClone.style.backgroundColor = "white";
+    svgClone.style.backgroundImage = "none";
+
+    // Gestion des murs (le premier rect du calque main-layer)
+    const walls = svgClone.querySelector('#main-layer rect:first-child');
+    if (walls && !walls.classList.contains('desk-rect')) {
+        walls.setAttribute("stroke", "#333333"); // Mur sombre pour le PDF
+        walls.setAttribute("fill", "white");
+    }
+
+    // Style des bureaux : fond blanc, bordure de la couleur du niveau
+    svgClone.querySelectorAll('.desk-rect').forEach(rect => {
+        const col = rect.getAttribute('data-color') || "black";
+        rect.style.fill = "white"; 
+        rect.style.stroke = col; 
+        rect.style.strokeWidth = "3px";
+    });
+
+    // Style du texte : noir pour la lisibilité
+    svgClone.querySelectorAll('.desk-label').forEach(text => { 
+        text.style.fill = "black"; 
+    });
+
+    // Style des chaises : gris léger
+    svgClone.querySelectorAll('.chair-rect').forEach(chair => { 
+        chair.style.fill = "#eeeeee"; 
+        chair.style.stroke = "#999999"; 
+    });
+
+    const svgData = new XMLSerializer().serializeToString(svgClone);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    // Dimensions du canvas (ratio 1500x1800)
+    canvas.width = 1500; 
+    canvas.height = 1800;
+
+    img.onload = function() {
+        ctx.fillStyle = "white"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height); 
+        ctx.drawImage(img, 0, 0);
+
+        const pdf = new jsPDF({ 
+            orientation: 'portrait', 
+            unit: 'pt', 
+            format: [1500, 1800] 
+        });
+
+        pdf.addImage(canvas.toDataURL("image/jpeg", 1.0), 'JPEG', 0, 0, 1500, 1800);
+        pdf.save("plan_classe.pdf");
+    };
+
+    // Encodage moderne pour éviter les problèmes d'accents
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
+}
+
+    document.getElementById('btn-shuffle').onclick = function() {
+        pushHistory();
+        let names = studentData.map(s => ({n: s.name, niv: s.niveau}));
         for (let i = names.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [names[i], names[j]] = [names[j], names[i]];
         }
-        desks.forEach((d, i) => {
-            d.style.transition = 'transform 0.4s';
-            d.textContent = names[i];
-            setTimeout(() => d.style.transition = '', 500);
-        });
-        savePositionsSilent();
-    }
+        studentData.forEach((s, i) => { s.name = names[i].n; s.niveau = names[i].niv; }); sync();
+    };
 
-    function saveAndReload() {
-        const names = document.getElementById('liste-input').value.split('\n').map(n => n.trim()).filter(n => n !== "");
-        if (names.length === 0) return;
-        pushHistory();
-        studentData = names.map((name, i) => {
-            const ex = studentData[i] || {};
-            return { name: name, x: ex.x || 20, y: ex.y || 20 + (i*5), r: ex.r || 0 };
-        });
-        sync(); fermerConfig();
+    function toggleLock() {
+        isLocked = !isLocked;
+        document.getElementById('btn-mode').textContent = isLocked ? '🔒' : '🔓';
+        document.getElementById('btn-mode').style.background = isLocked ? 'var(--theme-color)' : 'rgba(128,128,128,0.1)';
+        document.getElementById('btn-mode').style.color = isLocked ? 'var(--contrast-color)' : 'inherit';
     }
 
     function exporterPlan() {
-        const blob = new Blob([JSON.stringify(studentData, null, 2)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'plan_classe.json'; a.click();
+        const blob = new Blob([JSON.stringify(studentData)], {type: "application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'plan_classe.json'; a.click();
     }
 
     function importerPlan() {
         const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
         inp.onchange = e => {
-            const f = e.target.files[0]; const r = new FileReader();
-            r.onload = ev => { 
-                try {
-                    pushHistory();
-                    studentData = JSON.parse(ev.target.result); 
-                    sync();
-                } catch(e) { alert("Fichier invalide"); }
-            };
-            r.readAsText(f);
+            const r = new FileReader();
+            r.onload = ev => { pushHistory(); studentData = JSON.parse(ev.target.result); sync(); };
+            r.readAsText(e.target.files[0]);
         };
         inp.click();
     }
 
-    function ouvrirConfig() { document.getElementById('modal-config').style.display = 'flex'; document.getElementById('liste-input').value = studentData.map(s => s.name).join('\n'); }
-    function fermerConfig() { document.getElementById('modal-config').style.display = 'none'; }
-    function ouvrirAide() { alert("• Déplacer : Glisser\n• Pivoter : Double-tap\n• Annuler : ↶\n• Verrouiller (🔒) pour mélanger les noms sans bouger les tables."); }
+    function ouvrirAide() { alert("• Glisser : déplacer\n• Double-clic : pivoter\n• 🔀 : Mélanger les places\n• ➕ : Générer les tables de Ma Classe\n• 🗑️ : Tout effacer"); }
 
-    initClassroom();
+    drawPlan();
 </script>
 </body>
 </html>
