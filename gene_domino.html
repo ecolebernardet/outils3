@@ -90,32 +90,50 @@
     <div id="setup-zone" class="light-card space-y-4">
         <div>
             <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Titre de la fiche</label>
-            <input type="text" id="quiz-title" class="input-field mb-4" placeholder="Ex: Dominos des calculs">
+            <input type="text" id="quiz-title" class="input-field mb-4" placeholder="Ex: Dominos des calculs" oninput="saveDraft()">
             
             <label class="block text-[9px] font-black uppercase opacity-50 mb-2 text-center">Opération / Type</label>
-            <div class="grid grid-cols-2 gap-1 bg-black/10 p-1 rounded-xl mb-4">
+            <div class="grid grid-cols-3 gap-1 bg-black/10 p-1 rounded-xl mb-4">
                 <button onclick="setOp('+')" id="op-add" class="p-2 text-[9px] font-bold transition-all">Addition</button>
                 <button onclick="setOp('*')" id="op-mult" class="p-2 text-[9px] font-bold transition-all">Mult.</button>
+                <button onclick="setOp('other')" id="op-other" class="p-2 text-[9px] font-bold transition-all">Autres</button>
             </div>
 
-            <div id="add-options" class="hidden bg-black/5 p-3 rounded-xl mb-4 space-y-2">
-                <select id="auto-add-type" class="input-field text-center bg-transparent border-none">
-                    <option value="none">-- Saisie Manuelle --</option>
-                    <option value="c10">Compléments à 10</option>
-                    <option value="c20">Compléments à 20</option>
-                    <option value="c100">Compléments à 100</option>
-                    <option value="doubles">Les Doubles</option>
-                </select>
+            <div id="add-options" class="hidden bg-black/5 p-3 rounded-xl mb-4">
+                <div class="grid grid-cols-2 gap-2" id="add-buttons-grid">
+                    <button onclick="setAutoAdd('c10')" id="btn-c10" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 10</button>
+                    <button onclick="setAutoAdd('c20')" id="btn-c20" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 20</button>
+                    <button onclick="setAutoAdd('c100')" id="btn-c100" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 100</button>
+                    <button onclick="setAutoAdd('doubles')" id="btn-doubles" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Les Doubles</button>
+                </div>
+                <input type="hidden" id="auto-add-type" value="none">
             </div>
 
             <div id="tables-selector" class="hidden bg-black/5 p-3 rounded-xl mb-4">
                 <div class="grid grid-cols-5 gap-1 mb-2" id="tables-grid"></div>
                 <button onclick="selectAllTables()" class="w-full py-1 text-[8px] font-bold uppercase border border-white/10 rounded">Toutes les tables</button>
             </div>
+
+            <div id="other-options" class="hidden bg-black/5 p-3 rounded-xl mb-4">
+                <select id="preset-select" onchange="loadPreset(this.value)" class="input-field text-center">
+                    <option value="">-- Choisir un thème --</option>
+                    <option value="capitales">Capitales et Pays</option>
+                    <option value="synonymes">Synonymes</option>
+                    <option value="contraires">Contraires</option>
+                </select>
+            </div>
             
             <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Données personnalisées (Q ; R)</label>
-            <textarea id="quiz-data" class="input-field h-28 font-normal" placeholder="Paris ; France&#10;Londres ; Angleterre"></textarea>
+            <textarea id="quiz-data" class="input-field h-28 font-normal" placeholder="Paris ; France&#10;Londres ; Angleterre" oninput="saveDraft()"></textarea>
         </div>
+
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <button onclick="saveToTXT()" class="py-2 rounded-xl bg-black/10 text-[8px] font-black uppercase border border-white/10 hover:bg-black/20">💾 Sauver</button>
+            <button onclick="document.getElementById('fileInput').click()" class="py-2 rounded-xl bg-black/10 text-[8px] font-black uppercase border border-white/10 hover:bg-black/20">📂 Charger</button>
+            <button onclick="document.getElementById('modal-confirm-clear').style.display='flex'" class="py-2 rounded-xl bg-red-500/10 text-red-500 text-[8px] font-black uppercase border border-red-500/20 hover:bg-red-500/20">🗑️ Effacer</button>
+            <input type="file" id="fileInput" class="hidden" accept=".txt" onchange="loadFromTXT(event)">
+        </div>
+
         <button id="mainAddBtn" onclick="prepareAndGenerate()" class="btn-add">Générer les Dominos</button>
     </div>
 
@@ -136,7 +154,18 @@
             <p>En mode manuel, utilisez le format : <br><code class="bg-black/10 px-1">Question ; Réponse</code> (une par ligne).</p>
             <p>Découpez les dominos pour créer une boucle de jeu.</p>
         </div>
-        <button id="btn-fermer-aide" onclick="document.getElementById('modal-aide').style.display='none'" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase text-white">Compris</button>
+        <button onclick="document.getElementById('modal-aide').style.display='none'" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase bg-cyan-500 text-white btn-fermer-gen">Compris</button>
+    </div>
+</div>
+
+<div id="modal-confirm-clear" class="modal-overlay" onclick="this.style.display='none'">
+    <div class="modal-content text-center" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4 text-red-500">Confirmer ?</h2>
+        <p class="text-[11px] mb-6">Voulez-vous vraiment effacer toutes les données saisies ?</p>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="document.getElementById('modal-confirm-clear').style.display='none'" class="py-3 rounded-xl bg-gray-500 text-white text-[10px] font-black uppercase">Annuler</button>
+            <button onclick="confirmClearAll()" class="py-3 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase">Tout effacer</button>
+        </div>
     </div>
 </div>
 
@@ -146,13 +175,28 @@
         <div class="text-[11px] leading-relaxed text-center mb-6">
             <p id="msg-erreur">Veuillez choisir une option ou saisir des données.</p>
         </div>
-        <button id="btn-fermer-erreur" onclick="document.getElementById('modal-erreur').style.display='none'" class="w-full py-3 rounded-xl text-[10px] font-black uppercase text-white">D'accord</button>
+        <button onclick="document.getElementById('modal-erreur').style.display='none'" class="w-full py-3 rounded-xl text-[10px] font-black uppercase bg-red-500 text-white btn-fermer-gen">D'accord</button>
     </div>
 </div>
 
 <script>
     const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
     let pairs = [], currentOp = '+', selectedTables = [];
+
+    const PRESETS = {
+        capitales: {
+            title: "Capitales et Pays",
+            data: "Amsterdam ; Pays-Bas\nAthènes ; Grèce\nBerlin ; Allemagne\nBerne ; Suisse\nBrasília ; Brésil\nBruxelles ; Belgique\nBuenos Aires ; Argentine\nCanberra ; Australie\nCopenhague ; Danemark\nDakar ; Sénégal\nDublin ; Irlande\nHelsinki ; Finlande\nLisbonne ; Portugal\nLuxembourg ; Luxembourg\nMadrid ; Espagne\nMexico ; Mexique\nOslo ; Norvège\nOttawa ; Canada\nParis ; France\nPékin ; Chine\nPrague ; République Tchèque\nRabat ; Maroc\nReykjavik ; Islande\nRome ; Italie\nSéoul ; Corée du Sud\nStockholm ; Suède\nTokyo ; Japon\nVarsovie ; Pologne\nVienne ; Autriche\nWashington ; États-Unis\nWellington ; Nouvelle-Zélande"
+        },
+        synonymes: {
+            title: "Synonymes",
+            data: "Heureux ; Content\nTriste ; Malheureux\nGrand ; Géant\nPetit ; Minuscule\nBeau ; Joli\nRapide ; Véloce\nCalme ; Paisible\nCrier ; Hurler\nManger ; Dévorer\nParler ; Discuter\nAmi ; Copain\nAncien ; Vieux\nMaison ; Habitation\nChemin ; Sentier\nFinir ; Terminer"
+        },
+        contraires: {
+            title: "Contraires",
+            data: "Chaud ; Froid\nGrand ; Petit\nJour ; Nuit\nHaut ; Bas\nRapide ; Lent\nBeau ; Laid\nFort ; Faible\nOuvert ; Fermé\nPlein ; Vide\nGagné ; Perdu\nSombre ; Clair\nDur ; Mou\nLourd ; Léger\nDevant ; Derrière\nPremier ; Dernier"
+        }
+    };
 
     function appliquerTheme() {
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
@@ -166,16 +210,10 @@
             document.getElementById('btn-retour-liste'), 
             document.getElementById('btn-aide'), 
             document.getElementById('mainAddBtn'),
-            document.getElementById('btn-fermer-aide'),
-            document.getElementById('btn-fermer-erreur')
+            ...document.querySelectorAll('.btn-fermer-gen')
         ];
         
-        btns.forEach(b => { 
-            if(b) { 
-                b.style.backgroundColor = hexa; 
-                b.style.color = contrast; 
-            } 
-        });
+        btns.forEach(b => { if(b) { b.style.backgroundColor = hexa; b.style.color = contrast; } });
         setOp(currentOp);
     }
 
@@ -190,15 +228,35 @@
     function setOp(op) {
         currentOp = op;
         const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-        const bA = document.getElementById('op-add'), bM = document.getElementById('op-mult');
-        const multSec = document.getElementById('tables-selector'), addSec = document.getElementById('add-options');
+        const bA = document.getElementById('op-add'), bM = document.getElementById('op-mult'), bO = document.getElementById('op-other');
+        const multSec = document.getElementById('tables-selector'), addSec = document.getElementById('add-options'), otherSec = document.getElementById('other-options');
         
-        [bA, bM].forEach(b => b.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;");
-        const active = (op === '+') ? bA : bM;
+        [bA, bM, bO].forEach(b => b.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;");
+        const active = (op === '+') ? bA : (op === '*') ? bM : bO;
         const isLight = ['yellow', 'lime', 'amber', 'cyan'].some(c => accent.toLowerCase().includes(c));
         active.style.cssText = `background-color: ${accent} !important; color: ${isLight ? '#000' : '#fff'} !important; border-radius: 9999px;`;
         
-        op === '*' ? (multSec.classList.remove('hidden'), addSec.classList.add('hidden')) : (multSec.classList.add('hidden'), addSec.classList.remove('hidden'));
+        addSec.classList.toggle('hidden', op !== '+');
+        multSec.classList.toggle('hidden', op !== '*');
+        otherSec.classList.toggle('hidden', op !== 'other');
+
+        if (op === '+') setAutoAdd('none');
+    }
+
+    function setAutoAdd(type) {
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+        const isLight = ['yellow', 'lime', 'amber', 'cyan'].some(c => accent.toLowerCase().includes(c));
+        const input = document.getElementById('auto-add-type');
+        input.value = type;
+
+        const buttons = document.querySelectorAll('#add-buttons-grid button');
+        buttons.forEach(btn => { btn.style.backgroundColor = ''; btn.style.color = ''; });
+
+        if (type !== 'none') {
+            const activeBtn = document.getElementById(`btn-${type}`);
+            activeBtn.style.backgroundColor = accent;
+            activeBtn.style.color = isLight ? '#000' : '#fff';
+        }
     }
 
     function toggleTable(n) {
@@ -215,6 +273,68 @@
 
     function selectAllTables() { for(let i=1; i<=10; i++) if(!selectedTables.includes(i)) toggleTable(i); }
 
+    function loadPreset(key) {
+        if (!key || !PRESETS[key]) return;
+        document.getElementById('quiz-title').value = PRESETS[key].title;
+        document.getElementById('quiz-data').value = PRESETS[key].data;
+        saveDraft();
+    }
+
+    function saveDraft() {
+        localStorage.setItem('domino_draft_title', document.getElementById('quiz-title').value);
+        localStorage.setItem('domino_draft_data', document.getElementById('quiz-data').value);
+    }
+
+    function loadDraft() {
+        if(localStorage.getItem('domino_draft_title')) document.getElementById('quiz-title').value = localStorage.getItem('domino_draft_title');
+        if(localStorage.getItem('domino_draft_data')) document.getElementById('quiz-data').value = localStorage.getItem('domino_draft_data');
+    }
+
+    function confirmClearAll() {
+        document.getElementById('quiz-title').value = '';
+        document.getElementById('quiz-data').value = '';
+        localStorage.removeItem('domino_draft_title');
+        localStorage.removeItem('domino_draft_data');
+        setAutoAdd('none');
+        selectedTables = [];
+        initTables();
+        document.getElementById('modal-confirm-clear').style.display = 'none';
+    }
+
+    function saveToTXT() {
+        const data = document.getElementById('quiz-data').value.trim();
+        const titre = document.getElementById('quiz-title').value.trim() || "mes_dominos";
+        if (!data) { document.getElementById('modal-erreur').style.display = 'flex'; return; }
+
+        const fileContent = `TITRE:${titre}\n${data}`;
+        const blob = new Blob([fileContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `outilsprofs_dominos_${titre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function loadFromTXT(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            const lines = content.split('\n');
+            if (lines[0].startsWith('TITRE:')) {
+                document.getElementById('quiz-title').value = lines[0].replace('TITRE:', '').trim();
+                document.getElementById('quiz-data').value = lines.slice(1).join('\n');
+            } else {
+                document.getElementById('quiz-data').value = content;
+            }
+            saveDraft();
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
     function prepareAndGenerate() {
         let finalData = document.getElementById('quiz-data').value.trim();
         let autoLines = [];
@@ -230,11 +350,7 @@
         }
 
         if (autoLines.length > 0) { autoLines.sort(() => Math.random() - 0.5); finalData = autoLines.join('\n'); }
-        
-        if (!finalData) {
-            document.getElementById('modal-erreur').style.display = 'flex';
-            return;
-        }
+        if (!finalData) { document.getElementById('modal-erreur').style.display = 'flex'; return; }
         
         pairs = finalData.split('\n').map(l => ({ q: l.split(';')[0]?.trim(), a: l.split(';')[1]?.trim() })).filter(p => p.q && p.a);
         renderDominos();
@@ -255,7 +371,6 @@
                 </div>`;
         });
         document.getElementById('setup-zone').classList.add('hidden');
-        document.getElementById('container-retour-liste').classList.add('hidden');
         document.getElementById('game-zone').classList.remove('hidden');
     }
 
@@ -263,89 +378,37 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const titreDoc = document.getElementById('quiz-title').value.trim() || "Dominos";
-        
         doc.setFontSize(16);
         doc.text(titreDoc, 105, 15, { align: "center" });
 
         let x = 20, y = 25, w = 80, h = 30;
-
-        // 1. GÉNÉRATION DU DOMINO DE TITRE (ENTIER)
-        doc.setDrawColor(150);
-        doc.setLineWidth(0.5);
-        doc.rect(x, y, w, h);
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
+        doc.setDrawColor(150); doc.setLineWidth(0.5); doc.rect(x, y, w, h);
+        doc.setFontSize(14); doc.setFont("helvetica", "bold");
         doc.text(titreDoc, x + w/2, y + h/2 + 2, { align: "center", maxWidth: w - 10 });
         
         x += w + 10;
-
-        // 2. GÉNÉRATION DES DOMINOS DE JEU
-        doc.setFont("helvetica", "bold");
-        doc.setLineWidth(0.2);
-        
         pairs.forEach((pair, i) => {
             const prevA = (i === 0) ? pairs[pairs.length - 1].a : pairs[i-1].a;
-            
             if (y > 260) { doc.addPage(); x = 20; y = 20; }
-
-            doc.setDrawColor(150); 
-            doc.rect(x, y, w, h); 
-            doc.line(x + w/2, y, x + w/2, y + h); 
-            
-            doc.setTextColor(0);
-
-            // Fonction interne pour adapter la taille du texte à la cellule
-            const drawAutoScaledText = (text, posX, posY, maxW) => {
-                let fontSize = 18; // Taille de base souhaitée
-                doc.setFontSize(fontSize);
-                
-                // Réduction de la taille si le texte dépasse la largeur max
-                while (doc.getTextWidth(text) > maxW && fontSize > 6) {
-                    fontSize -= 1;
-                    doc.setFontSize(fontSize);
-                }
-                doc.text(text, posX, posY, { align: "center" });
+            doc.setDrawColor(150); doc.rect(x, y, w, h); doc.line(x + w/2, y, x + w/2, y + h);
+            const drawText = (t, px, py) => {
+                let fs = 18; doc.setFontSize(fs);
+                while (doc.getTextWidth(t) > (w/2-6) && fs > 6) { fs--; doc.setFontSize(fs); }
+                doc.text(t, px, py, { align: "center" });
             };
-
-            const maxCellWidth = w / 2 - 6; // Marge de sécurité
-            const textHeightOffset = 3;
-
-            // Affichage avec adaptation automatique
-            drawAutoScaledText(String(prevA), x + w/4, y + h/2 + textHeightOffset, maxCellWidth);
-            drawAutoScaledText(String(pair.q), x + (3*w/4), y + h/2 + textHeightOffset, maxCellWidth);
-
-            x += w + 10;
-            if (x > 150) { 
-                x = 20; 
-                y += h + 10; 
-            }
+            drawText(String(prevA), x + w/4, y + h/2 + 3);
+            drawText(String(pair.q), x + (3*w/4), y + h/2 + 3);
+            x += w + 10; if (x > 150) { x = 20; y += h + 10; }
         });
-        
-        const cleanTitre = titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        const fileName = `outilsprofs_dominos_${cleanTitre}.pdf`;
-
-        // COMPATIBILITÉ ANDROID / WEBVIEW
-        // Au lieu de save(), on utilise output('bloburl') qui est mieux géré par les navigateurs mobiles
-        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-            const blob = doc.output('blob');
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileName;
-            link.click();
-            setTimeout(() => URL.revokeObjectURL(url), 100);
-        } else {
-            doc.save(fileName);
-        }
+        doc.save(`outilsprofs_dominos_${titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`);
     }
 
     function retourReglages() {
         document.getElementById('game-zone').classList.add('hidden');
         document.getElementById('setup-zone').classList.remove('hidden');
-        document.getElementById('container-retour-liste').classList.remove('hidden');
     }
 
-    window.onload = () => { appliquerTheme(); initTables(); };
+    window.onload = () => { appliquerTheme(); initTables(); loadDraft(); };
 </script>
 </body>
 </html>
