@@ -123,11 +123,17 @@
             opacity: 0.5; margin-bottom: 4px; margin-left: 4px; letter-spacing: 0.5px;
         }
 
+        /* MODALES ET Z-INDEX */
         .modal-overlay {
-            display: none; position: fixed; inset: 0; z-index: 9999;
+            display: none; position: fixed; inset: 0; 
             background: var(--modal-overlay); backdrop-filter: blur(5px);
             align-items: center; justify-content: center; padding: 20px;
         }
+        
+        /* Ordre : Formulaire (900) < Aide/Confirm (950) */
+        #form-container { z-index: 900; }
+        #modal-aide, #custom-confirm { z-index: 950; }
+
         .modal-content {
             background: var(--card-bg); width: 100%; max-width: 400px; 
             border-radius: 1.5rem; padding: 25px; border: 1px solid var(--border-color);
@@ -139,6 +145,17 @@
             width: 40px; height: 40px; border-radius: 50%; 
             border: 1px solid var(--border-color); transition: all 0.2s ease;
         }
+
+        /* BOUTON FLOTTANT */
+        .fab-add {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 800;
+            border: none; cursor: pointer; transition: transform 0.2s;
+        }
+        .fab-add:active { transform: scale(0.9); }
+
         .toggle-list-btn { width: 100%; font-size: 9px; font-weight: 900; text-transform: uppercase; opacity: 0.4; margin-top: 8px; padding: 4px; }
         
         @keyframes blink-point {
@@ -147,15 +164,10 @@
             100% { transform: scale(0.9); opacity: 0.5; }
         }
         .mini-pastille {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #f97316;
-            border-radius: 50%;
-            margin-left: 4px;
-            margin-right: 2px;
-            box-shadow: 0 0 5px #f97316;
-            animation: blink-point 1.5s infinite;
+            display: inline-block; width: 8px; height: 8px;
+            background-color: #f97316; border-radius: 50%;
+            margin-left: 4px; margin-right: 2px;
+            box-shadow: 0 0 5px #f97316; animation: blink-point 1.5s infinite;
         }
 
         input[type=range] { -webkit-appearance: none; background: transparent; }
@@ -172,12 +184,10 @@
             <h2 id="aide-label" class="text-lg font-black uppercase mb-4">💡️ 108 heures</h2>
             <div class="text-[11px] leading-relaxed space-y-2 opacity-80 mb-6">
                 <p>• <b>Réglez</b> votre quotité de travail.</p>
-                <p>• <b>Saisie :</b> Sélectionnez la catégorie, la date et la durée puis ajoutez un commentaire.</p>
-                <p>• <b>Visualisation :</b> Dans chaque catégorie, cliquez sur "Détails" pour visualiser toutes les réunions de la catégorie.</p>
-                <p>• <b>Modification/Suppression :</b> Cliquez sur le détail de la réunion pour la modifier ou la supprimer.</p>
-                <p>• <b>Suivi :</b> Les jauges se remplissent selon les quotas officiels adaptés à votre quotité.</p>
-                <p>• <b>PDF :</b> Générez un bilan propre trié par rubriques.</p>
-                <br><strong>Pastille <span class="mini-pastille"></span> :</strong> Si elle apparaît sur le bouton export, cela signifie que vos données locales ne sont pas synchronisées avec votre dernier fichier de sauvegarde. Il est alors temps d'utiliser le bouton "👆 exporter.txt 👆".
+                <p>• <b>Saisie :</b> Cliquez sur le bouton <b>+</b> en bas à droite.</p>
+                <p>• <b>Modification :</b> Cliquez sur une réunion dans les détails pour l'éditer.</p>
+                <p>• <b>Export :</b> Sauvegardez régulièrement vos données en .txt.</p>
+                <br><strong>Pastille <span class="mini-pastille"></span> :</strong> Indique que vos données ne sont pas synchronisées avec votre dernier export.
             </div>
             <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full py-3 rounded-xl text-[10px] font-black uppercase">Fermer</button>
         </div>
@@ -190,6 +200,45 @@
                 <button onclick="closeConfirm(false)" class="flex-1 py-3 rounded-xl bg-neutral-500/20 text-[10px] font-black uppercase">Annuler</button>
                 <button id="confirm-yes" class="flex-1 py-3 rounded-xl text-white text-[10px] font-black uppercase shadow-lg">Confirmer</button>
             </div>
+        </div>
+    </div>
+
+    <div id="form-container" class="modal-overlay" onclick="closeForm()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="form-title" class="text-sm font-black uppercase mb-4 opacity-50">Nouvelle Saisie</h2>
+            <form id="heuresForm" class="flex flex-col gap-4">
+                <div class="grid grid-cols-4 gap-2">
+                    <label><input type="radio" name="cat" value="APC" class="card-input" checked><div class="card-label">APC</div></label>
+                    <label><input type="radio" name="cat" value="PEDAGO" class="card-input"><div class="card-label">Réunions</div></label>
+                    <label><input type="radio" name="cat" value="FORM" class="card-input"><div class="card-label">Formation</div></label>
+                    <label><input type="radio" name="cat" value="CONSEIL" class="card-input"><div class="card-label">Conseil</div></label>
+                </div>
+
+                <div>
+                    <p class="field-label">Date</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <select id="sel-jour" class="input-field"></select>
+                        <select id="sel-mois" class="input-field"></select>
+                        <select id="sel-annee" class="input-field"></select>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="field-label">Durée</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="sel-h" class="input-field"></select>
+                        <select id="sel-m" class="input-field"></select>
+                    </div>
+                </div>
+
+                <input type="text" id="comm" placeholder="Commentaire..." class="input-field" autocomplete="off">
+                
+                <div id="edit-actions" class="hidden flex gap-2">
+                    <button type="button" onclick="cancelEdit()" class="flex-1 font-black py-3 rounded-xl uppercase text-[10px] bg-neutral-500/20">Annuler</button>
+                    <button type="button" onclick="deleteEntry()" class="flex-1 font-black py-3 rounded-xl uppercase text-[10px] bg-red-600 text-white">Supprimer</button>
+                </div>
+                <button type="submit" id="submitBtn" class="font-black py-3 rounded-full uppercase text-[10px] active:scale-95 transition-transform text-white">Enregistrer</button>
+            </form>
         </div>
     </div>
 
@@ -211,42 +260,6 @@
                 <input type="range" id="range-quotite" min="10" max="100" step="5" value="100" class="flex-grow" oninput="updateQuotite(this.value)">
                 <span id="val-quotite" class="font-black text-sm w-12 text-right">100%</span>
             </div>
-        </div>
-
-        <div id="form-container" class="light-card p-4 mb-6">
-            <form id="heuresForm" class="flex flex-col gap-4">
-                <div class="grid grid-cols-4 gap-2">
-                    <label><input type="radio" name="cat" value="APC" class="card-input" checked><div class="card-label">APC</div></label>
-                    <label><input type="radio" name="cat" value="PEDAGO" class="card-input"><div class="card-label">Réunions</div></label>
-                    <label><input type="radio" name="cat" value="FORM" class="card-input"><div class="card-label">Formation</div></label>
-                    <label><input type="radio" name="cat" value="CONSEIL" class="card-input"><div class="card-label">Conseil</div></label>
-                </div>
-
-                <div>
-                    <p class="field-label">Date de la réunion</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        <select id="sel-jour" class="input-field"></select>
-                        <select id="sel-mois" class="input-field"></select>
-                        <select id="sel-annee" class="input-field"></select>
-                    </div>
-                </div>
-
-                <div>
-                    <p class="field-label">Durée de la réunion</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="sel-h" class="input-field"></select>
-                        <select id="sel-m" class="input-field"></select>
-                    </div>
-                </div>
-
-                <input type="text" id="comm" placeholder="Commentaire..." class="input-field" autocomplete="off">
-                
-                <div id="edit-actions" class="hidden flex gap-2">
-                    <button type="button" onclick="cancelEdit()" class="flex-1 font-black py-3 rounded-xl uppercase text-[10px] bg-neutral-500/20">Annuler</button>
-                    <button type="button" onclick="deleteEntry()" class="flex-1 font-black py-3 rounded-xl uppercase text-[10px] bg-red-600 text-white">Supprimer</button>
-                </div>
-                <button type="submit" id="submitBtn" class="font-black py-3 rounded-full uppercase text-[10px] active:scale-95 transition-transform text-white">Enregistrer</button>
-            </form>
         </div>
 
         <div id="globalStats" class="light-card p-4 mb-5">
@@ -283,6 +296,12 @@
         </footer>
     </div>
 
+    <button id="fab-plus" onclick="openForm()" class="fab-add text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
     <script>
     const mapCouleurs = {
         'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
@@ -308,6 +327,7 @@
     function initSelectors() {
         const sj = document.getElementById('sel-jour'), sm = document.getElementById('sel-mois'), sa = document.getElementById('sel-annee');
         const sh = document.getElementById('sel-h'), smin = document.getElementById('sel-m');
+        sj.innerHTML = ""; sm.innerHTML = ""; sa.innerHTML = ""; sh.innerHTML = ""; smin.innerHTML = "";
         for(let i=1; i<=31; i++) sj.innerHTML += `<option value="${i<10?'0'+i:i}">${i}</option>`;
         const mois = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
         mois.forEach((m, i) => sm.innerHTML += `<option value="${(i+1)<10?'0'+(i+1):(i+1)}">${m}</option>`);
@@ -315,6 +335,17 @@
         for(let i=an-1; i<=an+1; i++) sa.innerHTML += `<option value="${i}">${i}</option>`;
         for(let i=0; i<=10; i++) sh.innerHTML += `<option value="${i}">${i} h</option>`;
         for(let i=0; i<60; i+=5) smin.innerHTML += `<option value="${i}">${i<10?'0'+i:i} min</option>`;
+    }
+
+    function openForm() {
+        const form = document.getElementById('form-container');
+        form.style.display = 'flex';
+        document.getElementById('form-title').innerText = editId ? "Modifier la saisie" : "Nouvelle Saisie";
+    }
+
+    function closeForm() {
+        if (editId) cancelEdit();
+        document.getElementById('form-container').style.display = 'none';
     }
 
     function updateQuotite(val) {
@@ -367,7 +398,7 @@
 
     function appliquerCouleursTheme() {
         const textCol = isDarkTextNeeded ? '#000' : '#fff';
-        const ids = ['btn-retour', 'btn-aide', 'submitBtn', 'confirm-yes', 'btn-fermer-aide'];
+        const ids = ['btn-retour', 'btn-aide', 'submitBtn', 'confirm-yes', 'btn-fermer-aide', 'fab-plus'];
         ids.forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.style.backgroundColor = hexaTheme; el.style.color = textCol; }
@@ -376,7 +407,6 @@
         document.getElementById('aide-label').style.color = hexaTheme;
         document.getElementById('range-quotite').style.accentColor = hexaTheme;
 
-        // Injection du style pour la piste du slider pour la couleur dynamique
         const styleSlider = document.createElement('style');
         styleSlider.innerHTML = `
             input[type=range]::-webkit-slider-runnable-track { background: ${hexaTheme}44 !important; }
@@ -418,6 +448,7 @@
         saveAndRender();
         this.reset();
         initDate();
+        document.getElementById('form-container').style.display = 'none';
     };
 
     function chargerPourEdition(id) {
@@ -431,7 +462,7 @@
         document.getElementById('comm').value = r.comm || "";
         document.getElementById('submitBtn').innerText = "Mettre à jour";
         document.getElementById('edit-actions').classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        openForm();
     }
 
     function cancelEdit() {
@@ -447,6 +478,7 @@
             reunions = reunions.filter(r => r.id !== editId);
             cancelEdit();
             saveAndRender();
+            document.getElementById('form-container').style.display = 'none';
         });
     }
 
@@ -480,12 +512,11 @@
             col.innerHTML = `
                 <div class="mb-1 relative">
                     <div class="flex items-center gap-1.5 mb-1">
-                        <h3 class="text-[9px] font-black uppercase opacity-60">${LABELS_BASE[catKey]} (${formatDuree(QUOTAS[catKey])})</h3>
+                        <h3 class="text-[9px] font-black uppercase opacity-60">${LABELS_BASE[catKey]}</h3>
                         ${depasse ? `<span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>` : ''}
                     </div>
                     <div class="progress-container"><div class="progress-bar" style="width: ${Math.min((fait/QUOTAS[catKey])*100, 100)}%; background-color: ${hexaTheme}"></div></div>
                     <p class="text-[8px] font-extrabold opacity-40 uppercase">${formatDuree(fait)} / ${formatDuree(QUOTAS[catKey])}</p>
-                    ${depasse ? `<p class="text-[7px] text-orange-500 font-bold mt-1 leading-tight uppercase">⚠️ Quota dépassé</p>` : ''}
                 </div>
                 <button id="btn-${catKey}" onclick="toggleListe('${catKey}')" class="toggle-list-btn">Détails</button>
                 <div id="list-${catKey}" class="mt-2 space-y-1" style="display:none"></div>`;
@@ -532,33 +563,20 @@
     }
 
     function exportData() {
-        if (reunions.length === 0) {
-            alert("Aucune donnée à exporter.");
-            return;
-        }
-        
+        if (reunions.length === 0) { alert("Aucune donnée."); return; }
         const date = new Date().toISOString().split('T')[0];
         const fileName = `outilsprofs_108heures_${date}.txt`;
         const content = JSON.stringify(reunions);
-
-        // Vérifie si l'interface Android existe (cas de votre application Kotlin)
         if (window.Android && window.Android.exportTxt) {
             window.Android.exportTxt(content, fileName);
             updateExportBadge(false);
         } else {
-            // Solution de secours pour navigateur classique (PC/Chrome)
             const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                updateExportBadge(false);
-            }, 100);
+            a.href = url; a.download = fileName;
+            document.body.appendChild(a); a.click();
+            setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); updateExportBadge(false); }, 100);
         }
     }
 
@@ -570,10 +588,8 @@
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    customConfirm("Remplacer les données actuelles ?", () => {
-                        reunions = imported; 
-                        saveAndRender();
-                        updateExportBadge(false);
+                    customConfirm("Remplacer les données ?", () => {
+                        reunions = imported; saveAndRender(); updateExportBadge(false);
                     });
                 }
             } catch(e) { console.error("Erreur import"); }
@@ -587,80 +603,38 @@
         const quotite = localStorage.getItem('quotite_pro') || 100;
         const dateFichier = new Date().toISOString().split('T')[0];
         const fileName = `outilsprofs_108h_${profNom}_${dateFichier}.pdf`;
-        
-        // Construction du document HTML pour le PDF
         const element = document.createElement('div');
-        element.style.padding = '20px';
-        element.style.color = 'black';
-        element.style.backgroundColor = 'white';
-
-        let html = `
-            <div style="text-align:center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; font-family: Arial, sans-serif;">
-                <h1 style="font-size:18px; margin:0;">BILAN 108 HEURES</h1>
-                <p style="margin:5px 0;">${profNom} - Quotité : ${quotite}%</p>
-                <p style="font-size:10px;">Généré le ${new Date().toLocaleDateString('fr-FR')}</p>
-            </div>`;
+        element.style.padding = '20px'; element.style.color = 'black'; element.style.backgroundColor = 'white';
+        let html = `<div style="text-align:center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; font-family: Arial;">
+            <h1 style="font-size:18px; margin:0;">BILAN 108 HEURES</h1>
+            <p>${profNom} - Quotité : ${quotite}%</p>
+            <p style="font-size:10px;">Le ${new Date().toLocaleDateString('fr-FR')}</p></div>`;
 
         Object.keys(QUOTAS).forEach(catKey => {
             const reuCat = reunions.filter(r => r.cat === catKey);
             const fait = reuCat.reduce((sum, r) => sum + r.minutes, 0);
-            html += `
-                <div style="margin-bottom: 15px; border: 1px solid #ddd; font-family: Arial, sans-serif;">
-                    <div style="background:#f0f0f0; padding:8px; font-weight:bold;">
-                        ${LABELS_BASE[catKey]} (${formatDuree(fait)} / ${formatDuree(QUOTAS[catKey])})
-                    </div>
-                    <table style="width:100%; border-collapse:collapse; font-size:11px;">
-                        <thead>
-                            <tr style="border-bottom:1px solid #000;">
-                                <th style="text-align:left; padding:6px;">Date</th>
-                                <th style="text-align:left; padding:6px;">Objet</th>
-                                <th style="text-align:right; padding:6px;">Durée</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-            if (reuCat.length === 0) {
-                html += `<tr><td colspan="3" style="padding:10px; color:gray;">Aucune saisie</td></tr>`;
-            } else {
+            html += `<div style="margin-bottom: 15px; border: 1px solid #ddd; font-family: Arial;">
+                <div style="background:#f0f0f0; padding:8px; font-weight:bold;">${LABELS_BASE[catKey]} (${formatDuree(fait)} / ${formatDuree(QUOTAS[catKey])})</div>
+                <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                    <thead><tr style="border-bottom:1px solid #000;"><th style="text-align:left; padding:6px;">Date</th><th style="text-align:left; padding:6px;">Objet</th><th style="text-align:right; padding:6px;">Durée</th></tr></thead>
+                    <tbody>`;
+            if (reuCat.length === 0) html += `<tr><td colspan="3" style="padding:10px; color:gray;">Aucune saisie</td></tr>`;
+            else {
                 reuCat.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(r => {
-                    html += `
-                        <tr style="border-bottom:1px solid #eee;">
-                            <td style="padding:6px;">${new Date(r.date).toLocaleDateString('fr-FR')}</td>
-                            <td style="padding:6px;">${r.comm || '-'}</td>
-                            <td style="padding:6px; text-align:right;">${formatDuree(r.minutes)}</td>
-                        </tr>`;
+                    html += `<tr style="border-bottom:1px solid #eee;"><td style="padding:6px;">${new Date(r.date).toLocaleDateString('fr-FR')}</td><td style="padding:6px;">${r.comm || '-'}</td><td style="padding:6px; text-align:right;">${formatDuree(r.minutes)}</td></tr>`;
                 });
             }
             html += `</tbody></table></div>`;
         });
-
         element.innerHTML = html;
-
-        const opt = {
-            margin: 10,
-            filename: fileName,
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        // On utilise l'interface Android si disponible
+        const opt = { margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }};
         if (window.Android && window.Android.savePdfFromBase64) {
-            // Utilisation d'une méthode de sortie plus robuste pour WebView
             html2pdf().set(opt).from(element).output('datauristring').then((pdfBase64) => {
-                // Le format datauristring inclut le header "data:application/pdf;base64,"
-                // On le retire pour n'envoyer que les données pures à Kotlin
-                const base64Clean = pdfBase64.split(',')[1];
-                window.Android.savePdfFromBase64(base64Clean, fileName);
-            }).catch(err => {
-                alert("Erreur technique PDF");
-                console.error(err);
+                window.Android.savePdfFromBase64(pdfBase64.split(',')[1], fileName);
             });
-        } else {
-            // Standard PC
-            html2pdf().set(opt).from(element).save();
-        }
+        } else { html2pdf().set(opt).from(element).save(); }
     }
-	
+    
     window.addEventListener('DOMContentLoaded', () => { 
         initSelectors();
         appliquerCouleursTheme(); 
