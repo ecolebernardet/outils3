@@ -192,13 +192,38 @@
 
 <div id="modal-aide" class="modal-overlay" onclick="fermerModale('modal-aide')">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="font-black uppercase mb-4 flex items-center gap-2">💡 Mode d'emploi</h2>
-        <div class="text-[11px] opacity-90 leading-relaxed max-h-[60vh] overflow-y-auto">
-            <p><strong>Rotation :</strong> Double-cliquez sur un élément pour pivoter de 45°.</p>
-            <p><strong>Zoom :</strong> Utilisez les boutons + et - sous le plan. Le déplacement au doigt est accéléré en zoom.</p>
+        <h2 class="font-black uppercase mb-4 flex items-center gap-2">💡 Guide des outils</h2>
+        <div class="text-[11px] opacity-90 leading-relaxed max-h-[60vh] overflow-y-auto space-y-4">
+            
+            <section>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Navigation & Zoom</h3>
+                <p><strong>＋ / － :</strong> Zoomer ou dézoomer sur le plan.</p>
+                <p><strong>RESET 1:1 :</strong> Réinitialise l'affichage pour voir tout le plan.</p>
+                <p><strong>Déplacement :</strong> En mode zoom, glissez le doigt sur le fond pour naviguer.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Édition des éléments</h3>
+                <p><strong>Déplacer :</strong> Touchez et glissez un meuble ou une table.</p>
+                <p><strong>Pivoter :</strong> Double-cliquez sur un élément pour une rotation de 45°.</p>
+                <p><strong>Sélection :</strong> Touchez un élément pour l'activer (contour épais).</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Barre d'outils</h3>
+                <p><strong>🔓/🔒 Cadenas :</strong> Verrouille les meubles pour éviter les erreurs de manipulation pendant le zoom.</p>
+                <p><strong>↶ / ↷ Flèches :</strong> Annuler ou rétablir vos dernières modifications.</p>
+                <p><strong>➕ Plus :</strong> Ajouter un bureau élève, un tableau, un meuble ou une porte.</p>
+                <p><strong>🧽 Éponge :</strong> Supprime l'élément actuellement sélectionné.</p>
+                <p><strong>📋 Presse-papier :</strong> Génère automatiquement les tables de vos élèves enregistrés dans la rubrique "Ma classe".</p>
+                <p><strong>🗑️ Corbeille :</strong> Efface tout le plan pour recommencer à zéro.</p>
+                <p><strong>💾 / 📂 Disquette/Dossier :</strong> Sauvegarder ou charger un fichier de plan (.json).</p>
+                <p><strong>📄 Fichier :</strong> Exporte votre plan en format PDF pour l'impression.</p>
+            </section>
         </div>
-        <button onclick="fermerModale('modal-aide')" class="mt-6 btn-modal-action">J'ai compris</button>
+        <button onclick="fermerModale('modal-aide')" id="btn-fermer-aide" class="mt-6 btn-modal-action">J'ai compris</button>
     </div>
+</div>
 </div>
 
 <div id="modal-create" class="modal-overlay">
@@ -223,12 +248,15 @@
     document.documentElement.style.setProperty('--contrast-color', contrast);
 
     function appliquerCouleursDynamiques() {
-        const ids = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-valider-create'];
-        ids.forEach(id => { 
-            const el = document.getElementById(id);
-            if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; } 
-        });
-    }
+    const ids = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-valider-create', 'btn-fermer-aide'];
+    ids.forEach(id => { 
+        const el = document.getElementById(id);
+        if(el) { 
+            el.style.backgroundColor = themeColor; 
+            el.style.color = contrast; 
+        } 
+    });
+}
 
     let isLocked = false;
     let studentData = JSON.parse(localStorage.getItem('plan_vector_v1')) || [];
@@ -239,7 +267,7 @@
     let currentScale = 1;
     let translateX = 0;
     let translateY = 0;
-    const SPEED_MULTIPLIER = 3; // Déplacement plus rapide au doigt en zoom
+    const SPEED_MULTIPLIER = 5; // Déplacement plus rapide au doigt en zoom
     
     const SVG_NS = "http://www.w3.org/2000/svg";
     const DESK_W = 180, DESK_H = 100, PROF_W = 360, PROF_H = 180, MEUBLE_W = 320, MEUBLE_H = 80, DOOR_W = 200, DOOR_H = 40, BOARD_W = 900, BOARD_H = 40;
@@ -298,62 +326,72 @@
     }
 
     function drawPlan() {
-        const layer = document.getElementById('main-layer');
-        layer.innerHTML = '';
+    const layer = document.getElementById('main-layer');
+    layer.innerHTML = '';
 
-        const walls = document.createElementNS(SVG_NS, "rect");
-        walls.setAttribute("x", 5); walls.setAttribute("y", 5);
-        walls.setAttribute("width", 1790); walls.setAttribute("height", 1790);
-        walls.setAttribute("fill", "none"); walls.setAttribute("stroke", "var(--column-border)");
-        walls.setAttribute("stroke-width", "10"); walls.style.pointerEvents = "none";
-        layer.appendChild(walls);
+    const walls = document.createElementNS(SVG_NS, "rect");
+    walls.setAttribute("x", 5); walls.setAttribute("y", 5);
+    walls.setAttribute("width", 1790); walls.setAttribute("height", 1790);
+    walls.setAttribute("fill", "none"); walls.setAttribute("stroke", "var(--column-border)");
+    walls.setAttribute("stroke-width", "10"); walls.style.pointerEvents = "none";
+    layer.appendChild(walls);
 
-        studentData.forEach((student, index) => {
-            const g = document.createElementNS(SVG_NS, "g");
-            g.setAttribute("class", "desk-group" + (selectedIndex === index ? " selected" : ""));
-            g.setAttribute("id", `desk-${index}`);
-            const x = student.x || 900, y = student.y || 900, r = student.r || 0;
-            g.setAttribute("transform", `translate(${x},${y}) rotate(${r})`);
-            g.setAttribute("data-x", x); g.setAttribute("data-y", y); g.setAttribute("data-r", r);
+    studentData.forEach((student, index) => {
+        const g = document.createElementNS(SVG_NS, "g");
+        g.setAttribute("class", "desk-group" + (selectedIndex === index ? " selected" : ""));
+        g.setAttribute("id", `desk-${index}`);
+        const x = student.x || 900, y = student.y || 900, r = student.r || 0;
+        g.setAttribute("transform", `translate(${x},${y}) rotate(${r})`);
+        g.setAttribute("data-x", x); g.setAttribute("data-y", y); g.setAttribute("data-r", r);
+        
+        let currentW = DESK_W, currentH = DESK_H, hasChair = true;
+        if (student.niveau === 'PROF') { currentW = PROF_W; currentH = PROF_H; }
+        else if (student.niveau === 'MEUBLE') { currentW = MEUBLE_W; currentH = MEUBLE_H; hasChair = false; }
+        else if (student.niveau === 'PORTE') { currentW = DOOR_W; currentH = DOOR_H; hasChair = false; }
+        else if (student.niveau === 'TABLEAU') { currentW = BOARD_W; currentH = BOARD_H; hasChair = false; }
+
+        const color = couleurParNiveau[student.niveau] || couleurDefautBureau;
+        const rect = document.createElementNS(SVG_NS, "rect");
+        rect.setAttribute("class", "desk-rect");
+        rect.setAttribute("x", -currentW/2); rect.setAttribute("y", -currentH/2);
+        rect.setAttribute("width", currentW); rect.setAttribute("height", currentH);
+        rect.style.fill = color;
+        g.appendChild(rect);
+
+        if (hasChair) {
+            const chair = document.createElementNS(SVG_NS, "rect");
+            chair.setAttribute("class", "chair-rect");
+            chair.setAttribute("x", -30); chair.setAttribute("y", currentH/2 + 5);
+            chair.setAttribute("width", 60); chair.setAttribute("height", 15);
+            g.appendChild(chair);
+        }
+
+        if (student.name) {
+            const text = document.createElementNS(SVG_NS, "text");
+            text.setAttribute("class", "desk-label");
+            if(student.niveau === 'TABLEAU') text.setAttribute("fill", "white");
+            text.setAttribute("x", "0"); text.setAttribute("y", "0");
+            text.textContent = student.name;
             
-            let currentW = DESK_W, currentH = DESK_H, hasChair = true;
-            if (student.niveau === 'PROF') { currentW = PROF_W; currentH = PROF_H; }
-            else if (student.niveau === 'MEUBLE') { currentW = MEUBLE_W; currentH = MEUBLE_H; hasChair = false; }
-            else if (student.niveau === 'PORTE') { currentW = DOOR_W; currentH = DOOR_H; hasChair = false; }
-            else if (student.niveau === 'TABLEAU') { currentW = BOARD_W; currentH = BOARD_H; hasChair = false; }
-
-            const color = couleurParNiveau[student.niveau] || couleurDefautBureau;
-            const rect = document.createElementNS(SVG_NS, "rect");
-            rect.setAttribute("class", "desk-rect");
-            rect.setAttribute("x", -currentW/2); rect.setAttribute("y", -currentH/2);
-            rect.setAttribute("width", currentW); rect.setAttribute("height", currentH);
-            rect.style.fill = color;
-            g.appendChild(rect);
-
-            if (hasChair) {
-                const chair = document.createElementNS(SVG_NS, "rect");
-                chair.setAttribute("class", "chair-rect");
-                chair.setAttribute("x", -30); chair.setAttribute("y", currentH/2 + 5);
-                chair.setAttribute("width", 60); chair.setAttribute("height", 15);
-                g.appendChild(chair);
+            // --- LOGIQUE DE ROTATION DU NOM ---
+            // Par défaut, à 0°, le texte est face à la chaise (placée en bas).
+            // À 90°, le texte pivote avec le groupe et reste face à la chaise.
+            // On ne le retourne (180°) que si la table est entre 135° et 225° 
+            // pour éviter que le texte ne soit totalement à l'envers pour le prof.
+            if (r > 130 && r < 230) {
+                text.setAttribute("transform", `rotate(180)`);
             }
+            
+            g.appendChild(text);
+        }
 
-            if (student.name) {
-                const text = document.createElementNS(SVG_NS, "text");
-                text.setAttribute("class", "desk-label");
-                if(student.niveau === 'TABLEAU') text.setAttribute("fill", "white");
-                text.setAttribute("x", "0"); text.setAttribute("y", "0");
-                text.textContent = student.name;
-                g.appendChild(text);
-            }
-
-            g.addEventListener('click', (e) => { e.stopPropagation(); deselectAllManual(); g.classList.add('selected'); selectedIndex = index; updateButtons(); });
-            g.addEventListener('dblclick', (e) => { e.stopPropagation(); if(!isLocked) { pushHistory(); student.r = (parseInt(student.r || 0) + 45) % 360; sync(); } });
-            layer.appendChild(g);
-        });
-        setupInteract();
-        applyTransform();
-    }
+        g.addEventListener('click', (e) => { e.stopPropagation(); deselectAllManual(); g.classList.add('selected'); selectedIndex = index; updateButtons(); });
+        g.addEventListener('dblclick', (e) => { e.stopPropagation(); if(!isLocked) { pushHistory(); student.r = (parseInt(student.r || 0) + 45) % 360; sync(); } });
+        layer.appendChild(g);
+    });
+    setupInteract();
+    applyTransform();
+}
 
     function deselectAllManual() { document.querySelectorAll('.desk-group').forEach(el => el.classList.remove('selected')); selectedIndex = null; updateButtons(); }
     function deselectAll(e) { if (e.target.id === 'plan-svg') { deselectAllManual(); document.getElementById('add-menu').classList.add('hidden'); } }
