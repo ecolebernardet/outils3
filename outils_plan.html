@@ -49,7 +49,7 @@
             background: var(--bg-page);
             overflow: hidden;
             padding: 10px;
-            padding-bottom: 90px;
+            padding-bottom: 20px;
         }
 
         svg {
@@ -67,6 +67,17 @@
         .desk-group.selected .desk-rect { stroke: var(--theme-color); stroke-width: 8; }
         .desk-label { fill: black; font-size: 30px; font-weight: 900; text-anchor: middle; dominant-baseline: middle; pointer-events: none; text-transform: uppercase; }
         .chair-rect { fill: #2e7d32; rx: 2; }
+
+        /* Nouveaux styles pour les contrôles de zoom sous le plan */
+        #zoom-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            z-index: 250;
+            margin-bottom: 85px; /* Laisse de la place pour la toolbar */
+        }
 
         .toolbar {
             position: fixed; 
@@ -98,7 +109,9 @@
         .btn-modal-action { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; cursor: pointer; border: none; }
     </style>
 </head>
-<body class="dark-mode"> <header>
+<body>
+
+<header>
     <a href="index.html" id="btn-retour">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
@@ -121,12 +134,12 @@
             <g id="main-layer"></g>
         </svg>
     </div>
-</div>
 
-<div id="zoom-controls" class="fixed bottom-[145px] right-6 flex flex-col gap-2 z-[250]">
-    <button onclick="changeZoom(0.2)" class="w-12 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-xl font-bold flex items-center justify-center">＋</button>
-    <button onclick="resetZoom()" class="w-12 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-[10px] font-black flex items-center justify-center">1:1</button>
-    <button onclick="changeZoom(-0.2)" class="w-12 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-xl font-bold flex items-center justify-center">－</button>
+    <div id="zoom-controls">
+        <button onclick="changeZoom(-0.2)" class="w-12 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-xl font-bold flex items-center justify-center">－</button>
+        <button onclick="resetZoom()" class="px-6 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-[10px] font-black flex items-center justify-center uppercase">Reset 1:1</button>
+        <button onclick="changeZoom(0.2)" class="w-12 h-12 bg-[var(--header-bg)] border border-[var(--column-border)] rounded-full shadow-lg text-xl font-bold flex items-center justify-center">＋</button>
+    </div>
 </div>
 
 <div id="add-menu" class="hidden fixed bottom-[95px] left-1/2 -translate-x-1/2 bg-[var(--header-bg)] border border-[var(--column-border)] p-4 rounded-3xl shadow-2xl flex gap-4 z-[300]">
@@ -181,8 +194,7 @@
         <h2 class="font-black uppercase mb-4 flex items-center gap-2">💡 Mode d'emploi</h2>
         <div class="text-[11px] opacity-90 leading-relaxed max-h-[60vh] overflow-y-auto">
             <p><strong>Rotation :</strong> Double-cliquez sur un élément pour pivoter de 45°.</p>
-            <p><strong>Zoom :</strong> Utilisez les boutons + et - ou 1:1. En zoom, déplacez le plan au doigt.</p>
-            <p><strong>Tableau :</strong> Vous pouvez désormais placer et déplacer le tableau librement.</p>
+            <p><strong>Zoom :</strong> Utilisez les boutons + et - sous le plan. Le déplacement au doigt est accéléré en zoom.</p>
         </div>
         <button onclick="fermerModale('modal-aide')" class="mt-6 btn-modal-action">J'ai compris</button>
     </div>
@@ -210,8 +222,11 @@
     document.documentElement.style.setProperty('--contrast-color', contrast);
 
     function appliquerCouleursDynamiques() {
-        const els = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-valider-create'].map(id => document.getElementById(id));
-        els.forEach(el => { if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; } });
+        const ids = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-valider-create'];
+        ids.forEach(id => { 
+            const el = document.getElementById(id);
+            if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; } 
+        });
     }
 
     let isLocked = false;
@@ -219,16 +234,14 @@
     let historyStack = [], redoStack = [];
     let selectedIndex = null;
 
+    // Variables Zoom
     let currentScale = 1;
     let translateX = 0;
     let translateY = 0;
+    const SPEED_MULTIPLIER = 1.8; // Déplacement plus rapide au doigt en zoom
     
     const SVG_NS = "http://www.w3.org/2000/svg";
-    const DESK_W = 180, DESK_H = 100;
-    const PROF_W = 360, PROF_H = 180;
-    const MEUBLE_W = 320, MEUBLE_H = 80;
-    const DOOR_W = 200, DOOR_H = 40;
-    const BOARD_W = 900, BOARD_H = 40;
+    const DESK_W = 180, DESK_H = 100, PROF_W = 360, PROF_H = 180, MEUBLE_W = 320, MEUBLE_H = 80, DOOR_W = 200, DOOR_H = 40, BOARD_W = 900, BOARD_H = 40;
 
     const couleurParNiveau = { 
         'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 
@@ -247,6 +260,7 @@
     }
     function toggleAddMenu() { document.getElementById('add-menu').classList.toggle('hidden'); }
 
+    // Fonctions Zoom
     function changeZoom(delta) {
         const newScale = Math.min(Math.max(currentScale + delta, 1), 4);
         if (newScale !== currentScale) {
@@ -258,17 +272,15 @@
     }
 
     function resetZoom() {
-        currentScale = 1;
-        translateX = 0;
-        translateY = 0;
+        currentScale = 1; translateX = 0; translateY = 0;
         if (isLocked) toggleLock();
         applyTransform();
     }
 
     function applyTransform() {
         const layer = document.getElementById('main-layer');
-        layer.style.transition = "transform 0.1s ease-out";
-        layer.style.transformOrigin = "center";
+        layer.style.transition = "transform 0.15s ease-out";
+        layer.style.transformOrigin = "center center";
         layer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentScale})`;
     }
 
@@ -299,20 +311,17 @@
             const g = document.createElementNS(SVG_NS, "g");
             g.setAttribute("class", "desk-group" + (selectedIndex === index ? " selected" : ""));
             g.setAttribute("id", `desk-${index}`);
-            
             const x = student.x || 900, y = student.y || 900, r = student.r || 0;
             g.setAttribute("transform", `translate(${x},${y}) rotate(${r})`);
             g.setAttribute("data-x", x); g.setAttribute("data-y", y); g.setAttribute("data-r", r);
             
             let currentW = DESK_W, currentH = DESK_H, hasChair = true;
-
             if (student.niveau === 'PROF') { currentW = PROF_W; currentH = PROF_H; }
             else if (student.niveau === 'MEUBLE') { currentW = MEUBLE_W; currentH = MEUBLE_H; hasChair = false; }
             else if (student.niveau === 'PORTE') { currentW = DOOR_W; currentH = DOOR_H; hasChair = false; }
             else if (student.niveau === 'TABLEAU') { currentW = BOARD_W; currentH = BOARD_H; hasChair = false; }
 
             const color = couleurParNiveau[student.niveau] || couleurDefautBureau;
-
             const rect = document.createElementNS(SVG_NS, "rect");
             rect.setAttribute("class", "desk-rect");
             rect.setAttribute("x", -currentW/2); rect.setAttribute("y", -currentH/2);
@@ -375,12 +384,13 @@
             }
         });
 
+        // Déplacement panoramique (accelerated)
         interact('#plan-svg').draggable({
             listeners: {
                 move(event) {
                     if (currentScale > 1) {
-                        translateX += event.dx;
-                        translateY += event.dy;
+                        translateX += event.dx * SPEED_MULTIPLIER;
+                        translateY += event.dy * SPEED_MULTIPLIER;
                         applyTransform();
                     }
                 }
@@ -404,7 +414,7 @@
         return `outilsprofs_plan_classe_${nomProf}_${dateStr}.${ext}`;
     }
     
-    function exportPDF() { /* Logique jsPDF existante */ }
+    function exportPDF() { /* Logique jsPDF */ }
     function exporterPlan() { const blob = new Blob([JSON.stringify(studentData)], {type: "application/json"}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = getExportFileName('json'); a.click(); }
     function importerPlan() { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json'; inp.onchange = e => { const reader = new FileReader(); reader.onload = ev => { studentData = JSON.parse(ev.target.result); sync(); }; reader.readAsText(e.target.files[0]); }; inp.click(); }
     function genererTablesDepuisClasse() { const list = JSON.parse(localStorage.getItem('maListeEleves') || "[]"); if(list.length) { pushHistory(); studentData = list.map((el, i) => ({ name: el.identite.split(' ')[0], niveau: el.niveau, x: 220 + ((i % 5) * 260), y: 200 + (Math.floor(i / 5) * 240), r: 0 })); sync(); } }
