@@ -148,13 +148,33 @@
 
         /* BOUTON FLOTTANT */
         .fab-add {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 56px; height: 56px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 800;
-            border: none; cursor: pointer; transition: transform 0.2s;
-        }
-        .fab-add:active { transform: scale(0.9); }
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    /* Ombre exacte de la page memos */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+}
+
+.fab-add:active {
+    transform: scale(0.9);
+}
+
+/* Optionnel : effet de survol pour PC */
+@media (hover: hover) {
+    .fab-add:hover {
+        transform: scale(1.1);
+    }
+}
 
         .toggle-list-btn { width: 100%; font-size: 9px; font-weight: 900; text-transform: uppercase; opacity: 0.4; margin-top: 8px; padding: 4px; }
         
@@ -296,11 +316,11 @@
         </footer>
     </div>
 
-    <button id="fab-plus" onclick="openForm()" class="fab-add text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
-        </svg>
-    </button>
+    <button id="fab-plus" onclick="openForm()" class="fab-add">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+    </svg>
+</button>
 
     <script>
     const mapCouleurs = {

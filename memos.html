@@ -105,7 +105,7 @@
 <body>
 
     <button id="btnAddMemo" onclick="ouvrirFormulaire()" 
-        class="fixed bottom-10 right-10 w-16 h-16 rounded-full z-50 flex items-center justify-center text-2xl transition-all duration-200 active:scale-90 hover:scale-110" 
+        class="fixed bottom-10 right-10 w-16 h-16 rounded-full z-50 flex items-center justify-center text-5xl transition-all duration-200 active:scale-90 hover:scale-110" 
         style="background-color: var(--theme-color); color: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);">
     ＋
     </button>
@@ -409,10 +409,23 @@
                     try {
                         const imported = JSON.parse(e.target.result);
                         if (Array.isArray(imported)) {
-                            notes = [...imported, ...notes];
-                            saveAndRender();
+                            // Filtrer pour ne garder que les mémos qui n'existent pas encore
+                            const nouveauxMemos = imported.filter(imp => {
+                                return !notes.some(existant => 
+                                    existant.title === imp.title && 
+                                    existant.content === imp.content
+                                );
+                            });
+
+                            if (nouveauxMemos.length > 0) {
+                                notes = [...nouveauxMemos, ...notes];
+                                updateExportBadge(true);
+                                saveAndRender();
+                            }
                         }
-                    } catch(err) {}
+                    } catch(err) {
+                        console.error("Erreur lors de la lecture du fichier", err);
+                    }
                     input.value = '';
                 };
                 reader.readAsText(file);
