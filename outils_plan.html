@@ -57,15 +57,12 @@
             width: auto;
             aspect-ratio: 1800 / 1800;
             max-width: 100%;
-            background-image: radial-gradient(rgba(128,128,128,0.2) 1.5px, transparent 1.5px);
-            background-size: 40px 40px;
             touch-action: none;
             display: block;
             border: none;
         }
 
-        body.light-mode svg { background-image: radial-gradient(rgba(0,0,0,0.1) 1.5px, transparent 1.5px); }
-
+        
         .desk-group { cursor: grab; user-select: none; pointer-events: all; }
         .desk-rect { stroke: rgba(0,0,0,0.3); stroke-width: 2; rx: 5; transition: stroke 0.2s; }
         .desk-group.selected .desk-rect { stroke: var(--theme-color); stroke-width: 8; }
