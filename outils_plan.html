@@ -31,14 +31,24 @@
         #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
         header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
 
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .main-content { 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative; 
+    overflow: hidden; 
+    /* Ajoute un espace en bas égal à la hauteur de la barre d'outils + marge */
+    padding-bottom: 80px; 
+}
 
         #container-retour-liste {
-            position: relative; /* Change de absolute à relative */
-            width: 100%;
-            pointer-events: auto;
-            display: block;
-        }
+    position: relative;
+    width: 100%;
+    pointer-events: auto;
+    display: block;
+    padding: 10px 15px !important; /* Réduction du padding (était à p-4 / 16px) */
+}
+
         #btn-retour-liste {
             pointer-events: auto;
             display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
@@ -47,24 +57,26 @@
         }
 
         #canvas-container {
-			flex: 1;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			background: var(--bg-page);
-			overflow: hidden;
-			padding: 0; /* Suppression du padding pour maximiser l'espace */
-		}
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* On peut le remettre au centre maintenant que l'espace est délimité */
+    background: var(--bg-page);
+    overflow: hidden;
+    padding: 10px; /* Petit espace de sécurité autour du plan */
+    min-height: 0; /* Force le flex-item à ne pas déborder */
+}
 
         svg {
-            height: 100%;
-            width: auto;
-            aspect-ratio: 1800 / 1800;
-            max-width: 100%;
-            touch-action: none;
-            display: block;
-            border: none;
-        }
+    height: auto;
+    width: auto;
+    max-height: 100%; /* Le SVG ne pourra jamais dépasser la hauteur de son parent */
+    max-width: 100%;
+    aspect-ratio: 1800 / 1800;
+    touch-action: none;
+    display: block;
+    border: none;
+}
 
         .desk-group { cursor: grab; user-select: none; pointer-events: all; }
         .desk-rect { stroke: rgba(0,0,0,0.3); stroke-width: 2; rx: 5; transition: stroke 0.2s; }
@@ -135,12 +147,12 @@
 </header>
 
 <div class="main-content">
-    <div id="container-retour-liste" class="relative p-4 z-50">
-        <a href="outils.html" id="btn-retour-liste">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
-            Retour aux outils
-        </a>
-    </div>
+    <div id="container-retour-liste" class="relative z-50" style="padding: 10px 20px 0 20px;">
+    <a href="outils.html" id="btn-retour-liste">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+        Retour aux outils
+    </a>
+</div>
 
     <div id="canvas-container">
         <svg id="plan-svg" onclick="deselectAll(event)" viewBox="0 0 1800 1800" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
