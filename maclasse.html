@@ -92,7 +92,8 @@
         .btn-nav { font-weight: 800; padding: 12px 4px; border-radius: 50px; font-size: 8px; text-align: center; width: 100%; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; }
         .input-field { background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main); border-radius: 0.75rem; padding: 10px; outline: none; font-size: 0.75rem; font-weight: 600; }
         .select-date { background: var(--input-bg); border: 1px solid var(--header-border); color: var(--text-main); border-radius: 0.75rem; height: 30px; outline: none; font-size: 0.75rem; font-weight: 600; appearance: none; text-align: center; }
-        .stat-pill { padding: 1px 10px; border-radius: 99px; font-size: 9px; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
+        .stat-pill { padding: 5px 10px; border-radius: 99px; font-size: 9px; font-weight: 800; text-transform: uppercase;
+			display: flex; align-items: center; gap: 4px; background-color: var(--card-bg); border: 1px solid var(--header-border); color: var(--text-main);}
         .header-btn { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--header-border); transition: transform 0.1s ease, background-color 0.3s ease; }
 
         /* Animation pastille clignotante */
@@ -570,9 +571,9 @@ if(fab) { fab.style.backgroundColor = hexaTheme; fab.style.color = textClr; }
             const nbGarcons = eleves.filter(e => { const s = e.sexe.toUpperCase(); return s === 'M' || s === 'G'; }).length;
             const nbFilles = eleves.filter(e => e.sexe === 'F').length;
             statsDiv.innerHTML = `
-                <div class="stat-pill border border-black/100 dark:border-white/100" style="background-color: var(--bg-card); color: var(--text-main);">Nombre d'élèves : ${eleves.length}</div>
-                <div class="stat-pill border" style="background-color: ${colorGirl}15; border-color: ${colorGirl}; color: ${colorGirl}">♀ ${nbFilles} filles</div>
-                <div class="stat-pill border" style="background-color: ${colorBoy}15; border-color: ${colorBoy}; color: ${colorBoy}">♂ ${nbGarcons} garçons</div>
+                <div class="stat-pill" style="border-color: var(--text-main); background-color: var(--card-bg); color: var(--text-main);">Nombre d'élèves : ${eleves.length}</div>
+                <div class="stat-pill" " style="background-color: ${colorGirl}50; border-color: ${colorGirl}; color: var(--text-main);">${nbFilles} filles</div>
+                <div class="stat-pill" " style="background-color: ${colorBoy}50; border-color: ${colorBoy}; color: var(--text-main);">${nbGarcons} garçons</div>
 
             `;
         }
