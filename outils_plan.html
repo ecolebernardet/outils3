@@ -515,6 +515,11 @@
 
         const svgElement = document.getElementById('plan-svg');
         const svgClone = svgElement.cloneNode(true);
+		const walls = svgClone.querySelector('rect[stroke="var(--column-border)"]');
+        if (walls) {
+            walls.setAttribute("stroke", "#999999"); // Gris moyen visible sur PDF
+        }
+		
         
         // --- ADAPTATION DYNAMIQUE DE LA TAILLE DU TEXTE ---
         const groups = svgClone.querySelectorAll('.desk-group');
