@@ -187,6 +187,15 @@
 			</div>
 		</a>
 
+		<a href="outils_structure_ecole.html" class="tool-card" data-id="structure">
+            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="icon-box" id="icon-structure">🏫</div>
+            <div>
+                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-structure">Structure École</h2>
+                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Répartition et effectifs</p>
+            </div>
+        </a>
+		
     </div>
 </div>
 
@@ -200,6 +209,8 @@
             <p>🔈 Le <strong>Niveau Sonore</strong> permet de réguler le volume sonore durant les ateliers.</p>
             <p>🤫 Le <strong>Défi calme</strong>: quand le calme en classe permet de faire apparaître une photo.</p>
             <p>🚦 Les <strong>feux tricolores</strong>: cliquez sur un feu pour changer le mode de travail.</p>
+			<p>🪑 Le <strong>plan</strong> permet de générer le plan de votre classe.</p>
+			<p>🏫 La <strong>Structure École</strong> permet de simuler et d'équilibrer la répartition des élèves par classe.</p>
         </div>
         <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close active:scale-95">Fermer</button>
     </div>
@@ -243,6 +254,7 @@
             { icon: 'icon-deficalme', title: 'title-deficalme' },
             { icon: 'icon-feux', title: 'title-feux' },
 			{ icon: 'icon-plan', title: 'title-plan' },
+			{ icon: 'icon-structure', title: 'title-structure' },
         ];
 
         elementsOutils.forEach(item => {

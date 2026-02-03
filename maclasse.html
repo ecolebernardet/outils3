@@ -573,7 +573,7 @@ if(fab) { fab.style.backgroundColor = hexaTheme; fab.style.color = textClr; }
             const colorBoy = getComputedStyle(document.documentElement).getPropertyValue('--student-name-boy').trim() || '#3b82f6';
             const colorGirl = getComputedStyle(document.documentElement).getPropertyValue('--student-name-girl').trim() || '#ec4899';
             const nbGarcons = eleves.filter(e => { const s = e.sexe.toUpperCase(); return s === 'M' || s === 'G'; }).length;
-            const nbFilles = eleves.filter(e => e.sexe === 'F').length;
+			const nbFilles = eleves.filter(e => { const s = e.sexe.toUpperCase(); return s === 'F'; }).length;
             statsDiv.innerHTML = `
                 <div class="stat-pill" style="border-color: var(--text-main); background-color: var(--card-bg); color: var(--text-main);">Nombre d'élèves : ${eleves.length}</div>
                 <div class="stat-pill" " style="background-color: ${colorGirl}50; border-color: ${colorGirl}; color: var(--text-main);">${nbFilles} filles</div>

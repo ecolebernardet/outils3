@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Structure École - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        :root {
+            --bg-page: #f4f7f9; --text-page: #1a1a1a; --card-bg: #ffffff;
+            --border-color: #e2e8f0; --header-bg: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg-page: #121212; --text-page: #ffffff; --card-bg: #1e1e1e;
+            --border-color: #333333; --header-bg: #1a1a1a;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); 
+            margin: 0; padding: 0; transition: all 0.3s ease; min-height: 100vh;
+        }
+
+        header { 
+            background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            display: flex; align-items: center; justify-content: space-between; width: 100%;
+        }
+
+        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+        header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
+
+        .main-content { padding: 20px; max-width: 1000px; margin: auto; }
+
+        .container-box { 
+            background: var(--card-bg); padding: 30px; border-radius: 24px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+        }
+
+        h3 { font-weight: 800; text-transform: uppercase; font-size: 0.75rem; color: #888; margin-bottom: 15px; letter-spacing: 1px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .section { border: 1px solid var(--border-color); padding: 20px; border-radius: 18px; margin-bottom: 20px; background: rgba(0,0,0,0.01); }
+
+        label { display: block; font-weight: 700; font-size: 0.65rem; margin-bottom: 6px; text-transform: uppercase; }
+        input[type="number"] { 
+            width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); 
+            background: var(--bg-page); color: var(--text-page); font-weight: 600;
+        }
+
+        .main-btn { 
+            padding: 16px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; 
+            font-weight: 900; text-transform: uppercase; width: 100%; border: none;
+            transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .main-btn:active { transform: scale(0.98); }
+
+        .proposition { 
+            background: var(--card-bg); border: 2px solid var(--theme-color); 
+            padding: 25px; margin-top: 30px; border-radius: 24px; animation: fadeIn 0.5s ease-out;
+        }
+
+        .classe-item { background: var(--bg-page); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .error { color: #ef4444; background: #fee2e2; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 700; font-size: 0.8rem; text-align: center; display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .check-group { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; font-weight: 700; }
+        input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--theme-color); }
+
+        /* Modale */
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--border-color); padding: 25px; position: relative; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" id="btn-retour">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1 id="pageTitle">Structure École</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
+</header>
+
+<div class="main-content">
+    <div id="container-retour-liste" style="margin-bottom: 1.5rem;">
+        <a href="outils.html" id="btn-retour-liste" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux outils
+        </a>
+    </div>
+
+    <div class="container-box">
+        <div id="errorBox" class="error"></div>
+
+        <form id="monForm">
+            <div class="section">
+                <h3>Effectifs par niveau</h3>
+                <div class="grid">
+                    <div><label>CP</label><input type="number" id="cp" value="28"></div>
+                    <div><label>CE1</label><input type="number" id="ce1" value="31"></div>
+                    <div><label>CE2</label><input type="number" id="ce2" value="36"></div>
+                    <div><label>CM1</label><input type="number" id="cm1" value="41"></div>
+                    <div><label>CM2</label><input type="number" id="cm2" value="29"></div>
+                    <div><label>Nb Classes</label><input type="number" id="nbC" value="7"></div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Contraintes de calcul</h3>
+                <div class="grid">
+                    <div><label>Niveaux max / cl.</label><input type="number" id="maxNiv" value="2" min="1"></div>
+                    <div><label>Écart niveau max</label><input type="number" id="gapNiv" value="1" min="1"></div>
+                    <div class="check-group" style="padding-top: 25px;">
+                        <input type="checkbox" id="limit24"> 
+                        <label style="margin:0">Limiter CP/CE1 à 24</label>
+                    </div>
+                </div>
+                
+                <label style="margin-top:15px">Éviter ces mélanges :</label>
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));">
+                    <span class="check-group"><input type="checkbox" class="avoid" value="1-2"> CP/CE1</span>
+                    <span class="check-group"><input type="checkbox" class="avoid" value="2-3"> CE1/CE2</span>
+                    <span class="check-group"><input type="checkbox" class="avoid" value="3-4"> CE2/CM1</span>
+                    <span class="check-group"><input type="checkbox" class="avoid" value="4-5"> CM1/CM2</span>
+                </div>
+            </div>
+
+            <button type="button" class="main-btn" id="btn-calculer" onclick="calculer()">Générer les propositions</button>
+        </form>
+
+        <div id="resultats"></div>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide : Structure</h2>
+        <div class="text-[11px] leading-relaxed space-y-3 opacity-80 font-semibold">
+            <p>Cet outil teste des milliers de combinaisons pour trouver des répartitions équilibrées.</p>
+            <p>🔴 <strong>Important :</strong> L'algorithme impose un minimum de 6 élèves d'un même niveau dans une classe double pour assurer la viabilité pédagogique.</p>
+            <p>L'écart total entre la classe la plus chargée et la moins chargée n'excède jamais 4 élèves.</p>
+        </div>
+        <button id="btn-fermer-aide" onclick="fermerAide()" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none;">Fermer</button>
+    </div>
+</div>
+
+<script>
+    // THEME & COULEURS
+    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
+    const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+    const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
+    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
+    const contrast = isDarkText ? '#000' : '#fff';
+
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+    document.documentElement.style.setProperty('--contrast-color', contrast);
+
+    const uiElements = [document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-fermer-aide'), document.getElementById('btn-retour-liste'), document.getElementById('btn-calculer')];
+    uiElements.forEach(el => { if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; } });
+    document.getElementById('pageTitle').style.color = themeColor;
+    document.getElementById('titre-aide').style.color = themeColor;
+
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+
+    // LOGIQUE DE CALCUL (CONSERVÉE)
+    function calculer() {
+        const errorBox = document.getElementById('errorBox');
+        const resDiv = document.getElementById('resultats');
+        errorBox.style.display = "none";
+        resDiv.innerHTML = "<p style='text-align:center; font-size:0.7rem; font-weight:800; text-transform:uppercase; color:#888; margin-top:20px;'>Calcul en cours...</p>";
+
+        const data = {
+            niveaux: [
+                { id: 1, nom: "CP", n: parseInt(document.getElementById('cp').value) || 0 },
+                { id: 2, nom: "CE1", n: parseInt(document.getElementById('ce1').value) || 0 },
+                { id: 3, nom: "CE2", n: parseInt(document.getElementById('ce2').value) || 0 },
+                { id: 4, nom: "CM1", n: parseInt(document.getElementById('cm1').value) || 0 },
+                { id: 5, nom: "CM2", n: parseInt(document.getElementById('cm2').value) || 0 }
+            ],
+            nbClasses: parseInt(document.getElementById('nbC').value),
+            maxNiv: parseInt(document.getElementById('maxNiv').value),
+            gapNiv: parseInt(document.getElementById('gapNiv').value),
+            limit24: document.getElementById('limit24').checked,
+            avoid: Array.from(document.querySelectorAll('.avoid:checked')).map(c => c.value)
+        };
+
+        let solutions = [];
+        let tentatives = 0;
+        while (solutions.length < 3 && tentatives < 15000) {
+            tentatives++;
+            const sol = genererUneSolution(JSON.parse(JSON.stringify(data)));
+            if (sol) {
+                const signature = sol.map(c => c.eleves.map(e => e.nom).sort().join('+')).sort().join(' / ');
+                if (!solutions.find(s => s.sig === signature)) solutions.push({ data: sol, sig: signature });
+            }
+        }
+
+        resDiv.innerHTML = "";
+        if (solutions.length === 0) {
+            errorBox.innerText = "Aucune solution trouvée. Ajustez les contraintes.";
+            errorBox.style.display = "block";
+        } else {
+            solutions.forEach((s, idx) => afficher(s.data, idx + 1));
+        }
+    }
+
+    function genererUneSolution(data) {
+        const totalE = data.niveaux.reduce((s, n) => s + n.n, 0);
+        const moyenne = totalE / data.nbClasses;
+        let classes = Array.from({ length: data.nbClasses }, (_, i) => ({
+            id: i + 1, eleves: [], total: 0,
+            cible: Math.floor(moyenne) + (i < (totalE % data.nbClasses) ? 1 : 0),
+            niveaux: new Set()
+        }));
+
+        let niveaux = [...data.niveaux].filter(n => n.n > 0).sort(() => Math.random() - 0.5);
+
+        for (let niv of niveaux) {
+            while (niv.n > 0) {
+                let candidates = classes.filter(c => {
+                    if (c.total >= c.cible + 2) return false;
+                    const dejaNiv = c.niveaux.has(niv.id);
+                    if (!dejaNiv && c.niveaux.size >= data.maxNiv) return false;
+                    if (c.niveaux.size > 0 && !dejaNiv) {
+                        const min = Math.min(...c.niveaux); const max = Math.max(...c.niveaux);
+                        if (Math.abs(niv.id - min) > data.gapNiv || Math.abs(niv.id - max) > data.gapNiv) return false;
+                        let respecteAvoid = true;
+                        c.niveaux.forEach(ex => { if (data.avoid.includes(`${ex}-${niv.id}`) || data.avoid.includes(`${niv.id}-${ex}`)) respecteAvoid = false; });
+                        if (!respecteAvoid) return false;
+                    }
+                    if (data.limit24 && (niv.id <= 2) && c.total >= 24) return false;
+                    return true;
+                }).sort(() => Math.random() - 0.5);
+
+                if (candidates.length === 0) return null;
+                let c = candidates[0];
+                let placeDispo = (c.cible + 2) - c.total;
+                let aPrendre;
+
+                if (niv.n <= placeDispo) aPrendre = niv.n;
+                else {
+                    aPrendre = Math.floor(Math.random() * (placeDispo - 6 + 1)) + 6;
+                    if (niv.n - aPrendre > 0 && niv.n - aPrendre < 6) aPrendre = niv.n - 6; 
+                }
+
+                if (aPrendre < 6 && !c.niveaux.has(niv.id)) {
+                    if (niv.n <= placeDispo) aPrendre = niv.n; else return null;
+                }
+                if (aPrendre <= 0) return null;
+
+                let elIdx = c.eleves.findIndex(e => e.nom === niv.nom);
+                if (elIdx > -1) c.eleves[elIdx].count += aPrendre;
+                else c.eleves.push({ nom: niv.nom, count: aPrendre });
+
+                c.total += aPrendre; c.niveaux.add(niv.id); niv.n -= aPrendre;
+            }
+        }
+
+        const effectifs = classes.map(c => c.total);
+        if (Math.max(...effectifs) - Math.min(...effectifs) > 4) return null;
+        for (let cl of classes) {
+            if (cl.niveaux.size > 1 && cl.eleves.some(e => e.count < 6)) return null;
+            if (data.limit24 && (cl.niveaux.has(1) || cl.niveaux.has(2)) && cl.total > 24) return null;
+        }
+        return classes;
+    }
+
+    function afficher(classes, num) {
+        const resDiv = document.getElementById('resultats');
+        const ordreNiveaux = { "CP": 1, "CE1": 2, "CE2": 3, "CM1": 4, "CM2": 5 };
+        classes.forEach(c => c.eleves.sort((a, b) => ordreNiveaux[a.nom] - ordreNiveaux[b.nom]));
+        classes.sort((a, b) => Math.min(...a.niveaux) - Math.min(...b.niveaux));
+
+        let html = `<div class="proposition"><h2 style="font-weight:900; font-size:0.8rem; text-transform:uppercase; color:var(--theme-color); margin-bottom:20px;">Proposition n°${num}</h2><div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">`;
+        classes.forEach((c, index) => {
+            let details = c.eleves.map(e => `<span style="font-weight:800;">${e.count}</span> ${e.nom}`).join(' + ');
+            html += `<div class="classe-item"><div style="font-size: 0.6rem; font-weight: 900; color: #888; text-transform: uppercase; margin-bottom: 8px;">Classe ${index + 1}</div><div style="font-size: 0.9rem; margin-bottom: 10px;">${details}</div><div style="font-size: 0.65rem; font-weight: 700; background: var(--theme-color); color: var(--contrast-color); display: inline-block; padding: 2px 8px; border-radius: 5px;">${c.total} élèves</div></div>`;
+        });
+        html += `</div></div>`;
+        resDiv.innerHTML += html;
+    }
+</script>
+</body>
+</html>
