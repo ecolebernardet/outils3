@@ -83,13 +83,12 @@
 
         @media (min-width: 768px) {
             .student-grid {
-                /* On ne force plus 5 colonnes, mais on remplit tout l'espace */
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: repeat(10, 1fr);
                 gap: 15px;
             }
             .student-item {
-                font-size: 0.9rem;
-                padding: 12px 10px;
+                font-size: 0.6rem;
+                padding: 10px 2px;
             }
             /* On élargit aussi la carte de tirage pour l'équilibre visuel */
             .light-card {
@@ -97,6 +96,21 @@
             }
         }
 
+		@media (min-width: 1024px) {
+            .student-grid {
+                grid-template-columns: repeat(10, 1fr);
+                gap: 15px;
+            }
+            .student-item {
+                font-size: 0.9rem;
+                padding: 10px 2px;
+            }
+            /* On élargit aussi la carte de tirage pour l'équilibre visuel */
+            .light-card {
+                max-width: 600px;
+            }
+        }
+		
         /* Couleurs de texte dynamiques */
         .bg-f { color: var(--student-name-girl) !important; } 
         .bg-m { color: var(--student-name-boy) !important; } 

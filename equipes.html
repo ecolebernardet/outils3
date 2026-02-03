@@ -54,6 +54,7 @@
 
         .section-title { font-size: 10px; color: var(--title-gray); margin: 15px 0 5px 0; font-weight: 900; letter-spacing: 1px; text-align: center; text-transform: uppercase; }
         #attendance-container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 10px; }
+
 		/* --- MODIFICATIONS POUR ÉCRANS LARGES (PC) --- */
 		@media (min-width: 768px) {
 			/* Élargir les conteneurs */
@@ -61,14 +62,14 @@
 				max-width: 95% !important; 
 			}
 
-			/* Grille de présence : 8 colonnes et prénoms plus gros */
+			/* Grille de présence : 10 colonnes et prénoms plus gros */
 			.attendance-grid { 
 				grid-template-columns: repeat(10, 1fr) !important; 
-				gap: 10px !important;
+				gap: 7px !important;
 			}
 			.student-item {
-				font-size: 0.9rem !important; /* Prénoms beaucoup plus grands */
-				padding: 12px 5px !important;
+				font-size: 0.7rem !important; /* Prénoms beaucoup plus grands */
+				padding: 10px 2px !important;
 			}
 
 			/* Équipes : 4 colonnes sur PC */
@@ -91,11 +92,49 @@
 				font-size: 0.85rem !important;
 			}
 		}
+		
+@media (min-width: 1024px) {
+			/* Élargir les conteneurs */
+			#attendance-container, .grid-teams { 
+				max-width: 95% !important; 
+			}
+
+			/* Grille de présence : 10 colonnes et prénoms plus gros */
+			.attendance-grid { 
+				grid-template-columns: repeat(10, 1fr) !important; 
+				gap: 10px !important;
+			}
+			.student-item {
+				font-size: 0.9rem !important; /* Prénoms beaucoup plus grands */
+				padding: 10px 2px !important;
+			}
+
+			/* Équipes : 4 colonnes sur PC */
+			.grid-teams { 
+				grid-template-columns: repeat(4, 1fr) !important; 
+			}
+
+			/* Prénoms à l'intérieur des cartes d'équipes */
+			.team-card .flex.items-center {
+				font-size: 0.95rem !important; /* Taille augmentée */
+				margin-bottom: 8px !important;
+			}
+    
+			.tag {
+				font-size: 0.65rem !important;
+				padding: 4px 10px !important;
+			}
+    
+			.team-title {
+				font-size: 0.85rem !important;
+			}
+		}
+			
         .attendance-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 20px; width: 100%; }
         .level-label { text-align: center; font-size: 10px; font-weight: 900; margin: 15px 0 5px 0; text-transform: uppercase; letter-spacing: 1px; }
 
         .student-item { 
-            padding: 6px 2px; border-radius: 999px; font-size: 0.55rem; font-weight: 800; 
+            padding: 6px 2px; border-radius: 999px; font-size: 0.6rem; font-weight: 800; 
             text-align: center; cursor: pointer; background-color: var(--pill-bg);
             border: 1px solid var(--header-border); transition: all 0.2s; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: none;
