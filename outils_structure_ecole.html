@@ -505,9 +505,15 @@ async function exporterPDF() {
         head: [['PROPOSITION 1', 'PROPOSITION 2', 'PROPOSITION 3']],
         body: tableBody,
         theme: 'grid',
-        headStyles: { fillColor: themeColor, halign: 'center', fontStyle: 'bold', fontSize: 9 },
+        headStyles: { 
+            fillColor: false, // Rend le fond transparent
+            textColor: [0, 0, 0], // Force le texte en noir (optionnel)
+            halign: 'center', 
+            fontStyle: 'bold', 
+            fontSize: 10 
+        },
         styles: { 
-            fontSize: 7.5, 
+		    fontSize: 8, 
             cellPadding: 1, 
             halign: 'center', 
             valign: 'middle', 
@@ -523,8 +529,12 @@ async function exporterPDF() {
                 doc.setFillColor(255, 255, 255);
                 doc.rect(data.cell.x + 0.5, data.cell.y + 0.5, data.cell.width - 1, data.cell.height - 1, 'F');
 
+				doc.setTextColor(0, 0, 0); // Force le texte en noir (R, G, B)
+                doc.setDrawColor(0, 0, 0);  // Force le contour en noir
+				
                 doc.setFont("helvetica", "bold");
-                doc.text(textLines[0] || "", x, y, { align: "center" });
+				doc.setLineWidth(0.1);
+				doc.text(textLines[0] || "", x, y, { align: "center", renderingMode: 'fillThenStroke' });
                 
                 doc.setFont("helvetica", "normal");
                 if(textLines[1]) doc.text(textLines[1], x, y + 6, { align: "center" });
