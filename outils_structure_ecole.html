@@ -408,7 +408,11 @@
         return valA - valB;
     });
 
-        let html = `<div class="proposition"><h2 style="font-weight:900; font-size:0.8rem; text-transform:uppercase; color:var(--theme-color); margin-bottom:20px;">Proposition n°${num}</h2><div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">`;
+        let html = `<div class="proposition">
+			<h2 style="font-weight:900; font-size:0.8rem; text-transform:uppercase; color:var(--theme-color); margin-bottom:20px;">
+			Proposition n°${num}
+			</h2>
+			<div class="grid" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">`;
         
         classes.forEach((c, index) => {
             // Extraction des noms de niveaux pour le titre (ex: CP/CE1)
