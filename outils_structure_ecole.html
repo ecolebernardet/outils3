@@ -59,7 +59,7 @@
             display: table;                              /* Technique pour centrer un bloc de largeur auto */
         }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        
         .section { border: 1px solid var(--border-color); padding: 20px; border-radius: 18px; margin-bottom: 20px; background: rgba(0,0,0,0.01); }
 
 		/* Grille des effectifs : 3 colonnes */
@@ -95,18 +95,21 @@
         }
         .main-btn:active { transform: scale(0.98); }
 
-        .proposition { 
-            background: var(--card-bg); border: 2px solid var(--theme-color); 
-            padding: 15px; margin-top: 30px; border-radius: 24px; animation: fadeIn 0.5s ease-out;
-        }
+        .proposition .grid { 
+			display: grid; 
+			grid-template-columns: repeat(2, 1fr); /* Force 2 colonnes même sur mobile */
+			gap: 8px; 
+			margin-bottom: 20px; 
+		}
 
-        .classe-item { background: var(--bg-page); padding: 10px; border-radius: 15px; border: 1px solid var(--border-color); }
-        
+		.classe-item { background: var(--bg-page); padding: 10px; border-radius: 15px; border: 1px solid var(--border-color); }
+			
 		@media (min-width: 768px) {
 			.proposition .grid { 
 				grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
 			}
 		}
+			
         /* Badges de niveaux */
         .badge-niv {
             display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; 
