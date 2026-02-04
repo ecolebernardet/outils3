@@ -62,7 +62,9 @@
             </svg>
         </a>
         <h1 id="pageTitle" class="text-[14px] font-black uppercase tracking-[0.2em] text-slate-800">Édition</h1>
-        <button id="btn-aide" onclick="ouvrirAide()" class="text-xl">💡</button>
+        <button id="btn-aide" onclick="ouvrirAide()" class="btn-header-round shadow-lg text-lg" style="line-height: 1;">
+            <span>💡</span>
+        </button>
     </div>
 </header>
 
@@ -76,6 +78,21 @@
             Retour aux outils
         </a>
     </div>
+
+<div class="max-w-2xl mx-auto px-4 mb-6">
+    <div class="flex items-center gap-4">
+        <span class="text-[11px] font-black uppercase tracking-widest text-slate-400">Mode de tri</span>
+        
+        <div class="flex bg-slate-200/50 p-1 rounded-full">
+            <button id="tri-prenom" onclick="changerTri('prenom')" class="btn-sub-action px-4 py-2 rounded-full transition-all">
+                Prénom
+            </button>
+            <button id="tri-nom" onclick="changerTri('nom')" class="btn-sub-action px-4 py-2 rounded-full transition-all">
+                Nom
+            </button>
+        </div>
+    </div>
+</div>
 
         <div class="space-y-4">
             <div class="edition-card p-5 flex items-center gap-4 cursor-pointer" onclick="genererPDF()">
@@ -146,11 +163,15 @@
                 <ul class="space-y-3">
                     <li class="flex gap-2">
                         <span class="text-blue-500">•</span>
-                        <span>Sélectionnez un type de document (Liste, Pointage, Étiquettes).</span>
+                        <span>Choisissez votre mode de tri (**Prénom** ou **Nom**) avant de générer le document.</span>
                     </li>
                     <li class="flex gap-2">
                         <span class="text-blue-500">•</span>
-                        <span>Le PDF sera généré automatiquement avec les élèves enregistrés.</span>
+                        <span>Le tri par **Nom** affichera automatiquement le nom en majuscules suivi du prénom.</span>
+                    </li>
+                    <li class="flex gap-2">
+                        <span class="text-blue-500">•</span>
+                        <span>Sélectionnez un type de document : le PDF sera généré avec les élèves enregistrés.</span>
                     </li>
                     <li class="flex gap-2">
                         <span class="text-blue-500">•</span>
@@ -181,196 +202,329 @@
         'sky': '#0ea5e9', 'slate': '#64748b'
     };
 
-    const eleves = JSON.parse(localStorage.getItem('eleves')) || [];
-    const modeTriApp = localStorage.getItem('mode_tri') || 'nom';
+    const eleves = JSON.parse(localStorage.getItem('maListeEleves')) || [];
     const ordreNiveaux = ["TPS", "PS", "MS", "GS", "CP", "CE1", "CE2", "CM1", "CM2"];
+    let modeTriActuel = 'prenom'; 
 
-    // 2. Initialisation au chargement (Application de la couleur dynamique)
+    // Fonction de tri ET de formatage du nom
+    function trierEtFormater(liste) {
+        let resultat = liste.map(el => {
+            const parts = el.identite.trim().split(" ");
+            const prenom = parts[0];
+            const nom = parts.slice(1).join(" ");
+            
+            // On crée une propriété temporaire pour l'affichage selon le mode
+            let identiteAffichee = (modeTriActuel === 'nom') 
+                ? `${nom.toUpperCase()} ${prenom}` 
+                : `${prenom} ${nom}`;
+            
+            return { ...el, identiteAffichee, prenom, nom };
+        });
+
+        return resultat.sort((a, b) => {
+            if (modeTriActuel === 'nom') {
+                return a.nom.localeCompare(b.nom) || a.prenom.localeCompare(b.prenom);
+            } else {
+                return a.prenom.localeCompare(b.prenom) || a.nom.localeCompare(b.nom);
+            }
+        });
+    }
+
+    function changerTri(mode) {
+        modeTriActuel = mode;
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.outils || 'blue';
+        const hexa = mapCouleurs[colPref] || '#3b82f6';
+        const btnP = document.getElementById('tri-prenom');
+        const btnN = document.getElementById('tri-nom');
+
+        if(mode === 'prenom') {
+            btnP.style.backgroundColor = hexa; btnP.style.color = '#fff';
+            btnN.style.backgroundColor = 'transparent'; btnN.style.color = '#64748b';
+        } else {
+            btnN.style.backgroundColor = hexa; btnN.style.color = '#fff';
+            btnP.style.backgroundColor = 'transparent'; btnP.style.color = '#64748b';
+        }
+    }
+
     window.onload = () => {
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
         const colPref = themePrefs.outils || 'blue'; 
         const hexa = mapCouleurs[colPref] || '#3b82f6';
         const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref);
         const contrast = isDarkText ? '#000' : '#fff';
-
-        // Bouton retour index (Header)
-        const btnRetour = document.getElementById('btn-retour');
-        if(btnRetour) {
-            btnRetour.style.backgroundColor = hexa;
-            btnRetour.style.color = contrast;
-        }
-
-        // Bouton Aide (Header)
-        const btnAide = document.getElementById('btn-aide');
-        if(btnAide) {
-            btnAide.style.backgroundColor = hexa;
-            btnAide.style.color = contrast;
-            btnAide.style.width = '38px';
-            btnAide.style.height = '38px';
-            btnAide.style.borderRadius = '50%';
-            btnAide.style.display = 'flex';
-            btnAide.style.alignItems = 'center';
-            btnAide.style.justifyContent = 'center';
-        }
-
-        // Bouton "Retour aux outils" (Sous-header) - MODIFIÉ : Fond plein + Texte blanc
-        const btnRetourListe = document.getElementById('btn-retour-liste');
-        if (btnRetourListe) {
-            btnRetourListe.style.backgroundColor = hexa;
-            btnRetourListe.style.color = contrast;
-        }
-
-        // Bouton fermer modal
-        const btnFermerAide = document.getElementById('btn-fermer-aide');
-        if(btnFermerAide) {
-            btnFermerAide.style.backgroundColor = hexa;
-            btnFermerAide.style.color = contrast;
-        }
-
-        const aideTitre = document.getElementById('aide-titre');
-        if(aideTitre) aideTitre.style.color = hexa;
+        changerTri('prenom'); 
+        const ids = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-fermer-aide'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
+        });
+        if(document.getElementById('aide-titre')) document.getElementById('aide-titre').style.color = hexa;
     };
 
-    // 3. Gestion de l'Aide
-    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
-    function fermerAide(e) { if(e.target.id === 'modal-aide' || e.target.id === 'btn-fermer-aide') document.getElementById('modal-aide').style.display = 'none'; }
-
-    // 4. Utilitaire Export PDF (Compatible Android & PC)
     function finaliserExportPDF(doc, nomFichier) {
         try {
             if (window.Android && typeof window.Android.savePdfFromBase64 === "function") {
                 const pdfBase64 = doc.output('datauristring').split(',')[1];
                 window.Android.savePdfFromBase64(pdfBase64, nomFichier);
-            } else { 
-                doc.save(nomFichier); 
-            }
-        } catch (e) { 
-            console.error("Erreur export:", e); 
-            doc.save(nomFichier); 
-        }
+            } else { doc.save(nomFichier); }
+        } catch (e) { doc.save(nomFichier); }
     }
 
-    // 5. Fonctions de Génération
     function genererEmargement() {
-        if (eleves.length === 0) { alert("La liste est vide !"); return; }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
-        const maintenant = new Date();
-        const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
-        
-        const groupes = {};
-        eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
-        const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
-        
-        doc.setFontSize(16); 
-        doc.text(`Feuille de pointage - ${nomEnseignantBrut}`, 105, 15, { align: "center" });
-        
-        let finalBody = []; 
-        let compteurGlobal = 1;
-        
-        niveauxPresents.forEach(niv => {
-            finalBody.push([{ content: niv, colSpan: 17, styles: { fillColor: [160, 160, 160], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
-            groupes[niv].sort((a, b) => {
-                const pA = a.identite.split(" ")[0], nA = a.identite.split(" ").slice(1).join(" ");
-                const pB = b.identite.split(" ")[0], nB = b.identite.split(" ").slice(1).join(" ");
-                return modeTriApp === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
-            }).forEach((el) => {
-                finalBody.push([compteurGlobal++, el.identite, ...Array(15).fill('')]);
-            });
-        });
-
-        doc.autoTable({ 
-            head: [[...Array(17).fill('')]], 
-            body: finalBody, 
-            startY: 25, 
-            theme: 'grid', 
-            styles: { fontSize: 7, cellPadding: 1.5, lineColor: [0, 0, 0] },
-            columnStyles: { 0: { cellWidth: 7 }, 1: { cellWidth: 'auto' } },
-            didParseCell: function (data) { 
-                if (data.section === 'body' && data.cell.raw && data.cell.raw.colSpan === 17) { 
-                    data.cell.styles.fillColor = [160, 160, 160]; 
-                } 
-            } 
-        });
-
-        finaliserExportPDF(doc, `pointage_${dateFormattee}.pdf`);
+    // Vérification de la liste (utilisation de customConfirm comme dans ton snippet)
+    if (!eleves || eleves.length === 0) { 
+        if (typeof customConfirm === 'function') {
+            customConfirm("La liste est vide !", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]); 
+        } else {
+            alert("La liste est vide !");
+        }
+        return; 
     }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
+    const maintenant = new Date();
+    const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
+    
+    // Groupement par niveau
+    const groupes = {};
+    eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
+    
+    // Tri des niveaux selon l'ordre défini
+    const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
+    const texteNiveaux = niveauxPresents.join(" / ");
+    
+    doc.setFontSize(16); 
+    doc.text(`Feuille de pointage ${texteNiveaux} - ${nomEnseignantBrut}`, 105, 15, { align: "center" });
+
+    let finalBody = []; 
+    let compteurGlobal = 1;
+
+    niveauxPresents.forEach(niv => {
+        // Ligne de titre du niveau
+        finalBody.push([{ content: niv, colSpan: 17, styles: { fillColor: [160, 160, 160], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'left' } }]);
+        
+        // Tri des élèves du groupe selon le mode choisi (nom ou prenom)
+        groupes[niv].sort((a, b) => {
+            const ptsA = a.identite.trim().split(" "), ptsB = b.identite.trim().split(" ");
+            const pA = ptsA[0], nA = ptsA.slice(1).join(" ");
+            const pB = ptsB[0], nB = ptsB.slice(1).join(" ");
+            // Attention : on utilise modeTriActuel pour correspondre au bouton
+            return modeTriActuel === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
+        }).forEach((el) => {
+            const pts = el.identite.trim().split(" ");
+            const prenom = pts[0];
+            const nom = pts.slice(1).join(" ");
+            // Formatage de l'affichage : NOM Prénom ou Prénom Nom
+            const idAffiche = modeTriActuel === 'nom' ? `${nom.toUpperCase()} ${prenom}` : `${prenom} ${nom}`;
+            
+            finalBody.push([compteurGlobal++, idAffiche, ...Array(15).fill('')]);
+        });
+    });
+
+    // Génération du tableau
+    doc.autoTable({ 
+        head: [[...Array(17).fill('')]], 
+        body: finalBody, 
+        startY: 25, 
+        theme: 'grid', 
+        alternateRowStyles: { fillColor: [245, 245, 245] }, 
+        headStyles: { fillColor: [255, 255, 255], lineWidth: 0.1, lineColor: [0, 0, 0], minCellHeight: 16 }, 
+        styles: { fontSize: 7, cellPadding: 1.5, lineColor: [0, 0, 0], textColor: [0, 0, 0] }, 
+        columnStyles: { 
+            0: { cellWidth: 7, halign: 'center' }, 
+            1: { cellWidth: 'auto' },
+            // Colonnes de pointage (8mm chacune)
+            ...Object.fromEntries([...Array(15)].map((_, i) => [i + 2, { cellWidth: 8 }]))
+        }, 
+        didParseCell: function (data) { 
+            if (data.section === 'head' && (data.column.index === 0 || data.column.index === 1)) { 
+                data.cell.styles.lineWidth = 0; 
+            } 
+            if (data.section === 'body' && data.cell.raw && data.cell.raw.colSpan === 17) { 
+                data.cell.styles.fillColor = [160, 160, 160]; 
+            } 
+        } 
+    });
+
+    const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+    const nomFinalEmarg = `outilsprofs_liste_pointage_${nomNettoye}_${dateFormattee}.pdf`;
+    finaliserExportPDF(doc, nomFinalEmarg);
+}
 
     function genererPDF() {
-        if (eleves.length === 0) { alert("La liste est vide !"); return; }
-        const { jsPDF } = window.jspdf; 
-        const doc = new jsPDF();
+        if (!eleves || eleves.length === 0) { alert("La liste est vide !"); return; }
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
         const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
-        const maintenant = new Date(); 
-        const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
-        
-        const groupes = {}; 
-        eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
+        const maintenant = new Date(); const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
+        const groupes = {}; eleves.forEach(el => { if (!groupes[el.niveau]) groupes[el.niveau] = []; groupes[el.niveau].push(el); });
         const niveauxPresents = Object.keys(groupes).sort((a, b) => ordreNiveaux.indexOf(a) - ordreNiveaux.indexOf(b));
-
-        doc.setFontSize(18); 
-        doc.text(`Liste de la classe de ${nomEnseignantBrut}`, 105, 15, { align: "center" });
-        
-        let finalBody = []; 
-        let compteurGlobal = 1;
+        doc.setFontSize(18); doc.text(`Liste de la classe de ${nomEnseignantBrut}`, 105, 15, { align: "center" });
+        let finalBody = []; let compteurGlobal = 1;
         niveauxPresents.forEach(niv => {
             finalBody.push([{ content: niv, colSpan: 5, styles: { fillColor: [160, 160, 160], textColor: [255, 255, 255], fontStyle: 'bold' } }]);
-            groupes[niv].forEach(el => {
-                finalBody.push([compteurGlobal++, el.identite, el.dateNaissance || '-', el.sexe.toUpperCase(), el.niveau]);
+            trierEtFormater(groupes[niv]).forEach(el => {
+                finalBody.push([compteurGlobal++, el.identiteAffichee, el.dateNaissance || '-', el.sexe.toUpperCase(), el.niveau]);
             });
         });
-
         doc.autoTable({ body: finalBody, startY: 30, theme: 'grid', styles: { fontSize: 9 } });
-        finaliserExportPDF(doc, `liste_classe_${dateFormattee}.pdf`);
+        const nomNettoye = nomEnseignantBrut.toLowerCase().replace(/\s+/g, '_');
+        finaliserExportPDF(doc, `outilsprofs_liste_classe_${nomNettoye}_${dateFormattee}.pdf`);
     }
 
     function genererEtiquettes() {
-        if (eleves.length === 0) { alert("La liste est vide !"); return; }
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        const margin = 10; const gap = 10; const cols = 2; const rows = 4;
-        const cardWidth = (210 - (2 * margin) - gap) / cols;
-        const cardHeight = (297 - (2 * margin) - (3 * gap)) / rows;
-        let col = 0, row = 0;
+    if (!eleves || eleves.length === 0) return;
+    const { jsPDF } = window.jspdf; 
+    const doc = new jsPDF();
+    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
+    const maintenant = new Date(); 
+    const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
+    const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+    
+    let col = 0, row = 0;
+    
+    // On utilise trierEtFormater pour appliquer le choix de l'utilisateur
+    trierEtFormater(eleves).forEach((el, index) => {
+        if (index > 0 && index % 8 === 0) { doc.addPage(); col = 0; row = 0; }
+        
+        const x = 10 + (col * 95); 
+        const y = 10 + (row * 70);
+        
+        doc.setDrawColor(200); 
+        doc.roundedRect(x, y, 85, 60, 3, 3, 'S');
 
-        eleves.forEach((el, index) => {
-            if (index > 0 && index % (cols * rows) === 0) { doc.addPage(); col = 0; row = 0; }
-            const x = margin + (col * (cardWidth + gap));
-            const y = margin + (row * (cardHeight + gap));
-            doc.setDrawColor(200); doc.roundedRect(x, y, cardWidth, cardHeight, 3, 3, 'S');
-            doc.setFontSize(20); doc.text(el.identite.split(" ")[0], x + cardWidth / 2, y + cardHeight / 2, { align: 'center' });
-            col++; if (col === cols) { col = 0; row++; }
-        });
-        finaliserExportPDF(doc, "etiquettes_grandes.pdf");
-    }
+        // Adaptabilité de l'affichage sur l'étiquette selon le mode de tri
+        if (modeTriActuel === 'nom') {
+            // Mode NOM : Nom en gros, Prénom en dessous
+            doc.setFontSize(22); 
+            doc.text(el.nom.toUpperCase(), x + 42.5, y + 25, { align: 'center' });
+            doc.setFontSize(16); 
+            doc.text(el.prenom, x + 42.5, y + 37, { align: 'center' });
+        } else {
+            // Mode Prénom : Prénom en gros, Nom en dessous
+            doc.setFontSize(22); 
+            doc.text(el.prenom, x + 42.5, y + 25, { align: 'center' });
+            doc.setFontSize(12); 
+            doc.text(el.nom.toUpperCase(), x + 42.5, y + 35, { align: 'center' });
+        }
+
+        col++; 
+        if (col === 2) { col = 0; row++; }
+    });
+
+    finaliserExportPDF(doc, `outilsprofs_etiquettes_${nomNettoye}_${dateFormattee}.pdf`);
+}
 
     function genererPetitesEtiquettes() {
-        if (eleves.length === 0) { alert("La liste est vide !"); return; }
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        const cols = 3, rows = 9, margin = 10;
-        const cardW = (210 - 20) / cols, cardH = (297 - 20) / rows;
-        let c = 0, r = 0;
+    if (!eleves || eleves.length === 0) return;
+    const { jsPDF } = window.jspdf; 
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
+    const maintenant = new Date(); 
+    const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
+    const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+    
+    let col = 0, row = 0;
+    
+    // Application du tri et du formatage choisi
+    trierEtFormater(eleves).forEach((el, index) => {
+        if (index > 0 && index % 27 === 0) { doc.addPage(); col = 0; row = 0; }
+        
+        const x = 10 + (col * 65); 
+        const y = 12 + (row * 31);
+        
+        doc.setDrawColor(220); 
+        doc.rect(x, y, 60, 28, 'S');
+        
+        doc.setFont("helvetica", "bold"); 
+        doc.setFontSize(10); 
+        // Utilise l'identité formatée (NOM Prénom ou Prénom Nom)
+        doc.text(el.identiteAffichee, x + 30, y + 14, { align: 'center' });
+        
+        col++; 
+        if (col === 3) { col = 0; row++; }
+    });
 
-        eleves.forEach((el, i) => {
-            if (i > 0 && i % 27 === 0) { doc.addPage(); c = 0; r = 0; }
-            doc.setDrawColor(230); doc.rect(10 + c * cardW, 10 + r * cardH, cardW, cardH);
-            doc.setFontSize(10); doc.text(el.identite.split(" ")[0], 10 + c * cardW + cardW / 2, 10 + r * cardH + cardH / 2, { align: 'center' });
-            c++; if (c === cols) { c = 0; r++; }
-        });
-        finaliserExportPDF(doc, "etiquettes_petites.pdf");
-    }
+    finaliserExportPDF(doc, `outilsprofs_petitesetiquettes_${nomNettoye}_${dateFormattee}.pdf`);
+}
 
     function genererSuiviIndividuel() {
-        if (eleves.length === 0) { alert("La liste est vide !"); return; }
-        const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'mm', 'a4');
-        eleves.forEach((el, index) => {
-            if (index > 0 && index % 2 === 0) doc.addPage('l');
-            const offsetX = (index % 2) * 148.5;
-            doc.setFontSize(14); doc.text(el.identite, offsetX + 74, 40, { align: "center" });
-            doc.rect(offsetX + 10, 50, 128, 140);
-        });
-        finaliserExportPDF(doc, "fiches_suivi.pdf");
+    if (eleves.length === 0) { 
+        customConfirm("La liste est vide !", () => {}, [{text: 'D’accord', value: 'ok', type: 'primary'}]); 
+        return; 
     }
+    
+    const { jsPDF } = window.jspdf; 
+    const doc = new jsPDF('l', 'mm', 'a4');
+    const nomEnseignantBrut = localStorage.getItem('nom_enseignant') || "enseignant";
+    const maintenant = new Date(); 
+    const dateFormattee = `${maintenant.getFullYear()}-${String(maintenant.getMonth() + 1).padStart(2, '0')}-${String(maintenant.getDate()).padStart(2, '0')}`;
+    const nomNettoye = nomEnseignantBrut.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_');
+
+    // On utilise trierEtFormater pour respecter le choix de l'utilisateur (modeTriActuel)
+    trierEtFormater(eleves).forEach((el, index) => {
+        if (index > 0 && index % 2 === 0) doc.addPage('l');
+        
+        const position = index % 2, offsetX = position * 148.5;
+        
+        // En-tête gris clair
+        doc.setFillColor(248, 248, 248); 
+        doc.rect(offsetX + 10, 10, 128.5, 20, 'F');
+        
+        doc.setFontSize(8); 
+        doc.setTextColor(120); 
+        doc.text(`Suivi Pédagogique - Classe de ${nomEnseignantBrut}`, offsetX + 15, 18);
+        doc.text(`Année Scolaire 2025-2026`, offsetX + 15, 24);
+        
+        // Identité (NOM Prénom ou Prénom Nom selon le tri)
+        doc.setFontSize(16); 
+        doc.setTextColor(0); 
+        doc.setFont("helvetica", "bold"); 
+        doc.text(el.identiteAffichee, offsetX + 74.25, 45, { align: "center" });
+        
+        // Informations complémentaires
+        doc.setFontSize(10); 
+        doc.setFont("helvetica", "normal");
+        const infoNiveau = `Niveau : ${el.niveau}`, infoNaissance = el.dateNaissance ? ` - Né(e) le : ${el.dateNaissance}` : "";
+        doc.text(infoNiveau + infoNaissance, offsetX + 74.25, 52, { align: "center" });
+        
+        // Ligne de séparation sous l'identité
+        doc.setDrawColor(200); 
+        doc.line(offsetX + 30, 58, offsetX + 118, 58);
+        
+        // Section Observations
+        doc.setFontSize(9); 
+        doc.setTextColor(150); 
+        doc.setFont("helvetica", "italic"); 
+        doc.text("OBSERVATIONS / NOTES :", offsetX + 15, 68);
+        
+        // Cadre principal
+        doc.setDrawColor(230); 
+        doc.roundedRect(offsetX + 10, 72, 128.5, 120, 2, 2, 'S');
+        
+        // Lignes de notes
+        doc.setDrawColor(240); 
+        for (let i = 0; i < 10; i++) { 
+            doc.line(offsetX + 15, 85 + (i * 11), offsetX + 133.5, 85 + (i * 11)); 
+        }
+        
+        // Ligne de découpe centrale (uniquement sur la colonne de gauche)
+        if (position === 0) { 
+            doc.setDrawColor(220); 
+            doc.setLineDashPattern([2, 2], 0); 
+            doc.line(148.5, 5, 148.5, 205); 
+            doc.setLineDashPattern([], 0); 
+        }
+    });
+
+    const nomFinalSuivi = `outilsprofs_fiches_suivi_classe_${nomNettoye}_${dateFormattee}.pdf`;
+    finaliserExportPDF(doc, nomFinalSuivi);
+}
+    
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide(e) { if(e.target.id === 'modal-aide' || e.target.id === 'btn-fermer-aide') document.getElementById('modal-aide').style.display = 'none'; }
 </script>
 </body>
 </html>
