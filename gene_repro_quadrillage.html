@@ -19,16 +19,48 @@
         .main-wrapper { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 15px 20px 15px; }
         .controls { background: var(--card-bg); padding: 20px; border-radius: 1.5rem; border: 1px solid var(--column-border); margin-bottom: 20px; }
         
-        #preview-container { background: white; padding: 30px; border-radius: 1.5rem; display: flex; justify-content: center; overflow-x: auto; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        #preview-container { background: white; padding: 15px; border-radius: 1.5rem; display: flex; justify-content: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); width: 100%; }
         
-        #svg-model { background: white; cursor: crosshair; touch-action: none; display: block; width: 400px; height: 400px; }
-
+        #svg-model { background: white; cursor: crosshair; touch-action: none; display: block; width: 100%; max-width: 400px; height: auto; }
+		#draw-actions { flex-wrap: wrap; justify-content: center; }
         .grid-line { stroke: #e5e7eb; stroke-width: 1; }
         .grid-main { stroke: #9ca3af; stroke-width: 2; }
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
         .btn-modal-close { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
         
+		/* Optimisation Mobile */
+@media (max-width: 640px) {
+    #preview-container {
+        padding: 10px; /* Réduction drastique du padding blanc */
+    }
+    
+    .main-wrapper {
+        padding: 0 8px 20px 8px; /* Moins de marge sur les bords de l'écran */
+    }
+
+    #draw-actions button {
+        width: 38px;  /* Boutons plus petits */
+        height: 38px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+    }
+
+    #btn-gomme {
+        padding: 0 10px;
+        height: 38px;
+    }
+
+    #gomme-status {
+        font-size: 8px; /* Texte plus petit dans le bouton gomme */
+    }
+    
+    #draw-actions {
+        gap: 6px; /* Espace réduit entre les boutons */
+        flex-wrap: wrap; /* Passage à la ligne si nécessaire */
+    }
+}
+
         @media print { .no-print { display: none !important; } body { background: white; } #preview-container { box-shadow: none; padding: 0; } }
     </style>
 </head>
