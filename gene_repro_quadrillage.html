@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Reproduction géométrique - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        :root { --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); --header-bg: #1e1e1e; --card-bg: #1e1e1e; }
+        body.light-mode { --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; --header-bg: #ffffff; --card-bg: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; }
+        
+        header { background: var(--header-bg); border-bottom: 1px solid var(--column-border); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; width: 100%; margin-bottom: 20px; }
+        #btn-retour-header, #btn-aide { display: flex !important; align-items: center; justify-content: center; width: 38px !important; height: 38px !important; border-radius: 50% !important; flex-shrink: 0; cursor: pointer !important; }
+        
+        .main-wrapper { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 15px 20px 15px; }
+        .controls { background: var(--card-bg); padding: 20px; border-radius: 1.5rem; border: 1px solid var(--column-border); margin-bottom: 20px; }
+        
+        #preview-container { background: white; padding: 30px; border-radius: 1.5rem; display: flex; justify-content: center; overflow-x: auto; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        
+        #svg-model { background: white; cursor: crosshair; touch-action: none; display: block; width: 400px; height: 400px; }
+
+        .grid-line { stroke: #e5e7eb; stroke-width: 1; }
+        .grid-main { stroke: #9ca3af; stroke-width: 2; }
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+        .btn-modal-close { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
+        
+        @media print { .no-print { display: none !important; } body { background: white; } #preview-container { box-shadow: none; padding: 0; } }
+    </style>
+</head>
+<body>
+
+<script>if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');</script>
+
+<header>
+    <a href="index.html" id="btn-retour-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1 style="margin: 0; font-size: 1.125rem; font-weight: 900; text-transform: uppercase; flex-grow: 1; text-align: center;">Reproduction Géométrie</h1>
+    <button id="btn-aide" onclick="ouvrirAide()">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div id="container-retour-liste" class="mb-6 text-left no-print">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[10px] font-black uppercase transition-all active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width:12px; height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux générateurs
+        </a>
+    </div>
+
+    <div class="controls no-print flex items-center gap-3 py-2 px-4 w-fit mx-auto rounded-full border border-white/10 shadow-sm mb-6">
+        <label for="gridSize" class="text-[10px] font-black uppercase opacity-50 tracking-widest whitespace-nowrap">Nombre de carreaux :</label>
+        <input type="number" id="gridSize" value="10" min="5" max="15" 
+            class="w-12 bg-transparent border-b border-gray-500 text-center outline-none font-bold text-sm py-1 focus:border-white">
+    </div>
+
+    <div id="preview-container">
+        <div class="flex flex-col items-center">
+            <span id="label-modele" class="text-black text-[10px] font-bold uppercase mb-2">Modèle</span>
+            <svg id="svg-model"></svg>
+            <div id="draw-actions" class="flex items-center gap-2 mt-4 no-print">
+                <button id="btn-tool-line" onclick="setTool('line')" class="w-12 h-12 flex items-center justify-center rounded-xl text-lg transition-colors active:scale-95 shadow-sm" title="Outil Ligne">📏</button>
+                <button id="btn-tool-circle" onclick="setTool('circle')" class="w-12 h-12 flex items-center justify-center rounded-xl text-lg transition-colors active:scale-95 shadow-sm" title="Outil Cercle">⭕</button>
+                
+                <div class="w-px h-8 bg-gray-400/20 mx-1"></div>
+                
+                <button id="btn-undo" onclick="undoLastAction()" class="w-12 h-12 flex items-center justify-center rounded-xl text-lg transition-colors active:scale-95 shadow-sm" title="Annuler">↩</button>
+                <button id="btn-redo" onclick="redoLastAction()" class="w-12 h-12 flex items-center justify-center rounded-xl text-lg transition-colors active:scale-95 shadow-sm" title="Refaire">↪</button>
+                
+                <button id="btn-gomme" onclick="toggleGomme()" class="h-12 px-4 flex items-center justify-center rounded-xl text-[10px] font-black uppercase transition-colors active:scale-95 shadow-sm" title="Gomme">
+                    <span id="gomme-status">🧽 Gomme OFF</span>
+                </button>
+
+                <button id="btn-vider" onclick="viderGrille()" class="w-12 h-12 flex items-center justify-center rounded-xl text-lg transition-colors active:scale-95 shadow-sm" title="Vider tout">🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 no-print">
+        <button onclick="exportToPDF()" id="btn-export-pdf" class="w-full py-4 rounded-xl font-black text-[11px] uppercase tracking-widest transition active:scale-95 shadow-lg">📄 Générer le PDF (Modèle + Vide)</button>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4" style="color: var(--text-page)">💡 Comment ça marche ?</h2>
+        <div class="text-[11px] space-y-4 opacity-80 font-semibold leading-relaxed">
+            <p>1. <span class="text-blue-500">Outils :</span> Choisissez entre la ligne 📏 ou le cercle ⭕.</p>
+            <p>2. <span class="text-blue-500">Tracer :</span> Cliquez sur un premier point (départ/centre), puis sur un second pour finaliser la forme.</p>
+            <p>3. <span class="text-red-500">Gomme :</span> Activez la gomme et cliquez sur une forme pour l'effacer.</p>
+            <p>4. <span class="text-green-500">Export :</span> Le PDF crée 3 exercices avec modèle et grille vide.</p>
+        </div>
+        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close">C'est compris !</button>
+    </div>
+</div>
+
+<div id="modal-confirm" class="modal-overlay" onclick="fermerConfirm()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4 text-red-500">🗑️ Tout effacer ?</h2>
+        <p class="text-[11px] leading-relaxed opacity-80 font-semibold mb-6">Supprimer tous les tracés du modèle ?</p>
+        <div class="flex gap-3">
+            <button onclick="fermerConfirm()" class="flex-1 py-3 rounded-xl font-black text-[10px] uppercase bg-gray-500/20 active:scale-95">Annuler</button>
+            <button id="btn-valider-vider" onclick="validerVider()" class="flex-1 py-3 rounded-xl font-black text-[10px] uppercase text-white bg-red-500 active:scale-95">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const svgModel = document.getElementById('svg-model');
+    let lastPoint = null;
+    let undoStack = []; 
+    let redoStack = [];
+    let ghostLine, ghostCircle, hoverDot, anchorDot;
+    let isGommeActive = false;
+    let currentTool = 'line'; 
+    const INTERNAL_SIZE = 600;
+
+    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
+    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+
+    function setTool(tool) {
+        currentTool = tool;
+        isGommeActive = false;
+        const status = document.getElementById('gomme-status');
+        status.innerText = "🧽 Gomme OFF";
+        svgModel.style.cursor = "crosshair";
+        if (hoverDot) hoverDot.setAttribute("visibility", "visible");
+        lastPoint = null;
+        anchorDot.setAttribute("visibility", "hidden");
+        ghostLine.setAttribute("visibility", "hidden");
+        ghostCircle.setAttribute("visibility", "hidden");
+        appliquerTheme();
+    }
+
+    function initGrids() {
+        const size = parseInt(document.getElementById('gridSize').value) || 10;
+        const cell = INTERNAL_SIZE / size;
+        svgModel.dataset.computedCell = cell;
+        
+        lastPoint = null; undoStack = []; redoStack = [];
+        svgModel.innerHTML = '';
+        svgModel.setAttribute('viewBox', `0 0 ${INTERNAL_SIZE} ${INTERNAL_SIZE}`);
+
+        let lines = '';
+        for (let i = 0; i <= size; i++) {
+            const pos = i * cell;
+            const color = (i === 0 || i === size) ? 'grid-main' : 'grid-line';
+            lines += `<line x1="0" y1="${pos}" x2="${INTERNAL_SIZE}" y2="${pos}" class="${color}" />`;
+            lines += `<line x1="${pos}" y1="0" x2="${pos}" y2="${INTERNAL_SIZE}" class="${color}" />`;
+        }
+        svgModel.insertAdjacentHTML('beforeend', lines);
+
+        const helpGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        helpGroup.id = "help-layer";
+        
+        ghostLine = createSVGElement("line", { "stroke": "rgba(0,0,0,0.3)", "stroke-width": "2", "stroke-dasharray": "4", "visibility": "hidden" });
+        ghostCircle = createSVGElement("circle", { "fill": "none", "stroke": "rgba(0,0,0,0.3)", "stroke-width": "2", "stroke-dasharray": "4", "visibility": "hidden" });
+        hoverDot = createSVGElement("circle", { "r": "6", "fill": "rgba(0,0,0,0.2)" });
+        anchorDot = createSVGElement("circle", { "r": "6", "fill": "black", "visibility": "hidden" });
+
+        helpGroup.appendChild(ghostLine);
+        helpGroup.appendChild(ghostCircle);
+        helpGroup.appendChild(hoverDot);
+        helpGroup.appendChild(anchorDot);
+        svgModel.appendChild(helpGroup);
+    }
+
+    function createSVGElement(tag, attrs) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        for (let k in attrs) el.setAttribute(k, attrs[k]);
+        return el;
+    }
+
+    function getCoords(e) {
+        const cell = parseFloat(svgModel.dataset.computedCell);
+        const rect = svgModel.getBoundingClientRect();
+        const xInternal = ((e.clientX - rect.left) / rect.width) * INTERNAL_SIZE;
+        const yInternal = ((e.clientY - rect.top) / rect.height) * INTERNAL_SIZE;
+        return {
+            x: Math.round(xInternal / cell) * cell,
+            y: Math.round(yInternal / cell) * cell
+        };
+    }
+
+    svgModel.addEventListener('pointerdown', (e) => {
+        if (isGommeActive) {
+            if (e.target.classList.contains('eraser-zone')) {
+                const group = e.target.parentNode;
+                undoStack.push({ type: 'erase', element: group });
+                svgModel.removeChild(group);
+                redoStack = [];
+            }
+            return;
+        }
+
+        const c = getCoords(e);
+        if (!lastPoint) {
+            lastPoint = c;
+            anchorDot.setAttribute("cx", c.x); anchorDot.setAttribute("cy", c.y);
+            anchorDot.setAttribute("visibility", "visible");
+        } else {
+            if (lastPoint.x === c.x && lastPoint.y === c.y) return;
+            
+            const group = createSVGElement("g", { "class": "line-group" });
+            let visualElement, hitZone;
+
+            if (currentTool === 'line') {
+                hitZone = createSVGElement("line", { "x1": lastPoint.x, "y1": lastPoint.y, "x2": c.x, "y2": c.y, "stroke": "transparent", "stroke-width": "30", "class": "eraser-zone" });
+                visualElement = createSVGElement("line", { "x1": lastPoint.x, "y1": lastPoint.y, "x2": c.x, "y2": c.y, "stroke": "black", "stroke-width": "4", "stroke-linecap": "round" });
+            } else {
+                const radius = Math.sqrt(Math.pow(c.x - lastPoint.x, 2) + Math.pow(c.y - lastPoint.y, 2));
+                hitZone = createSVGElement("circle", { "cx": lastPoint.x, "cy": lastPoint.y, "r": radius, "stroke": "transparent", "stroke-width": "20", "fill": "none", "class": "eraser-zone" });
+                visualElement = createSVGElement("circle", { "cx": lastPoint.x, "cy": lastPoint.y, "r": radius, "stroke": "black", "stroke-width": "4", "fill": "none" });
+            }
+
+            hitZone.style.pointerEvents = "stroke";
+            visualElement.style.pointerEvents = "none";
+            group.appendChild(hitZone);
+            group.appendChild(visualElement);
+            svgModel.insertBefore(group, document.getElementById('help-layer'));
+            
+            undoStack.push({ type: 'draw', element: group });
+            lastPoint = null;
+            anchorDot.setAttribute("visibility", "hidden");
+            ghostLine.setAttribute("visibility", "hidden");
+            ghostCircle.setAttribute("visibility", "hidden");
+            redoStack = [];
+        }
+    });
+
+    svgModel.addEventListener('pointermove', (e) => {
+        if (isGommeActive) return;
+        const c = getCoords(e);
+        if (hoverDot) { 
+            hoverDot.setAttribute("cx", c.x); hoverDot.setAttribute("cy", c.y);
+            hoverDot.setAttribute("visibility", "visible");
+        }
+        if (lastPoint) {
+            if (currentTool === 'line') {
+                ghostLine.setAttribute("x1", lastPoint.x); ghostLine.setAttribute("y1", lastPoint.y);
+                ghostLine.setAttribute("x2", c.x); ghostLine.setAttribute("y2", c.y);
+                ghostLine.setAttribute("visibility", "visible");
+                ghostCircle.setAttribute("visibility", "hidden");
+            } else {
+                const radius = Math.sqrt(Math.pow(c.x - lastPoint.x, 2) + Math.pow(c.y - lastPoint.y, 2));
+                ghostCircle.setAttribute("cx", lastPoint.x); ghostCircle.setAttribute("cy", lastPoint.y);
+                ghostCircle.setAttribute("r", radius);
+                ghostCircle.setAttribute("visibility", "visible");
+                ghostLine.setAttribute("visibility", "hidden");
+            }
+        }
+    });
+
+    function toggleGomme() {
+        isGommeActive = !isGommeActive;
+        const status = document.getElementById('gomme-status');
+        if (isGommeActive) {
+            status.innerText = "🧽 Gomme ON";
+            svgModel.style.cursor = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size:24px'><text y='24' x='0'>🧽</text></svg>") 12 12, pointer`;
+            if (hoverDot) hoverDot.setAttribute("visibility", "hidden");
+        } else {
+            status.innerText = "🧽 Gomme OFF";
+            svgModel.style.cursor = "crosshair";
+            if (hoverDot) hoverDot.setAttribute("visibility", "visible");
+        }
+        lastPoint = null;
+        anchorDot.setAttribute("visibility", "hidden");
+        ghostLine.setAttribute("visibility", "hidden");
+        ghostCircle.setAttribute("visibility", "hidden");
+        appliquerTheme();
+    }
+
+    function undoLastAction() {
+        if (undoStack.length === 0) return;
+        const action = undoStack.pop();
+        redoStack.push(action);
+        if (action.type === 'draw') svgModel.removeChild(action.element);
+        else svgModel.insertBefore(action.element, document.getElementById('help-layer'));
+    }
+
+    function redoLastAction() {
+        if (redoStack.length === 0) return;
+        const action = redoStack.pop();
+        undoStack.push(action);
+        if (action.type === 'draw') svgModel.insertBefore(action.element, document.getElementById('help-layer'));
+        else svgModel.removeChild(action.element);
+    }
+
+    function viderGrille() { document.getElementById('modal-confirm').style.display = 'flex'; }
+    function fermerConfirm() { document.getElementById('modal-confirm').style.display = 'none'; }
+    function validerVider() {
+        svgModel.querySelectorAll('.line-group').forEach(l => svgModel.removeChild(l));
+        lastPoint = null; undoStack = []; redoStack = [];
+        anchorDot.setAttribute("visibility", "hidden");
+        ghostLine.setAttribute("visibility", "hidden");
+        ghostCircle.setAttribute("visibility", "hidden");
+        fermerConfirm();
+    }
+
+    async function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const modelWrapper = document.querySelector('#preview-container > div');
+        const titleLabel = document.getElementById('label-modele');
+        
+        const maintenant = new Date();
+        const dateStr = maintenant.getFullYear() + String(maintenant.getMonth() + 1).padStart(2, '0') + String(maintenant.getDate()).padStart(2, '0');
+        const nomFichier = `outilsprofs_repro_quadrillage_${dateStr}.pdf`;
+
+        if (hoverDot) hoverDot.setAttribute("visibility", "hidden");
+        if (anchorDot) anchorDot.setAttribute("visibility", "hidden");
+        document.getElementById('draw-actions').style.display = 'none';
+
+        try {
+            const canvasModel = await html2canvas(modelWrapper, { scale: 2, backgroundColor: "#ffffff" });
+            const lines = svgModel.querySelectorAll('.line-group');
+            lines.forEach(l => l.style.display = 'none');
+            titleLabel.style.visibility = 'hidden';
+            const canvasEmpty = await html2canvas(modelWrapper, { scale: 2, backgroundColor: "#ffffff" });
+
+            lines.forEach(l => l.style.display = 'block');
+            titleLabel.style.visibility = 'visible';
+            document.getElementById('draw-actions').style.display = 'flex';
+            if (hoverDot && !isGommeActive) hoverDot.setAttribute("visibility", "visible");
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgW = 75, gap = 15;
+            const imgH = (canvasModel.height * imgW) / canvasModel.width;
+            const marginX = (pdf.internal.pageSize.getWidth() - ((imgW * 2) + gap)) / 2;
+
+            const dataModel = canvasModel.toDataURL('image/png');
+            const dataEmpty = canvasEmpty.toDataURL('image/png');
+
+            [15, 110, 205].forEach(y => {
+                pdf.addImage(dataModel, 'PNG', marginX, y, imgW, imgH);
+                pdf.addImage(dataEmpty, 'PNG', marginX + imgW + gap, y, imgW, imgH);
+            });
+            pdf.save(nomFichier);
+        } catch (error) { alert("Erreur lors de la génération."); }
+    }
+
+    function appliquerTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.gen || 'cyan'; 
+        const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
+        
+        const hexa = mapCouleurs[colPref] || '#06b6d4';
+        const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref) ? '#000' : '#fff';
+        
+        const gridInput = document.getElementById('gridSize');
+        if (gridInput) {
+            gridInput.style.color = document.body.classList.contains('light-mode') ? '#000' : '#fff';
+            gridInput.style.borderBottomColor = hexa;
+        }
+
+        const hexToRgba = (hex, opacity) => {
+            const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        };
+
+        const editionButtons = ['btn-tool-line', 'btn-tool-circle', 'btn-undo', 'btn-redo', 'btn-gomme', 'btn-vider'];
+        editionButtons.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const isActive = (id === 'btn-tool-line' && currentTool === 'line' && !isGommeActive) ||
+                                 (id === 'btn-tool-circle' && currentTool === 'circle' && !isGommeActive) ||
+                                 (id === 'btn-gomme' && isGommeActive);
+                if (isActive) {
+                    el.style.backgroundColor = (id === 'btn-gomme') ? "#ef4444" : hexa;
+                    el.style.color = "#fff";
+                } else {
+                    el.style.backgroundColor = hexToRgba(hexa, 0.15);
+                    el.style.color = hexa;
+                }
+            }
+        });
+
+        ['btn-export-pdf', 'btn-retour-header', 'btn-aide', 'btn-retour-liste', 'btn-valider-vider', 'btn-fermer-aide'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
+        });
+    }
+
+    document.getElementById('gridSize').onchange = initGrids;
+    window.onload = () => { initGrids(); appliquerTheme(); };
+</script>
+</body>
+</html>
