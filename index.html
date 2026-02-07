@@ -120,6 +120,82 @@
                 margin-bottom: 12px;
             }
         }
+		
+		/* Styles de la modale */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #avatar-propos {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            border: 3px solid var(--bg-body);
+        }
+
+        .url-copy-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-body);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+
+        .url-copy-box code {
+			font-size: 10px;
+			white-space: normal;
+			word-break: normal;
+			color: var(--text-muted);
+			flex-grow: 1;
+			line-height: 1.4;
+			padding: 2px 4px;
+			border-radius: 4px;
+			transition: all 0.2s ease;
+		}
+
+		/* Effet de surbrillance au survol ou clic */
+		.url-copy-box code:hover {
+			color: var(--text-main);
+			background: rgba(59, 130, 246, 0.1); /* Bleu léger transparent */
+			cursor: pointer;
+		}
+
+        .copy-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+		
     </style>
 </head>
 <body class="flex flex-col items-center">
@@ -139,7 +215,7 @@
                 </svg>
             </button>
             <h1 class="text-[13px] md:text-[18px] font-black tracking-[0.4em] uppercase opacity-90">Outils Profs</h1>
-            <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar">
+            <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar cursor-pointer active:scale-90 transition-transform" onclick="toggleModal(true)">
         </header>
 
         <!-- Grille de navigation -->
@@ -283,6 +359,46 @@
                     <span class="tile-subtitle text-[8px] md:text-[11px] font-semibold">gestion de la classe</span>
                 </a>
             </div>
+			
+	<div id="modalAbout" class="modal-overlay" onclick="toggleModal(false)">
+        <div class="modal-content p-6" onclick="event.stopPropagation()">
+            <button onclick="toggleModal(false)" class="absolute top-4 right-4 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <div id="propos" class="text-center">
+                <div class="flex flex-col items-center">
+                    <img src="outilsprofs_icone.png" id="avatar-propos" alt="Avatar">
+                    <p class="text-xs font-bold">Application conçue par Nicolas BERNARDET<br>avec la grande aide de l'IA<br>pour la programmation.</p>
+                    <div class="h-[1px] bg-gray-500/20 w-full my-6"></div>
+                    <p class="text-[12px] font-black text-gray-500 mb-6">OutilsProfs version 7.0</p>
+                </div>
+
+                <div class="text-left bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-blue-500/20">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="font-black text-xs uppercase">Usage sur PC et VPI</h3>
+                    </div>
+                    <p class="text-xs leading-relaxed mb-3">
+                        OutilsProfs est parfaitement adapté pour une utilisation sur <strong>ordinateur</strong> ou une projection sur <strong>VPI/TBI</strong> en classe.
+                    </p>
+                    <div class="url-copy-box">
+						<code id="app-url-propos" 
+							class="font-bold hover:text-blue-500" 
+							onclick="copyUrl(document.querySelector('.copy-btn'))">
+							https://ecolebernardet.github.io/<wbr>outilsprofs/
+						</code>
+						<button onclick="copyUrl(this)" class="copy-btn active:bg-blue-700">Copier</button>
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
         </nav>
     </div>
 
@@ -381,6 +497,25 @@
             });
         }
 
+		function toggleModal(show) {
+            const modal = document.getElementById('modalAbout');
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        function copyUrl(btn) {
+            const url = document.getElementById('app-url-propos').innerText;
+            navigator.clipboard.writeText(url).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = 'Copié';
+                btn.style.background = '#22c55e';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = '#3b82f6';
+                }, 2000);
+            });
+        }
+		
+		
         // Initialisation au chargement de la page
         document.addEventListener('DOMContentLoaded', function() {
             applyColors();
