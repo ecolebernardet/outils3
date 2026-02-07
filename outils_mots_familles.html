@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billets Familles - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            --bg-page: #f3f4f6;
+            --text-page: #111827;
+            --header-bg: #ffffff;
+            --column-border: rgba(0, 0, 0, 0.1);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            color: var(--text-page); 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        /* --- Header --- */
+        header { 
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--column-border);
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            width: 100%; position: sticky; top: 0; z-index: 100;
+        }
+
+        .ui-btn-round { 
+            width: 38px; height: 38px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s; border: none; cursor: pointer;
+        }
+
+        header h1 { 
+            font-size: 1rem; font-weight: 900; text-transform: uppercase; 
+            letter-spacing: 0.1em; flex-grow: 1; text-align: center; 
+        }
+
+        /* --- Bouton Retour Liste --- */
+        .nav-container {
+            width: 100%;
+            max-width: 672px; /* Identique à max-w-2xl de Tailwind */
+            margin: 20px auto 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            padding: 0 15px;
+        }
+
+        #btn-retour-liste {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* --- Contenu & Billet --- */
+        .billet-preview { 
+            background: white; 
+            border: 2px dashed #ccc; 
+            width: 100%; 
+            max-width: 400px; 
+            min-height: 250px; 
+            margin: 20px auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .header-billet { border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; font-weight: bold; }
+        #preview-body { white-space: pre-line; }
+
+        /* Modale */
+        .modal-overlay { 
+            display: none; position: fixed; inset: 0; z-index: 1000;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); 
+            align-items: center; justify-content: center; padding: 20px; 
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 450px; border-radius: 1.5rem; padding: 30px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" id="btn-retour" class="ui-btn-round">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1>Billets Familles</h1>
+    <button id="btn-aide" onclick="ouvrirAide()" class="ui-btn-round text-lg">💡</button>
+</header>
+
+<div class="nav-container">
+    <a href="outils.html" id="btn-retour-liste">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+        Retour aux outils
+    </a>
+</div>
+
+<main class="flex flex-col items-center p-4">
+    <div class="max-w-2xl w-full bg-white p-6 rounded-3xl shadow-xl">
+        <h1 class="text-2xl font-900 text-center uppercase mb-6 tracking-tighter">✉️ Billets aux familles</h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase opacity-50 mb-1">Type de message</label>
+                <select id="type-message" onchange="updatePreview()" class="w-full p-3 bg-gray-100 rounded-xl border-none outline-none font-bold">
+                    <option value="materiel">Matériel manquant</option>
+					<option value="absence">Justification d'absence</option>
+                    <option value="rdv">Demande de rendez-vous</option>
+                    <option value="comportement">Point comportement</option>
+                    <option value="autre">Message personnalisé</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase opacity-50 mb-1">Message personnalisé</label>
+                <textarea id="custom-text" oninput="updatePreview()" placeholder="Écrivez votre message ici..." class="w-full p-3 bg-gray-100 rounded-xl border-none outline-none min-h-[100px]"></textarea>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="show-signature" checked onchange="updatePreview()">
+                <label for="show-signature" class="text-sm font-bold">Inclure la signature</label>
+            </div>
+        </div>
+
+        <div id="billet-to-print" class="billet-preview text-black">
+            <div class="header-billet flex justify-between uppercase text-[10px]">
+                <span>Classe de <span id="nom-enseignant-billet">...</span></span>
+                <span id="date-now"></span>
+            </div>
+            <h2 id="preview-title" class="font-900 text-lg mb-4 text-center">Titre</h2>
+            <p id="preview-body" class="text-sm leading-relaxed mb-8">Contenu...</p>
+            <div id="preview-footer" class="text-right text-xs italic font-bold">Signature</div>
+        </div>
+
+        <div class="flex justify-center mt-6">
+            <button onclick="genererPDF()" id="btn-print" class="py-4 px-5 bg-indigo-600 text-white rounded-2xl font-bold uppercase text-xs shadow-lg">Éditer en PDF (10 billets par page A4)</button>
+        </div>
+    </div>
+</main>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-xl font-900 mb-4 uppercase">💡 Aide</h2>
+        <p class="text-sm opacity-80">Choisissez un motif, personnalisez le texte si besoin, puis téléchargez le PDF.</p>
+        <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full mt-6 py-3 rounded-xl font-bold uppercase text-xs text-white">Compris</button>
+    </div>
+</div>
+
+<script>
+    const MESSAGES = {
+        materiel: { title: "🎒 Matériel manquant", body: "Bonjour, il manque actuellement à votre enfant le matériel suivant : \n\n.................................................................... \n\nMerci de compléter ses affaires pour permettre un travail efficace en classe." },
+		absence: { title: "⚠️ Justification d'absence", body: "Madame, Monsieur, nous n'avons pas reçu de justificatif pour l'absence de votre enfant en date du ........................ .\nMerci de bien vouloir nous le transmettre au plus vite." },
+        rdv: { title: "🗓️ Demande de rendez-vous", body: "Madame, Monsieur, je souhaiterais vous rencontrer afin de faire un point sur la scolarité de votre enfant." },
+        comportement: { title: "🤝 Point comportement", body: "Bonjour, je vous informe que le comportement de votre enfant aujourd'hui a été difficile : \n\n................................................. . \n\nUn échange à la maison serait bénéfique." },
+        autre: { title: "✉️ Information", body: "" }
+    };
+
+    function ouvrirAide() { document.getElementById('modal-aide').classList.add('active'); }
+    function fermerAide() { document.getElementById('modal-aide').classList.remove('active'); }
+
+    function updatePreview() {
+        const savedName = localStorage.getItem('nom_enseignant') || '.......................';
+        document.getElementById('nom-enseignant-billet').innerText = savedName;
+        const type = document.getElementById('type-message').value;
+        const custom = document.getElementById('custom-text').value;
+        const showSig = document.getElementById('show-signature').checked;
+        document.getElementById('preview-title').innerText = MESSAGES[type].title;
+        document.getElementById('preview-body').textContent = custom || MESSAGES[type].body;
+        const footer = document.getElementById('preview-footer');
+        footer.style.display = showSig ? 'block' : 'none';
+        if(showSig) footer.innerText = savedName;
+        document.getElementById('date-now').innerText = new Date().toLocaleDateString();
+    }
+
+    function appliquerThemeDynamique() {
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colorPref = themePrefs.outils || '#6366f1'; 
+        const COLOR_MAP = { 'red': '#ef4444', 'blue': '#3b82f6', 'indigo': '#6366f1', 'pink': '#ec4899', 'amber': '#f59e0b' };
+        const finalColor = COLOR_MAP[colorPref] || colorPref;
+
+        const ids = ['btn-retour', 'btn-aide', 'btn-retour-liste', 'btn-fermer-aide', 'btn-print'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.backgroundColor = finalColor;
+        });
+    }
+
+    async function genererPDF() {
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        // 1. Récupération des données
+        const dateNow = document.getElementById('date-now').innerText;
+        const nomEnseignant = localStorage.getItem('nom_enseignant') || ".......................";
+        const classeTexte = "Classe de " + nomEnseignant;
+        
+        const titreBrut = document.getElementById('preview-title').innerText;
+        const message = document.getElementById('preview-body').textContent;
+        const signature = document.getElementById('preview-footer').innerText;
+
+        // Nettoyage des emojis (non supportés par les polices PDF standard)
+        const titre = titreBrut.replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim();
+
+        const d = new Date();
+		const dateStr = d.getFullYear() + 
+                String(d.getMonth() + 1).padStart(2, '0') + 
+                String(d.getDate()).padStart(2, '0');
+
+		const fileName = `outilsprofs_mot_famille_${dateStr}.pdf`;
+
+        // 2. Paramètres de la grille (2 colonnes x 5 lignes)
+        const cols = 2;
+        const rows = 5;
+        const marginX = 10; 
+        const marginY = 10; 
+        const billetW = 95;  
+        const billetH = 55;  
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const x = marginX + (c * billetW);
+                const y = marginY + (r * billetH);
+
+                // --- Cadre de découpe discret (pointillés) ---
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineDashPattern([1, 1], 0);
+                doc.rect(x, y, billetW, billetH);
+
+                // --- Contenu du billet ---
+                doc.setLineDashPattern([], 0);
+                doc.setTextColor(0, 0, 0);
+
+                // Ligne d'en-tête : Classe et Date
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(7);
+                doc.text(classeTexte.toUpperCase(), x + 5, y + 6);
+                doc.text(dateNow, x + billetW - 5, y + 6, { align: "right" });
+
+                // Filet de séparation sous l'en-tête
+                doc.setLineWidth(0.2);
+                doc.line(x + 5, y + 8, x + billetW - 5, y + 8);
+
+                // Titre du mot
+                doc.setFontSize(10);
+                doc.text(titre, x + (billetW / 2), y + 16, { align: "center" });
+
+                // Corps du message
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(9);
+                const splitText = doc.splitTextToSize(message, billetW - 12);
+                doc.text(splitText, x + 6, y + 24);
+
+                // Signature (si cochée)
+                if (document.getElementById('show-signature').checked) {
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(8);
+                    doc.text(signature, x + billetW - 6, y + billetH - 6, { align: "right" });
+                }
+            }
+        }
+
+        // 3. Exportation Android / Web
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+        if (window.Android && window.Android.savePdfFromBase64) {
+            window.Android.savePdfFromBase64(pdfBase64, fileName);
+        } else {
+            const blob = doc.output('blob');
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+        }
+
+    } catch (error) {
+        console.error("Erreur PDF:", error);
+        alert("L'exportation a échoué.");
+    }
+}
+
+    window.addEventListener('DOMContentLoaded', () => {
+        appliquerThemeDynamique();
+        updatePreview();
+    });
+</script>
+</body>
+</html>
