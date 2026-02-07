@@ -135,9 +135,10 @@
             animation: fadeIn 0.3s ease-out;
             position: relative;
             border-radius: 1.2rem;
-            padding: 10px;
+            padding: 0 8px 8px 8px;
             background: rgba(128, 128, 128, 0.02);
             border: 1px solid var(--column-border);
+			margin-bottom: 4px; /* Ajout d'une marge légère entre sections */
             transition: all 0.3s ease;
         }
 
@@ -159,8 +160,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
+            margin-bottom: 4px;
+            padding: 0 8px 0px 8px;
             border-bottom: 2px solid var(--column-border);
             position: relative;
         }
@@ -216,6 +217,12 @@
             flex-shrink: 0;
         }
 
+		#categoriesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* Réduit de 12px à 8px */
+        }
+		
         /* Tools Grid */
         .tools-grid {
             display: grid;
@@ -538,7 +545,15 @@
             title: 'Module Édition',
             description: 'Listes, étiquettes et suivis',
             category: 'edition'
-        }
+        },
+		{
+        id: 'ephemeride',
+        href: 'outils_ephemeride.html',
+        icon: '📅',
+        title: 'Éphéméride',
+        description: 'Date, fête et rituel du jour',
+        category: 'organisation'
+		},
     ];
 
     const HELP_CONTENT = [
@@ -549,7 +564,8 @@
         '🚦 Les <strong>feux tricolores</strong>: cliquez sur un feu pour changer le mode de travail.',
         '🪑 Le <strong>plan</strong> permet de générer le plan de votre classe.',
         '🏫 La <strong>Structure École</strong> permet de simuler et d\'équilibrer la répartition des élèves par classe.',
-        '📄 Le <strong>Module Édition</strong> permet de générer vos listes de classe, étiquettes et fiches de suivi en PDF.'
+        '📄 Le <strong>Module Édition</strong> permet de générer vos listes de classe, étiquettes et fiches de suivi en PDF.',
+		'📅 L\'<strong>Éphéméride</strong> affiche la date complète, le saint du jour et un défi pour le rituel du matin.'
     ];
 
     // ====================== UTILITY FUNCTIONS ====================== 
