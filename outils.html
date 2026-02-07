@@ -6,23 +6,31 @@
     <title>Outils de classe - OutilsProfs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
     <style>
+        /* ====================== CSS CONFIGURATION ====================== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
         :root {
             --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
-            --header-bg: #1e1e1e; --card-bg: #1e1e1e;
+            --header-bg: #1e1e1e; --card-bg: #1e1e1e; --input-bg: #2a2a2a;
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
         body.light-mode {
             --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
-            --header-bg: #ffffff; --card-bg: #ffffff;
+            --header-bg: #ffffff; --card-bg: #ffffff; --input-bg: #f3f4f6;
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; }
-        
+        /* Base Styles */
+        body { 
+            font-family: 'Inter', sans-serif; background: var(--bg-page); 
+            color: var(--text-page); margin: 0; padding: 0; 
+            transition: background 0.3s ease;
+        }
+
+        /* Header */
         header { 
             background: var(--header-bg); border-bottom: 1px solid var(--column-border);
             position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
@@ -30,9 +38,10 @@
             width: 100%; margin-bottom: 20px;
         }
 
-        #btn-retour, #btn-aide { 
+        #btn-retour, #btn-search-trigger, #btn-aide { 
             display: flex; align-items: center; justify-content: center; 
-            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; 
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+            transition: all 0.3s ease; border: none; cursor: pointer;
         }
 
         header h1 { 
@@ -40,37 +49,235 @@
             text-align: center; flex-grow: 1; letter-spacing: 0.1em;
         }
 
+        /* Main Container */
         .main-wrapper { 
-            width: 100%; 
-            max-width: 500px; 
-            margin: 0 auto; 
-            padding: 0 15px 40px 15px; 
-            transition: max-width 0.4s ease;
+            width: 100%; max-width: 500px; margin: 0 auto; 
+            padding: 0 15px 40px 15px; transition: max-width 0.4s ease;
         }
 
-        #tools-list {
+        @media (min-width: 768px) {
+            .main-wrapper { max-width: 900px; }
+        }
+
+        @media (min-width: 1200px) {
+            .main-wrapper { max-width: 1100px; }
+        }
+
+        /* Search Bar */
+        #searchWrapper { 
+            max-height: 0; overflow: hidden; 
+            transition: max-height 0.4s ease, opacity 0.3s, margin-bottom 0.3s; 
+            opacity: 0; margin-bottom: 0;
+        }
+
+        #searchWrapper.open { 
+            max-height: 100px; opacity: 1; margin-bottom: 1.5rem;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border-radius: 12px;
+            border: 1px solid var(--column-border);
+            background: var(--input-bg);
+            color: var(--text-page);
+            font-size: 0.875rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            border-color: currentColor;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            display: none;
+            padding: 4px;
+            color: var(--text-page);
+        }
+
+        .search-clear:hover { opacity: 0.8; }
+        .search-clear.visible { display: block; }
+
+        /* Categories Container */
+        #categoriesContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Category Section */
+        .category-section {
+            animation: fadeIn 0.3s ease-out;
+            position: relative;
+            border-radius: 1.2rem;
+            padding: 16px;
+            background: rgba(128, 128, 128, 0.02);
+            border: 1px solid var(--column-border);
+            transition: all 0.3s ease;
+        }
+
+        .category-section:hover {
+            background: rgba(128, 128, 128, 0.04);
+        }
+
+        .category-section.sortable-ghost {
+            opacity: 0.5;
+            background: rgba(128, 128, 128, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--column-border);
+            position: relative;
+        }
+
+        .category-drag-handle {
+            display: grid;
+            grid-template-columns: repeat(3, 2px);
+            gap: 2px;
+            cursor: grab;
+            opacity: 0.2;
+            transition: opacity 0.3s;
+            padding: 4px 8px;
+            margin-right: 4px;
+            flex-shrink: 0;
+        }
+
+        .category-drag-handle:hover {
+            opacity: 0.6;
+        }
+
+        .category-drag-handle:active {
+            cursor: grabbing;
+            opacity: 1;
+        }
+
+        .category-drag-handle span {
+            width: 2px;
+            height: 2px;
+            background-color: var(--text-page);
+            border-radius: 50%;
+        }
+
+        .category-icon { 
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .category-title { 
+            font-size: 0.875rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            flex-grow: 1;
+        }
+
+        .category-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.2);
+            color: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
 
+        @media (min-width: 768px) {
+            .tools-grid { gap: 20px; }
+        }
+
+        @media (min-width: 1200px) {
+            .tools-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* Tool Card */
         .tool-card {
             position: relative;
             background: var(--card-bg);
             border-radius: 1.5rem;
-            padding: 20px 12px;
+            padding: 16px;
             border: 1px solid var(--column-border);
             box-shadow: var(--shadow-custom);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            text-align: center;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             color: inherit;
+            cursor: pointer;
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            width: 100%;
+        }
+
+        .tool-card:focus {
+            outline-color: currentColor;
+        }
+
+        @media (min-width: 768px) {
+            .tool-card { 
+                padding: 20px; 
+                gap: 12px;
+                flex-direction: row;
+                text-align: left;
+                align-items: flex-start;
+            }
+            .tool-card:hover { 
+                transform: translateY(-4px); 
+                border-color: currentColor; 
+                background: rgba(128, 128, 128, 0.03);
+            }
+            .tool-card:hover .icon-box { 
+                transform: rotate(-5deg) scale(1.1); 
+            }
         }
 
         .tool-card:active { transform: scale(0.97); }
 
+        /* Icon Box */
         .icon-box {
             width: 44px; height: 44px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
@@ -80,48 +287,99 @@
             flex-shrink: 0;
         }
 
-        .drag-handle {
-            position: absolute;
-            top: 10px; right: 10px;
-            display: grid;
-            grid-template-columns: repeat(3, 2px);
-            gap: 2px;
-            cursor: grab;
-            opacity: 0.2;
+        @media (min-width: 768px) {
+            .icon-box { 
+                width: 52px; 
+                height: 52px; 
+                font-size: 26px;
+            }
         }
 
-        .drag-handle span {
-            width: 2px; height: 2px;
-            background-color: var(--text-page);
-            border-radius: 50%;
+        /* Tool Info */
+        .tool-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .tool-info h2 { 
+            font-size: 0.75rem;
+            line-height: 1.2;
+            margin: 0;
         }
 
         @media (min-width: 768px) {
-            .main-wrapper { max-width: 900px; }
-            #tools-list { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-            .tool-card { padding: 20px; gap: 16px; }
-            .icon-box { width: 52px; height: 52px; font-size: 26px; }
-            .tool-card:hover { 
-                transform: translateY(-4px); 
-                border-color: currentColor; 
-                background: rgba(128, 128, 128, 0.03);
-            }
-            .tool-card:hover .icon-box { transform: rotate(-5deg) scale(1.1); }
+            .tool-info h2 { font-size: 0.875rem; }
         }
 
-        @media (min-width: 1200px) {
-            .main-wrapper { max-width: 1100px; }
-            #tools-list { grid-template-columns: repeat(3, 1fr); }
+        .tool-info p { 
+            font-size: 0.5625rem;
+            opacity: 0.5;
+            margin: 0;
         }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 30px; position: relative; }
-        
+        @media (min-width: 768px) {
+            .tool-info p { font-size: 0.625rem; }
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.6;
+            font-size: 0.875rem;
+        }
+
+        .no-results-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        /* Modals */
+        .modal-overlay { 
+            display: none; position: fixed; inset: 0; z-index: 1000; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); 
+            align-items: center; justify-content: center; padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content { 
+            background: var(--card-bg); width: 100%; max-width: 450px; 
+            border-radius: 1.5rem; border: 1px solid var(--column-border); 
+            padding: 30px; position: relative;
+        }
+
+        .modal-title { 
+            font-size: 1.125rem; font-weight: 900; text-transform: uppercase; 
+            margin-bottom: 1rem; margin-top: 0;
+        }
+
+        .modal-text { 
+            font-size: 0.6875rem;
+            line-height: 1.5;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        @media (min-width: 768px) {
+            .modal-text { font-size: 0.75rem; }
+        }
+
+        .modal-text p { margin-bottom: 0.75rem; margin-top: 0; }
+
         .btn-modal-close {
             width: 100%; padding: 14px; border-radius: 12px;
             font-weight: 900; font-size: 11px; text-transform: uppercase;
-            margin-top: 20px; cursor: pointer; border: none; transition: transform 0.2s;
+            margin-top: 20px; cursor: pointer; border: none; 
+            transition: transform 0.2s; color: white;
         }
+
+        .btn-modal-close:active { transform: scale(0.95); }
+        .btn-modal-close:focus { outline: 2px solid currentColor; outline-offset: 2px; }
     </style>
 </head>
 <body>
@@ -130,187 +388,454 @@
     if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
 </script>
 
+<!-- ====================== HEADER ====================== -->
 <header>
-    <a href="index.html" id="btn-retour">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <a href="index.html" id="btn-retour" aria-label="Retourner à l'accueil">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
     </a>
     <h1 id="pageTitle">Outils</h1>
-    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
+    <div class="flex gap-1">
+        <button id="btn-search-trigger" onclick="toggleSearch()" aria-label="Ouvrir la recherche">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </button>
+        <button id="btn-aide" onclick="ouvrirAide()" class="text-lg" aria-label="Ouvrir l'aide">💡</button>
+    </div>
 </header>
 
+<!-- ====================== MAIN CONTENT ====================== -->
 <div class="main-wrapper">
-    <div id="tools-list">
-        <a href="outils_timer.html" class="tool-card" data-id="timer">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-timer">⏱️</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-timer">Minuteur & Chrono</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Gérer le temps des activités</p>
-            </div>
-        </a>
+    <!-- Search Bar (Hidden by default) -->
+    <div id="searchWrapper">
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Rechercher un outil..." 
+                aria-label="Rechercher parmi les outils"
+                autocomplete="off"
+            >
+            <button class="search-clear" id="clearSearch" aria-label="Effacer la recherche">✕</button>
+        </div>
+    </div>
 
-        <a href="outils_bruit.html" class="tool-card" data-id="bruit">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-bruit">🔈</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-bruit">Radar de bruit</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Visualiser le bruit en classe</p>
-            </div>
-        </a>
-        
-		<a href="outils_deficalme.html" class="tool-card" data-id="deficalme">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-deficalme">🤫</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-deficalme">Défi calme</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Et l'image apparaît...</p>
-            </div>
-        </a>
-		
-		<a href="outils_feux.html" class="tool-card" data-id="feux">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-feux">🚦</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-feux">Feux tricolores</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Mode de travail</p>
-            </div>
-        </a>
-		
-		<a href="outils_plan.html" class="tool-card" data-id="plan">
-			<div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-			<div class="icon-box" id="icon-plan">🪑</div>
-			<div>
-				<h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-plan">Plan de classe</h2>
-				<p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Placer les élèves en un clic</p>
-			</div>
-		</a>
+    <!-- Tools by Category -->
+    <div id="categoriesContainer"></div>
 
-		<a href="outils_structure_ecole.html" class="tool-card" data-id="structure">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-structure">🏫</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-structure">Structure École</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Répartition et effectifs</p>
-            </div>
-        </a>
-		
-		<a href="outils_edition.html" class="tool-card" data-id="edition">
-            <div class="drag-handle"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-            <div class="icon-box" id="icon-edition">📄</div>
-            <div>
-                <h2 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-edition">Module Édition</h2>
-                <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">Listes, étiquettes et suivis</p>
-            </div>
-        </a>
-		
+    <!-- No Results -->
+    <div id="noResults" class="no-results" style="display: none;">
+        <div class="no-results-icon">🔍</div>
+        <p>Aucun outil ne correspond à votre recherche</p>
     </div>
 </div>
 
-		
-<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+<!-- ====================== HELP MODAL ====================== -->
+<div id="modal-aide" class="modal-overlay" onclick="fermerAide()" role="dialog" aria-modal="true">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide Outils</h2>
-        <div class="text-[11px] md:text-[12px] leading-relaxed space-y-3 opacity-80 font-semibold">
-            <p>Cette section regroupe des utilitaires pour faciliter la gestion quotidienne de votre classe.</p>
-            <p>⏱️ Le <strong>Minuteur</strong> vous aide à rythmer les séances et les transitions.</p>
-            <p>🔈 Le <strong>Niveau Sonore</strong> permet de réguler le volume sonore durant les ateliers.</p>
-            <p>🤫 Le <strong>Défi calme</strong>: quand le calme en classe permet de faire apparaître une photo.</p>
-            <p>🚦 Les <strong>feux tricolores</strong>: cliquez sur un feu pour changer le mode de travail.</p>
-			<p>🪑 Le <strong>plan</strong> permet de générer le plan de votre classe.</p>
-			<p>🏫 La <strong>Structure École</strong> permet de simuler et d'équilibrer la répartition des élèves par classe.</p>
-			<p>📄 Le <strong>Module Édition</strong> permet de générer vos listes de classe, étiquettes et fiches de suivi en PDF.</p>
-        </div>
-        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close active:scale-95">Fermer</button>
+        <h2 id="titre-aide" class="modal-title">💡 Aide</h2>
+        <div id="aide-content" class="modal-text space-y-3"></div>
+        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close">Compris</button>
     </div>
 </div>
 
 <script>
-    const mapCouleurs = { 
-        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
-        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
-        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
-        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
-        'rose': '#f43f5e' 
+    // ====================== CONFIGURATION & CONSTANTS ====================== 
+    const COLOR_MAP = {
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+        'rose': '#f43f5e'
     };
 
-    function appliquerTheme() {
-        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const colPref = themePrefs.outils || 'blue'; 
-        const hexa = mapCouleurs[colPref];
-        const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref);
-        const contrast = isDarkText ? '#000' : '#fff';
+    const STORAGE_KEYS = {
+        theme: 'theme_tuiles',
+        themeMode: 'theme_mode',
+        toolOrder: 'outils_order',
+        categoryOrder: 'outils_category_order'
+    };
 
-        const boutonsSoles = [
-            document.getElementById('btn-retour'), 
-            document.getElementById('btn-aide'), 
+    const CATEGORIES = {
+        temps: {
+            icon: '⏱️',
+            name: 'Gestion du Temps',
+            color: '#3b82f6'
+        },
+        ambiance: {
+            icon: '🔈',
+            name: 'Ambiance de Classe',
+            color: '#8b5cf6'
+        },
+        organisation: {
+            icon: '🏫',
+            name: 'Organisation',
+            color: '#ec4899'
+        },
+        edition: {
+            icon: '📄',
+            name: 'Édition & Documents',
+            color: '#f59e0b'
+        }
+    };
+
+    const TOOLS = [
+        {
+            id: 'timer',
+            href: 'outils_timer.html',
+            icon: '⏱️',
+            title: 'Minuteur & Chrono',
+            description: 'Gérer le temps des activités',
+            category: 'temps'
+        },
+        {
+            id: 'bruit',
+            href: 'outils_bruit.html',
+            icon: '🔈',
+            title: 'Radar de bruit',
+            description: 'Visualiser le bruit en classe',
+            category: 'ambiance'
+        },
+        {
+            id: 'deficalme',
+            href: 'outils_deficalme.html',
+            icon: '🤫',
+            title: 'Défi calme',
+            description: 'Et l\'image apparaît...',
+            category: 'ambiance'
+        },
+        {
+            id: 'feux',
+            href: 'outils_feux.html',
+            icon: '🚦',
+            title: 'Feux tricolores',
+            description: 'Mode de travail',
+            category: 'ambiance'
+        },
+        {
+            id: 'plan',
+            href: 'outils_plan.html',
+            icon: '🪑',
+            title: 'Plan de classe',
+            description: 'Placer les élèves en un clic',
+            category: 'organisation'
+        },
+        {
+            id: 'structure',
+            href: 'outils_structure_ecole.html',
+            icon: '🏫',
+            title: 'Structure École',
+            description: 'Répartition et effectifs',
+            category: 'organisation'
+        },
+        {
+            id: 'edition',
+            href: 'outils_edition.html',
+            icon: '📄',
+            title: 'Module Édition',
+            description: 'Listes, étiquettes et suivis',
+            category: 'edition'
+        }
+    ];
+
+    const HELP_CONTENT = [
+        'Cette section regroupe des utilitaires pour faciliter la gestion quotidienne de votre classe.',
+        '⏱️ Le <strong>Minuteur</strong> vous aide à rythmer les séances et les transitions.',
+        '🔈 Le <strong>Niveau Sonore</strong> permet de réguler le volume sonore durant les ateliers.',
+        '🤫 Le <strong>Défi calme</strong>: quand le calme en classe permet de faire apparaître une photo.',
+        '🚦 Les <strong>feux tricolores</strong>: cliquez sur un feu pour changer le mode de travail.',
+        '🪑 Le <strong>plan</strong> permet de générer le plan de votre classe.',
+        '🏫 La <strong>Structure École</strong> permet de simuler et d\'équilibrer la répartition des élèves par classe.',
+        '📄 Le <strong>Module Édition</strong> permet de générer vos listes de classe, étiquettes et fiches de suivi en PDF.'
+    ];
+
+    // ====================== UTILITY FUNCTIONS ====================== 
+    function isDarkText(colorName) {
+        return ['yellow', 'lime', 'amber', 'cyan'].includes(colorName);
+    }
+
+    function normalizeSearchText(text) {
+        return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function toolMatchesSearch(tool, searchTerm) {
+        const normalized = normalizeSearchText(searchTerm);
+        return normalizeSearchText(tool.title).includes(normalized) ||
+               normalizeSearchText(tool.description).includes(normalized) ||
+               normalizeSearchText(tool.category).includes(normalized);
+    }
+
+    function getOrderedCategories() {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.categoryOrder));
+        if (saved) return saved;
+        return Object.keys(CATEGORIES);
+    }
+
+    // ====================== RENDER TOOLS ====================== 
+    function renderTools(searchTerm = '') {
+        const container = document.getElementById('categoriesContainer');
+        const noResults = document.getElementById('noResults');
+        container.innerHTML = '';
+        
+        let totalVisibleTools = 0;
+
+        // Group tools by category
+        const toolsByCategory = {};
+        Object.keys(CATEGORIES).forEach(catKey => {
+            toolsByCategory[catKey] = [];
+        });
+
+        TOOLS.forEach(tool => {
+            if (!searchTerm || toolMatchesSearch(tool, searchTerm)) {
+                toolsByCategory[tool.category].push(tool);
+                totalVisibleTools++;
+            }
+        });
+
+        // Get ordered categories
+        const orderedCategories = getOrderedCategories();
+
+        // Render each category with tools
+        orderedCategories.forEach(catKey => {
+            if (!CATEGORIES[catKey]) return;
+            
+            const catData = CATEGORIES[catKey];
+            const tools = toolsByCategory[catKey];
+            if (tools.length === 0) return; // Skip empty categories
+
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.setAttribute('data-category', catKey);
+
+            // Category header with drag handle
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.style.borderBottomColor = catData.color + '40';
+            header.innerHTML = `
+                <div class="category-drag-handle" title="Maintenez pour réorganiser les catégories">
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                </div>
+                <span class="category-icon">${catData.icon}</span>
+                <h2 class="category-title" style="color: ${catData.color};">${catData.name}</h2>
+                <span class="category-badge" style="background-color: ${catData.color}20; color: ${catData.color};">${tools.length}</span>
+            `;
+            section.appendChild(header);
+
+            // Tools grid
+            const grid = document.createElement('div');
+            grid.className = 'tools-grid';
+
+            tools.forEach(tool => {
+                const card = document.createElement('a');
+                card.href = tool.href;
+                card.className = 'tool-card';
+                card.setAttribute('data-id', tool.id);
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'link');
+                card.setAttribute('aria-label', `${tool.title} - ${tool.description}`);
+
+                // Handle Enter/Space keyboard navigation
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+
+                card.innerHTML = `
+                    <div class="icon-box" id="icon-${tool.id}">${tool.icon}</div>
+                    <div class="tool-info">
+                        <h3 class="font-black text-[12px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-${tool.id}">
+                            ${tool.title}
+                        </h3>
+                        <p class="text-[9px] md:text-[10px] font-bold opacity-50 tracking-tighter">
+                            ${tool.description}
+                        </p>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            container.appendChild(section);
+        });
+
+        // Show/hide no results message
+        noResults.style.display = totalVisibleTools === 0 ? 'block' : 'none';
+    }
+
+    // ====================== SEARCH FUNCTIONALITY ====================== 
+    function toggleSearch() {
+        const searchWrapper = document.getElementById('searchWrapper');
+        searchWrapper.classList.toggle('open');
+        if (searchWrapper.classList.contains('open')) {
+            setTimeout(() => document.getElementById('searchInput').focus(), 300);
+        } else {
+            // Quand on ferme la recherche, réinitialiser et afficher tous les outils
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearch').classList.remove('visible');
+            renderTools('');
+            applyTheme();
+            setupCategoryDragDrop();
+        }
+    }
+
+    function setupSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearch');
+
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            clearBtn.classList.toggle('visible', searchTerm.length > 0);
+            renderTools(searchTerm);
+            applyTheme();
+            setupCategoryDragDrop();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.focus();
+            clearBtn.classList.remove('visible');
+            renderTools('');
+            applyTheme();
+            setupCategoryDragDrop();
+        });
+
+        // Clear on Escape and close search
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                searchInput.blur();
+                clearBtn.classList.remove('visible');
+                document.getElementById('searchWrapper').classList.remove('open');
+                renderTools('');
+                applyTheme();
+                setupCategoryDragDrop();
+            }
+        });
+    }
+
+    // ====================== CATEGORY DRAG & DROP (avec Sortable) ====================== 
+    function setupCategoryDragDrop() {
+        const container = document.getElementById('categoriesContainer');
+        
+        // Détruire l'instance précédente si elle existe
+        if (container._sortableInstance) {
+            container._sortableInstance.destroy();
+        }
+
+        // Créer une nouvelle instance Sortable
+        container._sortableInstance = new Sortable(container, {
+            animation: 250,
+            ghostClass: 'sortable-ghost',
+            handle: '.category-drag-handle',
+            filter: '.tool-card',
+            preventOnFilter: false,
+            onEnd: function(evt) {
+                saveCategoryOrder();
+            }
+        });
+    }
+
+    function saveCategoryOrder() {
+        const container = document.getElementById('categoriesContainer');
+        const order = Array.from(container.querySelectorAll('.category-section'))
+            .map(section => section.getAttribute('data-category'));
+        localStorage.setItem(STORAGE_KEYS.categoryOrder, JSON.stringify(order));
+    }
+
+    // ====================== THEME APPLICATION ====================== 
+    function applyTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+        const colorPref = themePrefs.outils || 'blue';
+        const colorHex = COLOR_MAP[colorPref];
+        const textColor = isDarkText(colorPref) ? '#000' : '#fff';
+
+        // Apply theme to buttons
+        const buttons = [
+            document.getElementById('btn-retour'),
+            document.getElementById('btn-search-trigger'),
+            document.getElementById('btn-aide'),
             document.getElementById('btn-fermer-aide')
         ];
 
-        boutonsSoles.forEach(el => {
-            if(el) { 
-                el.style.backgroundColor = hexa; 
-                el.style.color = contrast; 
+        buttons.forEach(el => {
+            if (el) {
+                el.style.backgroundColor = colorHex;
+                el.style.color = textColor;
             }
         });
-        
-        const titreAide = document.getElementById('titre-aide');
-        if(titreAide) titreAide.style.color = hexa;
 
-        const elementsOutils = [
-            { icon: 'icon-timer', title: 'title-timer' },
-            { icon: 'icon-bruit', title: 'title-bruit' },
-            { icon: 'icon-deficalme', title: 'title-deficalme' },
-            { icon: 'icon-feux', title: 'title-feux' },
-			{ icon: 'icon-plan', title: 'title-plan' },
-			{ icon: 'icon-structure', title: 'title-structure' },
-			{ icon: 'icon-edition', title: 'title-edition' },
-        ];
+        // Apply theme to help title
+        const helpTitle = document.getElementById('titre-aide');
+        if (helpTitle) helpTitle.style.color = colorHex;
 
-        elementsOutils.forEach(item => {
-            const iconEl = document.getElementById(item.icon);
-            const titleEl = document.getElementById(item.title);
-            
-            if(iconEl) {
-                iconEl.style.color = hexa;
-                iconEl.style.borderColor = hexa + '40';
-                iconEl.style.backgroundColor = hexa + '15';
+        // Apply theme to tool cards
+        TOOLS.forEach(tool => {
+            const icon = document.getElementById(`icon-${tool.id}`);
+            const title = document.getElementById(`title-${tool.id}`);
+
+            if (icon) {
+                icon.style.color = colorHex;
+                icon.style.borderColor = colorHex + '40';
+                icon.style.backgroundColor = colorHex + '15';
             }
-            if(titleEl) {
-                titleEl.style.color = hexa;
+
+            if (title) {
+                title.style.color = colorHex;
             }
         });
-    }
 
-    function initSortable() {
-        const toolsList = document.getElementById('tools-list');
-        const savedOrder = JSON.parse(localStorage.getItem('outils_order'));
-        
-        if (savedOrder) {
-            savedOrder.forEach(id => {
-                const tile = document.querySelector(`[data-id="${id}"]`);
-                if (tile) toolsList.appendChild(tile);
-            });
+        // Apply theme to close button
+        const closeBtn = document.getElementById('btn-fermer-aide');
+        if (closeBtn) {
+            closeBtn.style.backgroundColor = colorHex;
+            closeBtn.style.color = textColor;
         }
+    }
 
-        new Sortable(toolsList, {
-            handle: '.drag-handle',
-            animation: 250,
-            ghostClass: 'opacity-0',
-            onEnd: function() {
-                const order = Array.from(toolsList.children).map(child => child.getAttribute('data-id'));
-                localStorage.setItem('outils_order', JSON.stringify(order));
+    // ====================== MODAL MANAGEMENT ====================== 
+    function ouvrirAide() {
+        const content = document.getElementById('aide-content');
+        content.innerHTML = HELP_CONTENT.map(text => `<p>${text}</p>`).join('');
+        document.getElementById('modal-aide').classList.add('active');
+    }
+
+    function fermerAide() {
+        document.getElementById('modal-aide').classList.remove('active');
+    }
+
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            fermerAide();
+        }
+    });
+
+    // ====================== KEYBOARD SHORTCUTS ====================== 
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // ? to open help
+            if ((e.key === '?' || e.key === 'h') && e.target === document.body) {
+                e.preventDefault();
+                ouvrirAide();
             }
         });
     }
 
-    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
-    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
-
+    // ====================== INITIALIZATION ====================== 
     window.onload = () => {
-        appliquerTheme();
-        initSortable();
+        renderTools();
+        applyTheme();
+        setupSearch();
+        setupKeyboardShortcuts();
+        setupCategoryDragDrop();
     };
 </script>
 </body>
