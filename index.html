@@ -158,25 +158,26 @@
         }
 
         .url-copy-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-body);
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
-        }
+			display: flex;
+			align-items: center; /* Aligne verticalement le bouton et l'URL */
+			gap: 8px;
+			background: var(--bg-body);
+			padding: 8px 10px;
+			border-radius: 10px;
+			border: 1px solid var(--border-color);
+			margin-top: 10px;
+			width: 100%; /* S'assure de ne pas dépasser du parent */
+			box-sizing: border-box; /* Inclut le padding dans le calcul de la largeur */
+		}
 
-        .url-copy-box code {
-			font-size: 10px;
+		.url-copy-box code {
+			font-size: 10px; /* Légère réduction pour gagner de la place */
 			white-space: normal;
 			word-break: normal;
 			color: var(--text-muted);
-			flex-grow: 1;
-			line-height: 1.4;
-			padding: 2px 4px;
-			border-radius: 4px;
+			flex: 1; /* L'URL prend tout l'espace restant */
+			min-width: 0; /* Important : permet au texte de se réduire sans casser le flex */
+			line-height: 1.3;
 			transition: all 0.2s ease;
 		}
 
@@ -188,13 +189,15 @@
 		}
 
         .copy-btn {
-            background: #3b82f6;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: bold;
-        }
+			flex-shrink: 0; /* Empêche le bouton de s'écraser */
+			background: #3b82f6;
+			color: white;
+			padding: 6px 10px;
+			border-radius: 8px;
+			font-size: 10px;
+			font-weight: bold;
+			white-space: nowrap; /* Le texte du bouton reste sur une ligne */
+		}
 		
     </style>
 </head>
@@ -387,13 +390,8 @@
                         OutilsProfs est parfaitement adapté pour une utilisation sur <strong>ordinateur</strong> ou une projection sur <strong>VPI/TBI</strong> en classe.
                     </p>
                     <div class="url-copy-box">
-						<code id="app-url-propos" 
-							class="font-bold hover:text-blue-500" 
-							onclick="copyUrl(document.querySelector('.copy-btn'))">
-							https://ecolebernardet.github.io/<wbr>outilsprofs/
-						</code>
-						<button onclick="copyUrl(this)" class="copy-btn active:bg-blue-700">Copier</button>
-					</div>
+						<code id="app-url-propos" class="font-bold">https://ecolebernardet.github.io/<wbr>outilsprofs/</code>
+						<button onclick="copyUrl(this)" class="copy-btn">Copier</button>
                 </div>
             </div>
         </div>
