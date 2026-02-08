@@ -85,6 +85,18 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
+		/* Effet pour l'option gagnante */
+        .winner-card {
+            border: 2px solid var(--winner-color, #3b82f6) !important;
+            box-shadow: 0 0 15px var(--winner-color, rgba(59, 130, 246, 0.4));
+            animation: pulse-winner 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-winner {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
         .modal-content { background: var(--card-bg); padding: 25px; border-radius: 1.5rem; width: 100%; max-width: 450px; border: 1px solid var(--border-color); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
     </style>
@@ -304,15 +316,28 @@
             const total = currentPoll.options.reduce((acc, curr) => acc + curr.votes, 0);
             document.getElementById('totalVotes').innerText = total;
 
+            // Trouver le score maximum pour identifier le(s) gagnant(s)
+            const maxVotes = Math.max(...currentPoll.options.map(o => o.votes));
+
             currentPoll.options.forEach(opt => {
                 const percent = total === 0 ? 0 : Math.round((opt.votes / total) * 100);
+                const isWinner = total > 0 && opt.votes === maxVotes;
+                
                 const card = document.createElement('div');
-                card.className = "poll-card shadow-lg";
+                // Ajout de la classe winner-card si c'est le gagnant
+                card.className = `poll-card shadow-lg ${isWinner ? 'winner-card' : ''}`;
+                
+                // On passe la couleur du thème au CSS pour la bordure
+                if(isWinner) card.style.setProperty('--winner-color', THEME_HEX);
+                
                 card.onclick = () => { opt.votes++; renderPoll(); };
                 card.innerHTML = `
                     <div class="progress-fill" style="width: ${percent}%; background-color: ${THEME_HEX}"></div>
                     <div class="relative flex justify-between items-center z-10">
-                        <span class="text-[11px] font-bold uppercase tracking-wide">${opt.text}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-bold uppercase tracking-wide">${opt.text}</span>
+                            ${isWinner ? '<span class="text-xs">🏆</span>' : ''}
+                        </div>
                         <span class="text-sm font-black" style="color: ${THEME_HEX}">${percent}%</span>
                     </div>`;
                 container.appendChild(card);
