@@ -137,13 +137,13 @@
             border-radius: 1.2rem;
             padding: 0 8px 8px 8px;
             background: rgba(128, 128, 128, 0.02);
-            border: 1px solid var(--column-border);
+            border: 0px solid var(--column-border);
 			margin-bottom: 4px; /* Ajout d'une marge légère entre sections */
             transition: all 0.3s ease;
         }
 
         .category-section:hover {
-            background: rgba(128, 128, 128, 0.04);
+            background: rgba(128, 128, 128, 0.1);
         }
 
         .category-section.sortable-ghost {
@@ -162,7 +162,7 @@
             gap: 8px;
             margin-bottom: 4px;
             padding: 0 0px 0px 0px;
-            border-bottom: 2px solid var(--column-border);
+            border-bottom: 1px solid var(--column-border);
             position: relative;
 			justify-content: space-between;
         }
@@ -222,7 +222,7 @@
 		#categoriesContainer {
             display: flex;
             flex-direction: column;
-            gap: 8px; /* Réduit de 12px à 8px */
+            gap: 8px;
         }
 		
         /* Tools Grid */
