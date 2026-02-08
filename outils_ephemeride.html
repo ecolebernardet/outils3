@@ -317,7 +317,7 @@ const DEFIS_365 = {
 
         // Affichage Saint
         const saint = SAINTS[cle] || "la Bonne Fête";
-        document.getElementById('saints').textContent = "les " + saint;
+        document.getElementById('saints').textContent = saint;
 
         // Affichage Défi (change chaque jour)
         const listeDefisMois = DEFIS_365[moisNum] || DEFIS_365["09"]; // Septembre par défaut
