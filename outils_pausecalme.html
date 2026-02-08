@@ -41,7 +41,7 @@
         #btn-retour-liste { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         #pageTitle, #session-title { color: var(--theme-color); }
         .breathe-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; margin: 20px 0; }
-        .breathe-circle { width: 250px; height: 250px; border-radius: 50%; background: var(--theme-color); opacity: 0.7; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.1s ease-in-out; box-shadow: 0 0 40px -10px var(--theme-color); }
+        .breathe-circle { width: 300px; height: 300px; border-radius: 50%; background: var(--theme-color); opacity: 0.7; display: flex; align-items: center; justify-content: center; position: relative; transition: transform 0.1s ease-in-out; box-shadow: 0 0 40px -10px var(--theme-color); }
         .breathe-text { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; pointer-events: none; color: var(--contrast-color); }
         .config-panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 1.5rem; padding: 20px; width: 100%; margin-top: 20px; }
         .select-wrapper { position: relative; display: block; }
@@ -63,7 +63,7 @@
 <body>
 
     <audio id="audio-zen" loop playsinline preload="auto">
-        <source src="https://ecolebernardet.github.io/outilsprofs/Satie - Gnossienne n°1.mp3" type="audio/mpeg">
+        <source src="https://ecolebernardet.github.io/outilsprofs/musique-satie-gnossienne1.mp3" type="audio/mpeg">
     </audio>
 
     <header>
@@ -131,20 +131,47 @@
         </div>
     </div>
 
-    <div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-lg font-black uppercase mb-4 text-center">💡 Guide de respiration</h2>
-            <div class="text-[11px] leading-relaxed space-y-4 opacity-90">
-                <div class="bg-black/5 p-3 rounded-xl space-y-2">
-                    <p class="font-bold uppercase text-[9px] opacity-60 mb-1 text-center">Comment suivre :</p>
-                    <p>• <b>Inspire :</b> Le cercle gonfle.</p>
-                    <p>• <b>Bloque :</b> Retenez l'air.</p>
-                    <p>• <b>Expire :</b> Le cercle rétrécit.</p>
+    <<div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="text-lg font-black uppercase mb-4 text-center">💡 Guide de respiration</h2>
+        
+        <div class="text-[11px] leading-relaxed space-y-4 opacity-90">
+            <div class="bg-black/5 p-3 rounded-xl space-y-2">
+                <p class="font-bold uppercase text-[9px] opacity-60 mb-1 text-center">Comment suivre le guide :</p>
+                <div class="space-y-2">
+                    <p>• <b>Expansion :</b> Le cercle grossit, inspirez profondément par le nez en gonflant le ventre.</p>
+                    <p>• <b>Immobilité :</b> Le cercle ne bouge plus, retenez votre souffle sans forcer (apnée douce).</p>
+                    <p>• <b>Contraction :</b> Le cercle rétrécit, expirez lentement par la bouche comme dans une paille.</p>
                 </div>
             </div>
-            <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase">J'ai compris</button>
+
+            <div class="space-y-3 px-1">
+                <p class="font-bold uppercase text-[9px] opacity-60">Choisir le bon mode :</p>
+                
+                <div>
+                    <p class="font-bold text-[12px] color-[var(--theme-color)]">1. Cohérence Cardiaque</p>
+                    <p class="opacity-75 text-[10px]">Le standard pour réduire le stress. Elle synchronise le cœur et la respiration pour apaiser le système nerveux (5s inspire / 5s expire).</p>
+                </div>
+
+                <div>
+                    <p class="font-bold text-[12px] color-[var(--theme-color)]">2. Respiration Carrée</p>
+                    <p class="opacity-75 text-[10px]">Utilisée par les sportifs et les unités d'élite pour se recentrer. Elle favorise une concentration intense et un calme immédiat (4 phases égales).</p>
+                </div>
+
+                <div>
+                    <p class="font-bold text-[12px] color-[var(--theme-color)]">3. Urgence Calme</p>
+                    <p class="opacity-75 text-[10px]">Idéale en cas de forte émotion ou d'énervement. L'expiration très longue signale à votre cerveau qu'il n'y a plus de danger.</p>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-black/10">
+                <p class="italic text-center opacity-70 text-[10px]">Pour un effet optimal, tenez-vous droit, décroisez les jambes et relâchez vos épaules.</p>
+            </div>
         </div>
+
+        <button id="btn-fermer-aide" onclick="fermerModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase shadow-lg">J'ai compris</button>
     </div>
+</div>
 
     <script>
         let timerInterval = null;
