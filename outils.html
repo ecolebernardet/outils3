@@ -478,11 +478,6 @@
     };
 
     const CATEGORIES = {
-        temps: {
-            icon: '⏱️',
-            name: 'Gestion du Temps',
-            color: '#000000'
-        },
         ambiance: {
             icon: '😌',
             name: 'Ambiance de Classe',
@@ -501,14 +496,6 @@
     };
 
     const TOOLS = [
-        {
-            id: 'timer',
-            href: 'outils_timer.html',
-            icon: '⏱️',
-            title: 'Minuteur & Chrono',
-            description: 'Gérer le temps des activités',
-            category: 'temps'
-        },
         {
             id: 'bruit',
             href: 'outils_bruit.html',
@@ -565,6 +552,22 @@
             description: 'Répartition et effectifs',
             category: 'organisation'
         },
+		{
+            id: 'ephemeride',
+            href: 'outils_ephemeride.html',
+            icon: '📅',
+            title: 'Éphéméride',
+            description: 'Date, fête et rituel du jour',
+            category: 'organisation'
+        },
+		{
+            id: 'timer',
+            href: 'outils_timer.html',
+            icon: '⏱️',
+            title: 'Minuteur & Chrono',
+            description: 'Gérer le temps des activités',
+            category: 'organisation'
+        },
         {
             id: 'edition',
             href: 'outils_edition.html',
@@ -572,14 +575,6 @@
             title: 'Module Édition',
             description: 'Listes, étiquettes et suivis',
             category: 'edition'
-        },
-        {
-            id: 'ephemeride',
-            href: 'outils_ephemeride.html',
-            icon: '📅',
-            title: 'Éphéméride',
-            description: 'Date, fête et rituel du jour',
-            category: 'organisation'
         },
         {
             id: 'motsfamilles',
@@ -611,12 +606,11 @@
         '• <strong>Structure École</strong> : Pour simuler et équilibrer la répartition des effectifs.',
         '• <strong>Éphéméride</strong> : La date, le saint du jour et un rituel matinal.',
 		'• <strong>Sondage Express</strong> : Recueillir l\'avis des élèves en temps réel.',
+		'• <strong>Minuteur et timer</strong> : Pour rythmer les séances, les activités et les transitions.',
         '<br><strong>📄 ÉDITION & DOCUMENTS</strong>',
         '• <strong>Module Édition</strong> : Génère vos listes, étiquettes et fiches de suivi en PDF.',
         '• <strong>Mots aux familles</strong> : Crée des billets de liaison (Rdv, info) prêts à imprimer (10 par page).',
         '• <strong>QR-Planches</strong> : Crée des séries de QR Codes identiques avec légendes pour vos documents.',
-        '<br><strong>⏱️ GESTION DU TEMPS</strong>',
-        '• <strong>Minuteur et timer</strong> : Pour rythmer les séances, les activités et les transitions.',
     ];
 
     // ====================== UTILITY FUNCTIONS ======================
