@@ -1007,74 +1007,87 @@
             const exportDate = new Date().toISOString().split('T')[0];
             const fileName = `outilsprofs_108h_${professorName}_${exportDate}.pdf`;
 
+            let globalMinutesFait = reunions.reduce((sum, r) => sum + r.minutes, 0);
+            const globalRemaining = TOTAL_ANNUEL - globalMinutesFait;
+
             const container = document.createElement('div');
-            container.style.padding = '20px';
+            container.style.padding = '10px';
             container.style.color = 'black';
             container.style.backgroundColor = 'white';
+            container.style.fontFamily = 'Arial, sans-serif';
 
-            let htmlContent = `
-                <div style="text-align:center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px; font-family: Arial;">
-                    <h1 style="font-size:18px; margin:0;">BILAN 108 HEURES</h1>
-                    <p>${professorName} - Quotité : ${quotite}%</p>
-                    <p style="font-size:10px;">Le ${new Date().toLocaleDateString('fr-FR')}</p>
-                </div>
-            `;
-
-            Object.keys(QUOTAS).forEach(categoryKey => {
-                const categoryReunions = reunions.filter(r => r.cat === categoryKey);
-                const totalMinutes = categoryReunions.reduce((sum, r) => sum + r.minutes, 0);
-
-                htmlContent += `
-                    <div style="margin-bottom: 15px; border: 1px solid #ddd; font-family: Arial;">
-                        <div style="background:#f0f0f0; padding:8px; font-weight:bold;">
-                            ${CATEGORY_LABELS[categoryKey]} (${formatDuree(totalMinutes)} / ${formatDuree(QUOTAS[categoryKey])})
+            // Fonction helper pour générer le HTML d'un bloc de catégorie
+            const generateCategoryBlock = (key) => {
+                const categoryReunions = reunions.filter(r => r.cat === key);
+                const totalCat = categoryReunions.reduce((sum, r) => sum + r.minutes, 0);
+                
+                return `
+                    <div style="page-break-inside: avoid; margin-bottom: 12px; border: 0.5px solid #000;">
+                        <div style="background:#eee; padding:4px; font-weight:bold; font-size:9px; border-bottom: 0.5px solid #000; display: flex; justify-content: space-between;">
+                            <span>${CATEGORY_LABELS[key]}</span>
+                            <span>${formatDuree(totalCat)} / ${formatDuree(QUOTAS[key])}</span>
                         </div>
-                        <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                        <table style="width:100%; border-collapse:collapse; font-size:8px;">
                             <thead>
-                                <tr style="border-bottom:1px solid #000;">
-                                    <th style="text-align:left; padding:6px;">Date</th>
-                                    <th style="text-align:left; padding:6px;">Objet</th>
-                                    <th style="text-align:right; padding:6px;">Durée</th>
+                                <tr style="background: #fafafa; border-bottom: 0.5px solid #000;">
+                                    <th style="text-align:left; padding:2px; width:22%; border-right: 0.2px solid #ccc;">Date</th>
+                                    <th style="text-align:left; padding:2px; border-right: 0.2px solid #ccc;">Contenu</th>
+                                    <th style="text-align:right; padding:2px; width:20%;">Durée</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${categoryReunions.length === 0
-                                    ? '<tr><td colspan="3" style="padding:10px; color:gray;">Aucune saisie</td></tr>'
+                                    ? '<tr><td colspan="3" style="padding:4px; color:gray; text-align:center;">Néant</td></tr>'
                                     : categoryReunions
                                         .sort((a, b) => new Date(a.date) - new Date(b.date))
                                         .map(reunion => `
-                                            <tr style="border-bottom:1px solid #eee;">
-                                                <td style="padding:6px;">${formatDate(reunion.date)}</td>
-                                                <td style="padding:6px;">${reunion.comm || '-'}</td>
-                                                <td style="padding:6px; text-align:right;">${formatDuree(reunion.minutes)}</td>
+                                            <tr style="border-bottom:0.2px solid #eee;">
+                                                <td style="padding:2px; border-right: 0.2px solid #eee;">${formatDate(reunion.date)}</td>
+                                                <td style="padding:2px; border-right: 0.2px solid #eee; word-break: break-word;">${reunion.comm || '-'}</td>
+                                                <td style="padding:2px; text-align:right; font-weight:bold;">${formatDuree(reunion.minutes)}</td>
                                             </tr>
-                                        `)
-                                        .join('')
+                                        `).join('')
                                 }
                             </tbody>
                         </table>
                     </div>
                 `;
-            });
+            };
+
+            let htmlContent = `
+                <div style="text-align:center; border-bottom: 1.5px solid black; padding-bottom: 5px; margin-bottom: 10px;">
+                    <h1 style="font-size:14px; margin:0; text-transform: uppercase;">Bilan des 108 heures</h1>
+                    <p style="font-size:10px; margin:2px 0;"><strong>${professorName}</strong> — Quotité : ${quotite}% — Réalisé : <strong>${formatDuree(globalMinutesFait)}</strong> / Solde : <strong>${formatDuree(globalRemaining)}</strong></p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start;">
+                    <div id="col-gauche">
+                        ${generateCategoryBlock('PEDAGO')}
+                    </div>
+
+                    <div id="col-droite">
+                        ${generateCategoryBlock('APC')}
+                        ${generateCategoryBlock('CONSEIL')}
+                        ${generateCategoryBlock('FORM')}
+                    </div>
+                </div>
+            `;
 
             container.innerHTML = htmlContent;
 
             const options = {
-                margin: 10,
+                margin: 8,
                 filename: fileName,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             if (window.Android && window.Android.savePdfFromBase64) {
-                html2pdf()
-                    .set(options)
-                    .from(container)
-                    .output('datauristring')
-                    .then((pdfBase64) => {
-                        window.Android.savePdfFromBase64(pdfBase64.split(',')[1], fileName);
-                    });
+                html2pdf().set(options).from(container).output('datauristring').then((pdfBase64) => {
+                    window.Android.savePdfFromBase64(pdfBase64.split(',')[1], fileName);
+                });
             } else {
                 html2pdf().set(options).from(container).save();
             }
