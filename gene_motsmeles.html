@@ -4,96 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mots Mêlés - OutilsProfs</title>
+    
+    <!-- Bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
+        /* ===== POLICES ===== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
+        /* ===== VARIABLES CSS ===== */
         :root {
-            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
-            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --bg-page: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1);
+            --input-bg: #2a2a2a;
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
+        /* Mode clair */
         body.light-mode {
-            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
-            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --bg-page: #eeeeee;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1);
+            --input-bg: #f3f4f6;
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        /* ===== STYLES GLOBAUX ===== */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s ease;
+        }
         
+        /* ===== HEADER ===== */
         header { 
-            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
-            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
-            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            width: 100%; margin-bottom: 12px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--column-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%;
+            margin-bottom: 12px;
         }
 
-        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
-        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+        .ui-btn-round {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
 
+        header h1 {
+            font-size: 1.125rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        /* ===== CONTENEUR PRINCIPAL ===== */
         .main-wrapper { 
             width: 100%; 
-            max-width: 1000px; /* Augmenté légèrement pour laisser de la place au duo grille+mots */
+            max-width: 1000px;
             margin: 0 auto; 
             padding: 10px 15px 40px; 
         }
-		
-        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
         
-        .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 12px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; }
+        .light-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 20px;
+            border: 1px solid var(--column-border);
+            box-shadow: var(--shadow-custom);
+            margin-bottom: 20px;
+        }
         
-        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 600; font-size: 12px; 
-            border: none; cursor: pointer; transition: transform 0.1s; }
-        .btn-add:active { transform: scale(0.95); }
+        /* ===== FORMULAIRES ===== */
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--column-border);
+            border-radius: 0.75rem;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            width: 100%;
+            color: var(--text-main);
+            outline: none;
+        }
 
+        .section-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+        
+        /* ===== BOUTONS ===== */
+        .btn-add {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn-add:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== GRILLE DE JEU ===== */
         .grid-container {
-    position: relative;
-    display: flex;         /* Active Flexbox */
-    justify-content: center; /* Centre horizontalement */
-    align-items: center;     /* Centre verticalement */
-    margin: 20px auto;
-    width: 100%;
-    min-height: 300px;     /* Ajustez selon vos besoins */
-    overflow: hidden;      /* Évite les débordements sur petit écran */
-}
-		
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            width: 100%;
+            min-height: 300px;
+            overflow: hidden;
+        }
+        
         #word-grid {
-    display: grid;
-    gap: 2px;
-    z-index: 10;
-    pointer-events: auto;
-}
+            display: grid;
+            gap: 2px;
+            z-index: 10;
+            pointer-events: auto;
+        }
 
-        .grid-cell { width: 100%; height: 100%; background: var(--card-bg); display: flex; align-items: center; justify-content: center; font-weight: 800; text-transform: uppercase; position: relative; z-index: 3; cursor: pointer; user-select: none; transition: background 0.2s; }
-        .grid-cell.selected { color: white; border-radius: 4px; }
+        .grid-cell {
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 3;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
 
-        .word-found { text-decoration: line-through; opacity: 0.3; transition: all 0.3s ease; color: gray !important; }
+        .grid-cell.selected {
+            color: white;
+            border-radius: 4px;
+        }
+
+        .word-found {
+            text-decoration: line-through;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+            color: gray !important;
+        }
 
         #correction-canvas {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centre parfaitement par rapport au milieu du parent */
-    z-index: 5;
-    pointer-events: none;
-}
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            pointer-events: none;
+        }
 
-        .bottom-nav { width: 100%; max-width: 600px; margin: 20px auto 0; display: flex; flex-direction: column; gap: 8px; }
-        .nav-group { display: flex; gap: 8px; width: 100%; }
-        .nav-btn { font-weight: 900; border-radius: 50px; font-size: 9px; padding: 12px; border: none; flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
+        /* ===== NAVIGATION ===== */
+        .bottom-nav {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+        .nav-group {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .nav-btn {
+            font-weight: 900;
+            border-radius: 50px;
+            font-size: 9px;
+            padding: 12px;
+            border: none;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 1.5rem;
+            border: 1px solid var(--column-border);
+            padding: 25px;
+            position: relative;
+        }
     </style>
 </head>
 <body>
 
+<!-- Initialisation du thème -->
 <script>
-    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
 </script>
 
+<!-- ===== HEADER ===== -->
 <header>
     <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,10 +262,12 @@
         </svg>
     </a>
     <h1>Mots Mêlés</h1>
-    <button id="btn-aide" onclick="ouvrirAide()" class="ui-btn-round active:scale-90 text-lg">💡</button>
+    <button id="btn-aide" onclick="openModal('modal-aide')" class="ui-btn-round active:scale-90 text-lg">💡</button>
 </header>
 
+<!-- ===== CONTENEUR PRINCIPAL ===== -->
 <div class="main-wrapper">
+    <!-- Bouton retour générateurs -->
     <div class="mb-4">
         <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,10 +277,12 @@
         </a>
     </div>
     
+    <!-- ===== ZONE DE CONFIGURATION ===== -->
     <div id="setup-zone" class="light-card space-y-6">
+        <!-- Sélecteur de thème -->
         <div>
-            <label class="block text-[10px] font-black uppercase opacity-50 mb-2 tracking-widest">Thématiques rapides</label>
-            <select id="theme-selector" onchange="appliquerThematique()" class="input-field">
+            <label class="section-label">Thématiques rapides</label>
+            <select id="theme-selector" onchange="applyTheme()" class="input-field">
                 <option value="">-- Choisir un thème --</option>
                 <option value="animaux">🐾 Animaux</option>
                 <option value="ecole">🏫 École</option>
@@ -141,26 +306,29 @@
             </select>
         </div>
 
+        <!-- Titre -->
         <div>
-            <label class="block text-[10px] font-black uppercase opacity-50 mb-2 tracking-widest">Titre de la grille</label>
+            <label class="section-label">Titre de la grille</label>
             <input type="text" id="grid-title" placeholder="Ex: Les Animaux" class="input-field text-left">
         </div>
 
+        <!-- Liste des mots -->
         <div>
             <div class="flex justify-between items-end mb-2">
-                <label class="text-[10px] font-black uppercase opacity-50 tracking-widest">Liste des mots</label>
+                <label class="section-label !mb-0">Liste des mots</label>
                 <span id="word-count" class="text-[10px] font-black opacity-50">0 MOTS</span>
             </div>
             <textarea id="word-list" rows="4" class="input-field text-left" placeholder="Lion, Tigre, Elephant..."></textarea>
         </div>
 
+        <!-- Paramètres -->
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-[10px] font-black uppercase opacity-50 mb-1 tracking-widest text-center">Taille (Max 20)</label>
+                <label class="section-label text-center">Taille (Max 20)</label>
                 <input type="number" id="grid-size" value="10" min="5" max="20" class="input-field text-center">
             </div>
             <div>
-                <label class="block text-[10px] font-black uppercase opacity-50 mb-1 tracking-widest text-center">Difficulté</label>
+                <label class="section-label text-center">Difficulté</label>
                 <select id="difficulty" class="input-field">
                     <option value="easy">Facile (H/V à l'endroit)</option>
                     <option value="hard">Difficile (+ Diagonales)</option>
@@ -169,8 +337,9 @@
             </div>
         </div>
 
+        <!-- Actions -->
         <div class="flex flex-col gap-2">
-            <button onclick="viderSiRempli()" class="text-[10px] font-black uppercase opacity-40 hover:opacity-100 transition-opacity py-2">
+            <button onclick="clearForm()" class="text-[10px] font-black uppercase opacity-40 hover:opacity-100 transition-opacity py-2">
                 🗑️ Vider le formulaire
             </button>
             <button id="mainAddBtn" onclick="generateWordSearch()" class="btn-add">Générer la grille</button>
@@ -181,6 +350,7 @@
         </div>
     </div>
     
+    <!-- ===== ZONE DE JEU ===== -->
     <div id="game-zone" class="hidden space-y-6">
         <h2 id="display-title" class="text-center font-black uppercase tracking-widest text-xl"></h2>
         
@@ -207,12 +377,13 @@
                 <button onclick="exportToTXT()" class="nav-btn bg-black text-white flex-1">👆 sauvegarder .txt 👆</button>
                 <button onclick="exportToPDF()" class="nav-btn bg-black text-white flex-1">📄 éditer .pdf</button>
             </div>
-            <button onclick="retourReglages()" class="nav-btn bg-gray-500 text-white shadow-lg text-xs">⬅️ retour aux réglages</button>
+            <button onclick="returnToSettings()" class="nav-btn bg-gray-500 text-white shadow-lg text-xs">⬅️ retour aux réglages</button>
         </footer>
     </div>
 </div>
 
-<div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
+<!-- ===== MODALE D'AIDE ===== -->
+<div id="modal-aide" class="modal-overlay" onclick="closeModal('modal-aide')">
     <div class="modal-content !max-w-[450px] max-h-[90vh] overflow-y-auto !p-0 flex flex-col" onclick="event.stopPropagation()">
         <div class="p-6 border-b border-black border-opacity-5 sticky top-0 bg-inherit z-10">
             <h2 class="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
@@ -249,47 +420,173 @@
             </div>
         </div>
         <div class="p-6 pt-0">
-            <button onclick="fermerModal('modal-aide')" id="btn-fermer-aide" class="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">
+            <button onclick="closeModal('modal-aide')" id="btn-fermer-aide" class="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-lg transition-transform active:scale-95">
                 C'est compris !
             </button>
         </div>
     </div>
 </div>
 
-<div id="modal-bravo" class="modal-overlay" onclick="fermerModal('modal-bravo')">
+<!-- ===== MODALE DE VICTOIRE ===== -->
+<div id="modal-bravo" class="modal-overlay" onclick="closeModal('modal-bravo')">
     <div class="modal-content text-center">
         <div class="text-6xl mb-4">🏆</div>
         <h2 class="text-2xl font-black uppercase mb-2" id="bravo-titre">Bravo !</h2>
         <p class="opacity-70 text-sm mb-6">Vous avez trouvé tous les mots de la grille.</p>
-        <button onclick="fermerModal('modal-bravo')" class="btn-add bg-black text-white">Continuer</button>
+        <button onclick="closeModal('modal-bravo')" class="btn-add bg-black text-white">Continuer</button>
     </div>
 </div>
 
 <script>
-    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
-    const themes = { animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin, tortue, vipere, aigle, moineau, grenouille, sardine", ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle, cour, recreation, francais, mathematiques, histoire, geographie, sciences", corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux, cheville, coude, cou", noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel, lumiere, cheminee", fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron, abricot, framboise, myrtille, groseille", pays: "France, Italie, Espagne, Belgique, Suisse, Monaco, Andorre, Allemagne, Canada, Japon, Bresil, Maroc, Algerie, Tunisie, Turquie, Chine, Inde, Pakistan, Suede, Norvege, Mexique", sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski, handball, gymnastique, surf", musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour", espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute", couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige", voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage", cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette", metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin", vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure", maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree", meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel", insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole", ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile", geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite" };
+    // ==================== CONSTANTES ====================
+    
+    const COLOR_MAP = {
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+        'rose': '#f43f5e', 'gray': '#6b7280'
+    };
 
+    const THEMES = {
+        animaux: "Lion, Tigre, Elephant, Girafe, Zebre, Singe, Kangourou, Panda, Renard, Loup, Ours, Lapin, tortue, vipere, aigle, moineau, grenouille, sardine",
+        ecole: "Crayon, Cahier, Gomme, Stylo, Maitre, Classe, Bureau, Ardoise, Ecole, Livre, Cartable, Regle, cour, recreation, francais, mathematiques, histoire, geographie, sciences",
+        corps: "Tete, Epaule, Genou, Pied, Main, Bras, Jambe, Doigt, Ventre, Dos, Bouche, Nez, Oreille, Yeux, cheville, coude, cou",
+        noel: "Sapin, Cadeau, Lutin, Traineau, Etoile, Boule, Guirlande, Flocon, Neige, Hotte, Renne, Noel, lumiere, cheminee",
+        fruits: "Pomme, Banane, Fraise, Orange, Poire, Cerise, Raisin, Ananas, Melon, Peche, Kiwi, Citron, abricot, framboise, myrtille, groseille",
+        pays: "France, Italie, Espagne, Belgique, Suisse, Monaco, Andorre, Allemagne, Canada, Japon, Bresil, Maroc, Algerie, Tunisie, Turquie, Chine, Inde, Pakistan, Suede, Norvege, Mexique",
+        sports: "Football, Basket, Tennis, Judo, Natation, Rugby, Karate, Escrime, Boxe, Danse, Yoga, Ski, handball, gymnastique, surf",
+        musique: "Piano, Guitare, Violon, Flute, Trompette, Batterie, Harpe, Saxophone, Orgue, Violoncelle, Tambour",
+        espace: "Soleil, Lune, Terre, Mars, Jupiter, Saturne, Planete, Etoile, Galaxie, Comete, Fusee, Astronaute",
+        couleurs: "Rouge, Bleu, Vert, Jaune, Orange, Violet, Marron, Rose, Blanc, Noir, Gris, Beige",
+        voiture: "Volant, Roue, Vitesse, Pedale, Frein, Porte, Siege, Coffre, Moteur, Embrayage",
+        cuisine: "Poêle, Casserole, Couteau, Four, Mixeur, Tablier, Recette, Assiette, Cuillere, Fourchette",
+        metiers: "Docteur, Pompier, Policier, Boulanger, Avocat, Pilote, Facteur, Artiste, Juge, Marin",
+        vetements: "Pantalon, Chemise, Robe, Jupe, Veste, Bonnet, Echarpe, Gants, Chaussette, Chaussure",
+        maison: "Cuisine, Salon, Chambre, Jardin, Fenetre, Escalier, Toiture, Garage, Balcon, Entree",
+        meteo: "Soleil, Nuage, Pluie, Orage, Eclair, Tempete, Brouillard, Neige, Ouragan, Arcenciel",
+        insectes: "Abeille, Fourmi, Mouche, Papillon, Grillon, Cafard, Cigale, Guêpe, Libellule, Luciole",
+        ocean: "Baleine, Requin, Dauphin, Tortue, Pieuvre, Corail, Algue, Meduse, Crevette, Etoile",
+        geometrie: "Carre, Cercle, Triangle, Losange, Ovale, Cube, Sphere, Pyramide, Angle, Droite"
+    };
+
+    const STORAGE_KEYS = {
+        theme: 'theme_tuiles',
+        themeMode: 'theme_mode'
+    };
+
+    const DIFFICULTY_DIRECTIONS = {
+        easy: () => Math.random() < 0.5 ? [0, 1] : [1, 0],
+        hard: () => {
+            const rand = Math.random();
+            if (rand < 0.33) return [0, 1];
+            if (rand < 0.66) return [1, 0];
+            return [1, 1];
+        },
+        expert: () => {
+            const dirs = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [-1,-1], [1,-1], [-1,1]];
+            return dirs[Math.floor(Math.random() * dirs.length)];
+        }
+    };
+
+    // ==================== ÉTAT DE L'APPLICATION ====================
+    
     let finalGrid = [];
     let gridSize = 10;
     let isRevealed = false;
     window.placedWords = [];
 
-    document.getElementById('word-list').addEventListener('input', (e) => {
-        const count = e.target.value.split(',').map(w => w.trim()).filter(w => w.length > 0).length;
-        document.getElementById('word-count').innerText = `${count} MOTS`;
-    });
+    // ==================== UTILITAIRES ====================
+    
+    /**
+     * Nettoie une chaîne pour créer un nom de fichier valide
+     */
+    function cleanStringForFilename(str) {
+        return str.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/gi, '');
+    }
 
-    function appliquerThematique() {
+    /**
+     * Génère un nom de fichier avec date
+     */
+    function generateFilename(prefix, title, extension) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
+        const cleanTitle = cleanStringForFilename(title || "grille");
+        return `outilsprofs_${prefix}_${cleanTitle}_${dateStr}.${extension}`;
+    }
+
+    /**
+     * Retourne la couleur d'accent actuelle
+     */
+    function getAccentColor() {
+        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+        return COLOR_MAP[themePrefs.gen || 'cyan'];
+    }
+
+    /**
+     * Détermine si une couleur nécessite un texte sombre
+     */
+    function needsDarkText(colorKey) {
+        const lightColors = ['yellow', 'lime', 'amber', 'cyan'];
+        return lightColors.includes(colorKey);
+    }
+
+    // ==================== GESTION DES MODALES ====================
+    
+    /**
+     * Ouvre une modale
+     */
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    /**
+     * Ferme une modale
+     */
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // ==================== GESTION DU FORMULAIRE ====================
+    
+    /**
+     * Met à jour le compteur de mots
+     */
+    function updateWordCount() {
+        const input = document.getElementById('word-list').value;
+        const count = input.split(',')
+            .map(w => w.trim())
+            .filter(w => w.length > 0)
+            .length;
+        document.getElementById('word-count').innerText = `${count} MOTS`;
+    }
+
+    /**
+     * Applique un thème prédéfini
+     */
+    function applyTheme() {
         const select = document.getElementById('theme-selector');
         const themeKey = select.value;
-        if (themeKey && themes[themeKey]) {
-            document.getElementById('word-list').value = themes[themeKey];
+        
+        if (themeKey && THEMES[themeKey]) {
+            document.getElementById('word-list').value = THEMES[themeKey];
             document.getElementById('grid-title').value = select.options[select.selectedIndex].text.replace(/^[^\s]+\s/, '');
-            document.getElementById('word-count').innerText = `${themes[themeKey].split(',').length} MOTS`;
+            updateWordCount();
         }
     }
 
-    function viderSiRempli() {
+    /**
+     * Vide le formulaire après confirmation
+     */
+    function clearForm() {
         if (confirm("Voulez-vous vider le formulaire ?")) {
             document.getElementById('grid-title').value = "";
             document.getElementById('word-list').value = "";
@@ -298,60 +595,131 @@
         }
     }
 
-    function cleanStringForFilename(str) {
-        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '');
-    }
-
-    function canPlace(word, r, c, dr, dc) {
-        const lastR = r + (word.length - 1) * dr;
-        const lastC = c + (word.length - 1) * dc;
-        if (lastR >= gridSize || lastR < 0 || lastC >= gridSize || lastC < 0) return false;
-        for (let i = 0; i < word.length; i++) {
-            const current = finalGrid[r + i * dr][c + i * dc];
-            if (current !== '' && current.char !== word[i]) return false;
+    // ==================== GÉNÉRATION DE LA GRILLE ====================
+    
+    /**
+     * Vérifie si un mot peut être placé à une position donnée
+     */
+    function canPlaceWord(word, row, col, dirRow, dirCol) {
+        const lastRow = row + (word.length - 1) * dirRow;
+        const lastCol = col + (word.length - 1) * dirCol;
+        
+        // Vérification des limites
+        if (lastRow >= gridSize || lastRow < 0 || lastCol >= gridSize || lastCol < 0) {
+            return false;
         }
+        
+        // Vérification des conflits
+        for (let i = 0; i < word.length; i++) {
+            const current = finalGrid[row + i * dirRow][col + i * dirCol];
+            if (current !== '' && current.char !== word[i]) {
+                return false;
+            }
+        }
+        
         return true;
     }
 
+    /**
+     * Place un mot dans la grille
+     */
+    function placeWord(word, row, col, dirRow, dirCol) {
+        for (let i = 0; i < word.length; i++) {
+            finalGrid[row + i * dirRow][col + i * dirCol] = {
+                char: word[i],
+                isSolution: true
+            };
+        }
+        
+        window.placedWords.push({
+            r1: row,
+            c1: col,
+            r2: row + (word.length - 1) * dirRow,
+            c2: col + (word.length - 1) * dirCol
+        });
+    }
+
+    /**
+     * Remplit les cases vides avec des lettres aléatoires
+     */
+    function fillEmptyCells() {
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                if (finalGrid[r][c] === '') {
+                    finalGrid[r][c] = {
+                        char: String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+                        isSolution: false
+                    };
+                }
+            }
+        }
+    }
+
+    /**
+     * Génère la grille de mots mêlés
+     */
     function generateWordSearch() {
         const title = document.getElementById('grid-title').value || "Mots Mêlés";
         const rawWords = document.getElementById('word-list').value;
         gridSize = parseInt(document.getElementById('grid-size').value) || 10;
+        
         if (!rawWords.trim()) return;
 
-        const words = rawWords.split(',').map(w => w.trim().toUpperCase()).filter(w => w.length > 0 && w.length <= gridSize).sort(() => Math.random() - 0.5); 
+        const words = rawWords.split(',')
+            .map(w => w.trim().toUpperCase())
+            .filter(w => w.length > 0 && w.length <= gridSize)
+            .sort(() => Math.random() - 0.5);
+        
+        // Initialisation de la grille
         finalGrid = Array(gridSize).fill().map(() => Array(gridSize).fill(''));
         window.placedWords = [];
         isRevealed = false;
+        
         const wordsActuallyPlaced = [];
+        const difficulty = document.getElementById('difficulty').value;
+        const getDirection = DIFFICULTY_DIRECTIONS[difficulty];
 
+        // Placement des mots
         words.forEach(word => {
-            let placed = false, attempts = 0;
-            const diff = document.getElementById('difficulty').value;
+            let placed = false;
+            let attempts = 0;
+            
             while (!placed && attempts < 150) {
-                let dr = 0, dc = 0;
-                if (diff === 'easy') { Math.random() < 0.5 ? dc = 1 : dr = 1; } 
-                else if (diff === 'hard') { let r = Math.random(); if (r < 0.33) dc = 1; else if (r < 0.66) dr = 1; else { dr = 1; dc = 1; } } 
-                else { const dirs = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,-1],[1,-1],[-1,1]]; const d = dirs[Math.floor(Math.random() * dirs.length)]; dr = d[0]; dc = d[1]; }
-                let r = Math.floor(Math.random() * gridSize), c = Math.floor(Math.random() * gridSize);
-                if (canPlace(word, r, c, dr, dc)) {
-                    for (let i = 0; i < word.length; i++) finalGrid[r + i * dr][c + i * dc] = { char: word[i], isSolution: true };
-                    window.placedWords.push({ r1: r, c1: c, r2: r + (word.length - 1) * dr, c2: c + (word.length - 1) * dc });
+                const [dirRow, dirCol] = getDirection();
+                const row = Math.floor(Math.random() * gridSize);
+                const col = Math.floor(Math.random() * gridSize);
+                
+                if (canPlaceWord(word, row, col, dirRow, dirCol)) {
+                    placeWord(word, row, col, dirRow, dirCol);
                     wordsActuallyPlaced.push(word);
                     placed = true;
                 }
+                
                 attempts++;
             }
         });
 
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
-                if (finalGrid[r][c] === '') finalGrid[r][c] = { char: String.fromCharCode(65 + Math.floor(Math.random() * 26)), isSolution: false };
-            }
-        }
+        fillEmptyCells();
         renderGrid(title, wordsActuallyPlaced);
     }
 
+    // ==================== RENDU DE LA GRILLE ====================
+    
+    /**
+     * Calcule la taille optimale des cellules
+     */
+    function calculateCellSize() {
+        const isDesktop = window.innerWidth > 768;
+        const gap = 2;
+        const containerWidth = document.querySelector('.main-wrapper').clientWidth - 40;
+        const maxCellSize = Math.floor((containerWidth - (gridSize - 1) * gap) / gridSize);
+        
+        return isDesktop ? Math.min(42, maxCellSize) : maxCellSize;
+    }
+
+    /**
+     * Affiche la grille générée
+     */
     function renderGrid(title, words) {
         const gridEl = document.getElementById('word-grid');
         const canvas = document.getElementById('correction-canvas');
@@ -361,264 +729,435 @@
 
         const isDesktop = window.innerWidth > 768;
         const gap = 2;
-        
-        // On récupère la largeur disponible réelle du parent
-        const containerWidth = document.querySelector('.main-wrapper').clientWidth - 40;
-        
-        // Calcul précis : (Largeur totale - espaces entre cellules) / nombre de cellules
-        const maxCellSize = Math.floor((containerWidth - (gridSize - 1) * gap) / gridSize);
-        
-        // On limite la taille sur PC, mais sur mobile on utilise le maximum possible
-        const cellSize = isDesktop ? Math.min(42, maxCellSize) : maxCellSize;
+        const cellSize = calculateCellSize();
         const fontSize = Math.max(10, cellSize * 0.55);
         
+        // Configuration de la grille
         gridEl.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
-        gridEl.style.gap = `${gap}px`; // On s'assure que le gap est bien appliqué
+        gridEl.style.gap = `${gap}px`;
         
-        gridEl.innerHTML = finalGrid.flat().map(obj => 
-            `<div class="grid-cell" onclick="toggleCell(this)" data-sol="${obj.isSolution}" style="font-size: ${fontSize}px; width:${cellSize}px; height:${cellSize}px;">${obj.char}</div>`
-        ).join('');
+        // Génération des cellules
+        gridEl.innerHTML = finalGrid.flat()
+            .map(obj => `<div class="grid-cell" onclick="toggleCell(this)" data-sol="${obj.isSolution}" style="font-size: ${fontSize}px; width:${cellSize}px; height:${cellSize}px;">${obj.char}</div>`)
+            .join('');
         
-        // Calcul du total pour le canvas de correction
+        // Configuration du canvas
         const totalSize = (gridSize * cellSize) + ((gridSize - 1) * gap);
-        canvas.width = totalSize; 
+        canvas.width = totalSize;
         canvas.height = totalSize;
         
+        // Affichage du titre
         document.getElementById('display-title').innerText = title;
 
-        const sortedWords = words.sort((a, b) => a.localeCompare(b, 'fr'));
-        const nbMots = sortedWords.length;
-        const nbCols = isDesktop ? 2 : 3;
-        const nbParCol = Math.ceil(nbMots / nbCols);
+        // Affichage de la liste des mots
+        renderWordList(words, isDesktop);
         
-        let htmlWords = '';
-        for (let i = 0; i < nbParCol; i++) {
-            for (let j = 0; j < nbCols; j++) {
-                const index = i + (j * nbParCol);
-                if (index < nbMots) htmlWords += `<span class="truncate">• ${sortedWords[index]}</span>`;
-                else htmlWords += `<span></span>`; 
-            }
-        }
-        document.getElementById('words-to-find').innerHTML = htmlWords;
-        
+        // Réinitialisation du bouton de révélation
         document.getElementById('btn-reveal').innerHTML = "👁️ Afficher la correction";
-        appliquerTheme();
+        
+        applyColorTheme();
     }
 
+    /**
+     * Affiche la liste des mots à trouver
+     */
+    function renderWordList(words, isDesktop) {
+        const sortedWords = words.sort((a, b) => a.localeCompare(b, 'fr'));
+        const nbCols = isDesktop ? 2 : 3;
+        const nbPerCol = Math.ceil(sortedWords.length / nbCols);
+        
+        let htmlWords = '';
+        for (let i = 0; i < nbPerCol; i++) {
+            for (let j = 0; j < nbCols; j++) {
+                const index = i + (j * nbPerCol);
+                if (index < sortedWords.length) {
+                    htmlWords += `<span class="truncate">• ${sortedWords[index]}</span>`;
+                } else {
+                    htmlWords += `<span></span>`;
+                }
+            }
+        }
+        
+        document.getElementById('words-to-find').innerHTML = htmlWords;
+    }
+
+    // ==================== INTERACTION AVEC LA GRILLE ====================
+    
+    /**
+     * Active/désactive une cellule
+     */
     function toggleCell(cell) {
         if (isRevealed) return;
+        
         cell.classList.toggle('selected');
-        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
-        cell.style.backgroundColor = cell.classList.contains('selected') ? hexa : "";
+        const accentColor = getAccentColor();
+        cell.style.backgroundColor = cell.classList.contains('selected') ? accentColor : "";
+        
         checkVictory();
     }
 
+    /**
+     * Vérifie si tous les mots ont été trouvés
+     */
     function checkVictory() {
         const wordSpans = document.querySelectorAll('#words-to-find span');
         const selectedCells = Array.from(document.querySelectorAll('.grid-cell.selected'));
         const selectedCoords = selectedCells.map(cell => {
             const index = Array.from(cell.parentNode.children).indexOf(cell);
-            return { r: Math.floor(index / gridSize), c: index % gridSize };
+            return {
+                r: Math.floor(index / gridSize),
+                c: index % gridSize
+            };
         });
 
+        // Vérification de chaque mot placé
         window.placedWords.forEach((wordObj) => {
-            const dr = wordObj.r2 === wordObj.r1 ? 0 : (wordObj.r2 > wordObj.r1 ? 1 : -1);
-            const dc = wordObj.c2 === wordObj.c1 ? 0 : (wordObj.c2 > wordObj.c1 ? 1 : -1);
-            const len = Math.max(Math.abs(wordObj.r2 - wordObj.r1), Math.abs(wordObj.c2 - wordObj.c1)) + 1;
+            const dirRow = wordObj.r2 === wordObj.r1 ? 0 : (wordObj.r2 > wordObj.r1 ? 1 : -1);
+            const dirCol = wordObj.c2 === wordObj.c1 ? 0 : (wordObj.c2 > wordObj.c1 ? 1 : -1);
+            const length = Math.max(Math.abs(wordObj.r2 - wordObj.r1), Math.abs(wordObj.c2 - wordObj.c1)) + 1;
+            
             let allLettersSelected = true;
             let wordString = "";
-            for(let i=0; i<len; i++) {
-                const currR = wordObj.r1 + (i * dr); const currC = wordObj.c1 + (i * dc);
+            
+            for (let i = 0; i < length; i++) {
+                const currR = wordObj.r1 + (i * dirRow);
+                const currC = wordObj.c1 + (i * dirCol);
                 wordString += finalGrid[currR][currC].char;
-                if (!selectedCoords.some(cp => cp.r === currR && cp.c === currC)) allLettersSelected = false;
+                
+                if (!selectedCoords.some(coord => coord.r === currR && coord.c === currC)) {
+                    allLettersSelected = false;
+                }
             }
+            
+            // Mise à jour de l'affichage du mot
             wordSpans.forEach(span => {
-                const cleanSpanText = span.innerText.replace('• ', '').trim();
-                if (cleanSpanText === wordString) span.classList.toggle('word-found', allLettersSelected);
+                const cleanText = span.innerText.replace('• ', '').trim();
+                if (cleanText === wordString) {
+                    span.classList.toggle('word-found', allLettersSelected);
+                }
             });
         });
 
-        const solCells = document.querySelectorAll('.grid-cell[data-sol="true"]');
-        const selSolCells = document.querySelectorAll('.grid-cell.selected[data-sol="true"]');
+        // Vérification de la victoire
+        const solutionCells = document.querySelectorAll('.grid-cell[data-sol="true"]');
+        const selectedSolutionCells = document.querySelectorAll('.grid-cell.selected[data-sol="true"]');
         const wrongCells = document.querySelectorAll('.grid-cell.selected[data-sol="false"]');
-        if (solCells.length > 0 && solCells.length === selSolCells.length && wrongCells.length === 0) {
-            const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-            document.getElementById('bravo-titre').style.color = mapCouleurs[themePrefs.gen || 'cyan'];
-            document.getElementById('modal-bravo').style.display = 'flex';
+        
+        if (solutionCells.length > 0 && 
+            solutionCells.length === selectedSolutionCells.length && 
+            wrongCells.length === 0) {
+            showVictoryModal();
         }
     }
 
+    /**
+     * Affiche la modale de victoire
+     */
+    function showVictoryModal() {
+        const accentColor = getAccentColor();
+        document.getElementById('bravo-titre').style.color = accentColor;
+        openModal('modal-bravo');
+    }
+
+    // ==================== CORRECTION ====================
+    
+    /**
+     * Affiche ou cache la correction
+     */
     function toggleCorrection() {
         const canvas = document.getElementById('correction-canvas');
         const ctx = canvas.getContext('2d');
         const btn = document.getElementById('btn-reveal');
         const cells = document.querySelectorAll('.grid-cell');
-        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
+        const accentColor = getAccentColor();
         const cellSize = parseFloat(cells[0].style.width);
         const gap = 2;
+        
         isRevealed = !isRevealed;
 
         if (isRevealed) {
+            showCorrection(ctx, canvas, accentColor, cellSize, gap, cells);
             btn.innerHTML = "🙈 Cacher la correction";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = hexa; ctx.lineWidth = cellSize * 0.8; ctx.lineCap = "round"; ctx.globalAlpha = 0.5;
-            window.placedWords.forEach(w => {
-                const x1 = gap + w.c1 * (cellSize + gap) + cellSize/2; const y1 = gap + w.r1 * (cellSize + gap) + cellSize/2;
-                const x2 = gap + w.c2 * (cellSize + gap) + cellSize/2; const y2 = gap + w.r2 * (cellSize + gap) + cellSize/2;
-                ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-            });
-            cells.forEach(c => c.style.background = "transparent");
         } else {
+            hideCorrection(ctx, canvas, accentColor, cells);
             btn.innerHTML = "👁️ Afficher la correction";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            cells.forEach(c => c.style.backgroundColor = c.classList.contains('selected') ? hexa : "");
         }
     }
 
+    /**
+     * Affiche la correction sur le canvas
+     */
+    function showCorrection(ctx, canvas, color, cellSize, gap, cells) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = cellSize * 0.8;
+        ctx.lineCap = "round";
+        ctx.globalAlpha = 0.5;
+        
+        window.placedWords.forEach(word => {
+            const x1 = gap + word.c1 * (cellSize + gap) + cellSize / 2;
+            const y1 = gap + word.r1 * (cellSize + gap) + cellSize / 2;
+            const x2 = gap + word.c2 * (cellSize + gap) + cellSize / 2;
+            const y2 = gap + word.r2 * (cellSize + gap) + cellSize / 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        });
+        
+        cells.forEach(cell => cell.style.background = "transparent");
+    }
+
+    /**
+     * Cache la correction
+     */
+    function hideCorrection(ctx, canvas, color, cells) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cells.forEach(cell => {
+            cell.style.backgroundColor = cell.classList.contains('selected') ? color : "";
+        });
+    }
+
+    // ==================== EXPORT ====================
+    
+    /**
+     * Exporte la grille en PDF
+     */
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // --- GESTION DE LA DATE ET DU NOM DE FICHIER ---
-        const maintenant = new Date();
-        const yyyy = maintenant.getFullYear();
-        const mm = String(maintenant.getMonth() + 1).padStart(2, '0');
-        const dd = String(maintenant.getDate()).padStart(2, '0');
-        const dateStr = `${yyyy}-${mm}-${dd}`;
+        const title = document.getElementById('grid-title').value || "Mots Mêlés";
+        const filename = generateFilename('motsmeles', title, 'pdf');
         
-        const rawTitle = document.getElementById('grid-title').value || "Mots Mêlés";
-        const nomFichier = `outilsprofs_motsmeles_${cleanStringForFilename(rawTitle)}_${dateStr}.pdf`;
+        const words = document.getElementById('word-list').value
+            .split(',')
+            .map(w => w.trim().toUpperCase())
+            .filter(w => w.length > 0)
+            .sort((a, b) => a.localeCompare(b, 'fr'));
         
-        const mots = document.getElementById('word-list').value.split(',').map(w => w.trim().toUpperCase()).filter(w => w.length > 0).sort((a,b)=>a.localeCompare(b,'fr'));
         const cellSize = 8;
         const startX = (210 - (gridSize * cellSize)) / 2;
         const startY = 40;
 
-        const dessinerListeMots = (yDepart) => {
-            doc.setTextColor(0).setFont("helvetica", "bold").setFontSize(12).text("Mots à trouver :", startX, yDepart + 15);
-            doc.setFont("helvetica", "normal").setFontSize(10);
-            const nbParCol = Math.ceil(mots.length / 3);
-            mots.forEach((mot, i) => {
-                doc.text("• " + mot, startX + (Math.floor(i / nbParCol) * 50), yDepart + 22 + ((i % nbParCol) * 5));
-            });
-        };
-
-        // --- PAGE 1 : LA GRILLE VIERGE ---
-        doc.setFont("helvetica", "bold").setFontSize(18).text(rawTitle, 105, 20, { align: "center" });
-        finalGrid.forEach((row, r) => row.forEach((obj, c) => {
-            const x = startX + (c * cellSize), y = startY + (r * cellSize);
-            doc.setDrawColor(180).setLineWidth(0.1).rect(x, y, cellSize, cellSize);
-            doc.setTextColor(0).setFontSize(11).text(obj.char, x + (cellSize / 2), y + (cellSize / 2) + 1.5, { align: "center" });
-        }));
-        dessinerListeMots(startY + (gridSize * cellSize));
-
-        // --- PAGE 2 : LA CORRECTION ---
-        doc.addPage().setFont("helvetica", "bold").setFontSize(18).text(rawTitle + " (CORRECTION)", 105, 20, { align: "center" });
+        // Page 1: Grille vierge
+        renderPDFPage(doc, title, startX, startY, cellSize, words, false);
         
-        doc.setGState(new doc.GState({ opacity: 0.3 }));
-        doc.setDrawColor(150, 150, 150); 
-        doc.setLineCap("round");
-        doc.setLineWidth(cellSize - 4); 
+        // Page 2: Correction
+        doc.addPage();
+        renderPDFPage(doc, title + " (CORRECTION)", startX, startY, cellSize, words, true);
 
-        window.placedWords.forEach((w) => {
-            const x1 = startX + (w.c1 * cellSize) + (cellSize / 2);
-            const y1 = startY + (w.r1 * cellSize) + (cellSize / 2);
-            const x2 = startX + (w.c2 * cellSize) + (cellSize / 2);
-            const y2 = startY + (w.r2 * cellSize) + (cellSize / 2);
+        // Sauvegarde
+        savePDF(doc, filename);
+    }
+
+    /**
+     * Génère une page du PDF
+     */
+    function renderPDFPage(doc, title, startX, startY, cellSize, words, showSolution) {
+        // Titre
+        doc.setFont("helvetica", "bold")
+            .setFontSize(18)
+            .text(title, 105, 20, { align: "center" });
+        
+        // Grille
+        if (showSolution) {
+            drawPDFSolution(doc, startX, startY, cellSize);
+        }
+        
+        drawPDFGrid(doc, startX, startY, cellSize);
+        
+        // Liste des mots
+        drawPDFWordList(doc, words, startX, startY + (gridSize * cellSize));
+    }
+
+    /**
+     * Dessine la grille sur le PDF
+     */
+    function drawPDFGrid(doc, startX, startY, cellSize) {
+        finalGrid.forEach((row, r) => {
+            row.forEach((obj, c) => {
+                const x = startX + (c * cellSize);
+                const y = startY + (r * cellSize);
+                
+                doc.setDrawColor(200)
+                    .setLineWidth(0.1)
+                    .rect(x, y, cellSize, cellSize);
+                
+                doc.setTextColor(0)
+                    .setFont("helvetica", "bold")
+                    .setFontSize(11)
+                    .text(obj.char, x + (cellSize / 2), y + (cellSize / 2) + 1.5, { align: "center" });
+            });
+        });
+    }
+
+    /**
+     * Dessine la solution sur le PDF
+     */
+    function drawPDFSolution(doc, startX, startY, cellSize) {
+        doc.setGState(new doc.GState({ opacity: 0.3 }));
+        doc.setDrawColor(150, 150, 150);
+        doc.setLineCap("round");
+        doc.setLineWidth(cellSize - 4);
+
+        window.placedWords.forEach((word) => {
+            const x1 = startX + (word.c1 * cellSize) + (cellSize / 2);
+            const y1 = startY + (word.r1 * cellSize) + (cellSize / 2);
+            const x2 = startX + (word.c2 * cellSize) + (cellSize / 2);
+            const y2 = startY + (word.r2 * cellSize) + (cellSize / 2);
             doc.line(x1, y1, x2, y2);
         });
 
-        doc.setGState(new doc.GState({ opacity: 1 })); 
-        finalGrid.forEach((row, r) => row.forEach((obj, c) => {
-            const x = startX + (c * cellSize), y = startY + (r * cellSize);
-            doc.setDrawColor(200).setLineWidth(0.1).rect(x, y, cellSize, cellSize);
-            doc.setTextColor(0).setFont("helvetica", "bold").setFontSize(11);
-            doc.text(obj.char, x + (cellSize / 2), y + (cellSize / 2) + 1.5, { align: "center" });
-        }));
+        doc.setGState(new doc.GState({ opacity: 1 }));
+    }
 
-        dessinerListeMots(startY + (gridSize * cellSize));
+    /**
+     * Dessine la liste des mots sur le PDF
+     */
+    function drawPDFWordList(doc, words, startX, yStart) {
+        doc.setTextColor(0)
+            .setFont("helvetica", "bold")
+            .setFontSize(12)
+            .text("Mots à trouver :", startX, yStart + 15);
+        
+        doc.setFont("helvetica", "normal")
+            .setFontSize(10);
+        
+        const nbPerCol = Math.ceil(words.length / 3);
+        words.forEach((word, i) => {
+            const col = Math.floor(i / nbPerCol);
+            const row = i % nbPerCol;
+            doc.text("• " + word, startX + (col * 50), yStart + 22 + (row * 5));
+        });
+    }
 
-        // --- GESTION COMPATIBILITÉ ANDROID / NAVIGATEUR ---
+    /**
+     * Sauvegarde le PDF (compatible Android)
+     */
+    function savePDF(doc, filename) {
         if (window.Android && window.Android.savePdfFromBase64) {
             const pdfBase64 = doc.output('datauristring').split(',')[1];
-            window.Android.savePdfFromBase64(pdfBase64, nomFichier);
+            window.Android.savePdfFromBase64(pdfBase64, filename);
         } else {
-            doc.save(nomFichier);
+            doc.save(filename);
         }
     }
 
+    /**
+     * Exporte les données en TXT
+     */
     function exportToTXT() {
-    const maintenant = new Date();
-    const yyyy = maintenant.getFullYear();
-    const mm = String(maintenant.getMonth() + 1).padStart(2, '0');
-    const dd = String(maintenant.getDate()).padStart(2, '0');
-    const dateStr = `${yyyy}-${mm}-${dd}`;
+        const title = document.getElementById('grid-title').value || "grille";
+        const filename = generateFilename('motsmeles', title, 'txt');
+        
+        const data = {
+            title: title,
+            words: document.getElementById('word-list').value,
+            size: gridSize,
+            diff: document.getElementById('difficulty').value
+        };
+        
+        const jsonString = JSON.stringify(data);
 
-    const rawTitle = document.getElementById('grid-title').value || "grille";
-    const nomFichier = `outilsprofs_motsmeles_${cleanStringForFilename(rawTitle)}_${dateStr}.txt`;
-    
-    const data = { 
-        title: rawTitle, 
-        words: document.getElementById('word-list').value, 
-        size: gridSize, 
-        diff: document.getElementById('difficulty').value 
-    };
-    
-    const jsonString = JSON.stringify(data);
-
-    // GESTION ANDROID
-    if (window.Android && window.Android.savePdfFromBase64) {
-        // On convertit la chaîne JSON en Base64 via btoa (compatible UTF-8 avec unescape)
-        const base64String = btoa(unescape(encodeURIComponent(jsonString)));
-        // On réutilise la même fonction Android (elle accepte n'importe quel Base64 avec le bon nom de fichier)
-        window.Android.savePdfFromBase64(base64String, nomFichier);
-    } else {
-        // GESTION NAVIGATEUR CLASSIQUE
-        const blob = new Blob([jsonString], { type: 'text/plain' });
-        const a = document.createElement('a'); 
-        a.href = URL.createObjectURL(blob);
-        a.download = nomFichier; 
-        a.click();
-        URL.revokeObjectURL(a.href);
+        if (window.Android && window.Android.savePdfFromBase64) {
+            const base64String = btoa(unescape(encodeURIComponent(jsonString)));
+            window.Android.savePdfFromBase64(base64String, filename);
+        } else {
+            const blob = new Blob([jsonString], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
     }
-}
 
+    /**
+     * Importe des données depuis un fichier TXT
+     */
     function importData(event) {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const d = JSON.parse(e.target.result);
-                document.getElementById('grid-title').value = d.title || "";
-                document.getElementById('word-list').value = d.words || "";
-                document.getElementById('grid-size').value = d.size || 10;
-                document.getElementById('difficulty').value = d.diff || "easy";
-                document.getElementById('word-count').innerText = `${(d.words || "").split(',').filter(w=>w.trim()).length} MOTS`;
-                retourReglages();
-            } catch(err) { alert("Fichier invalide"); }
+                const data = JSON.parse(e.target.result);
+                document.getElementById('grid-title').value = data.title || "";
+                document.getElementById('word-list').value = data.words || "";
+                document.getElementById('grid-size').value = data.size || 10;
+                document.getElementById('difficulty').value = data.diff || "easy";
+                updateWordCount();
+                returnToSettings();
+            } catch(err) {
+                alert("Fichier invalide");
+            }
         };
         reader.readAsText(event.target.files[0]);
     }
 
-    function appliquerTheme() {
-        if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
-        else document.body.classList.remove('light-mode');
-        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const hexa = mapCouleurs[themePrefs.gen || 'cyan'];
-        const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.gen || 'cyan') ? '#000' : '#fff';
-        if (document.getElementById('aide-titre-dynamique')) document.getElementById('aide-titre-dynamique').style.color = hexa;
-        if (document.getElementById('btn-fermer-aide')) { document.getElementById('btn-fermer-aide').style.backgroundColor = hexa; document.getElementById('btn-fermer-aide').style.color = contrast; }
-        [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('btn-aide'), document.getElementById('mainAddBtn'), document.getElementById('btn-shuffle'), document.getElementById('btn-reveal')].forEach(el => {
-            if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; }
+    // ==================== THÈME ====================
+    
+    /**
+     * Applique le thème de couleur
+     */
+    function applyColorTheme() {
+        // Mode clair/sombre
+        if (localStorage.getItem(STORAGE_KEYS.themeMode) === 'light') {
+            document.body.classList.add('light-mode');
+        } else {
+            document.body.classList.remove('light-mode');
+        }
+        
+        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+        const colorKey = themePrefs.gen || 'cyan';
+        const hexColor = COLOR_MAP[colorKey];
+        const contrastColor = needsDarkText(colorKey) ? '#000' : '#fff';
+        
+        // Application sur les éléments dynamiques
+        const elements = [
+            'aide-titre-dynamique',
+            'btn-fermer-aide',
+            'btn-retour-header',
+            'btn-retour-liste',
+            'btn-aide',
+            'mainAddBtn',
+            'btn-shuffle',
+            'btn-reveal'
+        ];
+        
+        elements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (id === 'aide-titre-dynamique') {
+                    el.style.color = hexColor;
+                } else {
+                    el.style.backgroundColor = hexColor;
+                    el.style.color = contrastColor;
+                }
+            }
         });
-        document.querySelectorAll('.grid-cell.selected').forEach(el => el.style.backgroundColor = hexa);
+        
+        // Application sur les cellules sélectionnées
+        document.querySelectorAll('.grid-cell.selected').forEach(el => {
+            el.style.backgroundColor = hexColor;
+        });
     }
 
-    function retourReglages() { document.getElementById('setup-zone').classList.remove('hidden'); document.getElementById('game-zone').classList.add('hidden'); }
-    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
-    function fermerModal(id) { document.getElementById(id).style.display = 'none'; }
-    window.onload = appliquerTheme;
+    /**
+     * Retourne aux réglages
+     */
+    function returnToSettings() {
+        document.getElementById('setup-zone').classList.remove('hidden');
+        document.getElementById('game-zone').classList.add('hidden');
+    }
+
+    // ==================== INITIALISATION ====================
+    
+    // Écouteur pour le compteur de mots
+    document.getElementById('word-list').addEventListener('input', updateWordCount);
+    
+    // Application du thème au chargement
+    window.onload = applyColorTheme;
 </script>
 </body>
 </html>

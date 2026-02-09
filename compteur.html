@@ -79,10 +79,11 @@
 
         /* Student Items */
         .student-item { 
-            background-color: var(--card-student); padding: 6px 10px; display: flex; 
+            background-color: var(--card-student); padding: 6px 10px 6px 20px; display: flex; 
             justify-content: space-between; align-items: center; cursor: pointer; 
-            border-radius: 50px; margin-bottom: 3px; transition: all 0.1s;
+            border-radius: 50px; margin-bottom: 4px; transition: all 0.1s;
             border: 1.5px solid transparent; min-width: 0;
+			box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             -webkit-tap-highlight-color: transparent; user-select: none;
         }
 
@@ -91,7 +92,7 @@
         }
 
         .student-name { 
-            font-weight: 800; font-size: 0.7rem; overflow: hidden; 
+            font-weight: 800; font-size: 0.8rem; overflow: hidden; 
             text-overflow: ellipsis; white-space: nowrap; 
             margin-right: 8px; flex: 1;
         }
@@ -105,7 +106,7 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; font-weight: 800; font-size: 0.75rem;
             transition: all 0.1s ease; border: 1px solid rgba(0,0,0,0.1);
-            background-color: #999999; color: #1e1e1e;
+            background-color: #cccccc; color: #1e1e1e;
         }
 
         .count-1 { color: #000; background-color: #aee386; }
@@ -270,14 +271,38 @@
 
         let allStudents = JSON.parse(localStorage.getItem(STORAGE_KEYS.students)) || [];
 
-        // ====================== UTILITY FUNCTIONS ====================== 
-        function formatNameDisplay(fullName) {
-            if (!fullName) return "";
-            const parts = fullName.trim().split(' ');
-            const first = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
-            const last = parts.slice(1).join(' ').toUpperCase();
-            return (first + ' ' + last).trim();
-        }
+        /// ====================== UTILITY FUNCTIONS ====================== 
+function formatNameDisplay(fullName, allStudentsList) {
+    if (!fullName) return "";
+    
+    const parts = fullName.trim().split(' ');
+    const firstName = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+    const lastName = parts.slice(1).join(' ').toUpperCase();
+
+    // On cherche les homonymes de prénom
+    const duplicates = allStudentsList.filter(s => {
+        const sParts = s.identite.trim().split(' ');
+        const sFirstName = sParts[0].charAt(0).toUpperCase() + sParts[0].slice(1).toLowerCase();
+        return sFirstName === firstName && s.identite !== fullName;
+    });
+
+    if (duplicates.length === 0) {
+        return firstName;
+    }
+
+    // Si doublon, on vérifie l'initiale du nom
+    const sameInitial = duplicates.some(s => {
+        const sLastName = s.identite.trim().split(' ').slice(1).join(' ').toUpperCase();
+        return sLastName.charAt(0) === lastName.charAt(0);
+    });
+
+    if (!sameInitial) {
+        return `${firstName} ${lastName.charAt(0)}.`;
+    }
+
+    // Si même initiale, on met les deux premières lettres
+    return `${firstName} ${lastName.substring(0, 2)}.`;
+}
 
         function getNormalizedLevel(student) {
             return student.niveau.trim().toUpperCase();
@@ -347,52 +372,51 @@
         }
 
         // ====================== STUDENT ROW CREATION ====================== 
-        function createStudentRow(studentName, gender) {
-            const card = document.createElement('div');
-            const genderClass = getGenderClass(gender);
-            card.className = `student-item ${genderClass}`;
+function createStudentRow(studentName, gender, allStudentsList) {
+    const card = document.createElement('div');
+    const genderClass = getGenderClass(gender);
+    card.className = `student-item ${genderClass}`;
 
-            // Name element
-            const nameEl = document.createElement('span');
-            nameEl.className = 'student-name';
-            nameEl.innerText = formatNameDisplay(studentName);
+    // Name element - Utilisation de la nouvelle logique
+    const nameEl = document.createElement('span');
+    nameEl.className = 'student-name';
+    nameEl.innerText = formatNameDisplay(studentName, allStudentsList);
 
-            // Counter badge
-            const badge = document.createElement('div');
-            badge.className = 'counter-badge';
+    // ... (le reste du code de la fonction reste identique)
+    const badge = document.createElement('div');
+    badge.className = 'counter-badge';
 
-            const counterSpan = document.createElement('span');
-            counterSpan.setAttribute('data-name', studentName);
-            counterSpan.className = 'counter-val';
-            counterSpan.innerText = '0';
+    const counterSpan = document.createElement('span');
+    counterSpan.setAttribute('data-name', studentName);
+    counterSpan.className = 'counter-val';
+    counterSpan.innerText = '0';
 
-            badge.appendChild(counterSpan);
+    badge.appendChild(counterSpan);
 
-            // Click handler for single/double click
-            let clickCount = 0;
-            let clickTimer;
+    let clickCount = 0;
+    let clickTimer;
 
-            card.addEventListener('click', () => {
-                clickCount++;
+    card.addEventListener('click', () => {
+        clickCount++;
+        if (clickCount === 1) {
+            clickTimer = setTimeout(() => {
                 if (clickCount === 1) {
-                    clickTimer = setTimeout(() => {
-                        if (clickCount === 1) {
-                            incrementCounter(counterSpan, badge);
-                        }
-                        clickCount = 0;
-                    }, COUNTER_CONFIG.clickTimeout);
-                } else if (clickCount === 2) {
-                    clearTimeout(clickTimer);
-                    decrementCounter(counterSpan, badge);
-                    clickCount = 0;
+                    incrementCounter(counterSpan, badge);
                 }
-            });
-
-            card.oncontextmenu = (e) => { e.preventDefault(); };
-            card.appendChild(nameEl);
-            card.appendChild(badge);
-            return card;
+                clickCount = 0;
+            }, COUNTER_CONFIG.clickTimeout);
+        } else if (clickCount === 2) {
+            clearTimeout(clickTimer);
+            decrementCounter(counterSpan, badge);
+            clickCount = 0;
         }
+    });
+
+    card.oncontextmenu = (e) => { e.preventDefault(); };
+    card.appendChild(nameEl);
+    card.appendChild(badge);
+    return card;
+}
 
         // ====================== THEME APPLICATION ====================== 
         function applyTheme() {
@@ -478,10 +502,11 @@
 
                 const list = document.createElement('div');
                 groups[level]
-                    .sort((a, b) => a.identite.localeCompare(b.identite))
-                    .forEach(student => {
-                        list.appendChild(createStudentRow(student.identite, student.sexe));
-                    });
+    .sort((a, b) => a.identite.localeCompare(b.identite))
+    .forEach(student => {
+        // Ajout de allStudents en 3ème argument
+        list.appendChild(createStudentRow(student.identite, student.sexe, allStudents));
+    });
 
                 levelWrapper.appendChild(list);
                 mainContent.appendChild(levelWrapper);

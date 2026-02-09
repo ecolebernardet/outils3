@@ -4,186 +4,393 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Générateur de Dominos - OutilsProfs</title>
+    
+    <!-- Bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
+        /* ===== POLICES ===== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
+        /* ===== VARIABLES CSS ===== */
         :root {
-            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
-            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
-            --accent-color: #06b6d4; --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --bg-page: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1);
+            --input-bg: #2a2a2a;
+            --accent-color: #06b6d4;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
         }
 
+        /* Mode clair */
         body.light-mode {
-            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
-            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --bg-page: #eeeeee;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1);
+            --input-bg: #f3f4f6;
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        /* ===== STYLES GLOBAUX ===== */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s ease;
+        }
         
+        /* ===== HEADER ===== */
         header { 
-            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
-            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
-            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            width: 100%; margin-bottom: 12px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--column-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%;
+            margin-bottom: 12px;
         }
 
-        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
-        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+        .ui-btn-round {
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
 
-        .main-wrapper { width: 100%; max-width: 500px; margin: 0 auto; padding: 10px 15px 40px; }
-        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
+        header h1 {
+            font-size: 1.125rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        /* ===== CONTENEUR PRINCIPAL ===== */
+        .main-wrapper {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 10px 15px 40px;
+        }
+
+        .light-card {
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 20px;
+            border: 1px solid var(--column-border);
+            box-shadow: var(--shadow-custom);
+            margin-bottom: 20px;
+        }
         
-        .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 10px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; }
+        /* ===== FORMULAIRES ===== */
+        .input-field {
+            background: var(--input-bg);
+            border: 1px solid var(--column-border);
+            border-radius: 0.75rem;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            width: 100%;
+            color: var(--text-main);
+            outline: none;
+        }
         
-        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
-        .btn-add:active { transform: scale(0.95); }
+        .section-label {
+            display: block;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
 
-        .btn-game-action { height: 40px; border-radius: 9999px; font-size: 10px; font-weight: 900; color: white; transition: all 0.2s ease; text-transform: uppercase; padding: 0 15px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        /* ===== BOUTONS ===== */
+        .btn-add {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 12px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
 
+        .btn-add:active {
+            transform: scale(0.95);
+        }
+
+        .btn-game-action {
+            height: 40px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 900;
+            color: white;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .option-btn {
+            padding: 8px;
+            font-size: 9px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .option-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== DOMINOS ===== */
         .domino-tile {
-            display: flex; position: relative; width: 200px; height: 70px; border: 2px solid var(--accent-color);
-            border-radius: 10px; overflow: hidden; background: var(--card-bg);
+            display: flex;
+            position: relative;
+            width: 200px;
+            height: 70px;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--card-bg);
             box-shadow: var(--shadow-custom);
         }
 
         .domino-half {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            padding: 8px; text-align: center; font-size: 12px; font-weight: 800;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
         }
 
-        .domino-divider { width: 2px; background: var(--accent-color); height: 100%; position: relative; }
+        .domino-divider {
+            width: 2px;
+            background: var(--accent-color);
+            height: 100%;
+            position: relative;
+        }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 1.5rem;
+            border: 1px solid var(--column-border);
+            padding: 25px;
+            position: relative;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (min-width: 768px) {
-            .main-wrapper { max-width: 950px; }
-            #dominos-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+            .main-wrapper {
+                max-width: 950px;
+            }
+            
+            #dominos-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
         }
     </style>
 </head>
 <body>
 
+<!-- Initialisation du thème -->
 <script>
-    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
+    if (localStorage.getItem('theme_mode') === 'light') {
+        document.body.classList.add('light-mode');
+    }
 </script>
 
+<!-- ===== HEADER ===== -->
 <header>
     <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+        </svg>
     </a>
     <h1>Générateur de Dominos</h1>
-    <button id="btn-aide" onclick="document.getElementById('modal-aide').style.display='flex'" class="ui-btn-round active:scale-90 text-lg">💡</button>
+    <button id="btn-aide" onclick="openModal('modal-aide')" class="ui-btn-round active:scale-90 text-lg">💡</button>
 </header>
 
+<!-- ===== CONTENEUR PRINCIPAL ===== -->
 <div class="main-wrapper">
+    <!-- Bouton retour générateurs -->
     <div id="container-retour-liste" class="mb-4 text-left">
         <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
             Retour aux générateurs
         </a>
     </div>
 
+    <!-- ===== ZONE DE CONFIGURATION ===== -->
     <div id="setup-zone" class="light-card space-y-4">
+        <!-- Titre -->
         <div>
-            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Titre de la fiche</label>
+            <label class="section-label">Titre de la fiche</label>
             <input type="text" id="quiz-title" class="input-field mb-4" placeholder="Ex: Dominos des calculs" oninput="saveDraft()">
             
-            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 text-center">Opération / Type</label>
+            <!-- Sélecteur d'opération -->
+            <label class="section-label">Opération / Type</label>
             <div class="grid grid-cols-3 gap-1 bg-black/10 p-1 rounded-xl mb-4">
-                <button onclick="setOp('+')" id="op-add" class="p-2 text-[9px] font-bold transition-all">Addition</button>
-                <button onclick="setOp('*')" id="op-mult" class="p-2 text-[9px] font-bold transition-all">Mult.</button>
-                <button onclick="setOp('other')" id="op-other" class="p-2 text-[9px] font-bold transition-all">Thèmes</button>
+                <button onclick="setOperation('+')" id="op-add" class="p-2 text-[9px] font-bold transition-all">Addition</button>
+                <button onclick="setOperation('*')" id="op-mult" class="p-2 text-[9px] font-bold transition-all">Mult.</button>
+                <button onclick="setOperation('other')" id="op-other" class="p-2 text-[9px] font-bold transition-all">Thèmes</button>
             </div>
 
+            <!-- Options Addition -->
             <div id="add-options" class="hidden bg-black/5 p-3 rounded-xl mb-4">
                 <div class="grid grid-cols-2 gap-2" id="add-buttons-grid">
-                    <button onclick="setAutoAdd('c10')" id="btn-c10" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 10</button>
-                    <button onclick="setAutoAdd('c20')" id="btn-c20" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 20</button>
-                    <button onclick="setAutoAdd('c100')" id="btn-c100" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Compléments à 100</button>
-                    <button onclick="setAutoAdd('doubles')" id="btn-doubles" class="p-2 text-[9px] font-bold rounded-lg border border-white/5 bg-black/10 transition-all">Les Doubles</button>
+                    <button onclick="setAutoAddition('c10')" id="btn-c10" class="option-btn">Compléments à 10</button>
+                    <button onclick="setAutoAddition('c20')" id="btn-c20" class="option-btn">Compléments à 20</button>
+                    <button onclick="setAutoAddition('c100')" id="btn-c100" class="option-btn">Compléments à 100</button>
+                    <button onclick="setAutoAddition('doubles')" id="btn-doubles" class="option-btn">Les Doubles</button>
                 </div>
                 <input type="hidden" id="auto-add-type" value="none">
             </div>
 
+            <!-- Sélecteur de tables de multiplication -->
             <div id="tables-selector" class="hidden bg-black/5 p-3 rounded-xl mb-4">
                 <div class="grid grid-cols-5 gap-1 mb-2" id="tables-grid"></div>
                 <button onclick="selectAllTables()" class="w-full py-1 text-[8px] font-bold uppercase border border-white/10 rounded">Toutes les tables</button>
             </div>
 
+            <!-- Sélecteur de thèmes -->
             <div id="other-options" class="hidden bg-black/5 p-3 rounded-xl mb-4">
                 <select id="preset-select" onchange="loadPreset(this.value)" class="input-field text-center">
                     <option value="">-- Choisir un thème --</option>
                     <option value="capitales">Capitales et Pays</option>
                     <option value="synonymes">Synonymes</option>
                     <option value="contraires">Contraires</option>
-					<option value="decompositions1">Nombres de 100 à 999 (Décompositions)</option>
-					<option value="decimaux1">Nombres décimaux (Décompositions)</option>
+                    <option value="decompositions1">Nombres de 100 à 999 (Décompositions)</option>
+                    <option value="decimaux1">Nombres décimaux (Décompositions)</option>
                 </select>
             </div>
             
-            <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest text-center">Données personnalisées (Q ; R)</label>
+            <!-- Données personnalisées -->
+            <label class="section-label">Données personnalisées (Q ; R)</label>
             <textarea id="quiz-data" class="input-field h-28 font-normal" placeholder="Paris ; France&#10;Londres ; Angleterre" oninput="saveDraft()"></textarea>
         </div>
 
+        <!-- Boutons de gestion -->
         <div class="grid grid-cols-3 gap-2 mb-4">
             <button onclick="saveToTXT()" class="py-2 rounded-xl bg-black/10 text-[8px] font-black uppercase border border-white/10 hover:bg-black/20">💾 Sauver</button>
             <button onclick="document.getElementById('fileInput').click()" class="py-2 rounded-xl bg-black/10 text-[8px] font-black uppercase border border-white/10 hover:bg-black/20">📂 Charger</button>
-            <button onclick="document.getElementById('modal-confirm-clear').style.display='flex'" class="py-2 rounded-xl bg-red-500/10 text-red-500 text-[8px] font-black uppercase border border-red-500/20 hover:bg-red-500/20">🗑️ Effacer</button>
+            <button onclick="openModal('modal-confirm-clear')" class="py-2 rounded-xl bg-red-500/10 text-red-500 text-[8px] font-black uppercase border border-red-500/20 hover:bg-red-500/20">🗑️ Effacer</button>
             <input type="file" id="fileInput" class="hidden" accept=".txt" onchange="loadFromTXT(event)">
         </div>
 
+        <!-- Bouton principal -->
         <button id="mainAddBtn" onclick="prepareAndGenerate()" class="btn-add">Générer les Dominos</button>
     </div>
 
+    <!-- ===== ZONE DE JEU ===== -->
     <div id="game-zone" class="hidden space-y-6">
         <div id="dominos-grid" class="grid grid-cols-1 gap-4"></div>
         <div class="flex flex-wrap justify-center gap-3 pt-4">
-            <button onclick="retourReglages()" class="btn-game-action bg-gray-500 shadow-lg">⬅️ retour</button>
+            <button onclick="returnToSettings()" class="btn-game-action bg-gray-500 shadow-lg">⬅️ retour</button>
             <button onclick="exportToPDF()" class="btn-game-action bg-blue-500 shadow-lg">📄 PDF à découper</button>
         </div>
     </div>
 </div>
 
-<div id="modal-aide" class="modal-overlay" onclick="this.style.display='none'">
+<!-- ===== MODALE D'AIDE ===== -->
+<div id="modal-aide" class="modal-overlay" onclick="closeModal('modal-aide')">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="text-lg font-black uppercase mb-4 text-center">💡 Aide</h2>
         <div class="text-[11px] leading-relaxed space-y-4">
-            <p>Le domino affiche à **gauche** la réponse au domino précédent, et à **droite** une nouvelle question.</p>
+            <p>Le domino affiche à <strong>gauche</strong> la réponse au domino précédent, et à <strong>droite</strong> une nouvelle question.</p>
             <p>En mode manuel, utilisez le format : <br><code class="bg-black/10 px-1">Question ; Réponse</code> (une par ligne).</p>
             <p>Découpez les dominos pour créer une boucle de jeu.</p>
         </div>
-        <button onclick="document.getElementById('modal-aide').style.display='none'" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase bg-cyan-500 text-white btn-fermer-gen">Compris</button>
+        <button onclick="closeModal('modal-aide')" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase bg-cyan-500 text-white btn-fermer-gen">Compris</button>
     </div>
 </div>
 
-<div id="modal-confirm-clear" class="modal-overlay" onclick="this.style.display='none'">
+<!-- ===== MODALE DE CONFIRMATION ===== -->
+<div id="modal-confirm-clear" class="modal-overlay" onclick="closeModal('modal-confirm-clear')">
     <div class="modal-content text-center" onclick="event.stopPropagation()">
         <h2 class="text-lg font-black uppercase mb-4 text-red-500">Confirmer ?</h2>
         <p class="text-[11px] mb-6">Voulez-vous vraiment effacer toutes les données saisies ?</p>
         <div class="grid grid-cols-2 gap-3">
-            <button onclick="document.getElementById('modal-confirm-clear').style.display='none'" class="py-3 rounded-xl bg-gray-500 text-white text-[10px] font-black uppercase">Annuler</button>
+            <button onclick="closeModal('modal-confirm-clear')" class="py-3 rounded-xl bg-gray-500 text-white text-[10px] font-black uppercase">Annuler</button>
             <button onclick="confirmClearAll()" class="py-3 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase">Tout effacer</button>
         </div>
     </div>
 </div>
 
-<div id="modal-erreur" class="modal-overlay" onclick="this.style.display='none'">
+<!-- ===== MODALE D'ERREUR ===== -->
+<div id="modal-erreur" class="modal-overlay" onclick="closeModal('modal-erreur')">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="text-lg font-black uppercase mb-4 text-center text-red-500">⚠️ Attention</h2>
         <div class="text-[11px] leading-relaxed text-center mb-6">
             <p id="msg-erreur">Veuillez choisir une option ou saisir des données.</p>
         </div>
-        <button onclick="document.getElementById('modal-erreur').style.display='none'" class="w-full py-3 rounded-xl text-[10px] font-black uppercase bg-red-500 text-white btn-fermer-gen">D'accord</button>
+        <button onclick="closeModal('modal-erreur')" class="w-full py-3 rounded-xl text-[10px] font-black uppercase bg-red-500 text-white btn-fermer-gen">D'accord</button>
     </div>
 </div>
 
 <script>
-    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e' };
-    let pairs = [], currentOp = '+', selectedTables = [];
+    // ==================== CONSTANTES ====================
+    
+    const COLOR_MAP = {
+        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
+        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
+        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
+        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+        'rose': '#f43f5e'
+    };
+
+    const STORAGE_KEYS = {
+        draftTitle: 'domino_draft_title',
+        draftData: 'domino_draft_data',
+        theme: 'theme_tuiles',
+        themeMode: 'theme_mode'
+    };
 
     const PRESETS = {
         capitales: {
@@ -197,286 +404,526 @@
         contraires: {
             title: "Contraires",
             data: "Chaud ; Froid\nGrand ; Petit\nJour ; Nuit\nHaut ; Bas\nRapide ; Lent\nBeau ; Laid\nFort ; Faible\nOuvert ; Fermé\nPlein ; Vide\nGagné ; Perdu\nSombre ; Clair\nDur ; Mou\nLourd ; Léger\nDevant ; Derrière\nPremier ; Dernier"
-		},	
-		decompositions1: {
+        },
+        decompositions1: {
             title: "Nombres de 100 à 999 et Décompositions",
             data: "124 ; (1 x 100) + (2 x 10) + 4\n158 ; (1 x 100) + (5 x 10) + 8\n203 ; (2 x 100) + (0 x 10) + 3\n257 ; (2 x 100) + (5 x 10) + 7\n312 ; (3 x 100) + (1 x 10) + 2\n369 ; (3 x 100) + (6 x 10) + 9\n441 ; (4 x 100) + (4 x 10) + 1\n480 ; (4 x 100) + (8 x 10) + 0\n525 ; (5 x 100) + (2 x 10) + 5\n576 ; (5 x 100) + (7 x 10) + 6\n618 ; (6 x 100) + (1 x 10) + 8\n694 ; (6 x 100) + (9 x 10) + 4\n707 ; (7 x 100) + (0 x 10) + 7\n732 ; (7 x 100) + (3 x 10) + 2\n815 ; (8 x 100) + (1 x 10) + 5\n860 ; (8 x 100) + (6 x 10) + 0\n888 ; (8 x 100) + (8 x 10) + 8\n921 ; (9 x 100) + (2 x 10) + 1\n953 ; (9 x 100) + (5 x 10) + 3\n999 ; (9 x 100) + (9 x 10) + 9"
         },
-		decimaux1: {
+        decimaux1: {
             title: "Nombres décimaux et Décompositions",
             data: "0,45 ; 0 + (4 x 0,1) + (5 x 0,01)\n1,28 ; 1 + (2 x 0,1) + (8 x 0,01)\n2,14 ; 2 + (1 x 0,1) + (4 x 0,01)\n3,07 ; 3 + (0 x 0,1) + (7 x 0,01)\n4,52 ; 4 + (5 x 0,1) + (2 x 0,01)\n5,80 ; 5 + (8 x 0,1) + (0 x 0,01)\n6,39 ; 6 + (3 x 0,1) + (9 x 0,01)\n7,11 ; 7 + (1 x 0,1) + (1 x 0,01)\n8,64 ; 8 + (6 x 0,1) + (4 x 0,01)\n9,25 ; 9 + (2 x 0,1) + (5 x 0,01)\n10,03 ; 10 + (0 x 0,1) + (3 x 0,01)\n11,76 ; 11 + (7 x 0,1) + (6 x 0,01)\n12,48 ; 12 + (4 x 0,1) + (8 x 0,01)\n13,92 ; 13 + (9 x 0,1) + (2 x 0,01)\n14,15 ; 14 + (1 x 0,1) + (5 x 0,01)\n15,50 ; 15 + (5 x 0,1) + (0 x 0,01)\n16,87 ; 16 + (8 x 0,1) + (7 x 0,01)\n17,31 ; 17 + (3 x 0,1) + (1 x 0,01)\n18,69 ; 18 + (6 x 0,1) + (9 x 0,01)\n19,99 ; 19 + (9 x 0,1) + (9 x 0,01)"
         }
     };
 
-    function appliquerTheme() {
-        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-        const colPref = themePrefs.gen || 'cyan'; 
-        const hexa = mapCouleurs[colPref];
-        const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref) ? '#000' : '#fff';
-        document.documentElement.style.setProperty('--accent-color', hexa);
+    // ==================== ÉTAT DE L'APPLICATION ====================
+    
+    let pairs = [];
+    let currentOperation = '+';
+    let selectedTables = [];
+
+    // ==================== UTILITAIRES ====================
+    
+    /**
+     * Retourne la couleur d'accent actuelle
+     */
+    function getAccentColor() {
+        return getComputedStyle(document.documentElement)
+            .getPropertyValue('--accent-color').trim();
+    }
+
+    /**
+     * Détermine si une couleur nécessite un texte sombre (pour le contraste)
+     */
+    function needsDarkText(color) {
+        const lightColors = ['yellow', 'lime', 'amber', 'cyan'];
+        return lightColors.some(c => color.toLowerCase().includes(c));
+    }
+
+    /**
+     * Applique un style actif à un bouton
+     */
+    function applyActiveStyle(button, accentColor) {
+        const textColor = needsDarkText(accentColor) ? '#000' : '#fff';
+        button.style.cssText = `background-color: ${accentColor} !important; color: ${textColor} !important; border-radius: 9999px;`;
+    }
+
+    /**
+     * Réinitialise le style d'un bouton
+     */
+    function resetButtonStyle(button) {
+        button.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;";
+    }
+
+    /**
+     * Génère un nom de fichier formaté
+     */
+    function generateFilename(prefix, title, extension) {
+        const sanitizedTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        return `outilsprofs_${prefix}_${sanitizedTitle}.${extension}`;
+    }
+
+    // ==================== GESTION DES MODALES ====================
+    
+    /**
+     * Ouvre une modale
+     */
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    /**
+     * Ferme une modale
+     */
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // ==================== THÈME ====================
+    
+    /**
+     * Applique le thème sauvegardé
+     */
+    function applyTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+        const colorPref = themePrefs.gen || 'cyan';
+        const hexColor = COLOR_MAP[colorPref];
+        const contrastColor = needsDarkText(hexColor) ? '#000' : '#fff';
         
-        const btns = [
-            document.getElementById('btn-retour-header'), 
-            document.getElementById('btn-retour-liste'), 
-            document.getElementById('btn-aide'), 
+        document.documentElement.style.setProperty('--accent-color', hexColor);
+        
+        const themedButtons = [
+            document.getElementById('btn-retour-header'),
+            document.getElementById('btn-retour-liste'),
+            document.getElementById('btn-aide'),
             document.getElementById('mainAddBtn'),
             ...document.querySelectorAll('.btn-fermer-gen')
         ];
         
-        btns.forEach(b => { if(b) { b.style.backgroundColor = hexa; b.style.color = contrast; } });
-        setOp(currentOp);
+        themedButtons.forEach(button => {
+            if (button) {
+                button.style.backgroundColor = hexColor;
+                button.style.color = contrastColor;
+            }
+        });
+        
+        setOperation(currentOperation);
     }
 
-    function initTables() {
-        const grid = document.getElementById('tables-grid');
-        grid.innerHTML = '';
-        for(let i=1; i<=10; i++) {
-            grid.innerHTML += `<button onclick="toggleTable(${i})" id="tab-${i}" class="p-2 text-[10px] font-bold rounded-lg border border-white/5 bg-black/10 hover:bg-black/20">${i}</button>`;
+    // ==================== GESTION DES OPÉRATIONS ====================
+    
+    /**
+     * Définit le type d'opération (addition, multiplication, thèmes)
+     */
+    function setOperation(operation) {
+        currentOperation = operation;
+        const accentColor = getAccentColor();
+        
+        const buttons = {
+            '+': document.getElementById('op-add'),
+            '*': document.getElementById('op-mult'),
+            'other': document.getElementById('op-other')
+        };
+        
+        const sections = {
+            '+': document.getElementById('add-options'),
+            '*': document.getElementById('tables-selector'),
+            'other': document.getElementById('other-options')
+        };
+        
+        // Réinitialiser tous les boutons
+        Object.values(buttons).forEach(resetButtonStyle);
+        
+        // Activer le bouton sélectionné
+        applyActiveStyle(buttons[operation], accentColor);
+        
+        // Afficher/masquer les sections
+        Object.keys(sections).forEach(key => {
+            sections[key].classList.toggle('hidden', key !== operation);
+        });
+        
+        // Réinitialiser le type d'addition si on change d'opération
+        if (operation === '+') {
+            setAutoAddition('none');
         }
     }
 
-    function setOp(op) {
-        currentOp = op;
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-        const bA = document.getElementById('op-add'), bM = document.getElementById('op-mult'), bO = document.getElementById('op-other');
-        const multSec = document.getElementById('tables-selector'), addSec = document.getElementById('add-options'), otherSec = document.getElementById('other-options');
-        
-        [bA, bM, bO].forEach(b => b.style.cssText = "background-color: transparent !important; color: inherit; border-radius: 9999px;");
-        const active = (op === '+') ? bA : (op === '*') ? bM : bO;
-        const isLight = ['yellow', 'lime', 'amber', 'cyan'].some(c => accent.toLowerCase().includes(c));
-        active.style.cssText = `background-color: ${accent} !important; color: ${isLight ? '#000' : '#fff'} !important; border-radius: 9999px;`;
-        
-        addSec.classList.toggle('hidden', op !== '+');
-        multSec.classList.toggle('hidden', op !== '*');
-        otherSec.classList.toggle('hidden', op !== 'other');
-
-        if (op === '+') setAutoAdd('none');
-    }
-
-    function setAutoAdd(type) {
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-        const isLight = ['yellow', 'lime', 'amber', 'cyan'].some(c => accent.toLowerCase().includes(c));
+    /**
+     * Définit le type d'addition automatique
+     */
+    function setAutoAddition(type) {
+        const accentColor = getAccentColor();
         const input = document.getElementById('auto-add-type');
         input.value = type;
 
         const buttons = document.querySelectorAll('#add-buttons-grid button');
-        buttons.forEach(btn => { btn.style.backgroundColor = ''; btn.style.color = ''; });
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = '';
+            btn.style.color = '';
+        });
 
         if (type !== 'none') {
             const activeBtn = document.getElementById(`btn-${type}`);
-            activeBtn.style.backgroundColor = accent;
-            activeBtn.style.color = isLight ? '#000' : '#fff';
+            applyActiveStyle(activeBtn, accentColor);
         }
     }
 
-    function toggleTable(n) {
-        const btn = document.getElementById(`tab-${n}`);
-        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
-        if(selectedTables.includes(n)) {
-            selectedTables = selectedTables.filter(t => t !== n);
-            btn.style.backgroundColor = ''; btn.style.color = '';
+    // ==================== GESTION DES TABLES ====================
+    
+    /**
+     * Initialise les boutons de tables de multiplication
+     */
+    function initTables() {
+        const grid = document.getElementById('tables-grid');
+        grid.innerHTML = '';
+        
+        for (let i = 1; i <= 10; i++) {
+            const button = document.createElement('button');
+            button.id = `tab-${i}`;
+            button.className = 'option-btn text-[10px]';
+            button.textContent = i;
+            button.onclick = () => toggleTable(i);
+            grid.appendChild(button);
+        }
+    }
+
+    /**
+     * Active/désactive une table de multiplication
+     */
+    function toggleTable(number) {
+        const button = document.getElementById(`tab-${number}`);
+        const accentColor = getAccentColor();
+        
+        if (selectedTables.includes(number)) {
+            selectedTables = selectedTables.filter(t => t !== number);
+            button.style.backgroundColor = '';
+            button.style.color = '';
         } else {
-            selectedTables.push(n);
-            btn.style.backgroundColor = accent; btn.style.color = '#fff';
+            selectedTables.push(number);
+            button.style.backgroundColor = accentColor;
+            button.style.color = '#fff';
         }
     }
 
-    function selectAllTables() { for(let i=1; i<=10; i++) if(!selectedTables.includes(i)) toggleTable(i); }
+    /**
+     * Sélectionne toutes les tables de multiplication
+     */
+    function selectAllTables() {
+        for (let i = 1; i <= 10; i++) {
+            if (!selectedTables.includes(i)) {
+                toggleTable(i);
+            }
+        }
+    }
 
-    function loadPreset(key) {
-        if (!key || !PRESETS[key]) return;
-        document.getElementById('quiz-title').value = PRESETS[key].title;
-        document.getElementById('quiz-data').value = PRESETS[key].data;
+    // ==================== GESTION DES PRESETS ====================
+    
+    /**
+     * Charge un preset prédéfini
+     */
+    function loadPreset(presetKey) {
+        if (!presetKey || !PRESETS[presetKey]) return;
+        
+        document.getElementById('quiz-title').value = PRESETS[presetKey].title;
+        document.getElementById('quiz-data').value = PRESETS[presetKey].data;
         saveDraft();
     }
 
+    // ==================== SAUVEGARDE / CHARGEMENT ====================
+    
+    /**
+     * Sauvegarde le brouillon dans le localStorage
+     */
     function saveDraft() {
-        localStorage.setItem('domino_draft_title', document.getElementById('quiz-title').value);
-        localStorage.setItem('domino_draft_data', document.getElementById('quiz-data').value);
+        localStorage.setItem(STORAGE_KEYS.draftTitle, document.getElementById('quiz-title').value);
+        localStorage.setItem(STORAGE_KEYS.draftData, document.getElementById('quiz-data').value);
     }
 
+    /**
+     * Charge le brouillon depuis le localStorage
+     */
     function loadDraft() {
-        if(localStorage.getItem('domino_draft_title')) document.getElementById('quiz-title').value = localStorage.getItem('domino_draft_title');
-        if(localStorage.getItem('domino_draft_data')) document.getElementById('quiz-data').value = localStorage.getItem('domino_draft_data');
+        const savedTitle = localStorage.getItem(STORAGE_KEYS.draftTitle);
+        const savedData = localStorage.getItem(STORAGE_KEYS.draftData);
+        
+        if (savedTitle) {
+            document.getElementById('quiz-title').value = savedTitle;
+        }
+        if (savedData) {
+            document.getElementById('quiz-data').value = savedData;
+        }
     }
 
+    /**
+     * Efface toutes les données après confirmation
+     */
     function confirmClearAll() {
         document.getElementById('quiz-title').value = '';
         document.getElementById('quiz-data').value = '';
-        localStorage.removeItem('domino_draft_title');
-        localStorage.removeItem('domino_draft_data');
-        setAutoAdd('none');
+        localStorage.removeItem(STORAGE_KEYS.draftTitle);
+        localStorage.removeItem(STORAGE_KEYS.draftData);
+        setAutoAddition('none');
         selectedTables = [];
         initTables();
-        document.getElementById('modal-confirm-clear').style.display = 'none';
+        closeModal('modal-confirm-clear');
     }
 
-    function saveToTXT() {
-    const data = document.getElementById('quiz-data').value.trim();
-    const titre = document.getElementById('quiz-title').value.trim() || "mes_dominos";
-    if (!data) { 
-        document.getElementById('modal-erreur').style.display = 'flex'; 
-        return; 
-    }
-
-    const fileContent = `TITRE:${titre}\n${data}`;
-    const filename = `outilsprofs_dominos_${titre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
-
-    // --- CORRECTION POUR ANDROID ---
+    // ==================== IMPORT / EXPORT ====================
     
-    // On convertit le texte en Base64 (btoa gère les caractères standards)
-    // On utilise un petit hack pour supporter les accents (UTF-8)
-    const base64Content = btoa(unescape(encodeURIComponent(fileContent)));
+    /**
+     * Sauvegarde les données dans un fichier .txt
+     */
+    function saveToTXT() {
+        const data = document.getElementById('quiz-data').value.trim();
+        const title = document.getElementById('quiz-title').value.trim() || "mes_dominos";
+        
+        if (!data) {
+            openModal('modal-erreur');
+            return;
+        }
 
-    if (window.Android && window.Android.savePdfFromBase64) {
-        // On réutilise la même fonction Kotlin ! 
-        // Elle enregistrera juste un .txt au lieu d'un .pdf
-        window.Android.savePdfFromBase64(base64Content, filename);
-    } else {
-        // Secours pour navigateur classique
-        const blob = new Blob([fileContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url);
+        const fileContent = `TITRE:${title}\n${data}`;
+        const filename = generateFilename('dominos', title, 'txt');
+
+        // Support Android
+        const base64Content = btoa(unescape(encodeURIComponent(fileContent)));
+
+        if (window.Android && window.Android.savePdfFromBase64) {
+            window.Android.savePdfFromBase64(base64Content, filename);
+        } else {
+            // Navigateur standard
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
     }
-}
 
+    /**
+     * Charge les données depuis un fichier .txt
+     */
     function loadFromTXT(event) {
         const file = event.target.files[0];
         if (!file) return;
+        
         const reader = new FileReader();
         reader.onload = function(e) {
             const content = e.target.result;
             const lines = content.split('\n');
+            
             if (lines[0].startsWith('TITRE:')) {
                 document.getElementById('quiz-title').value = lines[0].replace('TITRE:', '').trim();
                 document.getElementById('quiz-data').value = lines.slice(1).join('\n');
             } else {
                 document.getElementById('quiz-data').value = content;
             }
+            
             saveDraft();
             event.target.value = '';
         };
         reader.readAsText(file);
     }
 
+    // ==================== GÉNÉRATION DES DOMINOS ====================
+    
+    /**
+     * Prépare et génère les dominos
+     */
     function prepareAndGenerate() {
         let finalData = document.getElementById('quiz-data').value.trim();
         let autoLines = [];
 
-        if (currentOp === '*' && selectedTables.length > 0) {
-            selectedTables.forEach(t => { for(let i=1; i<=10; i++) autoLines.push(`${i} x ${t} ; ${i*t}`); });
-        } else if (currentOp === '+') {
+        // Tables de multiplication
+        if (currentOperation === '*' && selectedTables.length > 0) {
+            selectedTables.forEach(table => {
+                for (let i = 1; i <= 10; i++) {
+                    autoLines.push(`${i} x ${table} ; ${i * table}`);
+                }
+            });
+        }
+        // Additions automatiques
+        else if (currentOperation === '+') {
             const type = document.getElementById('auto-add-type').value;
-            if (type === 'c10') for(let i=1; i<10; i++) autoLines.push(`${i} + ... = 10 ; ${10-i}`);
-            else if (type === 'c20') for(let i=1; i<20; i++) autoLines.push(`${i} + ... = 20 ; ${20-i}`);
-            else if (type === 'c100') for(let i=10; i<100; i+=10) autoLines.push(`${i} + ... = 100 ; ${100-i}`);
-            else if (type === 'doubles') for(let i=1; i<=20; i++) autoLines.push(`Double de ${i} ; ${i*2}`);
+            
+            if (type === 'c10') {
+                for (let i = 1; i < 10; i++) {
+                    autoLines.push(`${i} + ... = 10 ; ${10 - i}`);
+                }
+            } else if (type === 'c20') {
+                for (let i = 1; i < 20; i++) {
+                    autoLines.push(`${i} + ... = 20 ; ${20 - i}`);
+                }
+            } else if (type === 'c100') {
+                for (let i = 10; i < 100; i += 10) {
+                    autoLines.push(`${i} + ... = 100 ; ${100 - i}`);
+                }
+            } else if (type === 'doubles') {
+                for (let i = 1; i <= 20; i++) {
+                    autoLines.push(`Double de ${i} ; ${i * 2}`);
+                }
+            }
         }
 
-        if (autoLines.length > 0) { autoLines.sort(() => Math.random() - 0.5); finalData = autoLines.join('\n'); }
-        if (!finalData) { document.getElementById('modal-erreur').style.display = 'flex'; return; }
+        // Utiliser les données générées automatiquement si disponibles
+        if (autoLines.length > 0) {
+            autoLines.sort(() => Math.random() - 0.5);
+            finalData = autoLines.join('\n');
+        }
+
+        // Vérifier qu'il y a des données
+        if (!finalData) {
+            openModal('modal-erreur');
+            return;
+        }
         
-        pairs = finalData.split('\n').map(l => ({ q: l.split(';')[0]?.trim(), a: l.split(';')[1]?.trim() })).filter(p => p.q && p.a);
+        // Parser les paires question/réponse
+        pairs = finalData.split('\n')
+            .map(line => {
+                const parts = line.split(';');
+                return {
+                    q: parts[0]?.trim(),
+                    a: parts[1]?.trim()
+                };
+            })
+            .filter(pair => pair.q && pair.a);
+        
         renderDominos();
     }
 
+    /**
+     * Affiche les dominos générés
+     */
     function renderDominos() {
         const grid = document.getElementById('dominos-grid');
         grid.innerHTML = '';
-        pairs.forEach((pair, i) => {
-            const prevA = (i === 0) ? pairs[pairs.length - 1].a : pairs[i-1].a;
-            grid.innerHTML += `
-                <div class="flex flex-col items-center">
-                    <div class="domino-tile">
-                        <div class="domino-half">${prevA}</div>
-                        <div class="domino-divider"></div>
-                        <div class="domino-half">${pair.q}</div>
-                    </div>
-                </div>`;
+        
+        pairs.forEach((pair, index) => {
+            const previousAnswer = (index === 0) 
+                ? pairs[pairs.length - 1].a 
+                : pairs[index - 1].a;
+            
+            const dominoContainer = document.createElement('div');
+            dominoContainer.className = 'flex flex-col items-center';
+            dominoContainer.innerHTML = `
+                <div class="domino-tile">
+                    <div class="domino-half">${previousAnswer}</div>
+                    <div class="domino-divider"></div>
+                    <div class="domino-half">${pair.q}</div>
+                </div>
+            `;
+            
+            grid.appendChild(dominoContainer);
         });
+        
         document.getElementById('setup-zone').classList.add('hidden');
         document.getElementById('game-zone').classList.remove('hidden');
     }
 
-    function exportToPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const titreDoc = document.getElementById('quiz-title').value.trim() || "Dominos";
-        
-        // Nom du fichier pour l'export
-        const filename = `outilsprofs_dominos_${titreDoc.toLowerCase().replace(/[^a-z0-9]/g, '_')}.pdf`;
-
-        doc.setFontSize(16);
-        doc.text(titreDoc, 105, 15, { align: "center" });
-
-        let x = 20, y = 25, w = 80, h = 30;
-        
-        // Premier bloc (titre / départ)
-        doc.setDrawColor(150); doc.setLineWidth(0.5); doc.rect(x, y, w, h);
-        doc.setFontSize(14); doc.setFont("helvetica", "bold");
-        doc.text(titreDoc, x + w/2, y + h/2 + 2, { align: "center", maxWidth: w - 10 });
-        
-        x += w + 10;
-        
-        // Génération des dominos
-        pairs.forEach((pair, i) => {
-            const prevA = (i === 0) ? pairs[pairs.length - 1].a : pairs[i-1].a;
-            
-            // Gestion du saut de page
-            if (y > 260) { 
-                doc.addPage(); 
-                x = 20; 
-                y = 20; 
-            }
-
-            doc.setDrawColor(150); 
-            doc.rect(x, y, w, h); 
-            doc.line(x + w/2, y, x + w/2, y + h);
-            
-            const drawText = (t, px, py) => {
-                let fs = 18; 
-                doc.setFontSize(fs);
-                // Ajustement automatique de la taille du texte si trop long
-                while (doc.getTextWidth(String(t)) > (w/2-6) && fs > 6) { 
-                    fs--; 
-                    doc.setFontSize(fs); 
-                }
-                doc.text(String(t), px, py, { align: "center" });
-            };
-
-            drawText(prevA, x + w/4, y + h/2 + 3);
-            drawText(pair.q, x + (3*w/4), y + h/2 + 3);
-
-            // Placement du prochain domino
-            x += w + 10; 
-            if (x > 150) { 
-                x = 20; 
-                y += h + 10; 
-            }
-        });
-
-        // --- PARTIE CORRIGÉE POUR ANDROID ---
-        const pdfBase64 = doc.output('datauristring').split(',')[1];
-
-        if (window.Android && window.Android.savePdfFromBase64) {
-            // Envoi vers le code Kotlin de ton app
-            window.Android.savePdfFromBase64(pdfBase64, filename);
-        } else {
-            // Secours pour navigateur classique
-            doc.save(filename);
-        }
-    }
-
-    function retourReglages() {
+    /**
+     * Retourne aux réglages
+     */
+    function returnToSettings() {
         document.getElementById('game-zone').classList.add('hidden');
         document.getElementById('setup-zone').classList.remove('hidden');
     }
 
-    window.onload = () => { appliquerTheme(); initTables(); loadDraft(); };
+    // ==================== EXPORT PDF ====================
+    
+    /**
+     * Exporte les dominos en PDF
+     */
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const title = document.getElementById('quiz-title').value.trim() || "Dominos";
+        const filename = generateFilename('dominos', title, 'pdf');
+
+        // Titre du document
+        doc.setFontSize(16);
+        doc.text(title, 105, 15, { align: "center" });
+
+        // Dimensions des dominos
+        const dominoWidth = 80;
+        const dominoHeight = 30;
+        let x = 20;
+        let y = 25;
+        
+        // Premier domino (titre/départ)
+        doc.setDrawColor(150);
+        doc.setLineWidth(0.5);
+        doc.rect(x, y, dominoWidth, dominoHeight);
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text(title, x + dominoWidth / 2, y + dominoHeight / 2 + 2, {
+            align: "center",
+            maxWidth: dominoWidth - 10
+        });
+        
+        x += dominoWidth + 10;
+        
+        // Génération de tous les dominos
+        pairs.forEach((pair, index) => {
+            const previousAnswer = (index === 0) 
+                ? pairs[pairs.length - 1].a 
+                : pairs[index - 1].a;
+            
+            // Gestion du saut de page
+            if (y > 260) {
+                doc.addPage();
+                x = 20;
+                y = 20;
+            }
+
+            // Dessin du domino
+            doc.setDrawColor(150);
+            doc.rect(x, y, dominoWidth, dominoHeight);
+            doc.line(x + dominoWidth / 2, y, x + dominoWidth / 2, y + dominoHeight);
+            
+            // Fonction pour ajuster le texte
+            const drawText = (text, posX, posY) => {
+                let fontSize = 18;
+                doc.setFontSize(fontSize);
+                
+                // Ajustement automatique de la taille
+                while (doc.getTextWidth(String(text)) > (dominoWidth / 2 - 6) && fontSize > 6) {
+                    fontSize--;
+                    doc.setFontSize(fontSize);
+                }
+                
+                doc.text(String(text), posX, posY, { align: "center" });
+            };
+
+            // Texte gauche (réponse précédente) et droite (question)
+            drawText(previousAnswer, x + dominoWidth / 4, y + dominoHeight / 2 + 3);
+            drawText(pair.q, x + (3 * dominoWidth / 4), y + dominoHeight / 2 + 3);
+
+            // Position du prochain domino
+            x += dominoWidth + 10;
+            if (x > 150) {
+                x = 20;
+                y += dominoHeight + 10;
+            }
+        });
+
+        // Export avec support Android
+        const pdfBase64 = doc.output('datauristring').split(',')[1];
+
+        if (window.Android && window.Android.savePdfFromBase64) {
+            window.Android.savePdfFromBase64(pdfBase64, filename);
+        } else {
+            doc.save(filename);
+        }
+    }
+
+    // ==================== INITIALISATION ====================
+    
+    window.onload = () => {
+        applyTheme();
+        initTables();
+        loadDraft();
+    };
 </script>
 </body>
 </html>
