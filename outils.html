@@ -14,13 +14,15 @@
         :root {
             --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1);
             --header-bg: #1e1e1e; --card-bg: #1e1e1e; --input-bg: #2a2a2a;
-            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --shadow-custom: 0 5px 10px -5px rgba(128, 128, 128, 0.3);
+			--category-bg: rgba(128, 128, 128, 0.1);
         }
 
         body.light-mode {
             --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd;
             --header-bg: #ffffff; --card-bg: #ffffff; --input-bg: #f3f4f6;
-            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-custom: 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+			--category-bg: rgba(0, 0, 0, 0.03);
         }
 
         /* Base Styles */
@@ -135,8 +137,8 @@
             animation: fadeIn 0.3s ease-out;
             position: relative;
             border-radius: 1.2rem;
-            padding: 0 8px 8px 8px;
-            background: rgba(128, 128, 128, 0.02);
+            padding: 5px 8px 8px 8px;
+            background: var(--category-bg);
             border: 0px solid var(--column-border);
             margin-bottom: 4px;
             transition: all 0.3s ease;
@@ -282,6 +284,42 @@
         }
 
         .tool-card:active { transform: scale(0.97); }
+
+		/* Tool Drag Handle */
+.tool-drag-handle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 2px);
+    gap: 2px;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding: 5px;
+    z-index: 10;
+}
+
+.tool-card:hover .tool-drag-handle {
+    opacity: 0.3;
+}
+
+.tool-drag-handle:hover {
+    opacity: 1 !important;
+}
+
+.tool-drag-handle span {
+    width: 2px;
+    height: 2px;
+    background-color: var(--text-page);
+    border-radius: 50%;
+}
+
+/* Style pendant le déplacement */
+.tool-card.sortable-ghost {
+    opacity: 0.4;
+    transform: scale(0.9);
+}
 
         /* Icon Box */
         .category-icon-wrapper {
@@ -660,6 +698,9 @@
         container.innerHTML = '';
 
         let totalVisibleTools = 0;
+        
+        // Récupération de l'ordre sauvegardé des outils
+        const savedToolsOrder = JSON.parse(localStorage.getItem(STORAGE_KEYS.toolOrder)) || {};
 
         // Group tools by category
         const toolsByCategory = {};
@@ -673,6 +714,21 @@
                 totalVisibleTools++;
             }
         });
+
+        // Tri des outils par catégorie selon l'ordre sauvegardé (uniquement si pas de recherche)
+        if (!searchTerm) {
+            Object.keys(toolsByCategory).forEach(catKey => {
+                const order = savedToolsOrder[catKey];
+                if (order) {
+                    toolsByCategory[catKey].sort((a, b) => {
+                        const indexA = order.indexOf(a.id);
+                        const indexB = order.indexOf(b.id);
+                        // Si un nouvel outil n'est pas dans l'ordre sauvegardé, on le met à la fin
+                        return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+                    });
+                }
+            });
+        }
 
         // Get ordered categories
         const orderedCategories = getOrderedCategories();
@@ -728,6 +784,11 @@
                 });
 
                 card.innerHTML = `
+                    <div class="tool-drag-handle" title="Réorganiser l'outil">
+                        <span></span><span></span>
+                        <span></span><span></span>
+                        <span></span><span></span>
+                    </div>
                     <div class="icon-box" id="icon-${tool.id}">${tool.icon}</div>
                     <div class="tool-info">
                         <h3 class="font-black text-[11px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-${tool.id}">
@@ -803,25 +864,39 @@
 
     // ====================== CATEGORY DRAG & DROP (avec Sortable) ======================
     function setupCategoryDragDrop() {
-        const container = document.getElementById('categoriesContainer');
+    const container = document.getElementById('categoriesContainer');
 
-        // Détruire l'instance précédente si elle existe
-        if (container._sortableInstance) {
-            container._sortableInstance.destroy();
-        }
+    // 1. Tri des Catégories (existant)
+    if (container._sortableInstance) container._sortableInstance.destroy();
+    container._sortableInstance = new Sortable(container, {
+        animation: 250,
+        ghostClass: 'sortable-ghost',
+        handle: '.category-drag-handle',
+        onEnd: () => saveCategoryOrder()
+    });
 
-        // Créer une nouvelle instance Sortable
-        container._sortableInstance = new Sortable(container, {
+    // 2. Tri des Outils à l'intérieur des catégories
+    document.querySelectorAll('.tools-grid').forEach(grid => {
+        if (grid._sortableInstance) grid._sortableInstance.destroy();
+        grid._sortableInstance = new Sortable(grid, {
             animation: 250,
             ghostClass: 'sortable-ghost',
-            handle: '.category-drag-handle',
-            filter: '.tool-card',
-            preventOnFilter: false,
-            onEnd: function(evt) {
-                saveCategoryOrder();
-            }
+            handle: '.tool-drag-handle',
+            onEnd: () => saveToolsOrder()
         });
-    }
+    });
+}
+
+	function saveToolsOrder() {
+    const toolOrders = {};
+    document.querySelectorAll('.category-section').forEach(section => {
+        const catKey = section.getAttribute('data-category');
+        const ids = Array.from(section.querySelectorAll('.tool-card'))
+                         .map(card => card.getAttribute('data-id'));
+        toolOrders[catKey] = ids;
+    });
+    localStorage.setItem(STORAGE_KEYS.toolOrder, JSON.stringify(toolOrders));
+}
 
     function saveCategoryOrder() {
         const container = document.getElementById('categoriesContainer');

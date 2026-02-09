@@ -14,13 +14,15 @@
         :root {
             --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
             --header-bg: #1e1e1e; --card-bg: #1e1e1e; --input-bg: #2a2a2a;
-            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --shadow-custom: 0 5px 10px -5px rgba(128, 128, 128, 0.3);
+			--category-bg: rgba(128, 128, 128, 0.05);
         }
 
         body.light-mode {
             --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
             --header-bg: #ffffff; --card-bg: #ffffff; --input-bg: #f3f4f6;
-            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-custom: 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+			--category-bg: rgba(0, 0, 0, 0.03);
         }
 
         /* Base Styles */
@@ -135,8 +137,8 @@
             animation: fadeIn 0.3s ease-out;
             position: relative;
             border-radius: 1.2rem;
-            padding: 0 8px 8px 8px;
-            background: rgba(128, 128, 128, 0.02);
+            padding: 5px 8px 8px 8px;
+            background: var(--category-bg);
             border: 0px solid var(--column-border);
             transition: all 0.3s ease;
         }
@@ -280,6 +282,36 @@
         }
 
         .tool-card:active { transform: scale(0.97); }
+		
+		/* Poignée pour les tuiles individuelles */
+.tool-drag-handle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 2px);
+    gap: 2px;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.3s;
+    padding: 4px;
+    z-index: 10;
+}
+
+.tool-card:hover .tool-drag-handle {
+    opacity: 0.4;
+}
+
+.tool-drag-handle:hover {
+    opacity: 1 !important;
+}
+
+.tool-drag-handle span {
+    width: 2px;
+    height: 2px;
+    background-color: var(--text-page);
+    border-radius: 50%;
+}
 
         /* Icon Box */
 		
@@ -638,100 +670,106 @@
 
     // ====================== RENDER TOOLS ====================== 
     function renderTools(searchTerm = '') {
-        const container = document.getElementById('categoriesContainer');
-        const noResults = document.getElementById('noResults');
-        container.innerHTML = '';
+    const container = document.getElementById('categoriesContainer');
+    const noResults = document.getElementById('noResults');
+    container.innerHTML = '';
+    
+    let totalVisibleTools = 0;
+
+    // Group tools by category
+    const toolsByCategory = {};
+    Object.keys(CATEGORIES).forEach(catKey => {
+        toolsByCategory[catKey] = [];
+    });
+
+    TOOLS.forEach(tool => {
+        if (!searchTerm || toolMatchesSearch(tool, searchTerm)) {
+            toolsByCategory[tool.category].push(tool);
+            totalVisibleTools++;
+        }
+    });
+
+    // Get ordered categories
+    const orderedCategories = getOrderedCategories();
+
+    // Render each category with tools
+    orderedCategories.forEach(catKey => {
+        if (!CATEGORIES[catKey]) return;
         
-        let totalVisibleTools = 0;
+        const catData = CATEGORIES[catKey];
+        const tools = toolsByCategory[catKey];
+        if (tools.length === 0) return; // Skip empty categories
 
-        // Group tools by category
-        const toolsByCategory = {};
-        Object.keys(CATEGORIES).forEach(catKey => {
-            toolsByCategory[catKey] = [];
-        });
+        const section = document.createElement('div');
+        section.className = 'category-section';
+        section.setAttribute('data-category', catKey);
 
-        TOOLS.forEach(tool => {
-            if (!searchTerm || toolMatchesSearch(tool, searchTerm)) {
-                toolsByCategory[tool.category].push(tool);
-                totalVisibleTools++;
-            }
-        });
+        // Category header with drag handle
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.style.borderBottomColor = catData.color + '40';
+        header.innerHTML = `
+            <div class="category-drag-handle" title="Maintenez pour réorganiser les catégories">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span>
+            </div>
+            <div class="category-icon-wrapper" data-category-circle="${catKey}">
+                ${catData.icon}
+            </div>
+            <h2 class="category-title" style="margin-left: 8px;">${catData.name}</h2>
+        `;
+        section.appendChild(header);
 
-        // Get ordered categories
-        const orderedCategories = getOrderedCategories();
+        // Tools grid
+        const grid = document.createElement('div');
+        grid.className = 'tools-grid';
 
-        // Render each category with tools
-        orderedCategories.forEach(catKey => {
-            if (!CATEGORIES[catKey]) return;
-            
-            const catData = CATEGORIES[catKey];
-            const tools = toolsByCategory[catKey];
-            if (tools.length === 0) return; // Skip empty categories
+        tools.forEach(tool => {
+            const card = document.createElement('a');
+            card.href = tool.href;
+            card.className = 'tool-card';
+            card.setAttribute('data-id', tool.id);
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'link');
+            card.setAttribute('aria-label', `${tool.title} - ${tool.description}`);
 
-            const section = document.createElement('div');
-            section.className = 'category-section';
-            section.setAttribute('data-category', catKey);
-
-            // Category header with drag handle
-            const header = document.createElement('div');
-            header.className = 'category-header';
-            header.style.borderBottomColor = catData.color + '40';
-            header.innerHTML = `
-                <div class="category-drag-handle" title="Maintenez pour réorganiser les catégories">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
-                <div class="category-icon-wrapper" data-category-circle="${catKey}">
-                    ${catData.icon}
-                </div>
-                <h2 class="category-title" style="margin-left: 8px;">${catData.name}</h2>
-            `;
-            section.appendChild(header);
-
-            // Tools grid
-            const grid = document.createElement('div');
-            grid.className = 'tools-grid';
-
-            tools.forEach(tool => {
-                const card = document.createElement('a');
-                card.href = tool.href;
-                card.className = 'tool-card';
-                card.setAttribute('data-id', tool.id);
-                card.setAttribute('tabindex', '0');
-                card.setAttribute('role', 'link');
-                card.setAttribute('aria-label', `${tool.title} - ${tool.description}`);
-
-                // Handle Enter/Space keyboard navigation
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        card.click();
-                    }
-                });
-
-                card.innerHTML = `
-                    <div class="icon-box" id="icon-${tool.id}">${tool.icon}</div>
-                    <div class="tool-info">
-                        <h3 class="font-black text-[11px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-${tool.id}">
-                            ${tool.title}
-                        </h3>
-                        <p class="text-[10px] md:text-[12px] font-bold opacity-50 tracking-tighter">
-                            ${tool.description}
-                        </p>
-                    </div>
-                `;
-
-                grid.appendChild(card);
+            // Handle Enter/Space keyboard navigation
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    card.click();
+                }
             });
 
-            section.appendChild(grid);
-            container.appendChild(section);
+            // Ajout de la poignée de déplacement (tool-drag-handle)
+            card.innerHTML = `
+                <div class="tool-drag-handle" title="Réorganiser l'outil">
+                    <span></span><span></span>
+                    <span></span><span></span>
+                    <span></span><span></span>
+                </div>
+                <div class="icon-box" id="icon-${tool.id}">${tool.icon}</div>
+                <div class="tool-info">
+                    <h3 class="font-black text-[11px] md:text-[14px] uppercase tracking-wide leading-tight" id="title-${tool.id}">
+                        ${tool.title}
+                    </h3>
+                    <p class="text-[10px] md:text-[12px] font-bold opacity-50 tracking-tighter">
+                        ${tool.description}
+                    </p>
+                </div>
+            `;
+
+            grid.appendChild(card);
         });
 
-        // Show/hide no results message
-        noResults.style.display = totalVisibleTools === 0 ? 'block' : 'none';
-    }
+        section.appendChild(grid);
+        container.appendChild(section);
+    });
+
+    // Show/hide no results message
+    noResults.style.display = totalVisibleTools === 0 ? 'block' : 'none';
+}
 
     // ====================== SEARCH FUNCTIONALITY ====================== 
 function toggleSearch() {
@@ -786,25 +824,29 @@ function setupSearch() {
 
     // ====================== CATEGORY DRAG & DROP (avec Sortable) ====================== 
     function setupCategoryDragDrop() {
-        const container = document.getElementById('categoriesContainer');
-        
-        // Détruire l'instance précédente si elle existe
-        if (container._sortableInstance) {
-            container._sortableInstance.destroy();
-        }
+    const container = document.getElementById('categoriesContainer');
+    
+    // Initialisation du tri des catégories
+    if (container._sortableInstance) container._sortableInstance.destroy();
+    container._sortableInstance = new Sortable(container, {
+        animation: 250,
+        ghostClass: 'sortable-ghost',
+        handle: '.category-drag-handle',
+        onEnd: () => saveCategoryOrder()
+    });
 
-        // Créer une nouvelle instance Sortable
-        container._sortableInstance = new Sortable(container, {
+    // Initialisation du tri des tuiles (outils) pour chaque catégorie
+    const grids = document.querySelectorAll('.tools-grid');
+    grids.forEach(grid => {
+        if (grid._sortableInstance) grid._sortableInstance.destroy();
+        grid._sortableInstance = new Sortable(grid, {
             animation: 250,
             ghostClass: 'sortable-ghost',
-            handle: '.category-drag-handle',
-            filter: '.tool-card',
-            preventOnFilter: false,
-            onEnd: function(evt) {
-                saveCategoryOrder();
-            }
+            handle: '.tool-drag-handle',
+            onEnd: () => saveToolsOrder() // Sauvegarde l'ordre des outils
         });
-    }
+    });
+}
 
     function saveCategoryOrder() {
         const container = document.getElementById('categoriesContainer');
@@ -812,6 +854,19 @@ function setupSearch() {
             .map(section => section.getAttribute('data-category'));
         localStorage.setItem(STORAGE_KEYS.categoryOrder, JSON.stringify(order));
     }
+
+	function saveToolsOrder() {
+    const toolOrders = {};
+    const grids = document.querySelectorAll('.category-section');
+    
+    grids.forEach(section => {
+        const catKey = section.getAttribute('data-category');
+        const cards = Array.from(section.querySelectorAll('.tool-card'));
+        toolOrders[catKey] = cards.map(card => card.getAttribute('data-id'));
+    });
+    
+    localStorage.setItem(STORAGE_KEYS.toolOrder, JSON.stringify(toolOrders));
+}
 
     // ====================== THEME APPLICATION ====================== 
     function applyTheme() {
