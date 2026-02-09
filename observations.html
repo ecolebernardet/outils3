@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Observations - OutilsProfs</title>
     
+    <!-- Initialisation du thème avant le rendu -->
     <script>
         (function() {
             const mode = localStorage.getItem('theme_mode');
@@ -14,64 +15,117 @@
         })();
     </script>
 
+    <!-- Bibliothèques externes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
+        /* ===== POLICES ===== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
+        /* ===== VARIABLES CSS ===== */
         :root { 
-            --primary: #ff637e; --bg-page: #121212; --text-main: #ffffff;
-            --card-student: #1a1a1a; --header-bg: #1e1e1e; --header-border: rgba(255, 255, 255, 0.1);
+            --primary: #ff637e;
+            --bg-page: #121212;
+            --text-main: #ffffff;
+            --card-student: #1a1a1a;
+            --header-bg: #1e1e1e;
+            --header-border: rgba(255, 255, 255, 0.1);
             --card-sub: #9ca3af;
-            --student-name-girl: #f9a8d4; --student-name-boy: #93c5fd;
+            --student-name-girl: #f9a8d4;
+            --student-name-boy: #93c5fd;
         }
 
-        body.light-mode, html.light-mode-init body {
-            --bg-page: #eeeeee; --text-main: #111827; --card-student: #ffffff;
-            --header-bg: #ffffff; --header-border: #ddd; --card-sub: #4b5563;
+        /* Mode clair */
+        body.light-mode,
+        html.light-mode-init body {
+            --bg-page: #eeeeee;
+            --text-main: #111827;
+            --card-student: #ffffff;
+            --header-bg: #ffffff;
+            --header-border: #ddd;
+            --card-sub: #4b5563;
         }
 
+        /* ===== STYLES GLOBAUX ===== */
         body { 
-            font-family: 'Inter', sans-serif; background: var(--bg-page); 
-            color: var(--text-main); margin: 0; transition: background 0.3s;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 0 10px 20px 10px; overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-page); 
+            color: var(--text-main);
+            margin: 0;
+            padding: 0 10px 20px 10px;
+            transition: background 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
         }
 
+        /* ===== HEADER ===== */
         header { 
-            background: var(--header-bg); border-bottom: 1px solid var(--header-border);
-            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
-            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            width: calc(100% + 20px); margin-bottom: 15px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: calc(100% + 20px);
+            margin-bottom: 15px;
         }
 
-        #btn-retour, #btn-aide { 
-            display: flex; align-items: center; justify-content: center; 
-            width: 38px; height: 38px; border-radius: 50%; 
-            transition: all 0.3s ease; border: none; cursor: pointer;
+        .header-btn { 
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            width: 38px;
+            height: 38px;
+            border-radius: 50%; 
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        #mainTitle { text-align: center; font-weight: 900; font-size: 1rem; text-transform: uppercase; flex-grow: 1; }
+        #mainTitle {
+            text-align: center;
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+            flex-grow: 1;
+        }
 
-        /* Barre de contrôle générale (au-dessus de la grille) */
+        /* ===== CONTRÔLES GÉNÉRAUX ===== */
         .general-controls {
-			display: flex; 
-			justify-content: center; 
-			gap: 15px; /* Espace entre les deux boutons */
-			margin-bottom: 5px; /* Espace sous les boutons réduit de 20px à 10px */
-			margin-top: -10px; /* Remonte légèrement le bloc vers le header */
-			width: 100%; 
-			max-width: 900px;
-		}
-        .ctrl-btn-gen {
-            font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 5px 12px;
-            border-radius: 50px; border: 1.5px solid var(--primary); background: transparent;
-            color: var(--primary); cursor: pointer; transition: all 0.2s;
+            display: flex; 
+            justify-content: center; 
+            gap: 15px;
+            margin-bottom: 5px;
+            margin-top: -10px;
+            width: 100%; 
+            max-width: 900px;
         }
-        .ctrl-btn-gen:active { background: var(--primary); color: white; }
 
-        /* Layout Grid 2 Colonnes */
+        .ctrl-btn-gen {
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 50px;
+            border: 1.5px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ctrl-btn-gen:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ===== GRILLE PRINCIPALE ===== */
         #listeContainer {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -81,19 +135,39 @@
             align-items: start;
         }
 
-        .level-group { width: 100%; min-width: 0; }
-        .level-title { 
-            font-size: 0.65rem; font-weight: 900; text-transform: uppercase; 
-            text-align: center; margin-bottom: 8px; padding: 3px; 
-            border-radius: 6px; background: rgba(128,128,128,0.1);
+        /* ===== GROUPES DE NIVEAUX ===== */
+        .level-group {
+            width: 100%;
+            min-width: 0;
         }
 
-        .student-container { margin-bottom: 4px; }
+        .level-title { 
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase; 
+            text-align: center;
+            margin-bottom: 8px;
+            padding: 3px; 
+            border-radius: 6px;
+            background: rgba(128,128,128,0.1);
+        }
+
+        /* ===== ÉTUDIANTS ===== */
+        .student-container {
+            margin-bottom: 4px;
+        }
+
         .student-item { 
-            background-color: var(--card-student); padding: 5px 14px; display: flex; 
-            justify-content: space-between; align-items: center; cursor: pointer; 
-            border-radius: 50px; transition: all 0.2s;
-            border: 1.5px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: var(--card-student);
+            padding: 5px 14px;
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer; 
+            border-radius: 50px;
+            transition: all 0.2s;
+            border: 1.5px solid transparent;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .student-item.active {
@@ -101,59 +175,135 @@
             border-radius: 15px 15px 0 0;
         }
 
-        .student-name { font-weight: 800; font-size: 0.8rem; flex: 1; }
-        .status-icon { font-size: 0.7rem; opacity: 0.8; margin-left: 5px; }
+        .student-name {
+            font-weight: 800;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+
+        .status-icon {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-left: 5px;
+        }
+
         .text-girl { color: var(--student-name-girl); }
         .text-boy { color: var(--student-name-boy); }
 
+        /* ===== TIROIR D'OBSERVATIONS ===== */
         .obs-drawer {
-            display: none; overflow: hidden;
+            display: none;
+            overflow: hidden;
             background: var(--card-student);
-            border: 1.5px solid var(--primary); border-top: none;
-            border-radius: 0 0 15px 15px; margin-top: -1px;
+            border: 1.5px solid var(--primary);
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            margin-top: -1px;
         }
-        .obs-drawer.open { display: block; }
+
+        .obs-drawer.open {
+            display: block;
+        }
 
         .drawer-textarea {
-            width: 100%; background: transparent; border: none;
-            padding: 5px 10px 5px 10px; font-size: 0.8rem; color: var(--text-main);
-            outline: none; resize: none; font-family: 'Inter', sans-serif;
-            display: block; overflow: hidden; min-height: 60px;
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            color: var(--text-main);
+            outline: none;
+            resize: none;
+            font-family: 'Inter', sans-serif;
+            display: block;
+            overflow: hidden;
+            min-height: 60px;
         }
 
-        .bottom-nav { width: 100%; max-width: 500px; margin-top: 30px; }
+        /* ===== NAVIGATION FOOTER ===== */
+        .bottom-nav {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 30px;
+        }
+
         .nav-btn { 
-            font-weight: 800; border-radius: 50px; font-size: 10px; padding: 14px; 
-            border: none; flex: 1; display: flex; align-items: center; justify-content: center; 
-            gap: 5px; cursor: pointer;
+            font-weight: 800;
+            border-radius: 50px;
+            font-size: 10px;
+            padding: 14px; 
+            border: none;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+            gap: 5px;
+            cursor: pointer;
         }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-card { background: var(--card-student); padding: 20px; border-radius: 20px; width: 90%; max-width: 400px; }
-        .alert-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 2000; }
-        .alert-content { background: white; padding: 25px; border-radius: 25px; width: 85%; max-width: 320px; color: #111; text-align: center; }
+        /* ===== MODALES ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-card {
+            background: var(--card-student);
+            padding: 20px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .alert-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .alert-content {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            width: 85%;
+            max-width: 320px;
+            color: #111;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-
+    <!-- ===== HEADER ===== -->
     <header>
-        <a href="index.html" id="btn-retour">
+        <a href="index.html" id="btn-retour" class="header-btn">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
             </svg>
         </a>
         <h1 id="mainTitle">OBSERVATIONS</h1>
-        <button id="btn-aide" onclick="ouvrirAide()" style="font-size: 1.2rem;">💡</button>
+        <button id="btn-aide" class="header-btn" onclick="openHelpModal()" style="font-size: 1.2rem;">💡</button>
     </header>
 
+    <!-- ===== CONTRÔLES GÉNÉRAUX ===== -->
     <div class="general-controls">
         <button class="ctrl-btn-gen" onclick="toggleAllDrawers(true)">Tout ouvrir</button>
         <button class="ctrl-btn-gen" onclick="toggleAllDrawers(false)">Tout fermer</button>
     </div>
 
+    <!-- ===== LISTE DES ÉLÈVES ===== -->
     <div id="listeContainer"></div>
 
-    <!-- ====================== FOOTER NAVIGATION ====================== -->
+    <!-- ===== NAVIGATION FOOTER ===== -->
     <footer class="bottom-nav flex flex-col gap-3 px-2">
         <div class="flex gap-2">
             <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">
@@ -164,18 +314,20 @@
                 👆exporter .txt👆
                 <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
             </button>
-            <button onclick="genererPDF()" class="nav-btn bg-neutral-800 text-white">📄 récapitulatif PDF</button>
+            <button onclick="generatePDF()" class="nav-btn bg-neutral-800 text-white">📄 récapitulatif PDF</button>
         </div>
-        <button onclick="toutEffacer()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
+        <button onclick="clearAllData()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
     </footer>
 
-    <div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+    <!-- ===== MODALE D'AIDE ===== -->
+    <div id="modal-aide" class="modal-overlay" onclick="closeHelpModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div id="aide-content"></div>
-            <button onclick="fermerAide()" id="btn-fermer-aide" class="w-full py-4 mt-4 font-black rounded-2xl uppercase text-[10px] tracking-widest">Fermer</button>
+            <button onclick="closeHelpModal()" id="btn-fermer-aide" class="w-full py-4 mt-4 font-black rounded-2xl uppercase text-[10px] tracking-widest">Fermer</button>
         </div>
     </div>
 
+    <!-- ===== MODALE D'ALERTE ===== -->
     <div id="alertModal" class="alert-overlay">
         <div class="alert-content">
             <h3 id="alertTitle" class="font-black uppercase mb-2">Confirmation</h3>
@@ -188,14 +340,25 @@
     </div>
 
     <script>
+        // ==================== CONSTANTES ====================
+        
         const COLOR_MAP = {
             'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
             'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
             'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1',
-            'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e'
+            'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899',
+            'rose': '#f43f5e'
         };
 
-        const LEVEL_COLORS = { 'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308', 'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#8b5cf6' };
+        const LEVEL_COLORS = {
+            'CP': '#ec4899',
+            'CE1': '#3b82f6',
+            'CE2': '#eab308',
+            'CM1': '#ef4444',
+            'CM2': '#22c55e',
+            'AUTRE': '#8b5cf6'
+        };
+
         const LEVEL_ORDER = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', 'AUTRE'];
 
         const STORAGE_KEYS = {
@@ -203,26 +366,100 @@
             observations: 'studentObservations',
             theme: 'theme_tuiles',
             themeMode: 'theme_mode',
-            needsExport: 'needsExport_obs'
+            needsExport: 'needsExport_obs',
+            teacherName: 'nom_enseignant'
         };
 
+        // ==================== ÉTAT DE L'APPLICATION ====================
+        
         let inscribedStudents = JSON.parse(localStorage.getItem(STORAGE_KEYS.students)) || [];
         let savedObservations = JSON.parse(localStorage.getItem(STORAGE_KEYS.observations)) || {};
 
-        function autoResize(el) {
-            el.style.height = 'auto';
-            el.style.height = el.scrollHeight + 'px';
+        // ==================== UTILITAIRES ====================
+        
+        /**
+         * Redimensionne automatiquement un textarea en fonction de son contenu
+         */
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
         }
 
-        // Action globale sur TOUS les tiroirs
-        function toggleAllDrawers(open) {
+        /**
+         * Retourne la date formatée AAAAMMJJ
+         */
+        function getFormattedDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        /**
+         * Formate intelligemment le nom d'affichage d'un élève
+         * Gère les doublons de prénom avec initiales ou début du nom
+         */
+        function formatDisplayName(student, allStudents) {
+            const identite = student.identite.trim();
+            const parts = identite.split(' ');
+            const prenom = parts[0];
+            const nom = parts.slice(1).join(' ');
+
+            // Recherche des doublons de prénom
+            const duplicates = allStudents.filter(s => 
+                s.identite.trim().split(' ')[0].toLowerCase() === prenom.toLowerCase()
+            );
+
+            // Prénom unique
+            if (duplicates.length <= 1) {
+                return prenom;
+            }
+
+            // Prénom + initiale du nom
+            const initialeNom = nom.charAt(0).toUpperCase();
+            const sameInitials = duplicates.filter(s => {
+                const sNom = s.identite.trim().split(' ').slice(1).join(' ');
+                return sNom.charAt(0).toUpperCase() === initialeNom;
+            });
+
+            if (sameInitials.length <= 1) {
+                return `${prenom} ${initialeNom}.`;
+            }
+
+            // Prénom + 2 premières lettres du nom
+            const deuxLettresNom = nom.substring(0, 2).toUpperCase();
+            return `${prenom} ${deuxLettresNom}.`;
+        }
+
+        /**
+         * Met à jour le badge d'export
+         */
+        function updateExportBadge(needsExport) {
+            const badge = document.getElementById('badge-export');
+            if (needsExport) {
+                badge.classList.remove('hidden');
+                localStorage.setItem(STORAGE_KEYS.needsExport, 'true');
+            } else {
+                badge.classList.add('hidden');
+                localStorage.removeItem(STORAGE_KEYS.needsExport);
+            }
+        }
+
+        // ==================== GESTION DES TIROIRS ====================
+        
+        /**
+         * Ouvre ou ferme tous les tiroirs d'observations
+         */
+        function toggleAllDrawers(shouldOpen) {
             document.querySelectorAll('.obs-drawer').forEach(drawer => {
                 const item = drawer.previousElementSibling;
-                const area = drawer.querySelector('textarea');
-                if (open) {
+                const textarea = drawer.querySelector('textarea');
+                
+                if (shouldOpen) {
                     drawer.classList.add('open');
                     item.classList.add('active');
-                    autoResize(area);
+                    autoResize(textarea);
                 } else {
                     drawer.classList.remove('open');
                     item.classList.remove('active');
@@ -230,94 +467,125 @@
             });
         }
 
-        
-		// Fonction utilitaire pour gérer l'affichage intelligent des prénoms
-function formatDisplayName(student, allStudents) {
-    const identite = student.identite.trim();
-    const parts = identite.split(' ');
-    const prenom = parts[0];
-    const nom = parts.slice(1).join(' ');
-
-    // On cherche les doublons de prénom dans TOUTE la liste
-    const doublons = allStudents.filter(s => s.identite.trim().split(' ')[0].toLowerCase() === prenom.toLowerCase());
-
-    if (doublons.length <= 1) {
-        return prenom; // Prénom unique
-    }
-
-    // S'il y a des doublons, on vérifie l'initiale du nom
-    const initialeNom = nom.charAt(0).toUpperCase();
-    const memesInitiales = doublons.filter(s => {
-        const sNom = s.identite.trim().split(' ').slice(1).join(' ');
-        return sNom.charAt(0).toUpperCase() === initialeNom;
-    });
-
-    if (memesInitiales.length <= 1) {
-        return `${prenom} ${initialeNom}.`; // Prénom + Initiale
-    }
-
-    // Si même initiale, on affiche les 2 premières lettres du nom
-    const deuxLettresNom = nom.substring(0, 2).toUpperCase();
-    return `${prenom} ${deuxLettresNom}.`;
-}
-
-function renderStudentList() {
-    const container = document.getElementById('listeContainer');
-    container.innerHTML = "";
-    if (inscribedStudents.length === 0) {
-        container.style.display = "block";
-        container.innerHTML = `<div class="text-center p-10 text-neutral-500 text-[10px] font-bold uppercase">Aucun élève.</div>`;
-        return;
-    }
-    container.style.display = "grid";
-
-    const groups = {};
-    inscribedStudents.forEach(s => {
-        const lvl = s.niveau.toUpperCase();
-        if (!groups[lvl]) groups[lvl] = [];
-        groups[lvl].push(s);
-    });
-
-    const sortedLevels = Object.keys(groups).sort((a, b) => LEVEL_ORDER.indexOf(a) - LEVEL_ORDER.indexOf(b));
-
-    sortedLevels.forEach(level => {
-        const wrapper = document.createElement('div');
-        wrapper.className = "level-group";
-        wrapper.innerHTML = `<h2 class="level-title" style="color:${LEVEL_COLORS[level] || '#fff'}">${level}</h2>`;
-
-        const list = document.createElement('div');
-        // On trie par le nom complet pour garder une cohérence, mais on affiche le format court
-        groups[level].sort((a, b) => a.identite.localeCompare(b.identite)).forEach(student => {
-            const block = document.createElement('div');
-            block.className = "student-container";
-
-            // Appel de la fonction de formatage intelligent
-            const nomAffiche = formatDisplayName(student, inscribedStudents);
-
-            const item = document.createElement('div');
-            item.className = `student-item ${student.sexe.toLowerCase().startsWith('f') ? 'text-girl' : 'text-boy'}`;
-            item.innerHTML = `
-                <span class="student-name">${nomAffiche}</span>
-                <span class="status-icon" id="icon-${student.id}">${savedObservations[student.identite] ? '🔎' : '＋'}</span>
-            `;
-
+        /**
+         * Crée et gère un tiroir d'observation pour un élève
+         */
+        function createStudentDrawer(student) {
             const drawer = document.createElement('div');
             drawer.className = "obs-drawer";
             
-            const area = document.createElement('textarea');
-            area.className = "drawer-textarea";
-            // Important : on garde l'identite complète comme clé de stockage pour ne pas perdre les notes
-            area.value = savedObservations[student.identite] || "";
+            const textarea = document.createElement('textarea');
+            textarea.className = "drawer-textarea";
+            textarea.value = savedObservations[student.identite] || "";
             
-            area.oninput = () => {
-                savedObservations[student.identite] = area.value;
-                if (!area.value.trim()) delete savedObservations[student.identite];
+            // Sauvegarde automatique lors de la saisie
+            textarea.oninput = () => {
+                const value = textarea.value.trim();
+                
+                if (value) {
+                    savedObservations[student.identite] = textarea.value;
+                } else {
+                    delete savedObservations[student.identite];
+                }
+                
                 localStorage.setItem(STORAGE_KEYS.observations, JSON.stringify(savedObservations));
-                document.getElementById(`icon-${student.id}`).innerText = savedObservations[student.identite] ? '🔎' : '＋';
-                autoResize(area);
+                document.getElementById(`icon-${student.id}`).innerText = value ? '🔎' : '＋';
+                autoResize(textarea);
                 updateExportBadge(true);
             };
 
+            drawer.appendChild(textarea);
+            return drawer;
+        }
+
+        // ==================== RENDU DE LA LISTE ====================
+        
+        /**
+         * Affiche la liste complète des élèves organisée par niveau
+         */
+        function renderStudentList() {
+            const container = document.getElementById('listeContainer');
+            container.innerHTML = "";
+
+            // Cas aucun élève
+            if (inscribedStudents.length === 0) {
+                container.style.display = "block";
+                container.innerHTML = `<div class="text-center p-10 text-neutral-500 text-[10px] font-bold uppercase">Aucun élève.</div>`;
+                return;
+            }
+
+            container.style.display = "grid";
+
+            // Groupement par niveau
+            const groups = {};
+            inscribedStudents.forEach(student => {
+                const level = student.niveau.toUpperCase();
+                if (!groups[level]) groups[level] = [];
+                groups[level].push(student);
+            });
+
+            // Tri des niveaux
+            const sortedLevels = Object.keys(groups).sort((a, b) => 
+                LEVEL_ORDER.indexOf(a) - LEVEL_ORDER.indexOf(b)
+            );
+
+            // Rendu de chaque niveau
+            sortedLevels.forEach(level => {
+                const levelGroup = createLevelGroup(level, groups[level]);
+                container.appendChild(levelGroup);
+            });
+        }
+
+        /**
+         * Crée un groupe de niveau avec ses élèves
+         */
+        function createLevelGroup(level, students) {
+            const wrapper = document.createElement('div');
+            wrapper.className = "level-group";
+            
+            // Titre du niveau
+            const title = document.createElement('h2');
+            title.className = "level-title";
+            title.style.color = LEVEL_COLORS[level] || '#fff';
+            title.textContent = level;
+            wrapper.appendChild(title);
+
+            // Liste des élèves
+            const list = document.createElement('div');
+            students
+                .sort((a, b) => a.identite.localeCompare(b.identite))
+                .forEach(student => {
+                    const studentBlock = createStudentBlock(student);
+                    list.appendChild(studentBlock);
+                });
+            
+            wrapper.appendChild(list);
+            return wrapper;
+        }
+
+        /**
+         * Crée le bloc d'un élève (carte + tiroir)
+         */
+        function createStudentBlock(student) {
+            const block = document.createElement('div');
+            block.className = "student-container";
+
+            const displayName = formatDisplayName(student, inscribedStudents);
+            const genderClass = student.sexe.toLowerCase().startsWith('f') ? 'text-girl' : 'text-boy';
+            const hasObservation = savedObservations[student.identite];
+
+            // Carte de l'élève
+            const item = document.createElement('div');
+            item.className = `student-item ${genderClass}`;
+            item.innerHTML = `
+                <span class="student-name">${displayName}</span>
+                <span class="status-icon" id="icon-${student.id}">${hasObservation ? '🔎' : '＋'}</span>
+            `;
+
+            // Tiroir d'observations
+            const drawer = createStudentDrawer(student);
+
+            // Toggle du tiroir au clic
             item.onclick = () => {
                 const isOpen = drawer.classList.contains('open');
                 if (isOpen) {
@@ -326,294 +594,362 @@ function renderStudentList() {
                 } else {
                     drawer.classList.add('open');
                     item.classList.add('active');
-                    autoResize(area);
+                    autoResize(drawer.querySelector('textarea'));
                 }
             };
 
-            drawer.appendChild(area);
             block.appendChild(item);
             block.appendChild(drawer);
-            list.appendChild(block);
-        });
-        wrapper.appendChild(list);
-        container.appendChild(wrapper);
-    });
-}
-
-
-        function updateExportBadge(val) {
-            const b = document.getElementById('badge-export');
-            if (val) { b.classList.remove('hidden'); localStorage.setItem(STORAGE_KEYS.needsExport, 'true'); }
-            else { b.classList.add('hidden'); localStorage.removeItem(STORAGE_KEYS.needsExport); }
+            return block;
         }
 
+        // ==================== THÈME ====================
+        
+        /**
+         * Applique le thème sauvegardé (couleurs et mode clair/sombre)
+         */
         function applyTheme() {
+            // Mode clair/sombre
             const savedMode = localStorage.getItem(STORAGE_KEYS.themeMode);
             document.body.classList.toggle('light-mode', savedMode === 'light');
-            const prefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
-            const colorHex = COLOR_MAP[prefs['obs'] || 'green'] || '#22c55e';
-            document.documentElement.style.setProperty('--primary', colorHex);
-            if (prefs.fille) document.documentElement.style.setProperty('--student-name-girl', COLOR_MAP[prefs.fille]);
-            if (prefs.garcon) document.documentElement.style.setProperty('--student-name-boy', COLOR_MAP[prefs.garcon]);
-            const txt = ['yellow', 'lime', 'amber', 'cyan'].includes(prefs['obs']) ? 'black' : 'white';
-            [document.getElementById('btn-retour'), document.getElementById('btn-aide'), document.getElementById('btn-fermer-aide')].forEach(el => { if(el){el.style.backgroundColor = colorHex; el.style.color = txt;} });
-        }
 
-		// --- FONCTION UTILITAIRE POUR LA DATE ---
-function getFormattedDate() {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}${month}${day}`;
-}
+            // Couleurs personnalisées
+            const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+            const primaryColor = COLOR_MAP[themePrefs['obs'] || 'green'] || '#22c55e';
+            
+            document.documentElement.style.setProperty('--primary', primaryColor);
+            
+            if (themePrefs.fille) {
+                document.documentElement.style.setProperty('--student-name-girl', COLOR_MAP[themePrefs.fille]);
+            }
+            if (themePrefs.garcon) {
+                document.documentElement.style.setProperty('--student-name-boy', COLOR_MAP[themePrefs.garcon]);
+            }
 
-        // --- EXPORT TXT ---
-function exportToFile() {
-    if (Object.keys(savedObservations).length === 0) {
-        alert("Aucune note à exporter.");
-        return;
-    }
-    const content = Object.entries(savedObservations)
-        .map(([n, o]) => `${n};${o.replace(/\n/g, '[BR]')}`)
-        .join("\n");
-    
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    // Nommage : outilsprofs_observations_aaaammjj.txt
-    a.download = `outilsprofs_observations_${getFormattedDate()}.txt`;
-    
-    document.body.appendChild(a);
-    a.click();
-    
-    setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }, 100);
-    
-    updateExportBadge(false);
-}
-
-// --- MODALE DE SUCCÈS PERSONNALISÉE ---
-function showSuccessModal(message) {
-    // On réutilise la structure de la modale d'aide pour la cohérence
-    const aideContent = document.getElementById('aide-content');
-    const colorHex = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-    
-    aideContent.innerHTML = `
-        <div class="text-center py-4">
-            <div class="text-5xl mb-4">✅</div>
-            <h2 class="text-sm font-black uppercase mb-2 tracking-tighter" style="color: var(--primary)">Importation réussie</h2>
-            <p class="text-[11px] opacity-80">${message}</p>
-        </div>
-    `;
-    
-    // On change temporairement le texte du bouton de la modale d'aide
-    const btnFermer = document.getElementById('btn-fermer-aide');
-    const originalText = btnFermer.innerText;
-    btnFermer.innerText = "GÉNIAL";
-    
-    document.getElementById('modal-aide').style.display = 'flex';
-
-    // On remet le texte original quand on ferme
-    const originalClose = fermerAide;
-    window.fermerAide = function() {
-        originalClose();
-        btnFermer.innerText = originalText;
-        window.fermerAide = originalClose; // Reset la fonction
-    };
-}
-
-// --- IMPORT TXT CORRIGÉ ---
-document.getElementById('importFile').onchange = function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        try {
-            const lines = ev.target.result.split(/\r?\n/);
-            let countTotal = 0;
-            let countVisible = 0;
-
-            // On récupère la liste des noms des élèves actuellement inscrits (pour comparer)
-            const nomsInscrits = inscribedStudents.map(s => s.identite.trim());
-
-            lines.forEach(l => {
-                const p = l.split(";");
-                if (p.length >= 2) {
-                    const name = p[0].trim();
-                    const obs = p.slice(1).join(";").replace(/\[BR\]/g, "\n");
-                    
-                    // On enregistre la note
-                    savedObservations[name] = obs;
-                    countTotal++;
-
-                    // On vérifie si cet élève fait partie des 25 actuels
-                    if (nomsInscrits.includes(name)) {
-                        countVisible++;
-                    }
+            // Couleur du texte sur boutons (contraste)
+            const textColor = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs['obs']) ? 'black' : 'white';
+            
+            ['btn-retour', 'btn-aide', 'btn-fermer-aide'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.backgroundColor = primaryColor;
+                    element.style.color = textColor;
                 }
             });
+        }
 
-            localStorage.setItem(STORAGE_KEYS.observations, JSON.stringify(savedObservations));
+        // ==================== IMPORT / EXPORT ====================
+        
+        /**
+         * Exporte les observations vers un fichier .txt
+         */
+        function exportToFile() {
+            if (Object.keys(savedObservations).length === 0) {
+                alert("Aucune note à exporter.");
+                return;
+            }
+
+            const content = Object.entries(savedObservations)
+                .map(([name, obs]) => `${name};${obs.replace(/\n/g, '[BR]')}`)
+                .join("\n");
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `outilsprofs_observations_${getFormattedDate()}.txt`;
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            updateExportBadge(false);
+        }
+
+        /**
+         * Importe les observations depuis un fichier .txt
+         */
+        document.getElementById('importFile').onchange = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const lines = e.target.result.split(/\r?\n/);
+                    let countTotal = 0;
+                    let countVisible = 0;
+
+                    const inscribedNames = inscribedStudents.map(s => s.identite.trim());
+
+                    lines.forEach(line => {
+                        const parts = line.split(";");
+                        if (parts.length >= 2) {
+                            const name = parts[0].trim();
+                            const observation = parts.slice(1).join(";").replace(/\[BR\]/g, "\n");
+                            
+                            savedObservations[name] = observation;
+                            countTotal++;
+
+                            if (inscribedNames.includes(name)) {
+                                countVisible++;
+                            }
+                        }
+                    });
+
+                    localStorage.setItem(STORAGE_KEYS.observations, JSON.stringify(savedObservations));
+                    renderStudentList();
+                    
+                    const message = countVisible > 0 
+                        ? `${countVisible} notes mises à jour pour vos élèves actuels.`
+                        : `Importation terminée (${countTotal} notes en mémoire, mais aucune ne correspond à vos élèves actuels).`;
+                    
+                    showSuccessModal(message);
+                    
+                } catch (err) {
+                    alert("Erreur lors de la lecture du fichier.");
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = '';
+        };
+
+        // ==================== GÉNÉRATION PDF ====================
+        
+        /**
+         * Génère un PDF récapitulatif des observations
+         */
+        function generatePDF() {
+            if (inscribedStudents.length === 0) {
+                alert("Aucun élève inscrit.");
+                return;
+            }
+
+            const teacherName = localStorage.getItem(STORAGE_KEYS.teacherName) || "Enseignant non renseigné";
+
+            // Groupement et tri des élèves
+            const groups = {};
+            inscribedStudents.forEach(student => {
+                const level = student.niveau.toUpperCase();
+                if (!groups[level]) groups[level] = [];
+                groups[level].push(student);
+            });
+
+            const sortedLevels = Object.keys(groups).sort((a, b) => 
+                LEVEL_ORDER.indexOf(a) - LEVEL_ORDER.indexOf(b)
+            );
+            
+            const levelsText = sortedLevels.join(' / ');
+
+            // Construction du HTML
+            const element = document.createElement('div');
+            element.style.width = '700px'; 
+            element.style.padding = '20px';
+            element.style.color = 'black';
+            element.style.backgroundColor = 'white';
+            element.style.boxSizing = 'border-box';
+
+            let html = `
+                <div style="text-align:center; margin-bottom:25px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                    <h1 style="font-size:18px; font-weight:900; text-transform:uppercase; margin:0;">
+                        Observations de classe
+                    </h1>
+                    <div style="font-size:12px; font-weight:600; margin-top:5px; color:#444;">
+                        Classe : ${levelsText} — Enseignant : ${teacherName}
+                    </div>
+                </div>
+                <table style="width: 100%; table-layout: fixed; border-collapse: collapse; border: none;">
+                    <tr>
+            `;
+
+            sortedLevels.forEach(level => {
+                html += `<td style="width: 50%; vertical-align: top; padding: 0 10px; border: none;">`;
+                html += `<h2 style="font-size:12px; font-weight:900; background:#f0f0f0; padding:6px; border-radius:4px; text-align:center; margin-bottom:15px; border:1px solid #ddd; text-transform:uppercase;">${level}</h2>`;
+
+                const students = groups[level].sort((a, b) => a.identite.localeCompare(b.identite));
+                
+                students.forEach(student => {
+                    const obs = savedObservations[student.identite];
+                    if (obs && obs.trim() !== "") {
+                        const parts = student.identite.trim().split(' ');
+                        const prenomFormate = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+                        const nomFormate = parts.slice(1).join(' ').toUpperCase();
+                        const identiteFormatee = nomFormate ? `${prenomFormate} ${nomFormate}` : prenomFormate;
+
+                        html += `
+                            <div style="margin-bottom:8px; border: 1px solid #eee; padding:5px; border-radius:6px; page-break-inside: avoid; background: #fafafa;">
+                                <div style="font-size:9px; font-weight:800; color:#333; margin-bottom:3px; border-bottom:1px solid #eee; padding-bottom:2px;">
+                                    ${identiteFormatee}
+                                </div>
+                                <div style="font-size:8px; white-space:pre-wrap; color:#333; line-height:1.3;">${obs}</div>
+                            </div>`;
+                    }
+                });
+                html += `</td>`;
+            });
+
+            if (sortedLevels.length === 1) {
+                html += `<td style="width: 50%; border: none;"></td>`;
+            }
+
+            html += `</tr></table>`; 
+            element.innerHTML = html;
+
+            const options = {
+                margin: 10,
+                filename: `outilsprofs_observations_${getFormattedDate()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 700 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const pdfButton = event.currentTarget;
+            const originalText = pdfButton.innerText;
+            pdfButton.innerText = "⌛ Génération...";
+            pdfButton.disabled = true;
+
+            html2pdf().set(options).from(element).save()
+                .then(() => {
+                    pdfButton.innerText = originalText;
+                    pdfButton.disabled = false;
+                })
+                .catch(() => {
+                    pdfButton.innerText = originalText;
+                    pdfButton.disabled = false;
+                });
+        }
+
+        // ==================== MODALES ====================
+        
+        /**
+         * Affiche la modale d'aide
+         */
+        function openHelpModal() {
+            const aideContent = document.getElementById('aide-content');
+            aideContent.innerHTML = `
+                <div class="text-left space-y-4 text-[11px] leading-relaxed">
+                    <h2 class="text-sm font-black uppercase text-center mb-4 tracking-tighter" style="color: var(--primary)">💡 Observations</h2>
+                    
+                    <section>
+                        <p class="font-bold uppercase text-[9px] mb-1 opacity-60">📝 Saisie des notes</p>
+                        <p>Cliquez sur le nom d'un élève pour ouvrir sa fiche. La zone de texte s'agrandit automatiquement. Vous pouvez ouvrir <strong>plusieurs fiches simultanément</strong> pour comparer vos notes.</p>
+                    </section>
+
+                    <section>
+                        <p class="font-bold uppercase text-[9px] mb-1 opacity-60">⚡ Contrôles Rapides</p>
+                        <p>Utilisez les boutons <strong>"Tout ouvrir"</strong> ou <strong>"Tout fermer"</strong> en haut de la liste pour gérer l'affichage global de votre classe en un clic.</p>
+                    </section>
+
+                    <section>
+                        <p class="font-bold uppercase text-[9px] mb-1 opacity-60">💾 Sauvegarde & Sécurité</p>
+                        <p>Les données sont enregistrées <strong>automatiquement</strong> dans votre navigateur. <br>
+                        <span class="text-orange-500">⚠️ Attention :</span> Si vous changez de téléphone ou videz le cache, les notes seront perdues.</p>
+                    </section>
+
+                    <section class="bg-black/20 p-3 rounded-xl border border-white/5">
+                        <p class="font-bold uppercase text-[9px] mb-1 opacity-60 italic">📤 Exportation & Transfert</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li><strong>Exporter .txt :</strong> Télécharge un fichier contenant toutes vos observations. Pratique pour les récupérer sur PC.</li>
+                            <li><strong>Importer .txt :</strong> Permet de restaurer vos notes ou de synchroniser vos données depuis un autre appareil.</li>
+                            <li><strong>Récapitulatif PDF :</strong> Génère un document propre et prêt à imprimer pour vos dossiers.</li>
+                        </ul>
+                    </section>
+                </div>
+            `;
+            document.getElementById('modal-aide').style.display = 'flex';
+        }
+
+        /**
+         * Ferme la modale d'aide
+         */
+        function closeHelpModal() {
+            document.getElementById('modal-aide').style.display = 'none';
+        }
+
+        /**
+         * Affiche une modale de succès personnalisée
+         */
+        function showSuccessModal(message) {
+            const aideContent = document.getElementById('aide-content');
+            
+            aideContent.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="text-5xl mb-4">✅</div>
+                    <h2 class="text-sm font-black uppercase mb-2 tracking-tighter" style="color: var(--primary)">Importation réussie</h2>
+                    <p class="text-[11px] opacity-80">${message}</p>
+                </div>
+            `;
+            
+            const btnFermer = document.getElementById('btn-fermer-aide');
+            const originalText = btnFermer.innerText;
+            btnFermer.innerText = "GÉNIAL";
+            
+            document.getElementById('modal-aide').style.display = 'flex';
+
+            const originalClose = closeHelpModal;
+            window.closeHelpModal = function() {
+                originalClose();
+                btnFermer.innerText = originalText;
+                window.closeHelpModal = originalClose;
+            };
+        }
+
+        /**
+         * Affiche une alerte de confirmation
+         */
+        function showAlert(title, text, onConfirm) {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertText').innerText = text;
+            
+            const confirmBtn = document.getElementById('alertConfirmBtn');
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary');
+            confirmBtn.style.backgroundColor = primaryColor;
+            
+            confirmBtn.onclick = () => {
+                closeAlert();
+                if (onConfirm) onConfirm();
+            };
+            
+            document.getElementById('alertModal').style.display = 'flex';
+        }
+
+        /**
+         * Ferme la modale d'alerte
+         */
+        function closeAlert() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
+        /**
+         * Efface toutes les données
+         */
+        function clearAllData() {
+            showAlert(
+                "Effacer ?",
+                "Supprimer tout ?",
+                () => {
+                    savedObservations = {};
+                    localStorage.setItem(STORAGE_KEYS.observations, JSON.stringify(savedObservations));
+                    updateExportBadge(true);
+                    renderStudentList();
+                }
+            );
+        }
+
+        // ==================== INITIALISATION ====================
+        
+        window.onload = () => {
+            applyTheme();
             renderStudentList();
             
-            // On affiche un message plus précis
-            const message = countVisible > 0 
-                ? `${countVisible} notes mises à jour pour vos élèves actuels.`
-                : `Importation terminée (${countTotal} notes en mémoire, mais aucune ne correspond à vos élèves actuels).`;
-            
-            showSuccessModal(message);
-            
-        } catch (err) {
-            alert("Erreur lors de la lecture du fichier.");
-        }
-    };
-    reader.readAsText(file, 'UTF-8');
-    e.target.value = '';
-};
-
-// --- EXPORT PDF ---
-function genererPDF() {
-    if (inscribedStudents.length === 0) {
-        alert("Aucun élève inscrit.");
-        return;
-    }
-
-    // Récupération du nom de l'enseignant (ou valeur par défaut)
-    const nomEnseignant = localStorage.getItem('nom_enseignant') || "Enseignant non renseigné";
-
-    const element = document.createElement('div');
-    element.style.width = '700px'; 
-    element.style.padding = '20px';
-    element.style.color = 'black';
-    element.style.backgroundColor = 'white';
-    element.style.boxSizing = 'border-box';
-
-    // Préparation des groupes et des niveaux pour l'entête
-    const groups = {};
-    inscribedStudents.forEach(s => {
-        const lvl = s.niveau.toUpperCase();
-        if (!groups[lvl]) groups[lvl] = [];
-        groups[lvl].push(s);
-    });
-    const sortedLevels = Object.keys(groups).sort((a, b) => LEVEL_ORDER.indexOf(a) - LEVEL_ORDER.indexOf(b));
-    
-    // Texte des niveaux (ex: "CP / CE1")
-    const texteNiveaux = sortedLevels.join(' / ');
-
-    let html = `
-        <div style="text-align:center; margin-bottom:25px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-            <h1 style="font-size:18px; font-weight:900; text-transform:uppercase; margin:0;">
-                Observations de classe
-            </h1>
-            <div style="font-size:12px; font-weight:600; margin-top:5px; color:#444;">
-                Classe : ${texteNiveaux} — Enseignant : ${nomEnseignant}
-            </div>
-        </div>
-        <table style="width: 100%; table-layout: fixed; border-collapse: collapse; border: none;">
-            <tr>
-    `;
-
-    sortedLevels.forEach(level => {
-        html += `<td style="width: 50%; vertical-align: top; padding: 0 10px; border: none;">`;
-        html += `<h2 style="font-size:12px; font-weight:900; background:#f0f0f0; padding:6px; border-radius:4px; text-align:center; margin-bottom:15px; border:1px solid #ddd; text-transform:uppercase;">${level}</h2>`;
-
-        const students = groups[level].sort((a, b) => a.identite.localeCompare(b.identite));
-        
-        students.forEach(student => {
-            const obs = savedObservations[student.identite];
-            if (obs && obs.trim() !== "") {
-                const parts = student.identite.trim().split(' ');
-                const prenomFormate = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
-                const nomFormate = parts.slice(1).join(' ').toUpperCase();
-                const identiteFormatee = nomFormate ? `${prenomFormate} ${nomFormate}` : prenomFormate;
-
-                html += `
-                    <div style="margin-bottom:8px; border: 1px solid #eee; padding:5px; border-radius:6px; page-break-inside: avoid; background: #fafafa;">
-                        <div style="font-size:9px; font-weight:800; color:#333; margin-bottom:3px; border-bottom:1px solid #eee; padding-bottom:2px;">
-                            ${identiteFormatee}
-                        </div>
-                        <div style="font-size:8px; white-space:pre-wrap; color:#333; line-height:1.3;">${obs}</div>
-                    </div>`;
+            if (localStorage.getItem(STORAGE_KEYS.needsExport) === 'true') {
+                updateExportBadge(true);
             }
-        });
-        html += `</td>`;
-    });
-
-    if (sortedLevels.length === 1) {
-        html += `<td style="width: 50%; border: none;"></td>`;
-    }
-
-    html += `</tr></table>`; 
-    element.innerHTML = html;
-
-    const opt = {
-        margin: 10,
-        filename: `outilsprofs_observations_${getFormattedDate()}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 700 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    const btnPdf = event.currentTarget;
-    const originalText = btnPdf.innerText;
-    btnPdf.innerText = "⌛ Génération...";
-    btnPdf.disabled = true;
-
-    html2pdf().set(opt).from(element).save().then(() => {
-        btnPdf.innerText = originalText;
-        btnPdf.disabled = false;
-    }).catch(err => {
-        btnPdf.innerText = originalText;
-        btnPdf.disabled = false;
-    });
-}
-        function toutEffacer() { showAlert("Effacer ?", "Supprimer tout ?", () => { savedObservations = {}; localStorage.setItem(STORAGE_KEYS.observations, JSON.stringify(savedObservations)); updateExportBadge(true); renderStudentList(); }); }
-		
-        function ouvrirAide() {
-    const aideContent = document.getElementById('aide-content');
-    aideContent.innerHTML = `
-        <div class="text-left space-y-4 text-[11px] leading-relaxed">
-            <h2 class="text-sm font-black uppercase text-center mb-4 tracking-tighter" style="color: var(--primary)">💡 Observations</h2>
-            
-            <section>
-                <p class="font-bold uppercase text-[9px] mb-1 opacity-60">📝 Saisie des notes</p>
-                <p>Cliquez sur le nom d'un élève pour ouvrir sa fiche. La zone de texte s'agrandit automatiquement. Vous pouvez ouvrir <strong>plusieurs fiches simultanément</strong> pour comparer vos notes.</p>
-            </section>
-
-            <section>
-                <p class="font-bold uppercase text-[9px] mb-1 opacity-60">⚡ Contrôles Rapides</p>
-                <p>Utilisez les boutons <strong>"Tout ouvrir"</strong> ou <strong>"Tout fermer"</strong> en haut de la liste pour gérer l'affichage global de votre classe en un clic.</p>
-            </section>
-
-            <section>
-                <p class="font-bold uppercase text-[9px] mb-1 opacity-60">💾 Sauvegarde & Sécurité</p>
-                <p>Les données sont enregistrées <strong>automatiquement</strong> dans votre navigateur. <br>
-                <span class="text-orange-500">⚠️ Attention :</span> Si vous changez de téléphone ou videz le cache, les notes seront perdues.</p>
-            </section>
-
-            <section class="bg-black/20 p-3 rounded-xl border border-white/5">
-                <p class="font-bold uppercase text-[9px] mb-1 opacity-60 italic">📤 Exportation & Transfert</p>
-                <ul class="list-disc pl-4 space-y-1">
-                    <li><strong>Exporter .txt :</strong> Télécharge un fichier contenant toutes vos observations. Pratique pour les récupérer sur PC.</li>
-                    <li><strong>Importer .txt :</strong> Permet de restaurer vos notes ou de synchroniser vos données depuis un autre appareil.</li>
-                    <li><strong>Récapitulatif PDF :</strong> Génère un document propre et prêt à imprimer pour vos dossiers.</li>
-                </ul>
-            </section>
-        </div>
-    `;
-    document.getElementById('modal-aide').style.display = 'flex';
-}
-
-        function fermerAide() { document.getElementById('modal-aide').style.display='none'; }
-        function showAlert(t, tx, c) { document.getElementById('alertTitle').innerText=t; document.getElementById('alertText').innerText=tx; const cb=document.getElementById('alertConfirmBtn'); cb.style.backgroundColor=getComputedStyle(document.documentElement).getPropertyValue('--primary'); cb.onclick=()=>{closeAlert(); if(c)c();}; document.getElementById('alertModal').style.display='flex'; }
-        function closeAlert() { document.getElementById('alertModal').style.display='none'; }
-
-        window.onload = () => { applyTheme(); renderStudentList(); if (localStorage.getItem(STORAGE_KEYS.needsExport) === 'true') updateExportBadge(true); };
+        };
     </script>
 </body>
 </html>
