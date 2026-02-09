@@ -25,8 +25,8 @@
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #71717a;
-            --border-color: rgba(0, 0, 0, 0.05);
-            --shadow-color: rgba(0, 0, 0, 0.1);
+            --border-color: rgba(0, 0, 0, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.40);
         }
 
         body { 
@@ -45,8 +45,8 @@
             position: relative;
             background: var(--card-bg);
             border-radius: 1.25rem;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px var(--shadow-color);
+            border-bottom: 0px solid var(--border-color);
+            box-shadow: 0px 15px 10px -5px var(--shadow-color);
             transition: transform 0.2s ease;
         }
         
@@ -55,22 +55,22 @@
         }
 
         .icon-box {
-            width: 42px;
-            height: 42px;
+            width: 45px;
+            height: 45px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(128, 128, 128, 0.1);
-            margin-bottom: 10px;
-            font-size: 25px;
+            margin-bottom: 5px;
+            font-size: 30px;
             border: 1px solid var(--border-color);
         }
 
         .tile-subtitle {
             color: var(--text-muted);
-            margin-top: 10px;
-			margin-bottom: 10px;
+            margin-top: 7px;
+			margin-bottom: 7px;
             text-align: center;
             line-height: 1.1;
         }
@@ -223,7 +223,7 @@
         </header>
 
         <!-- Grille de navigation -->
-        <nav id="grid-menu" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-6">
+        <nav id="grid-menu" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-8">
             <!-- Ma classe -->
             <div data-id="inscr" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
@@ -234,7 +234,7 @@
                 <a href="maclasse.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📝</div>
                     <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Ma classe</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">enregistrement & édition</span>
+                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">enregistrement des élèves</span>
                 </a>
             </div>
 
@@ -248,7 +248,7 @@
                 <a href="liens.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🔗</div>
                     <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Liens</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">bibliothèque de favoris</span>
+                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">répertoire web</span>
                 </a>
             </div>
 
@@ -291,7 +291,7 @@
                 <a href="observations.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">✏️</div>
                     <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Observations</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">suivi des élèves</span>
+                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">profil des élèves</span>
                 </a>
             </div>
 
@@ -305,7 +305,7 @@
                 <a href="compteur.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🚥</div>
                     <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Compteur</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">comportement</span>
+                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">suivi du comportement</span>
                 </a>
             </div>
 
@@ -319,7 +319,7 @@
                 <a href="generateurs.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🛠️</div>
                     <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Générateurs</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">outils pédagogiques</span>
+                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">création de supports</span>
                 </a>
             </div>
 
