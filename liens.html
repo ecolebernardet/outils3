@@ -651,7 +651,10 @@
     let links = JSON.parse(localStorage.getItem('eduLinksList')) || [];
     let currentSelectedCat = "École";
     let editingLinkId = null;
-    let activeTab = localStorage.getItem('eduActiveTab') || "École";
+    
+    // Load active tab from localStorage with validation
+    const storedActiveTab = localStorage.getItem('eduActiveTab');
+    let activeTab = (storedActiveTab && CATEGORIES.includes(storedActiveTab)) ? storedActiveTab : "École";
 
     // ============ DOM SELECTORS (Cached) ============
     const DOM = {
@@ -901,6 +904,11 @@
     }
 
     // ============ TAB MANAGEMENT ============
+    // Timing constants for UI animations
+    const SCROLL_DELAY_MS = 100; // Delay before scrolling to allow accordion animation to complete
+    const ACCORDION_RENDER_DELAY_MS = 10; // Short delay to ensure DOM is ready for accordion state
+    const TAB_BUTTON_UPDATE_DELAY_MS = 20; // Delay to update tab buttons after render
+    
     function switchTab(tabName) {
         activeTab = tabName;
         localStorage.setItem('eduActiveTab', activeTab);
@@ -913,13 +921,13 @@
         // Apply accordion behavior to columns
         applyAccordionBehavior();
         
-        // Scroll the active category to view
+        // Scroll the active category to view after animation completes
         setTimeout(() => {
             const activeCol = document.querySelector(`.column[data-cat="${tabName}"]`);
             if (activeCol) {
                 activeCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-        }, 100);
+        }, SCROLL_DELAY_MS);
     }
 
     function applyAccordionBehavior() {
@@ -969,8 +977,8 @@
 
         initSortables();
         
-        // Apply accordion behavior immediately after rendering
-        setTimeout(() => applyAccordionBehavior(), 10);
+        // Apply accordion behavior after DOM is updated
+        setTimeout(() => applyAccordionBehavior(), ACCORDION_RENDER_DELAY_MS);
     }
 
     function createLinkItemHtml(link, conf) {
@@ -1066,22 +1074,15 @@
     window.addEventListener('load', () => {
         applyTheme();
         initCategoryButtonListeners();
-        
-        // Set initial active tab from localStorage or default to first category
-        const storedTab = localStorage.getItem('eduActiveTab');
-        if (storedTab && CATEGORIES.includes(storedTab)) {
-            activeTab = storedTab;
-        }
-        
         render();
         checkBadgeStatus();
         
-        // Update tab button states to match active tab
+        // Update tab button states to match active tab after render
         setTimeout(() => {
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-tab') === activeTab);
             });
-        }, 20);
+        }, TAB_BUTTON_UPDATE_DELAY_MS);
     });
 </script>
 </body>
