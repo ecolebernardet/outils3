@@ -6,32 +6,126 @@
     <title>Feux de classe - OutilsProfs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* ====================== CSS CONFIGURATION ====================== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
+        /* ====================== THEME VARIABLES ====================== */
         :root {
-            --bg-page: #121212; --text-page: #ffffff; --column-border: rgba(255, 255, 255, 0.1); 
-            --header-bg: #1e1e1e; --card-bg: #1e1e1e;
+            --bg-page: #121212; 
+            --text-page: #ffffff; 
+            --column-border: rgba(255, 255, 255, 0.1); 
+            --header-bg: #1e1e1e; 
+            --card-bg: #1e1e1e;
+            --theme-color: #3b82f6;
+            --contrast-color: #ffffff;
         }
 
         body.light-mode {
-            --bg-page: #eeeeee; --text-page: #111827; --column-border: #ddd; 
-            --header-bg: #ffffff; --card-bg: #ffffff;
+            --bg-page: #eeeeee; 
+            --text-page: #111827; 
+            --column-border: #ddd; 
+            --header-bg: #ffffff; 
+            --card-bg: #ffffff;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); margin: 0; padding: 0; transition: background 0.3s ease; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        
+        /* ====================== BASE STYLES ====================== */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-page); 
+            color: var(--text-page); 
+            margin: 0; 
+            padding: 0; 
+            transition: background 0.3s ease; 
+            overflow: hidden; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        /* ====================== HEADER ====================== */
         header { 
-            background: var(--header-bg); border-bottom: 1px solid var(--column-border);
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--column-border);
             padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            display: flex; align-items: center; justify-content: space-between; width: 100%;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            width: 100%;
         }
 
-        #btn-retour, #btn-aide { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        header h1 { font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; flex-grow: 1; text-align: center; }
+        header h1 { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            flex-grow: 1; 
+            text-align: center; 
+        }
 
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; gap: 40px; }
+        /* ====================== BUTTONS ====================== */
+        #btn-retour, 
+        #btn-aide { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 1px solid var(--column-border);
+            cursor: pointer;
+            background-color: var(--theme-color);
+            transition: transform 0.2s ease;
+        }
 
-        /* Structure du Feu */
+        #btn-retour-liste {
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            padding: 0.5rem 1rem; 
+            border-radius: 9999px; 
+            font-size: 10px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            transition: transform 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            background-color: var(--theme-color);
+            cursor: pointer;
+        }
+
+        #btn-retour-liste:active { 
+            transform: scale(0.95); 
+        }
+
+        /* ====================== MAIN LAYOUT ====================== */
+        .main-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding: 20px; 
+            gap: 40px;
+        }
+
+        #container-retour-liste { 
+            width: 100%; 
+            max-width: 500px; 
+            margin: 0 auto 1.5rem auto; 
+            text-align: left; 
+        }
+
+        /* ====================== STATUS TEXT ====================== */
+        .status-label {
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            min-height: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        /* ====================== TRAFFIC LIGHT ====================== */
         .traffic-light {
             background: #2a2a2a;
             width: 140px;
@@ -40,10 +134,11 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 2px 5px rgba(255, 255, 255, 0.1);
             border: 4px solid #333;
         }
 
+        /* ====================== LIGHT ====================== */
         .light {
             width: 100px;
             height: 100px;
@@ -52,26 +147,31 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            box-shadow: inset 0 5px 10px rgba(0,0,0,0.5);
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            padding: 0;
         }
 
-        /* États des feux */
-        .light[data-color="red"].active { background: #ef4444; box-shadow: 0 0 40px #ef4444, inset 0 -5px 15px rgba(0,0,0,0.3); }
-        .light[data-color="orange"].active { background: #f97316; box-shadow: 0 0 40px #f97316, inset 0 -5px 15px rgba(0,0,0,0.3); }
-        .light[data-color="green"].active { background: #22c55e; box-shadow: 0 0 40px #22c55e, inset 0 -5px 15px rgba(0,0,0,0.3); }
-
-        .status-label {
-            text-align: center;
-            text-transform: uppercase;
-            font-weight: 900;
-            font-size: 1.5rem;
-            letter-spacing: 0.05em;
-            min-height: 2rem;
+        .light.active { 
+            box-shadow: 0 0 40px currentColor, inset 0 -5px 15px rgba(0, 0, 0, 0.3); 
         }
 
+        .light[data-color="red"].active { 
+            background: #ef4444; 
+        }
+
+        .light[data-color="orange"].active { 
+            background: #f97316; 
+        }
+
+        .light[data-color="green"].active { 
+            background: #22c55e; 
+        }
+
+        /* ====================== INSTRUCTION ====================== */
         .instruction {
             font-size: 0.75rem;
             font-weight: 700;
@@ -79,56 +179,106 @@
             text-transform: uppercase;
             max-width: 200px;
             text-align: center;
+            transition: opacity 0.3s ease;
         }
 
-		#container-retour-liste { width: 100%; max-width: 500px; margin: 0 auto 1.5rem auto; text-align: left; }
-        #btn-retour-liste {
-            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; 
-            border-radius: 9999px; font-size: 10px; font-weight: 900; text-transform: uppercase; 
-            transition: transform 0.2s; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        /* ====================== MODAL ====================== */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            z-index: 1000; 
+            background: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(5px); 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
         }
-        #btn-retour-liste:active { transform: scale(0.95); }
-		
-        /* Modale */
-        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; }
-        .btn-modal-close { width: 100%; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 11px; text-transform: uppercase; margin-top: 20px; cursor: pointer; border: none; }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content { 
+            background: var(--card-bg); 
+            width: 100%; 
+            max-width: 400px; 
+            border-radius: 1.5rem; 
+            border: 1px solid var(--column-border); 
+            padding: 25px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h2 {
+            font-size: 1.125rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: var(--theme-color);
+        }
+
+        .btn-modal-close { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            border: none;
+            background-color: var(--theme-color);
+            color: var(--contrast-color);
+            transition: transform 0.2s ease;
+        }
+
+        .btn-modal-close:active {
+            transform: scale(0.95);
+        }
+
+        /* ====================== AUDIO ====================== */
+        audio {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="index.html" id="btn-retour">
+    <a href="index.html" id="btn-retour" title="Retour">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
         </svg>
     </a>
     <h1 id="pageTitle">Feux de classe</h1>
-    <button id="btn-aide" onclick="ouvrirAide()" class="text-lg">💡</button>
+    <button id="btn-aide" onclick="Modal.open()" class="text-lg" title="Aide">💡</button>
 </header>
 
-<div class="main-content" style="justify-content: flex-start; padding-top: 20px;">
+<div class="main-content">
     <div id="container-retour-liste">
-        <a href="outils.html" id="btn-retour-liste">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+        <a href="outils.html" id="btn-retour-liste" title="Retour aux outils">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
             Retour aux outils
         </a>
     </div>
-	
+
     <div id="status-text" class="status-label">Prêt ?</div>
     
     <div class="traffic-light">
-        <div class="light" data-color="red" onclick="setLight('red')"></div>
-        <div class="light" data-color="orange" onclick="setLight('orange')"></div>
-        <div class="light" data-color="green" onclick="setLight('green')"></div>
+        <button class="light" data-color="red" onclick="TrafficLight.setLight('red')" title="Mode silence" aria-label="Silence total"></button>
+        <button class="light" data-color="orange" onclick="TrafficLight.setLight('orange')" title="Mode chuchotements" aria-label="Chuchotements"></button>
+        <button class="light" data-color="green" onclick="TrafficLight.setLight('green')" title="Mode normal" aria-label="Volume normal"></button>
     </div>
 
     <div id="instruction-text" class="instruction">Cliquez sur un feu pour changer le mode de la classe</div>
 </div>
 
-<div id="modal-aide" class="modal-overlay" onclick="fermerAide()">
+<!-- Help Modal -->
+<div id="modal-aide" class="modal-overlay" onclick="Modal.close()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide : Feux</h2>
+        <h2>💡 Aide : Feux</h2>
         <div class="text-[11px] leading-relaxed space-y-3 opacity-80 font-semibold">
             <p>Utilisez ce signal visuel pour gérer l'ambiance sonore :</p>
             <p>🔴 <strong>Rouge :</strong> Silence total (Évaluations, lecture).</p>
@@ -136,72 +286,150 @@
             <p>🟢 <strong>Vert :</strong> Volume normal (Échanges, débats).</p>
             <p>Un signal sonore retentit à chaque changement pour capter l'attention.</p>
         </div>
-        <button id="btn-fermer-aide" onclick="fermerAide()" class="btn-modal-close" style="background: var(--theme-color); color: var(--contrast-color);">Fermer</button>
+        <button id="btn-fermer-aide" onclick="Modal.close()" class="btn-modal-close">Fermer</button>
     </div>
 </div>
 
+<!-- Audio Element -->
 <audio id="switch-sound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
 
 <script>
-    if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');
-
-    const mapCouleurs = { 
-        'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
-        'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
-        'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
-        'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
-        'rose': '#f43f5e' 
+    // ====================== CONFIGURATION ====================== 
+    const CONFIG = {
+        colors: {
+            'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 
+            'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 
+            'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 
+            'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 
+            'rose': '#f43f5e'
+        },
+        modes: {
+            'red': { 
+                title: 'Silence', 
+                desc: 'On travaille seul et en silence' 
+            },
+            'orange': { 
+                title: 'Chuchotez', 
+                desc: 'On parle tout bas avec son voisin' 
+            },
+            'green': { 
+                title: 'Parlez', 
+                desc: 'On peut discuter normalement' 
+            }
+        }
     };
 
-    const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
-    const themeColor = mapCouleurs[themePrefs.outils || 'blue'];
-    const isDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(themePrefs.outils || 'blue');
-    const contrast = isDarkText ? '#000' : '#fff';
+    // ====================== THEME SETUP ====================== 
+    const THEME = (() => {
+        const prefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colorName = prefs.outils || 'blue';
+        const hex = CONFIG.colors[colorName] || '#3b82f6';
+        const needsDarkText = ['yellow', 'lime', 'amber', 'cyan'].includes(colorName);
+        return { hex, textColor: needsDarkText ? '#000' : '#fff' };
+    })();
 
-    document.documentElement.style.setProperty('--theme-color', themeColor);
-    document.documentElement.style.setProperty('--contrast-color', contrast);
+    // ====================== DOM HELPERS ====================== 
+    const DOM = {
+        get(id) {
+            return document.getElementById(id);
+        },
 
-    // Thématique des boutons
-    const uiElements = [
-        document.getElementById('btn-retour'),
-        document.getElementById('btn-aide'),
-        document.getElementById('btn-fermer-aide'),
-		document.getElementById('btn-retour-liste')
-    ];
-    uiElements.forEach(el => {
-        if(el) { el.style.backgroundColor = themeColor; el.style.color = contrast; }
-    });
-    document.getElementById('titre-aide').style.color = themeColor;
+        getAll(selector) {
+            return document.querySelectorAll(selector);
+        },
 
-    const messages = {
-        'red': { title: 'Silence', desc: 'On travaille seul et en silence' },
-        'orange': { title: 'Chuchotez', desc: 'On parle tout bas avec son voisin' },
-        'green': { title: 'Parlez', desc: 'On peut discuter normalement' }
+        setText(id, text) {
+            const el = this.get(id);
+            if (el) el.textContent = text;
+        },
+
+        setStyle(id, prop, value) {
+            const el = this.get(id);
+            if (el) el.style[prop] = value;
+        },
+
+        addClass(id, className) {
+            const el = this.get(id);
+            if (el) el.classList.add(className);
+        },
+
+        removeClass(id, className) {
+            const el = this.get(id);
+            if (el) el.classList.remove(className);
+        },
+
+        removeAllClasses(selector, className) {
+            this.getAll(selector).forEach(el => {
+                el.classList.remove(className);
+            });
+        }
     };
 
-    function setLight(color) {
-        // Son de changement
-        const sound = document.getElementById('switch-sound');
-        sound.currentTime = 0;
-        sound.play();
+    // ====================== THEME APPLICATION ====================== 
+    function applyTheme() {
+        const isLight = localStorage.getItem('theme_mode') === 'light';
+        if (isLight) document.body.classList.add('light-mode');
 
-        // Mise à jour visuelle des feux
-        document.querySelectorAll('.light').forEach(l => {
-            l.classList.remove('active');
-            if(l.getAttribute('data-color') === color) l.classList.add('active');
+        document.documentElement.style.setProperty('--theme-color', THEME.hex);
+        document.documentElement.style.setProperty('--contrast-color', THEME.textColor);
+
+        const buttonIds = ['btn-retour', 'btn-aide', 'btn-fermer-aide', 'btn-retour-liste'];
+        buttonIds.forEach(id => {
+            const el = DOM.get(id);
+            if (el) {
+                el.style.backgroundColor = THEME.hex;
+                el.style.color = THEME.textColor;
+            }
         });
-
-        // Mise à jour des textes
-        const titleEl = document.getElementById('status-text');
-        const descEl = document.getElementById('instruction-text');
-        
-        titleEl.textContent = messages[color].title;
-        titleEl.style.color = mapCouleurs[color];
-        descEl.textContent = messages[color].desc;
     }
 
-    function ouvrirAide() { document.getElementById('modal-aide').style.display = 'flex'; }
-    function fermerAide() { document.getElementById('modal-aide').style.display = 'none'; }
+    // ====================== MODAL MANAGEMENT ====================== 
+    const Modal = {
+        open() {
+            DOM.addClass('modal-aide', 'open');
+        },
+
+        close() {
+            DOM.removeClass('modal-aide', 'open');
+        }
+    };
+
+    // ====================== AUDIO MANAGEMENT ====================== 
+    const Audio = {
+        play() {
+            const sound = DOM.get('switch-sound');
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(() => {
+                    // Silently handle audio play errors (common with autoplay policies)
+                });
+            }
+        }
+    };
+
+    // ====================== TRAFFIC LIGHT MANAGEMENT ====================== 
+    const TrafficLight = {
+        setLight(color) {
+            // Play sound
+            Audio.play();
+
+            // Update active light
+            DOM.removeAllClasses('.light', 'active');
+            const light = document.querySelector(`.light[data-color="${color}"]`);
+            if (light) light.classList.add('active');
+
+            // Update display text
+            const mode = CONFIG.modes[color];
+            DOM.setText('status-text', mode.title);
+            DOM.setStyle('status-text', 'color', CONFIG.colors[color]);
+            DOM.setText('instruction-text', mode.desc);
+        }
+    };
+
+    // ====================== INITIALIZATION ====================== 
+    window.addEventListener('DOMContentLoaded', () => {
+        applyTheme();
+    });
 </script>
 </body>
 </html>
