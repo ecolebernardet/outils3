@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>OutilsProfs</title>
     
+    <!-- Favicône -->
+    <link rel="icon" type="image/png" sizes="32x32" href="outilsprofs_icone.png">
+    <link rel="apple-touch-icon" href="outilsprofs_icone.png">
+    <meta name="theme-color" content="#3b82f6">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     
@@ -26,7 +31,7 @@
             --text-main: #111827;
             --text-muted: #71717a;
             --border-color: rgba(0, 0, 0, 0.3);
-            --shadow-color: rgba(0, 0, 0, 0.40);
+            --shadow-color: rgba(0, 0, 0, 0.20);
         }
 
         body { 
@@ -160,9 +165,9 @@
 
         .url-copy-box {
 			display: flex;
-			flex-direction: column; /* Aligne verticalement */
+			flex-direction: column;
 			align-items: center; 
-			gap: 12px; /* Espace entre l'URL et le bouton */
+			gap: 12px;
 			background: var(--bg-body);
 			padding: 12px;
 			border-radius: 12px;
@@ -172,7 +177,7 @@
 		}
 
 		.url-copy-box code {
-			font-size: 12px; /* On peut se permettre d'augmenter un peu la taille */
+			font-size: 12px;
 			text-align: center;
 			white-space: normal;
 			word-break: normal;
@@ -182,8 +187,8 @@
 		}
 
 		.copy-btn {
-			width: 100%; /* Le bouton prend toute la largeur pour être plus facile à cliquer */
-			max-width: 140px; /* Mais on limite sa taille pour l'esthétique */
+			width: 100%;
+			max-width: 140px;
 			background: #3b82f6;
 			color: white;
 			padding: 8px 12px;
@@ -193,10 +198,9 @@
 			transition: all 0.2s ease;
 		}
 
-		/* Effet de surbrillance au survol ou clic */
 		.url-copy-box code:hover {
 			color: var(--text-main);
-			background: rgba(59, 130, 246, 0.1); /* Bleu léger transparent */
+			background: rgba(59, 130, 246, 0.1);
 			cursor: pointer;
 		}
 		

@@ -62,7 +62,7 @@
             justify-content: space-between;
             padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px;
             width: 100%;
-            margin-bottom: 12px;
+            margin-bottom: 0;
         }
 
         header h1 {
@@ -93,12 +93,60 @@
             transform: scale(0.95);
         }
 
+        /* ============ TABS NAVIGATION ============ */
+        .tabs-container {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--column-border);
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: var(--input-bg);
+            color: var(--item-text-url);
+            border: 1px solid var(--column-border);
+            cursor: grab;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            touch-action: none;
+        }
+
+        .tab-btn:active:not(.dragging) {
+            transform: scale(0.95);
+        }
+
+        .tab-btn.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .tab-btn.active {
+            font-weight: 900;
+            color: white;
+            border: 2px solid currentColor;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
         /* ============ MAIN LAYOUT ============ */
         .main-wrapper {
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            padding: 10px 15px 20px 15px;
+            padding: 15px 15px 20px 15px;
         }
 
         #categoriesContainer {
@@ -111,40 +159,71 @@
         @media (min-width: 1024px) {
             .main-wrapper {
                 padding: 20px 40px;
-                max-width: 95%;
             }
 
             #categoriesContainer {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         /* ============ CARDS & COLUMNS ============ */
-        .light-card,
         .column {
             background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 15px;
             border: 1px solid var(--column-border);
+            border-radius: 1.5rem;
+            overflow: hidden;
             box-shadow: var(--shadow-custom);
-            margin-bottom: 20px;
-        }
-
-        .column {
-            min-width: 0;
-            scroll-margin-top: 90px;
-            height: fit-content;
         }
 
         .column-header {
             font-size: 10px;
             font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
+            padding: 15px;
             border-bottom: 2px solid;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            background: var(--card-bg);
+        }
+
+        .column-header:active {
+            transform: scale(0.98);
+        }
+
+        .column-header-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .column-toggle-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+            font-size: 18px;
+        }
+
+        .column-toggle-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .links-list {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 12px 15px;
+        }
+
+        .links-list.collapsed {
+            max-height: 0;
+            padding: 0 15px;
         }
 
         /* ============ HANDLE (Drag Handle) ============ */
@@ -158,6 +237,11 @@
             flex-shrink: 0;
             padding: 10px;
             margin: -10px;
+            transition: opacity 0.2s;
+        }
+
+        .dots-handle:hover {
+            opacity: 0.6;
         }
 
         .dots-handle span {
@@ -177,13 +261,37 @@
             margin-bottom: 6px;
             border: 1px solid var(--column-border);
             touch-action: none;
+            gap: 8px;
+        }
+
+        .link-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .link-favicon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .link-favicon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .link-info {
             flex: 1;
             cursor: pointer;
             min-width: 0;
-            padding: 0 10px;
+            padding: 0;
         }
 
         .link-name {
@@ -461,13 +569,19 @@
                 <p class="font-bold uppercase text-[9px] mb-1 opacity-50">Organisation</p>
                 <ul class="space-y-1">
                     <li>• <b>Ajouter :</b> Utilisez le bouton <span class="font-bold">+</span> en bas à droite.</li>
-                    <li>• <b>Trier :</b> Maintenez les <span class="opacity-50 text-xs">⠿</span> pour déplacer un lien ou une catégorie.</li>
+                    <li>• <b>Réorganiser catégories :</b> Maintenez et glissez les onglets en haut.</li>
+                    <li>• <b>Plier/Déplier :</b> Cliquez sur l'en-tête ou la flèche d'une catégorie.</li>
+                    <li>• <b>Réorganiser liens :</b> Maintenez les <span class="opacity-50 text-xs">⠿</span> pour déplacer un lien.</li>
                     <li>• <b>Actions :</b> Cliquez sur ✏️ pour modifier ou 🗑️ pour supprimer.</li>
                 </ul>
             </div>
             <div>
+                <p class="font-bold uppercase text-[9px] mb-1 opacity-50">Navigation</p>
+                <p>Les onglets en haut indiquent quelle catégorie est ouverte. Cliquez dessus pour plier/déplier.</p>
+            </div>
+            <div>
                 <p class="font-bold uppercase text-[9px] mb-1 opacity-50">Sauvegarde</p>
-                <p>Vos liens sont stockés sur cet appareil. Pensez à <b>Exporter</b> régulièrement votre liste pour ne pas la perdre en cas de changement de navigateur.</p>
+                <p>Vos liens et l'ordre des catégories sont stockés sur cet appareil. Pensez à <b>Exporter</b> régulièrement votre liste pour ne pas la perdre en cas de changement de navigateur.</p>
             </div>
             <div class="bg-neutral-500/5 p-3 rounded-lg border border-neutral-500/10">
                 <p><strong>Alerte <span class="mini-pastille"></span> :</strong></p>
@@ -500,6 +614,9 @@
     <h1 id="pageTitle">Mes Liens</h1>
     <button id="btn-aide" onclick="ouvrirAide()">💡</button>
 </header>
+
+<!-- ============ TABS NAVIGATION ============ -->
+<div class="tabs-container" id="tabsContainer"></div>
 
 <!-- ============ MAIN CONTENT ============ -->
 <div class="main-wrapper">
@@ -562,6 +679,7 @@
     let catOrder = JSON.parse(localStorage.getItem('eduCatOrder')) || CATEGORIES;
     let links = JSON.parse(localStorage.getItem('eduLinksList')) || [];
     let currentSelectedCat = "École";
+    let expandedCategories = JSON.parse(localStorage.getItem('expandedCategories')) || ["École"];
     let editingLinkId = null;
 
     // ============ DOM SELECTORS (Cached) ============
@@ -591,6 +709,7 @@
         alertConfirm: document.getElementById('alerte-confirm'),
 
         // Containers
+        tabsContainer: document.getElementById('tabsContainer'),
         categoriesContainer: document.getElementById('categoriesContainer')
     };
 
@@ -613,6 +732,15 @@
     function formatUrl(urlInput) {
         urlInput = urlInput.trim().replace(/\s/g, '');
         return /^(http|https):\/\//i.test(urlInput) ? urlInput : 'https://' + urlInput;
+    }
+
+    function getFaviconUrl(urlString) {
+        try {
+            const url = new URL(urlString);
+            return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
+        } catch (e) {
+            return null;
+        }
     }
 
     // ============ STORAGE & PERSISTENCE ============
@@ -670,6 +798,148 @@
     function ouvrirAide() {
         applyTheme();
         DOM.helpModal.style.display = 'flex';
+    }
+
+    // ============ ACCORDION MANAGEMENT ============
+    function toggleCategory(cat) {
+        const index = expandedCategories.indexOf(cat);
+        if (index > -1) {
+            expandedCategories.splice(index, 1);
+        } else {
+            expandedCategories.push(cat);
+        }
+        localStorage.setItem('expandedCategories', JSON.stringify(expandedCategories));
+        updateTabButtons();
+        render();
+    }
+
+    // ============ TAB SORTING ============
+    function initTabSorting() {
+        const tabsContainer = DOM.tabsContainer;
+        let draggedElement = null;
+
+        const handleDragStart = (e) => {
+            draggedElement = e.target;
+            draggedElement.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => draggedElement.style.opacity = '0.5', 0);
+        };
+
+        const handleDragEnd = (e) => {
+            draggedElement.classList.remove('dragging');
+            draggedElement.style.opacity = '1';
+            draggedElement = null;
+            
+            // Sync the new order
+            const newOrder = Array.from(document.querySelectorAll('.tab-btn')).map(btn => btn.getAttribute('data-category'));
+            catOrder = newOrder;
+            localStorage.setItem('eduCatOrder', JSON.stringify(catOrder));
+            updateExportBadge(true);
+            render();
+        };
+
+        const handleDragOver = (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            
+            const tabs = Array.from(tabsContainer.querySelectorAll('.tab-btn'));
+            const afterElement = tabs.find(tab => {
+                const box = tab.getBoundingClientRect();
+                return e.clientX < box.left + box.width / 2;
+            });
+
+            if (afterElement && afterElement !== draggedElement) {
+                tabsContainer.insertBefore(draggedElement, afterElement);
+            } else if (!afterElement && draggedElement !== tabs[tabs.length - 1]) {
+                tabsContainer.appendChild(draggedElement);
+            }
+        };
+
+        const handleDragLeave = (e) => {
+            // Optional: add visual feedback
+        };
+
+        tabsContainer.addEventListener('dragover', handleDragOver);
+        tabsContainer.addEventListener('dragleave', handleDragLeave);
+    }
+
+    function renderTabs() {
+        DOM.tabsContainer.innerHTML = '';
+        
+        catOrder.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = `tab-btn ${expandedCategories.includes(cat) ? 'active' : ''}`;
+            btn.setAttribute('data-category', cat);
+            btn.innerHTML = `${CATEGORY_CONFIG[cat].emoji} ${cat}`;
+            btn.draggable = true;
+            
+            btn.style.color = expandedCategories.includes(cat) ? 'white' : '';
+            btn.style.background = expandedCategories.includes(cat) ? getThemeColor() : '';
+            btn.style.borderColor = expandedCategories.includes(cat) ? getThemeColor() : '';
+            
+            // Click to toggle category
+            btn.addEventListener('click', (e) => {
+                if (!btn.classList.contains('dragging')) {
+                    toggleCategory(cat);
+                }
+            });
+            
+            // Drag events
+            btn.addEventListener('dragstart', (e) => {
+                btn.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                setTimeout(() => btn.style.opacity = '0.5', 0);
+            });
+            
+            btn.addEventListener('dragend', (e) => {
+                btn.classList.remove('dragging');
+                btn.style.opacity = '1';
+                
+                // Sync the new order after all drag operations
+                const newOrder = Array.from(document.querySelectorAll('.tab-btn')).map(b => b.getAttribute('data-category'));
+                catOrder = newOrder;
+                localStorage.setItem('eduCatOrder', JSON.stringify(catOrder));
+                updateExportBadge(true);
+                render();
+            });
+            
+            DOM.tabsContainer.appendChild(btn);
+        });
+
+        // Setup drag over listener
+        DOM.tabsContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const dragging = document.querySelector('.tab-btn.dragging');
+            const afterElement = Array.from(document.querySelectorAll('.tab-btn:not(.dragging)')).find(btn => {
+                const box = btn.getBoundingClientRect();
+                return e.clientX < box.left + box.width / 2;
+            });
+
+            if (afterElement) {
+                DOM.tabsContainer.insertBefore(dragging, afterElement);
+            } else {
+                DOM.tabsContainer.appendChild(dragging);
+            }
+        });
+    }
+
+    function updateTabButtons() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            const cat = btn.getAttribute('data-category');
+            const isExpanded = expandedCategories.includes(cat);
+            
+            if (isExpanded) {
+                btn.classList.add('active');
+                btn.style.color = 'white';
+                btn.style.background = getThemeColor();
+                btn.style.borderColor = getThemeColor();
+            } else {
+                btn.classList.remove('active');
+                btn.style.color = '';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+            }
+        });
     }
 
     // ============ CATEGORY BUTTONS ============
@@ -818,6 +1088,7 @@
         catOrder.forEach(cat => {
             const catLinks = links.filter(l => l.cat === cat);
             const conf = CATEGORY_CONFIG[cat];
+            const isExpanded = expandedCategories.includes(cat);
             
             const col = document.createElement('div');
             col.className = 'column';
@@ -827,15 +1098,31 @@
                 ? '<p class="text-[10px] opacity-30 italic py-2 text-center">Vide</p>'
                 : catLinks.map(link => createLinkItemHtml(link, conf)).join('');
 
-            col.innerHTML = `
-                <div class="column-header ${conf.text} ${conf.border}">
-                    <div class="dots-handle handle-cat mr-3"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-                    <span class="mr-2">${conf.emoji}</span> ${cat}
-                </div>
-                <div class="links-list" data-cat="${cat}">
-                    ${linksHtml}
-                </div>
-            `;
+            const header = document.createElement('div');
+            header.className = `column-header ${conf.text} ${conf.border}`;
+            
+            const headerContent = document.createElement('div');
+            headerContent.className = 'column-header-content';
+            headerContent.innerHTML = `<span>${conf.emoji}</span> <span>${cat}</span>`;
+            
+            const arrow = document.createElement('div');
+            arrow.className = `column-toggle-arrow ${isExpanded ? '' : 'collapsed'}`;
+            arrow.innerHTML = '▼';
+            
+            header.appendChild(headerContent);
+            header.appendChild(arrow);
+            header.onclick = (e) => {
+                e.preventDefault();
+                toggleCategory(cat);
+            };
+
+            const linksList = document.createElement('div');
+            linksList.className = `links-list ${isExpanded ? '' : 'collapsed'}`;
+            linksList.setAttribute('data-cat', cat);
+            linksList.innerHTML = linksHtml;
+
+            col.appendChild(header);
+            col.appendChild(linksList);
 
             DOM.categoriesContainer.appendChild(col);
         });
@@ -844,9 +1131,15 @@
     }
 
     function createLinkItemHtml(link, conf) {
+        const faviconUrl = getFaviconUrl(link.url);
+        const faviconHtml = faviconUrl 
+            ? `<img src="${faviconUrl}" alt="${link.name}" onerror="this.style.display='none'">`
+            : '🔗';
+        
         return `
             <div class="link-item" data-id="${link.id}">
                 <div class="dots-handle handle-link"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                <div class="link-favicon">${faviconHtml}</div>
                 <div class="link-info" onclick="window.open('${link.url}', '_blank')">
                     <span class="link-name ${conf.text}">${link.name}</span>
                     <span class="link-url">${link.url}</span>
@@ -861,19 +1154,6 @@
 
     // ============ DRAG & DROP ============
     function initSortables() {
-        // Column sorting
-        new Sortable(DOM.categoriesContainer, {
-            handle: '.handle-cat',
-            animation: 150,
-            delay: 150,
-            delayOnTouchOnly: true,
-            onEnd: () => {
-                catOrder = Array.from(document.querySelectorAll('.column')).map(el => el.getAttribute('data-cat'));
-                localStorage.setItem('eduCatOrder', JSON.stringify(catOrder));
-                updateExportBadge(true);
-            }
-        });
-
         // Link sorting within categories
         document.querySelectorAll('.links-list').forEach(listEl => {
             new Sortable(listEl, {
@@ -930,12 +1210,15 @@
         if (titleAide) {
             titleAide.style.color = themeColor;
         }
+
+        updateTabButtons();
     }
 
     // ============ INITIALIZATION ============
     window.addEventListener('load', () => {
         applyTheme();
         initCategoryButtonListeners();
+        renderTabs();
         render();
         checkBadgeStatus();
     });
