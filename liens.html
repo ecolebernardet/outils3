@@ -128,10 +128,10 @@
             transform: scale(0.95);
         }
 
-        .tab-btn.dragging {
-            opacity: 0.5;
-            cursor: grabbing;
-        }
+        .tab-btn.sortable-ghost {
+			opacity: 0.4;
+			transform: scale(0.9);
+		}
 
         .tab-btn.active {
 			font-weight: 900;
@@ -842,57 +842,38 @@
         
         catOrder.forEach(cat => {
             const btn = document.createElement('button');
+            // On retire draggable=true, SortableJS s'en occupe
             btn.className = `tab-btn ${expandedCategories.includes(cat) ? 'active' : ''}`;
             btn.setAttribute('data-category', cat);
             btn.innerHTML = `${CATEGORY_CONFIG[cat].emoji} ${cat}`;
-            btn.draggable = true;
             
-            btn.style.color = expandedCategories.includes(cat) ? 'white' : '';
-            btn.style.background = expandedCategories.includes(cat) ? getThemeColor() : '';
-            btn.style.borderColor = expandedCategories.includes(cat) ? getThemeColor() : '';
+            const isExpanded = expandedCategories.includes(cat);
+            btn.style.color = isExpanded ? 'white' : '';
+            btn.style.background = isExpanded ? getThemeColor() : '';
+            btn.style.borderColor = isExpanded ? getThemeColor() : '';
             
-            // Click to toggle category
-            btn.addEventListener('click', (e) => {
-                if (!btn.classList.contains('dragging')) {
-                    toggleCategory(cat);
-                }
-            });
-            
-            // Drag events
-            btn.addEventListener('dragstart', (e) => {
-                btn.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                setTimeout(() => btn.style.opacity = '0.5', 0);
-            });
-            
-            btn.addEventListener('dragend', (e) => {
-                btn.classList.remove('dragging');
-                btn.style.opacity = '1';
-                
-                // Sync the new order after all drag operations
-                const newOrder = Array.from(document.querySelectorAll('.tab-btn')).map(b => b.getAttribute('data-category'));
-                catOrder = newOrder;
-                localStorage.setItem('eduCatOrder', JSON.stringify(catOrder));
-                updateExportBadge(true);
-                render();
+            btn.addEventListener('click', () => {
+                toggleCategory(cat);
             });
             
             DOM.tabsContainer.appendChild(btn);
         });
 
-        // Setup drag over listener
-        DOM.tabsContainer.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const dragging = document.querySelector('.tab-btn.dragging');
-            const afterElement = Array.from(document.querySelectorAll('.tab-btn:not(.dragging)')).find(btn => {
-                const box = btn.getBoundingClientRect();
-                return e.clientX < box.left + box.width / 2;
-            });
-
-            if (afterElement) {
-                DOM.tabsContainer.insertBefore(dragging, afterElement);
-            } else {
-                DOM.tabsContainer.appendChild(dragging);
+        // Initialisation de Sortable pour les onglets
+        new Sortable(DOM.tabsContainer, {
+            animation: 150,
+            ghostClass: 'opacity-50',
+            // On évite le déclenchement accidentel lors du clic/scroll
+            delay: 100,
+            delayOnTouchOnly: true,
+            onEnd: () => {
+                const newOrder = Array.from(DOM.tabsContainer.querySelectorAll('.tab-btn'))
+                                     .map(b => b.getAttribute('data-category'));
+                catOrder = newOrder;
+                localStorage.setItem('eduCatOrder', JSON.stringify(catOrder));
+                updateExportBadge(true);
+                // On rafraîchit le rendu pour aligner les colonnes avec le nouvel ordre
+                render(); 
             }
         });
     }
@@ -1063,21 +1044,46 @@
             const catLinks = links.filter(l => l.cat === cat);
             const conf = CATEGORY_CONFIG[cat];
             const isExpanded = expandedCategories.includes(cat);
+            const count = catLinks.length;
             
+            // 1. Création de l'aperçu des favicons (max 4 pour rester discret)
+            const iconsPreview = catLinks.slice(0, 4).map(link => {
+                const fav = getFaviconUrl(link.url);
+                return fav ? `<img src="${fav}" style="width:12px; height:12px; border-radius:2px; margin-right:2px; opacity:0.8; object-fit:contain;">` : '';
+            }).join('');
+
             const col = document.createElement('div');
             col.className = 'column';
             col.setAttribute('data-cat', cat);
 
-            const linksHtml = catLinks.length === 0
+            const linksHtml = count === 0
                 ? '<p class="text-[10px] opacity-30 italic py-2 text-center">Vide</p>'
                 : catLinks.map(link => createLinkItemHtml(link, conf)).join('');
 
             const header = document.createElement('div');
             header.className = `column-header ${conf.text} ${conf.border}`;
             
+            // 2. Badge de compteur avec aperçu d'icônes à gauche
+            const badgeHtml = count > 0 
+                ? `<div style="display: flex; align-items: center; margin-left: auto; gap: 8px;">
+                    <div style="display: flex; align-items: center; opacity: 0.6;">${iconsPreview}</div>
+                    <span class="px-2 py-0.5 rounded-full bg-current" 
+                          style="font-size: 9px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; min-width: 18px; background-color: currentColor; --tw-bg-opacity: 0.2;">
+                        <span style="filter: brightness(0) invert(1); color: black !important;">${count}</span>
+                    </span>
+                   </div>` 
+                : '';
+
             const headerContent = document.createElement('div');
             headerContent.className = 'column-header-content';
-            headerContent.innerHTML = `<span>${conf.emoji}</span> <span>${cat}</span>`;
+            headerContent.style.display = 'flex';
+            headerContent.style.alignItems = 'center';
+            headerContent.style.flex = '1';
+            headerContent.innerHTML = `
+                <span>${conf.emoji}</span> 
+                <span class="ml-1">${cat}</span>
+                ${badgeHtml}
+            `;
             
             const arrow = document.createElement('div');
             arrow.className = `column-toggle-arrow ${isExpanded ? '' : 'collapsed'}`;
@@ -1085,6 +1091,7 @@
             
             header.appendChild(headerContent);
             header.appendChild(arrow);
+            
             header.onclick = (e) => {
                 e.preventDefault();
                 toggleCategory(cat);
