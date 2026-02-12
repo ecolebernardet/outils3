@@ -28,6 +28,22 @@
             --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
+        /* Styles Plein Écran */
+        body.fullscreen-mode { overflow: hidden; }
+        body.fullscreen-mode header { display: none; }
+        body.fullscreen-mode .main-wrapper { 
+            padding: 20px 15px 40px; 
+            height: 100vh; 
+            overflow-y: auto; 
+            max-width: 80%; 
+        }
+
+		/* Positionnement du bouton FS à droite quand activé */
+body.fullscreen-mode #container-retour-liste {
+    justify-content: flex-end; /* Aligne le bouton à droite */
+    margin-bottom: 20px;
+}
+		
         /* ===== BASE ===== */
         body {
             font-family: 'Inter', sans-serif;
@@ -138,6 +154,28 @@
         }
 
         /* ===== QUESTIONS ===== */
+		
+		/* Ajustement de la grille pour le mode "jeu" */
+#questions-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Une colonne par défaut (mobile) */
+    gap: 12px;
+}
+
+/* Sur les écrans larges (Tablettes paysage et VPI/PC) */
+@media (min-width: 768px) {
+    #questions-grid {
+        grid-template-columns: repeat(2, 1fr); /* Deux colonnes */
+        max-width: 900px; /* On élargit le conteneur pour profiter de l'espace */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .main-wrapper {
+        max-width: 950px; /* Augmenté pour accueillir les deux colonnes */
+    }
+}
+
         .q-card {
             background: var(--card-bg);
             border-radius: 0.75rem;
@@ -233,13 +271,22 @@
 </header>
 
 <div class="main-wrapper">
-    <div id="container-retour-liste" class="mb-4">
+    <div id="container-retour-liste" class="mb-4 flex justify-between items-center">
         <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
             </svg>
             Retour aux générateurs
         </a>
+
+        <button id="btn-fullscreen-toggle" class="ui-btn-round active:scale-90 shadow-md">
+            <svg id="icon-fs-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            <svg id="icon-fs-close" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     <div id="setup-zone" class="light-card space-y-4">
@@ -322,7 +369,6 @@
     </div>
 </div>
 
-<!-- Modal Aide -->
 <div id="modal-aide" class="modal-overlay">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 id="titre-aide" class="text-lg font-black uppercase mb-4">💡 Aide Quiz</h2>
@@ -336,7 +382,6 @@
     </div>
 </div>
 
-<!-- Modal Erreur -->
 <div id="modal-erreur" class="modal-overlay">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="text-center">
@@ -351,7 +396,6 @@
     </div>
 </div>
 
-<!-- Modal Fin -->
 <div id="modal-fin" class="modal-overlay">
     <div class="modal-content text-center">
         <div class="text-6xl mb-4">🔔</div>
@@ -360,7 +404,6 @@
     </div>
 </div>
 
-<!-- Modal Effacer -->
 <div id="modal-effacer" class="modal-overlay">
     <div class="modal-content text-center" onclick="event.stopPropagation()">
         <div class="text-4xl mb-4">🗑️</div>
@@ -400,7 +443,6 @@
 
     // ===== DOM ELEMENTS =====
     const elements = {
-        // Setup zone
         setupZone: document.getElementById('setup-zone'),
         containerRetourListe: document.getElementById('container-retour-liste'),
         quizTitle: document.getElementById('quiz-title'),
@@ -411,13 +453,11 @@
         shuffleOrder: document.getElementById('shuffle-order'),
         importTxt: document.getElementById('import-txt'),
         
-        // Game zone
         gameZone: document.getElementById('game-zone'),
         timerDisplay: document.getElementById('timer-display'),
         secondsLeft: document.getElementById('seconds-left'),
         questionsGrid: document.getElementById('questions-grid'),
         
-        // Buttons
         btnExample: document.getElementById('btn-example'),
         btnClearAll: document.getElementById('btn-clear-all'),
         btnTestSound: document.getElementById('btn-test-sound'),
@@ -433,22 +473,42 @@
         btnCloseFin: document.getElementById('btn-close-fin'),
         btnCancelEffacer: document.getElementById('btn-cancel-effacer'),
         btnConfirmEffacer: document.getElementById('btn-confirm-effacer'),
+        btnFullscreenToggle: document.getElementById('btn-fullscreen-toggle'),
         
-        // Modals
         modalAide: document.getElementById('modal-aide'),
         modalErreur: document.getElementById('modal-erreur'),
         modalFin: document.getElementById('modal-fin'),
         modalEffacer: document.getElementById('modal-effacer')
     };
 
+    // ===== PLEIN ÉCRAN =====
+    function toggleFullscreen() {
+    const isFullscreen = document.body.classList.toggle('fullscreen-mode');
+    const iconOpen = document.getElementById('icon-fs-open');
+    const iconClose = document.getElementById('icon-fs-close');
+    const btnRetourListe = document.getElementById('btn-retour-liste');
+    const container = document.getElementById('container-retour-liste');
+
+    if (isFullscreen) {
+        iconOpen.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+        if (btnRetourListe) btnRetourListe.classList.add('hidden');
+        // On s'assure que le conteneur prend toute la largeur pour aligner à droite
+        container.classList.replace('justify-between', 'justify-end');
+    } else {
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+        // On rétablit la disposition initiale si on n'est pas dans la zone de jeu
+        if (!elements.setupZone.classList.contains('hidden')) {
+            if (btnRetourListe) btnRetourListe.classList.remove('hidden');
+            container.classList.replace('justify-end', 'justify-between');
+        }
+    }
+}
+
     // ===== UTILITY FUNCTIONS =====
     function cleanStringForFilename(str) {
-        return str
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .replace(/\s+/g, '_')
-            .replace(/[^a-z0-9_]/gi, '');
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/gi, '');
     }
 
     function getCurrentDate() {
@@ -460,26 +520,18 @@
     }
 
     function parseQuestions(text) {
-        return text
-            .split('\n')
-            .map(line => {
-                const parts = line.split(';');
-                return {
-                    q: parts[0] ? parts[0].trim() : "",
-                    r: parts[1] ? parts[1].trim() : "???"
-                };
-            })
-            .filter(item => item.q);
+        return text.split('\n').map(line => {
+            const parts = line.split(';');
+            return {
+                q: parts[0] ? parts[0].trim() : "",
+                r: parts[1] ? parts[1].trim() : "???"
+            };
+        }).filter(item => item.q);
     }
 
     // ===== MODAL FUNCTIONS =====
-    function openModal(modal) {
-        modal.style.display = 'flex';
-    }
-
-    function closeModal(modal) {
-        modal.style.display = 'none';
-    }
+    function openModal(modal) { modal.style.display = 'flex'; }
+    function closeModal(modal) { modal.style.display = 'none'; }
 
     // ===== THEME FUNCTIONS =====
     function applyTheme() {
@@ -501,14 +553,12 @@
             elements.btnTestSound,
             elements.btnCloseErreur,
             elements.btnConfirmEffacer,
+            elements.btnFullscreenToggle,
             document.getElementById('label-import')
         ];
 
         themedElements.forEach(el => {
-            if (el) {
-                el.style.backgroundColor = accentColor;
-                el.style.color = contrastColor;
-            }
+            if (el) { el.style.backgroundColor = accentColor; el.style.color = contrastColor; }
         });
         
         ['titre-aide', 'titre-erreur', 'titre-effacer'].forEach(id => {
@@ -517,62 +567,30 @@
         });
     }
 
-    // ===== EXAMPLE AND CLEAR FUNCTIONS =====
-    function addExample() {
-        elements.quizTitle.value = CONFIG.exampleData.title;
-        elements.quizData.value = CONFIG.exampleData.questions;
-    }
-
-    function clearAll() {
-        openModal(elements.modalEffacer);
-    }
-    
-    function confirmClear() {
-        elements.quizTitle.value = "";
-        elements.quizData.value = "";
-        closeModal(elements.modalEffacer);
-    }
-
     // ===== SOUND FUNCTIONS =====
     function playSound() {
         const soundType = elements.soundSelect.value;
         if (soundType === 'none') return;
-        
         const context = new (window.AudioContext || window.webkitAudioContext)();
         const now = context.currentTime;
         const osc = context.createOscillator();
         const gain = context.createGain();
-        
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, now);
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-        
-        osc.connect(gain);
-        gain.connect(context.destination);
-        osc.start();
-        osc.stop(now + 2.5);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+        osc.connect(gain); gain.connect(context.destination);
+        osc.start(); osc.stop(now + 2.5);
     }
 
-    // ===== IMPORT/EXPORT FUNCTIONS =====
+    // ===== IMPORT/EXPORT =====
     function importFromTXT(file) {
         if (!file) return;
-        
         const reader = new FileReader();
         reader.onload = function(e) {
             const lines = e.target.result.split('\n');
-            
-            // Extract title if present
             const titleLine = lines.find(l => l.toUpperCase().startsWith('TITRE :'));
-            if (titleLine) {
-                elements.quizTitle.value = titleLine.split(':')[1].trim();
-            }
-            
-            // Extract questions
+            if (titleLine) elements.quizTitle.value = titleLine.split(':')[1].trim();
             const data = lines.filter(l => l.includes(';'));
-            if (data.length > 0) {
-                elements.quizData.value = data.map(l => l.trim()).join('\n');
-            }
+            if (data.length > 0) elements.quizData.value = data.map(l => l.trim()).join('\n');
         };
         reader.readAsText(file);
         elements.importTxt.value = '';
@@ -581,261 +599,163 @@
     function exportToTXT() {
         const titleInput = elements.quizTitle.value || "quizz";
         const textData = elements.quizData.value.trim();
-        
-        if (!textData) {
-            openModal(elements.modalErreur);
-            return;
-        }
-
+        if (!textData) { openModal(elements.modalErreur); return; }
         const dateStr = getCurrentDate();
         const filename = `outilsprofs_quizz_${cleanStringForFilename(titleInput)}_${dateStr}.txt`;
         const content = `TITRE : ${titleInput}\nDATE : ${dateStr}\n\n${textData}`;
-
-        if (window.Android && window.Android.savePdfFromBase64) {
-            const base64String = btoa(unescape(encodeURIComponent(content)));
-            window.Android.savePdfFromBase64(base64String, filename);
-        } else {
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 300);
-        }
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        a.click();
     }
 
     function exportToPDF() {
         const textData = elements.quizData.value.trim();
-        if (!textData) {
-            openModal(elements.modalErreur);
-            return;
-        }
-
+        if (!textData) { openModal(elements.modalErreur); return; }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
         const titleInput = elements.quizTitle.value || "quizz";
         const dateStr = getCurrentDate();
         const filename = `outilsprofs_quiz_${cleanStringForFilename(titleInput)}_${dateStr}_.pdf`;
-
         const questionsToPrint = parseQuestions(textData);
 
         const drawPage = (subTitle, showAnswers) => {
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(18);
             doc.text(`${titleInput} - ${subTitle}`, 105, 20, { align: 'center' });
             doc.setFontSize(10);
-            
             let y = 40;
             questionsToPrint.forEach((item, i) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
-                
-                doc.setFont("helvetica", "bold");
-                doc.text(`${i + 1}. ${item.q}`, 20, y);
+                if (y > 270) { doc.addPage(); y = 20; }
+                doc.setFont("helvetica", "bold"); doc.text(`${i + 1}. ${item.q}`, 20, y);
                 y += 7;
-                
                 if (showAnswers) {
-                    doc.setFont("helvetica", "italic");
-                    doc.setTextColor(16, 185, 129);
-                    doc.text(item.r, 25, y);
-                    doc.setTextColor(0, 0, 0);
-                    y += 10;
+                    doc.setFont("helvetica", "italic"); doc.setTextColor(16, 185, 129);
+                    doc.text(item.r, 25, y); doc.setTextColor(0, 0, 0); y += 10;
                 } else {
-                    doc.text("________________________________________________", 25, y);
-                    y += 12;
+                    doc.text("________________________________________________", 25, y); y += 12;
                 }
             });
         };
-
-        // Student sheet
         drawPage("Fiche Eleve", false);
-        
-        // Answer key
-        doc.addPage();
-        drawPage("Corrigé", true);
-
-        // Save PDF (Android compatibility)
-        if (window.Android && window.Android.savePdfFromBase64) {
-            const pdfBase64 = doc.output('datauristring').split(',')[1];
-            window.Android.savePdfFromBase64(pdfBase64, filename);
-        } else {
-            doc.save(filename);
-        }
+        doc.addPage(); drawPage("Corrigé", true);
+        doc.save(filename);
     }
 
-    // ===== TIMER FUNCTIONS =====
+    // ===== TIMER =====
     function startTimer() {
         clearInterval(countdown);
-        
         const mins = parseInt(elements.timerMin.value) || 0;
         const secs = parseInt(elements.timerSec.value) || 0;
         let timeLeft = (mins * 60) + secs;
-        
-        if (timeLeft <= 0) {
-            elements.timerDisplay.classList.add('hidden');
-            return;
-        }
-        
+        if (timeLeft <= 0) { elements.timerDisplay.classList.add('hidden'); return; }
         elements.timerDisplay.classList.remove('hidden');
-        
         const updateDisplay = () => {
-            const m = Math.floor(timeLeft / 60);
-            const s = timeLeft % 60;
+            const m = Math.floor(timeLeft / 60); const s = timeLeft % 60;
             elements.secondsLeft.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(countdown);
-                playSound();
-                openModal(elements.modalFin);
-            }
+            if (timeLeft <= 0) { clearInterval(countdown); playSound(); openModal(elements.modalFin); }
             timeLeft--;
         };
-        
-        updateDisplay();
-        countdown = setInterval(updateDisplay, 1000);
+        updateDisplay(); countdown = setInterval(updateDisplay, 1000);
     }
 
-    // ===== QUIZ FUNCTIONS =====
+    // ===== QUIZ =====
     function generateQuiz() {
         const text = elements.quizData.value.trim();
-        
-        if (!text || !text.includes(';')) {
-            openModal(elements.modalErreur);
-            return;
-        }
-
-        // Hide setup zone
+        if (!text || !text.includes(';')) { openModal(elements.modalErreur); return; }
         elements.setupZone.classList.add('hidden');
         elements.containerRetourListe.classList.add('hidden');
-        
-        // Parse and shuffle questions if needed
         currentQuestions = parseQuestions(text);
-        if (elements.shuffleOrder.checked) {
-            currentQuestions.sort(() => Math.random() - 0.5);
-        }
-        
-        // Show game zone
+        if (elements.shuffleOrder.checked) currentQuestions.sort(() => Math.random() - 0.5);
         elements.gameZone.classList.remove('hidden');
         window.scrollTo(0, 0);
-        
-        startTimer();
-        renderQuestions();
+        startTimer(); renderQuestions();
     }
 
     function renderQuestions() {
-        const title = elements.quizTitle.value.trim();
-        let html = '';
-        
-        if (title) {
-            html = `<div class="col-span-full mb-4 text-center">
-                <h2 class="text-xl font-black uppercase tracking-tight text-[var(--accent-color)]">${title}</h2>
-                <div class="h-1 w-20 bg-[var(--accent-color)] mx-auto mt-2 rounded-full opacity-50"></div>
-            </div>`;
-        }
-        
-        currentQuestions.forEach((item, i) => {
-            html += `<div class="q-card">
-                <div class="flex items-start gap-2">
-                    <span class="opacity-30 text-[10px] font-black mt-1">${i + 1}.</span>
-                    <span class="text-sm font-bold leading-tight">${item.q}</span>
-                </div>
-                <div class="res-text hidden">${item.r}</div>
-            </div>`;
-        });
-        
-        elements.questionsGrid.innerHTML = html;
-        
-        // Reset validation button
-        elements.btnValidate.innerText = "👁️ correction";
-        elements.btnValidate.classList.remove('bg-red-500');
-        elements.btnValidate.classList.add('bg-green-500');
+    const title = elements.quizTitle.value.trim();
+    let html = '';
+    
+    // Le titre utilise "col-span-full" pour rester seul sur sa ligne en haut
+    if (title) {
+        html = `<div class="col-span-full mb-6 text-center">
+            <h2 class="text-2xl font-black uppercase tracking-tight text-[var(--accent-color)]">${title}</h2>
+            <div class="h-1.5 w-24 bg-[var(--accent-color)] mx-auto mt-2 rounded-full opacity-60"></div>
+        </div>`;
     }
+    
+    currentQuestions.forEach((item, i) => {
+        html += `
+        <div class="q-card hover:border-[var(--accent-color)] transition-colors duration-300">
+            <div class="flex items-start gap-3">
+                <span class="opacity-40 text-[11px] font-black mt-1 bg-black/10 dark:bg-white/10 w-5 h-5 flex items-center justify-center rounded-md">${i + 1}</span>
+                <span class="text-base font-bold leading-tight pt-0.5">${item.q}</span>
+            </div>
+            <div class="res-text hidden mt-2 pt-3 border-t border-dashed border-emerald-500/30 text-emerald-500 font-black">
+                <span class="text-[9px] uppercase opacity-50 block mb-1">Réponse :</span>
+                ${item.r}
+            </div>
+        </div>`;
+    });
+    
+    elements.questionsGrid.innerHTML = html;
+    
+    // Reset du bouton de validation
+    elements.btnValidate.innerText = "👁️ correction";
+    if (elements.btnValidate.classList.contains('bg-red-500')) {
+        elements.btnValidate.classList.replace('bg-red-500', 'bg-green-500');
+    }
+}
 
     function showCorrection() {
         const resElements = document.querySelectorAll('.res-text');
         if (resElements.length === 0) return;
-        
         const isHidden = resElements[0].classList.contains('hidden');
-        
-        resElements.forEach(el => {
-            if (isHidden) {
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
-        });
-        
+        resElements.forEach(el => isHidden ? el.classList.remove('hidden') : el.classList.add('hidden'));
         if (isHidden) {
             clearInterval(countdown);
             elements.btnValidate.innerText = "🙈 masquer";
-            elements.btnValidate.classList.remove('bg-green-500');
-            elements.btnValidate.classList.add('bg-red-500');
+            elements.btnValidate.classList.replace('bg-green-500', 'bg-red-500');
         } else {
             elements.btnValidate.innerText = "👁️ correction";
-            elements.btnValidate.classList.remove('bg-red-500');
-            elements.btnValidate.classList.add('bg-green-500');
+            elements.btnValidate.classList.replace('bg-red-500', 'bg-green-500');
         }
     }
 
     function returnToSettings() {
         clearInterval(countdown);
         elements.setupZone.classList.remove('hidden');
-        elements.containerRetourListe.classList.remove('hidden');
+        if (!document.body.classList.contains('fullscreen-mode')) {
+            elements.containerRetourListe.classList.remove('hidden');
+        }
         elements.gameZone.classList.add('hidden');
     }
 
-    function closeModalAndShowResults() {
-        closeModal(elements.modalFin);
-        showCorrection();
-    }
-
-    // ===== EVENT LISTENERS =====
+    // ===== LISTENERS =====
     function setupEventListeners() {
-        // Setup buttons
-        elements.btnExample.onclick = addExample;
-        elements.btnClearAll.onclick = clearAll;
+        elements.btnExample.onclick = () => { elements.quizTitle.value = CONFIG.exampleData.title; elements.quizData.value = CONFIG.exampleData.questions; };
+        elements.btnClearAll.onclick = () => openModal(elements.modalEffacer);
         elements.btnTestSound.onclick = playSound;
         elements.btnStartQuiz.onclick = generateQuiz;
-        
-        // Game buttons
         elements.btnBack.onclick = returnToSettings;
         elements.btnReplay.onclick = generateQuiz;
         elements.btnValidate.onclick = showCorrection;
         elements.btnExportPdf.onclick = exportToPDF;
         elements.btnExportTxt.onclick = exportToTXT;
-        
-        // Modal buttons
+        elements.btnFullscreenToggle.onclick = toggleFullscreen;
         elements.btnAide.onclick = () => openModal(elements.modalAide);
         elements.btnCloseAide.onclick = () => closeModal(elements.modalAide);
         elements.btnCloseErreur.onclick = () => closeModal(elements.modalErreur);
-        elements.btnCloseFin.onclick = closeModalAndShowResults;
+        elements.btnCloseFin.onclick = () => { closeModal(elements.modalFin); showCorrection(); };
         elements.btnCancelEffacer.onclick = () => closeModal(elements.modalEffacer);
-        elements.btnConfirmEffacer.onclick = confirmClear;
-        
-        // File import
+        elements.btnConfirmEffacer.onclick = () => { elements.quizTitle.value = ""; elements.quizData.value = ""; closeModal(elements.modalEffacer); };
         elements.importTxt.onchange = (e) => importFromTXT(e.target.files[0]);
-        
-        // Modal overlays
         elements.modalAide.onclick = () => closeModal(elements.modalAide);
         elements.modalErreur.onclick = () => closeModal(elements.modalErreur);
         elements.modalEffacer.onclick = () => closeModal(elements.modalEffacer);
     }
 
-    // ===== INITIALIZATION =====
-    window.onload = () => {
-        applyTheme();
-        setupEventListeners();
-    };
+    window.onload = () => { applyTheme(); setupEventListeners(); };
 </script>
-
 </body>
 </html>
