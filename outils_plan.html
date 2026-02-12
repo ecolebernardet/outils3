@@ -150,7 +150,7 @@
 
 		#add-menu { 
     position: fixed !important; /* Force la position hors du flux */
-    top: 180px !important;      /* Position absolue sous la barre de création */
+    top: 175px !important;      /* Position absolue sous la barre de création */
     left: 50% !important;
     transform: translateX(-50%) !important;
     background: var(--header-bg); 
@@ -238,33 +238,31 @@
 
 <div id="modal-aide" class="modal-overlay" onclick="fermerModale('modal-aide')">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="font-black uppercase mb-4 flex items-center gap-2">💡 Guide des outils</h2>
+        <h2 class="font-black uppercase mb-4 flex items-center gap-2">💡 Guide de l'interface</h2>
         <div class="text-[11px] opacity-90 leading-relaxed max-h-[60vh] overflow-y-auto space-y-4">
             
             <section>
-                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Navigation & Zoom</h3>
-                <p><strong>＋ / － :</strong> Zoomer ou dézoomer sur le plan.</p>
-                <p><strong>RESET 1:1 :</strong> Réinitialise l'affichage pour voir tout le plan.</p>
-                <p><strong>Déplacement :</strong> En mode zoom, glissez le doigt sur le fond pour naviguer.</p>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Outils de Création (Haut)</h3>
+                <p><strong>🔓/🔒 :</strong> Verrouille le plan pour éviter de déplacer un meuble par erreur lors du zoom.</p>
+                <p><strong>↶ / ↷ :</strong> Annuler ou rétablir vos dernières actions.</p>
+                <p><strong>➕ :</strong> Ouvre le menu pour ajouter bureaux, tableaux, meubles ou portes.</p>
+                <p><strong>🧽 :</strong> Supprime l'élément sélectionné (contour épais).</p>
+                <p><strong>📋 :</strong> Génère automatiquement les tables à partir de "Ma classe".</p>
             </section>
 
             <section>
-                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Édition des éléments</h3>
-                <p><strong>Déplacer :</strong> Touchez et glissez un meuble ou une table.</p>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Gestion du Plan (Bas)</h3>
+                <p><strong>🗑️ :</strong> Efface tout le plan pour recommencer à zéro.</p>
+                <p><strong>💾 / 📂 :</strong> Sauvegarder ou charger votre plan au format .json.</p>
+                <p><strong>📄 :</strong> Exporte le plan en PDF pour l'impression.</p>
+                <p><strong>🖼️ :</strong> Ouvre le plan en haute définition dans un nouvel onglet.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Interactions</h3>
+                <p><strong>Déplacer :</strong> Glissez un élément (si déverrouillé 🔓).</p>
                 <p><strong>Pivoter :</strong> Double-cliquez sur un élément pour une rotation de 45°.</p>
-                <p><strong>Sélection :</strong> Touchez un élément pour l'activer (contour épais).</p>
-            </section>
-
-            <section>
-                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Barre d'outils</h3>
-                <p><strong>🔓/🔒 Cadenas :</strong> Verrouille les meubles pour éviter les erreurs de manipulation pendant le zoom.</p>
-                <p><strong>↶ / ↷ Flèches :</strong> Annuler ou rétablir vos dernières modifications.</p>
-                <p><strong>➕ Plus :</strong> Ajouter un bureau élève, un tableau, un meuble ou une porte.</p>
-                <p><strong>🧽 Éponge :</strong> Supprime l'élément actuellement sélectionné.</p>
-                <p><strong>📋 Presse-papier :</strong> Génère automatiquement les tables de vos élèves enregistrés dans la rubrique "Ma classe".</p>
-                <p><strong>🗑️ Corbeille :</strong> Efface tout le plan pour recommencer à zéro.</p>
-                <p><strong>💾 / 📂 Disquette/Dossier :</strong> Sauvegarder ou charger un fichier de plan (.json).</p>
-                <p><strong>📄 Fichier :</strong> Exporte votre plan en format PDF pour l'impression.</p>
+                <p><strong>Zoom :</strong> Utilisez les boutons ＋ / － sur le côté. En zoom, glissez sur le fond pour naviguer.</p>
             </section>
         </div>
         <button onclick="fermerModale('modal-aide')" id="btn-fermer-aide" class="mt-6 btn-modal-action">J'ai compris</button>
