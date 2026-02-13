@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tirage au Sort - OutilsProfs</title>
     
+    <!-- Initialisation du mode clair avant le chargement pour éviter le flash -->
     <script>
         (function() {
             const mode = localStorage.getItem('theme_mode');
@@ -17,199 +18,381 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* ====================== CSS CONFIGURATION ====================== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
+        /* ========== VARIABLES CSS ========== */
         :root {
-            --bg-page: #121212; --text-page: #ffffff; --header-bg: #1e1e1e;
-            --header-border: rgba(255, 255, 255, 0.1); --border-color: rgba(255, 255, 255, 0.1);
-            --card-bg: #0a0a0a; --card-text: #ffffff; --result-bg: #111111;
-            --result-border: #262626; --pill-bg: #1a1a1a;
-            --student-name-boy: #93c5fd; --student-name-girl: #f9a8d4;
+            --bg-page: #121212;
+            --text-page: #ffffff;
+            --header-bg: #1e1e1e;
+            --header-border: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card-bg: #0a0a0a;
+            --card-text: #ffffff;
+            --result-bg: #111111;
+            --result-border: #262626;
+            --pill-bg: #1a1a1a;
+            --student-name-boy: #93c5fd;
+            --student-name-girl: #f9a8d4;
         }
 
-        body.light-mode, html.light-mode-init body {
-            --bg-page: #eeeeee; --text-page: #000000; --header-bg: #ffffff;
-            --header-border: #dddddd; --border-color: #cccccc; --card-bg: #ffffff;
-            --card-text: #000000; --result-bg: #f5f5f5; --result-border: #dddddd;
+        body.light-mode,
+        html.light-mode-init body {
+            --bg-page: #eeeeee;
+            --text-page: #000000;
+            --header-bg: #ffffff;
+            --header-border: #dddddd;
+            --border-color: #cccccc;
+            --card-bg: #ffffff;
+            --card-text: #000000;
+            --result-bg: #f5f5f5;
+            --result-border: #dddddd;
             --pill-bg: #ffffff;
         }
 
-        /* Base Styles */
+        /* ========== STYLES DE BASE ========== */
         body { 
-            font-family: 'Inter', sans-serif; background: var(--bg-page); color: var(--text-page); 
-            padding: 0; margin: 0; transition: background 0.3s; display: flex; flex-direction: column; 
-            align-items: center; padding-left: 15px; padding-right: 15px; padding-bottom: 20px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-page);
+            padding: 0;
+            margin: 0;
+            transition: background 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 20px;
         }
 
-        /* Header */
+        /* ========== HEADER ========== */
         header { 
-            background: var(--header-bg); border-bottom: 1px solid var(--header-border);
-            position: sticky; top: 0; z-index: 100; display: flex; align-items: center; 
-            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
-            width: calc(100% + 30px); margin-left: -15px; margin-bottom: 10px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--header-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px;
+            width: calc(100% + 30px);
+            margin-left: -15px;
+            margin-bottom: 10px;
+        }
+
+        header h1 {
+            font-weight: 900;
+            font-size: 1.125rem;
+            letter-spacing: normal;
+            text-transform: uppercase;
+            text-align: center;
+            flex-grow: 1;
         }
 
         .header-btn {
-            display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; 
-            border-radius: 50%; transition: all 0.3s; border: none; cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
         }
 
-        /* Student Grid */
+        .header-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* ========== BOUTON RETOUR LISTE ========== */
+        .btn-retour-liste {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 900;
+            font-size: 10px;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+        }
+
+        .btn-retour-liste:active {
+            transform: scale(0.95);
+        }
+
+        /* ========== GRILLE D'ÉLÈVES ========== */
         .student-grid { 
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; 
-            margin-bottom: 20px; width: 100%; padding: 0 10px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+            width: 100%;
+            padding: 0 10px;
         }
 
         @media (min-width: 768px) {
-            .student-grid { grid-template-columns: repeat(10, 1fr); gap: 15px; }
+            .student-grid {
+                grid-template-columns: repeat(10, 1fr);
+                gap: 15px;
+            }
         }
 
         .student-item { 
-            padding: 6px 2px; border-radius: 999px; font-size: 0.55rem; font-weight: 800;
-            text-align: center; cursor: pointer; background-color: var(--pill-bg);
-            border: 1px solid var(--header-border); transition: all 0.2s; white-space: nowrap; 
-            overflow: hidden; text-overflow: ellipsis; user-select: none; 
+            padding: 6px 2px;
+            border-radius: 999px;
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--pill-bg);
+            border: 1px solid var(--header-border);
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         @media (min-width: 768px) {
-            .student-item { font-size: 0.6rem; padding: 10px 2px; }
+            .student-item {
+                font-size: 0.6rem;
+                padding: 10px 2px;
+            }
         }
 
         @media (min-width: 1024px) {
-            .student-item { font-size: 0.9rem; padding: 10px 2px; }
+            .student-item {
+                font-size: 0.9rem;
+                padding: 10px 2px;
+            }
         }
 
-        .student-item.bg-f { color: var(--student-name-girl) !important; }
-        .student-item.bg-m { color: var(--student-name-boy) !important; }
+        .student-item.bg-f {
+            color: var(--student-name-girl) !important;
+        }
+
+        .student-item.bg-m {
+            color: var(--student-name-boy) !important;
+        }
 
         .student-item.drawn { 
-            background-color: #0a0a0a !important; color: #444444 !important; 
-            text-decoration: line-through; border-color: #1a1a1a !important;
-            opacity: 0.5; transform: scale(0.96);
+            background-color: #0a0a0a !important;
+            color: #444444 !important;
+            text-decoration: line-through;
+            border-color: #1a1a1a !important;
+            opacity: 0.5;
+            transform: scale(0.96);
         }
 
-        body.light-mode .student-item.drawn, html.light-mode-init .student-item.drawn { 
-            background: #e0e0e0 !important; color: #aaaaaa !important; border-color: #cccccc !important;
+        body.light-mode .student-item.drawn,
+        html.light-mode-init .student-item.drawn { 
+            background: #e0e0e0 !important;
+            color: #aaaaaa !important;
+            border-color: #cccccc !important;
         }
 
-        /* Level Title */
+        /* ========== TITRE DE NIVEAU ========== */
         .level-title { 
-            text-align: center; font-size: 10px; font-weight: 900; margin: 15px 0 5px 0; 
-            text-transform: uppercase; letter-spacing: 1px; color: var(--text-page);
+            text-align: center;
+            font-size: 10px;
+            font-weight: 900;
+            margin: 15px 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-page);
         }
 
-        /* Cards */
+        /* ========== CARTES ========== */
         .light-card { 
-            background: var(--card-bg); color: var(--card-text); border-radius: 1.5rem; 
-            width: 95%; max-width: 400px; padding: 20px; text-align: center; 
-            margin: 20px 0; border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 1.5rem;
+            width: 95%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
         }
 
         .result-box { 
-            background: var(--result-bg); border: 1px solid var(--result-border); 
-            border-radius: 0.75rem; height: 60px; display: flex; align-items: center; 
-            justify-content: center; margin-bottom: 12px; font-size: 1.4rem; font-weight: 800;
+            background: var(--result-bg);
+            border: 1px solid var(--result-border);
+            border-radius: 0.75rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Buttons */
+        /* ========== BOUTONS ========== */
         .main-btn {
-            width: 100%; padding: 14px; font-size: 10px; font-weight: 900;
-            border-radius: 50px; text-transform: uppercase; border: none;
-            cursor: pointer; transition: transform 0.1s, opacity 0.2s;
+            width: 100%;
+            padding: 14px;
+            font-size: 10px;
+            font-weight: 900;
+            border-radius: 50px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
         }
-        .main-btn:active { transform: scale(0.95); }
-        .main-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
+
+        .main-btn:active {
+            transform: scale(0.95);
+        }
+
+        .main-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
 
         .btn-nav { 
-            width: 100%; max-width: 400px; font-weight: 800; padding: 14px; 
-            border-radius: 50px; font-size: 10px; cursor: pointer; border: none;
+            width: 100%;
+            max-width: 400px;
+            font-weight: 800;
+            padding: 14px;
+            border-radius: 50px;
+            font-size: 10px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
         }
 
+        .btn-nav:active {
+            transform: scale(0.98);
+        }
+
+        /* ========== STATISTIQUES ========== */
         .stats { 
-            margin-top: 8px; font-size: 0.6rem; color: #888888; 
-            text-transform: uppercase; font-weight: 800;
+            margin-top: 8px;
+            font-size: 0.6rem;
+            color: #888888;
+            text-transform: uppercase;
+            font-weight: 800;
         }
 
-        /* Modals */
+        /* ========== MODAUX ========== */
         .modal-overlay { 
-            display: none; position: fixed; inset: 0; z-index: 1000; 
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
-            align-items: center; justify-content: center; padding: 20px;
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         .modal-content { 
-            background: white; padding: 24px; border-radius: 24px; 
-            width: 100%; max-width: 360px; color: #111; 
+            background: white;
+            padding: 24px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 360px;
+            color: #111;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         .alert-title { 
-            font-size: 18px; font-weight: 900; text-transform: uppercase; 
-            color: #111; margin-bottom: 8px; text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #111;
+            margin-bottom: 8px;
+            text-align: center;
         }
 
         .alert-text { 
-            font-size: 14px; color: #444; text-align: center; 
-            line-height: 1.5; font-weight: 500;
+            font-size: 14px;
+            color: #444;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 500;
         }
 
-        .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
 
         .modal-btn { 
-            flex: 1; padding: 14px; border: none; border-radius: 16px; 
-            font-weight: 900; font-size: 11px; text-transform: uppercase; 
-            cursor: pointer; transition: transform 0.2s;
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 11px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
 
-        .modal-btn-cancel { background: #eeeeee; color: #444; }
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        .modal-btn-cancel {
+            background: #eeeeee;
+            color: #444;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ====================== HEADER ====================== -->
+    <!-- ========== HEADER ========== -->
     <header>
-    <a href="outils.html" id="btn-retour" class="header-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-        </svg>
-    </a>
-    <h1 id="page-title" class="font-black text-lg tracking-normal uppercase text-center flex-grow">
-        Tirage au sort
-    </h1>
-    <button id="btn-aide" onclick="openHelp()" class="header-btn text-lg">
-        💡
-    </button>
-</header>
+        <a href="outils.html" id="btn-retour" class="header-btn" aria-label="Retour aux outils">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
+            </svg>
+        </a>
+        <h1 id="page-title">Tirage au sort</h1>
+        <button id="btn-aide" class="header-btn text-lg" aria-label="Aide">💡</button>
+    </header>
 
-<div class="w-full flex justify-start mb-4 mt-2 px-4">
-    <a href="outils.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-black text-[10px] uppercase transition-transform active:scale-95 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
-        </svg>
-        Retour aux outils
-    </a>
-</div>
-	
-    <!-- ====================== MAIN CONTENT ====================== -->
+    <!-- ========== BOUTON RETOUR LISTE ========== -->
+    <div class="w-full flex justify-start mb-4 mt-2 px-4">
+        <a href="outils.html" id="btn-retour-liste" class="btn-retour-liste">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
+            Retour aux outils
+        </a>
+    </div>
+    
+    <!-- ========== LISTE DES ÉLÈVES ========== -->
     <div class="w-full" id="listeContainer" style="max-width: 95%; margin: 0 auto;"></div>
 
-    <!-- Result Card -->
+    <!-- ========== CARTE DE RÉSULTAT ========== -->
     <div class="light-card mx-auto">
         <div class="result-box" id="result-display">PRÊT</div>
-        <button id="draw-btn" class="main-btn" onclick="drawName()">Tirer un prénom</button>
+        <button id="draw-btn" class="main-btn">Tirer un prénom</button>
         <div class="stats" id="counter">--</div>
     </div>
 
-    <!-- Reset Button -->
+    <!-- ========== BOUTON RÉINITIALISATION ========== -->
     <div class="max-w-md mx-auto flex justify-center mt-4 mb-10 w-full px-4">
-        <button class="btn-nav bg-red-500 text-white shadow-lg" onclick="resetDrawing()">⚠️ RàZ du tirage</button>
+        <button id="reset-btn" class="btn-nav bg-red-500 text-white shadow-lg">⚠️ RàZ du tirage</button>
     </div>
 
-    <!-- ====================== MODAL ====================== -->
+    <!-- ========== MODAL ========== -->
     <div id="alertModal" class="modal-overlay">
         <div class="modal-content">
             <div id="modal-body-content">
@@ -217,14 +400,22 @@
                 <p class="alert-text">Voulez-vous continuer ?</p>
             </div>
             <div class="modal-btns">
-                <button id="btn-secondary" class="modal-btn modal-btn-cancel" onclick="closeModal()">Annuler</button>
+                <button id="btn-secondary" class="modal-btn modal-btn-cancel">Annuler</button>
                 <button id="alertConfirmBtn" class="modal-btn text-white">Confirmer</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ====================== CONFIGURATION & CONSTANTS ====================== 
+        // ========== CONFIGURATION & CONSTANTES ========== 
+        const CONFIG = {
+            DRAW_ITERATIONS: 15,
+            DRAW_INTERVAL: 70,
+            ANIMATION_SCALE_UP: 1.1,
+            ANIMATION_SCALE_DOWN: 0.95,
+            ANIMATION_DURATION: 200
+        };
+
         const COLOR_MAP = {
             'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308',
             'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6',
@@ -234,8 +425,12 @@
         };
 
         const LEVEL_COLORS = {
-            'CP': '#ec4899', 'CE1': '#3b82f6', 'CE2': '#eab308',
-            'CM1': '#ef4444', 'CM2': '#22c55e', 'AUTRE': '#a855f7'
+            'CP': '#ec4899',
+            'CE1': '#3b82f6',
+            'CE2': '#eab308',
+            'CM1': '#ef4444',
+            'CM2': '#22c55e',
+            'AUTRE': '#a855f7'
         };
 
         const LEVEL_ORDER = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', 'AUTRE'];
@@ -248,46 +443,68 @@
             themeMode: 'theme_mode'
         };
 
-        const DRAW_CONFIG = {
-            iterations: 15,
-            interval: 70
+        const LIGHT_CONTRAST_COLORS = ['yellow', 'lime', 'amber', 'cyan'];
+
+        // ========== ÉTAT DE L'APPLICATION ========== 
+        const state = {
+            rawData: JSON.parse(localStorage.getItem(STORAGE_KEYS.students)) || [],
+            remaining: JSON.parse(localStorage.getItem(STORAGE_KEYS.remaining)) || [],
+            isDrawing: false
         };
 
-        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
-// On utilise la clé 'outils' pour harmoniser toutes les pages
-const THEME_COLOR_NAME = themePrefs.outils || 'blue'; 
-const THEME_HEX = COLOR_MAP[THEME_COLOR_NAME] || '#3b82f6';
-const NEEDS_DARK_TEXT = ['yellow', 'lime', 'amber', 'cyan'].includes(THEME_COLOR_NAME);
-const THEME_TEXT_COLOR = NEEDS_DARK_TEXT ? '#000000' : '#ffffff';
-
-// Injection immédiate des variables CSS pour les éléments qui utilisent var(--theme-color)
-document.documentElement.style.setProperty('--theme-color', THEME_HEX);
-document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR);
-
-        let rawData = JSON.parse(localStorage.getItem(STORAGE_KEYS.students)) || [];
-        let remaining = JSON.parse(localStorage.getItem(STORAGE_KEYS.remaining)) || rawData.map(el => el.id);
-
-        // ====================== STORAGE MANAGEMENT ====================== 
-        function saveState() {
-            localStorage.setItem(STORAGE_KEYS.remaining, JSON.stringify(remaining));
+        // Initialiser remaining si vide
+        if (state.remaining.length === 0 && state.rawData.length > 0) {
+            state.remaining = state.rawData.map(el => el.id);
         }
 
-        // ====================== NAME FORMATTING ====================== 
+        // ========== THÈME ========== 
+        const themePrefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme)) || {};
+        const THEME_COLOR_NAME = themePrefs.outils || 'blue';
+        const THEME_HEX = COLOR_MAP[THEME_COLOR_NAME] || '#3b82f6';
+        const THEME_TEXT_COLOR = LIGHT_CONTRAST_COLORS.includes(THEME_COLOR_NAME) ? '#000000' : '#ffffff';
+
+        // Injection immédiate des variables CSS
+        document.documentElement.style.setProperty('--theme-color', THEME_HEX);
+        document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR);
+
+        // ========== ÉLÉMENTS DOM ========== 
+        const elements = {
+            pageTitle: document.getElementById('page-title'),
+            btnRetour: document.getElementById('btn-retour'),
+            btnRetourListe: document.getElementById('btn-retour-liste'),
+            btnAide: document.getElementById('btn-aide'),
+            listeContainer: document.getElementById('listeContainer'),
+            resultDisplay: document.getElementById('result-display'),
+            drawBtn: document.getElementById('draw-btn'),
+            counter: document.getElementById('counter'),
+            resetBtn: document.getElementById('reset-btn'),
+            alertModal: document.getElementById('alertModal'),
+            modalBodyContent: document.getElementById('modal-body-content'),
+            btnSecondary: document.getElementById('btn-secondary'),
+            alertConfirmBtn: document.getElementById('alertConfirmBtn')
+        };
+
+        // ========== GESTION DU STOCKAGE ========== 
+        function saveState() {
+            localStorage.setItem(STORAGE_KEYS.remaining, JSON.stringify(state.remaining));
+        }
+
+        // ========== FORMATAGE DES NOMS ========== 
         function formatName(fullName) {
             const parts = fullName.trim().split(" ");
             const prenom = parts[0];
             const nom = parts.slice(1).join(" ");
             
-            const aUnDoublon = rawData.some(s => 
+            const hasDuplicate = state.rawData.some(s => 
                 s.identite.trim().split(" ")[0].toLowerCase() === prenom.toLowerCase() && 
                 s.identite.trim() !== fullName.trim()
             );
             
-            return aUnDoublon && nom ? `${prenom} ${nom}` : prenom;
+            return hasDuplicate && nom ? `${prenom} ${nom}` : prenom;
         }
 
         function getStudentById(id) {
-            return rawData.find(s => s.id === id);
+            return state.rawData.find(s => s.id === id);
         }
 
         function getGenderClass(student) {
@@ -295,13 +512,13 @@ document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR)
         }
 
         function isStudentDrawn(id) {
-            return !remaining.includes(id);
+            return !state.remaining.includes(id);
         }
 
-        // ====================== LEVEL MANAGEMENT ====================== 
+        // ========== GESTION DES NIVEAUX ========== 
         function groupStudentsByLevel() {
             const groups = {};
-            rawData.forEach(el => {
+            state.rawData.forEach(el => {
                 const niv = el.niveau.trim().toUpperCase();
                 if (!groups[niv]) groups[niv] = [];
                 groups[niv].push(el);
@@ -311,8 +528,8 @@ document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR)
 
         function getSortedLevels(groups) {
             return Object.keys(groups).sort((a, b) => {
-                let indexA = LEVEL_ORDER.indexOf(a);
-                let indexB = LEVEL_ORDER.indexOf(b);
+                const indexA = LEVEL_ORDER.indexOf(a);
+                const indexB = LEVEL_ORDER.indexOf(b);
                 return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
             });
         }
@@ -322,134 +539,151 @@ document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR)
             return customPalette[level] || customPalette[level.toLowerCase()] || LEVEL_COLORS[level] || '#888888';
         }
 
-        // ====================== RENDERING ====================== 
+        // ========== RENDU DE LA LISTE ========== 
         function renderList() {
-            const container = document.getElementById('listeContainer');
-            container.innerHTML = "";
-
             const groups = groupStudentsByLevel();
-            const niveauxTries = getSortedLevels(groups);
+            const sortedLevels = getSortedLevels(groups);
+            let html = '';
 
-            niveauxTries.forEach(niv => {
-                const levelSection = document.createElement('div');
-                const couleurNiveau = getLevelColor(niv);
-                levelSection.innerHTML = `<div class="level-title" style="color: ${couleurNiveau} !important;">${niv}</div>`;
-
-                const grid = document.createElement('div');
-                grid.className = "student-grid";
+            sortedLevels.forEach(niv => {
+                const levelColor = getLevelColor(niv);
+                html += `<div><div class="level-title" style="color: ${levelColor} !important;">${niv}</div>`;
+                html += `<div class="student-grid">`;
 
                 groups[niv]
                     .sort((a, b) => a.identite.localeCompare(b.identite))
                     .forEach(el => {
-                        const item = document.createElement('div');
                         const genderClass = getGenderClass(el);
                         const drawnClass = isStudentDrawn(el.id) ? 'drawn' : '';
-                        item.className = `student-item ${genderClass} ${drawnClass}`;
-                        item.innerText = formatName(el.identite);
-                        item.onclick = () => toggleStudent(el.id);
-                        grid.appendChild(item);
+                        const displayName = formatName(el.identite);
+                        html += `<div class="student-item ${genderClass} ${drawnClass}" data-student-id="${el.id}">${displayName}</div>`;
                     });
 
-                levelSection.appendChild(grid);
-                container.appendChild(levelSection);
+                html += `</div></div>`;
+            });
+
+            elements.listeContainer.innerHTML = html;
+
+            // Ajouter les événements de clic
+            document.querySelectorAll('.student-item').forEach(item => {
+                item.addEventListener('click', () => toggleStudent(parseInt(item.dataset.studentId)));
             });
 
             updateStats();
         }
 
         function updateStats() {
-            const total = rawData.length;
-            const restants = remaining.length;
+            const total = state.rawData.length;
+            const restants = state.remaining.length;
             const pluralSuffix = restants > 1 ? 's' : '';
             
-            document.getElementById('counter').innerText = `${restants} restant${pluralSuffix} / ${total}`;
+            elements.counter.innerText = `${restants} restant${pluralSuffix} / ${total}`;
 
-            const btn = document.getElementById('draw-btn');
             if (restants === 0) {
-                btn.disabled = true;
-                btn.innerText = "Session terminée";
+                elements.drawBtn.disabled = true;
+                elements.drawBtn.innerText = "Session terminée";
             } else {
-                btn.disabled = false;
-                btn.innerText = "Tirer un prénom";
+                elements.drawBtn.disabled = false;
+                elements.drawBtn.innerText = "Tirer un prénom";
             }
         }
 
-        // ====================== STUDENT INTERACTION ====================== 
+        // ========== INTERACTION AVEC LES ÉLÈVES ========== 
         function toggleStudent(id) {
-            if (remaining.includes(id)) {
-                remaining = remaining.filter(item => item !== id);
+            if (state.remaining.includes(id)) {
+                state.remaining = state.remaining.filter(item => item !== id);
             } else {
-                remaining = [...remaining, id];
+                state.remaining.push(id);
             }
             saveState();
             renderList();
         }
 
-        // ====================== DRAWING ANIMATION ====================== 
+        // ========== ANIMATION DU TIRAGE ========== 
         function drawName() {
-            if (remaining.length === 0) return;
+            if (state.remaining.length === 0 || state.isDrawing) return;
 
-            const display = document.getElementById('result-display');
-            const btn = document.getElementById('draw-btn');
-
-            btn.disabled = true;
-            display.style.color = "#666666";
-            display.style.transform = "scale(0.95)";
+            state.isDrawing = true;
+            elements.drawBtn.disabled = true;
+            elements.resultDisplay.style.color = "#666666";
+            elements.resultDisplay.style.transform = `scale(${CONFIG.ANIMATION_SCALE_DOWN})`;
 
             let iterations = 0;
             const interval = setInterval(() => {
-                const randomIndex = Math.floor(Math.random() * remaining.length);
-                const tempStudent = getStudentById(remaining[randomIndex]);
-                display.innerText = formatName(tempStudent.identite);
+                const randomIndex = Math.floor(Math.random() * state.remaining.length);
+                const tempStudent = getStudentById(state.remaining[randomIndex]);
+                elements.resultDisplay.innerText = formatName(tempStudent.identite);
 
-                if (++iterations > DRAW_CONFIG.iterations) {
+                if (++iterations > CONFIG.DRAW_ITERATIONS) {
                     clearInterval(interval);
-                    completeDrawing(display, btn);
+                    completeDrawing();
                 }
-            }, DRAW_CONFIG.interval);
+            }, CONFIG.DRAW_INTERVAL);
         }
 
-        function completeDrawing(display, btn) {
-            const finalIndex = Math.floor(Math.random() * remaining.length);
-            const winnerId = remaining.splice(finalIndex, 1)[0];
+        function completeDrawing() {
+            const finalIndex = Math.floor(Math.random() * state.remaining.length);
+            const winnerId = state.remaining.splice(finalIndex, 1)[0];
             const winner = getStudentById(winnerId);
 
-            display.innerText = formatName(winner.identite);
-            display.style.color = THEME_HEX;
-            display.style.transform = "scale(1.1)";
+            elements.resultDisplay.innerText = formatName(winner.identite);
+            elements.resultDisplay.style.color = THEME_HEX;
+            elements.resultDisplay.style.transform = `scale(${CONFIG.ANIMATION_SCALE_UP})`;
             
-            setTimeout(() => display.style.transform = "scale(1)", 200);
+            setTimeout(() => {
+                elements.resultDisplay.style.transform = "scale(1)";
+                state.isDrawing = false;
+            }, CONFIG.ANIMATION_DURATION);
 
             saveState();
             renderList();
         }
 
-        // ====================== RESET ====================== 
+        // ========== RÉINITIALISATION ========== 
         function resetDrawing() {
-            showAlert("Remettre à zéro ?", "Tous les élèves seront à nouveau disponibles pour le tirage.", () => {
-                remaining = rawData.map(el => el.id);
-                localStorage.removeItem(STORAGE_KEYS.remaining);
-                document.getElementById('result-display').innerText = "PRÊT";
-                document.getElementById('result-display').style.color = THEME_HEX;
-                renderList();
-            });
+            showAlert(
+                "Remettre à zéro ?",
+                "Tous les élèves seront à nouveau disponibles pour le tirage.",
+                () => {
+                    state.remaining = state.rawData.map(el => el.id);
+                    localStorage.removeItem(STORAGE_KEYS.remaining);
+                    elements.resultDisplay.innerText = "PRÊT";
+                    elements.resultDisplay.style.color = THEME_HEX;
+                    renderList();
+                }
+            );
         }
 
-        // ====================== MODAL MANAGEMENT ====================== 
+        // ========== GESTION DES MODAUX ========== 
         function openHelp() {
             const container = document.getElementById('modal-body-content');
             container.innerHTML = `
-                <h3 class="font-black text-xs uppercase mb-2" style="color: ${THEME_HEX}">💡 Tirage</h3>
-                <div class="text-[11px] leading-relaxed space-y-2 opacity-90 mb-2" style="color: #111">
-                    <p>• <b>Absences :</b> Cliquez sur le nom d'un élève pour le griser s'il est absent. Il ne sera pas tiré au sort.</p>
-                    <p>• <b>Le Tirage :</b> Cliquez sur le bouton pour lancer l'animation et désigner un élève présent.</p>
-                    <p>• <b>Suivi :</b> Les élèves déjà tirés sont barrés. Le compteur indique la progression.</p>
-                    <p>• <b>RàZ :</b> Le bouton rouge remet tous les élèves présents dans la liste de tirage.</p>
+                <h3 class="font-black text-sm uppercase mb-4 text-center" style="color: ${THEME_HEX}">
+                    📖 Guide du Tirage au Sort
+                </h3>
+                <div class="text-[12px] leading-relaxed space-y-4 text-left" style="color: #333">
+                    <section>
+                        <p class="font-bold mb-1" style="color: ${THEME_HEX}">👥 Gestion des élèves</p>
+                        <p>• <b>Absences :</b> Avant de commencer, cliquez sur les noms des élèves absents. Ils apparaîtront grisés et barrés, et seront <b>exclus</b> du tirage.</p>
+                        <p>• <b>Récupération :</b> Si vous avez cliqué par erreur sur un élève, cliquez à nouveau dessus pour le rendre à nouveau disponible.</p>
+                    </section>
+
+                    <section>
+                        <p class="font-bold mb-1" style="color: ${THEME_HEX}">🎲 Le Tirage</p>
+                        <p>• <b>Lancer :</b> Appuyez sur "Tirer un prénom". Une animation fait défiler les noms restants avant de s'arrêter sur l'heureux élu.</p>
+                        <p>• <b>Suivi :</b> Une fois qu'un élève a été tiré, il est automatiquement barré de la liste pour ne pas ressortir deux fois.</p>
+                    </section>
+
+                    <section>
+                        <p class="font-bold mb-1" style="color: ${THEME_HEX}">⚙️ Contrôles</p>
+                        <p>• <b>Compteur :</b> Sous le bouton, suivez en temps réel le nombre d'élèves qu'il reste à interroger.</p>
+                        <p>• <b>RàZ :</b> Le bouton rouge permet de réinitialiser toute la classe (remettre tout le monde dans l'urne) sans recharger la page.</p>
+                    </section>
                 </div>
             `;
             
             const confirmBtn = document.getElementById('alertConfirmBtn');
-            confirmBtn.innerText = "Fermer";
+            confirmBtn.innerText = "J'ai compris";
             confirmBtn.style.backgroundColor = THEME_HEX;
             confirmBtn.onclick = closeModal;
             
@@ -458,91 +692,112 @@ document.documentElement.style.setProperty('--contrast-color', THEME_TEXT_COLOR)
         }
 
         function showAlert(title, text, onConfirm) {
-            const container = document.getElementById('modal-body-content');
-            container.innerHTML = `<h3 class="alert-title">${title}</h3><p class="alert-text">${text}</p>`;
+            elements.modalBodyContent.innerHTML = `
+                <h3 class="alert-title">${title}</h3>
+                <p class="alert-text">${text}</p>
+            `;
             
-            const confirmBtn = document.getElementById('alertConfirmBtn');
-            confirmBtn.innerText = "Confirmer";
-            confirmBtn.style.backgroundColor = THEME_HEX;
+            elements.alertConfirmBtn.innerText = "Confirmer";
+            elements.alertConfirmBtn.style.backgroundColor = THEME_HEX;
             
-            const newBtn = confirmBtn.cloneNode(true);
-            confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-            newBtn.onclick = () => {
+            // Cloner le bouton pour supprimer les anciens listeners
+            const newBtn = elements.alertConfirmBtn.cloneNode(true);
+            elements.alertConfirmBtn.parentNode.replaceChild(newBtn, elements.alertConfirmBtn);
+            elements.alertConfirmBtn = newBtn;
+            
+            elements.alertConfirmBtn.onclick = () => {
                 closeModal();
                 onConfirm();
             };
             
-            document.getElementById('btn-secondary').style.display = 'block';
-            document.getElementById('btn-secondary').innerText = "Annuler";
-            document.getElementById('alertModal').style.display = 'flex';
+            elements.btnSecondary.style.display = 'block';
+            elements.btnSecondary.innerText = "Annuler";
+            elements.alertModal.style.display = 'flex';
         }
 
         function closeModal() {
-            document.getElementById('alertModal').style.display = 'none';
+            elements.alertModal.style.display = 'none';
         }
 
-        // ====================== THEME APPLICATION ====================== 
-        function appliquerCouleursSexe() {
+        // ========== APPLICATION DES COULEURS DE GENRE ========== 
+        function applySexColors() {
             const prefs = JSON.parse(localStorage.getItem(STORAGE_KEYS.theme));
-            if (prefs) {
-                if (prefs.fille && COLOR_MAP[prefs.fille]) {
-                    document.documentElement.style.setProperty('--student-name-girl', COLOR_MAP[prefs.fille]);
-                }
-                if (prefs.garcon && COLOR_MAP[prefs.garcon]) {
-                    document.documentElement.style.setProperty('--student-name-boy', COLOR_MAP[prefs.garcon]);
-                }
+            if (!prefs) return;
+
+            if (prefs.fille && COLOR_MAP[prefs.fille]) {
+                document.documentElement.style.setProperty('--student-name-girl', COLOR_MAP[prefs.fille]);
+            }
+            if (prefs.garcon && COLOR_MAP[prefs.garcon]) {
+                document.documentElement.style.setProperty('--student-name-boy', COLOR_MAP[prefs.garcon]);
             }
         }
 
-        function appliquerTheme() {
-            const savedMode = localStorage.getItem(STORAGE_KEYS.themeMode);
-            const isLight = savedMode === 'light';
-    
-            // Application de la classe globale pour le fond
+        // ========== APPLICATION DU THÈME ========== 
+        function applyTheme() {
+            const isLight = localStorage.getItem(STORAGE_KEYS.themeMode) === 'light';
             document.body.classList.toggle('light-mode', isLight);
 
             const buttonElements = [
-                { el: document.getElementById('btn-retour'), type: 'icon' },
-                { el: document.getElementById('btn-retour-liste'), type: 'button' }, // Nouveau bouton
-                { el: document.getElementById('btn-aide'), type: 'icon' },
-                { el: document.getElementById('draw-btn'), type: 'button' }
+                elements.btnRetour,
+                elements.btnRetourListe,
+                elements.btnAide,
+                elements.drawBtn
             ];
 
-            buttonElements.forEach(({ el, type }) => {
+            buttonElements.forEach(el => {
                 if (el) {
-                    // Application de la couleur thématique
                     el.style.backgroundColor = THEME_HEX;
                     el.style.color = THEME_TEXT_COLOR;
-            
-                    if (type === 'icon') {
-                        const svg = el.querySelector('svg');
-                        if (svg) svg.style.color = THEME_TEXT_COLOR;
-                    }
+                    
+                    const svg = el.querySelector('svg');
+                    if (svg) svg.style.color = THEME_TEXT_COLOR;
                 }
             });
 
-            const display = document.getElementById('result-display');
-            if (display) {
-                display.style.color = THEME_HEX;
-            }
+            elements.resultDisplay.style.color = THEME_HEX;
         }
-		
-        // ====================== KEYBOARD & MOUSE EVENTS ====================== 
-        window.onclick = function (event) {
-            const modal = document.getElementById('alertModal');
-            if (event.target === modal) closeModal();
-        };
 
-        window.onkeydown = function (event) {
-            if (event.key === "Escape") closeModal();
-        };
+        // ========== GESTION DES ÉVÉNEMENTS ========== 
+        function initEventListeners() {
+            // Bouton aide
+            elements.btnAide.addEventListener('click', openHelp);
+            
+            // Bouton tirage
+            elements.drawBtn.addEventListener('click', drawName);
+            
+            // Bouton réinitialisation
+            elements.resetBtn.addEventListener('click', resetDrawing);
+            
+            // Bouton annuler du modal
+            elements.btnSecondary.addEventListener('click', closeModal);
+            
+            // Fermeture du modal en cliquant sur l'overlay
+            elements.alertModal.addEventListener('click', (event) => {
+                if (event.target === elements.alertModal) closeModal();
+            });
+            
+            // Empêcher la fermeture en cliquant sur le contenu
+            elements.alertModal.querySelector('.modal-content').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            // Touche Échap pour fermer le modal
+            window.addEventListener('keydown', (event) => {
+                if (event.key === "Escape") closeModal();
+            });
+        }
 
-        // ====================== INITIALIZATION ====================== 
-        window.onload = () => {
-            appliquerCouleursSexe();
-            appliquerTheme();
+        // ========== INITIALISATION ========== 
+        function init() {
+            applySexColors();
+            applyTheme();
+            initEventListeners();
             renderList();
-        };
+        }
+
+        // Démarrage de l'application
+        window.onload = init;
     </script>
+
 </body>
 </html>
