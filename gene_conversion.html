@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tableaux de Conversion - OutilsProfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        :root {
+            --bg-page: #121212; --card-bg: #1e1e1e; --text-main: #ffffff;
+            --column-border: rgba(255, 255, 255, 0.1); --input-bg: #2a2a2a;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            --accent-color: #06b6d4;
+        }
+        body.light-mode {
+            --bg-page: #eeeeee; --card-bg: #ffffff; --text-main: #111827;
+            --column-border: rgba(0, 0, 0, 0.1); --input-bg: #f3f4f6;
+            --shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-page); color: var(--text-main); margin: 0; padding: 0; transition: background 0.3s ease; }
+        
+        header { 
+            background: var(--card-bg); border-bottom: 1px solid var(--column-border);
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+            justify-content: space-between; padding: calc(env(safe-area-inset-top) + 10px) 15px 10px 15px; 
+            width: 100%; margin-bottom: 12px;
+        }
+        .ui-btn-round { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; transition: all 0.2s ease; cursor: pointer; border: none; }
+        header h1 { font-size: 1.125rem; font-weight: 900; text-transform: uppercase; text-align: center; flex-grow: 1; }
+        
+        /* Ajustement largeur pour accueillir 2 colonnes d'exos sur PC */
+        .main-wrapper { width: 100%; max-width: 800px; margin: 0 auto; padding: 10px 15px 40px; }
+        .setup-container { max-width: 500px; margin: 0 auto; }
+
+        .light-card { background: var(--card-bg); border-radius: 1.5rem; padding: 20px; border: 1px solid var(--column-border); box-shadow: var(--shadow-custom); margin-bottom: 20px; }
+        .input-field { background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 0.75rem; padding: 12px; font-size: 0.85rem; font-weight: 700; width: 100%; color: var(--text-main); outline: none; }
+        .btn-add { width: 100%; padding: 14px; border-radius: 50px; font-weight: 900; font-size: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: transform 0.1s; }
+        .btn-game-action { height: 40px; border-radius: 9999px; font-size: 10px; font-weight: 900; color: white; transition: all 0.2s ease; text-transform: uppercase; }
+        
+        /* Table Design */
+        .conv-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; table-layout: fixed; }
+        .conv-table th, .conv-table td { border: 1px solid var(--column-border); text-align: center; padding: 8px 2px; }
+        .conv-table th { background: var(--input-bg); font-weight: 900; text-transform: uppercase; }
+        
+        /* GRILLE EXERCICES : 1 col mobile, 2 cols dès 640px (tablette/PC) */
+        #exercises-list { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr;
+            gap: 15px; 
+            padding: 20px;
+        }
+        @media (min-width: 640px) {
+            #exercises-list { grid-template-columns: 1fr 1fr; }
+        }
+
+        .exercice-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-start; /* Aligne tout au début de la ligne */
+			gap: 12px; /* Espace constant entre les éléments */
+            font-weight: 700; 
+            font-size: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--column-border);
+        }
+		
+		.exercice-row span:first-child {
+			min-width: 80px; /* Largeur minimum pour aligner les signes "=" */
+			text-align: right;
+		}
+
+        .exercice-row input { width: 100px; background: var(--input-bg); border: 1px solid var(--column-border); border-radius: 6px; padding: 4px; text-align: center; color: var(--accent-color); outline: none; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto;  border-radius: 1.5rem; border: 1px solid var(--column-border); padding: 25px; position: relative; max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<script>if (localStorage.getItem('theme_mode') === 'light') document.body.classList.add('light-mode');</script>
+
+<header>
+    <a href="index.html" id="btn-retour-header" class="ui-btn-round active:scale-90">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+    </a>
+    <h1>Conversion</h1>
+    <button id="btn-aide" onclick="ouvrirModal('modal-aide')" class="ui-btn-round active:scale-90 text-lg">💡</button>
+</header>
+
+<div class="main-wrapper">
+    <div id="container-retour-liste" class="mb-4 text-left">
+        <a href="generateurs.html" id="btn-retour-liste" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase transition-transform active:scale-95 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" /></svg>
+            Retour aux générateurs
+        </a>
+    </div>
+
+    <div id="setup-zone" class="setup-container">
+        <div class="light-card space-y-4">
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest">Type de mesure</label>
+                <select id="select-type" class="input-field">
+                    <option value="longueurs">Longueurs (m)</option>
+                    <option value="masses">Masses (g)</option>
+                    <option value="contenances">Contenances (L)</option>
+                    <option value="aires">Aires (m²)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest">Nombre d'exercices</label>
+                <input type="number" id="nb-exercices" class="input-field" value="10" min="1" max="20">
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase opacity-50 mb-2 tracking-widest">Niveau de difficulté</label>
+                <select id="select-diff" class="input-field">
+                    <option value="1">Facile (Entiers, écart max 3)</option>
+                    <option value="2">Moyen (Décimaux, écart max 2)</option>
+                    <option value="3">Difficile (Tout est possible)</option>
+                </select>
+            </div>
+            <button id="mainAddBtn" onclick="generateExercise()" class="btn-add">Générer le tableau</button>
+        </div>
+    </div>
+
+    <div id="game-zone" class="hidden space-y-6">
+        <div id="table-preview" class="overflow-x-auto light-card"></div>
+        <div id="exercises-list" class="light-card"></div>
+        
+        <div class="grid grid-cols-2 gap-4 pt-4 max-w-[500px] mx-auto">
+            <button onclick="retourReglages()" class="btn-game-action bg-gray-500">⬅️ retour</button>
+            <button id="validate-btn" onclick="showCorrection()" class="btn-game-action bg-green-500">👁️ correction</button>
+            <button onclick="exportToPDF()" class="btn-game-action bg-blue-500 col-span-2">📄 édition PDF</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-aide" class="modal-overlay" onclick="fermerModal('modal-aide')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="titre-aide" class="text-lg font-black uppercase mb-4 text-center">📏 Mode d'emploi</h2>
+        
+        <div class="text-[12px] leading-relaxed space-y-4 opacity-90">
+            <section>
+                <h3 class="font-bold text-cyan-500 uppercase text-[10px] mb-1">1. Configuration</h3>
+                <p>Sélectionnez le <b>type de mesure</b> (longueurs, masses, etc.), le <b>nombre d'exercices</b> et le <b>niveau de difficulté</b>. Cliquez sur "Générer" pour créer la fiche.</p>
+            </section>
+
+            <hr class="opacity-10">
+
+            <section>
+                <h3 class="font-bold text-cyan-500 uppercase text-[10px] mb-1">2. Comprendre les niveaux</h3>
+                <ul class="list-disc ml-4 space-y-1">
+                    <li><b>Facile :</b> Uniquement des nombres entiers. Les conversions se font toujours vers une unité plus petite (vers la droite), garantissant des résultats sans virgule.</li>
+                    <li><b>Moyen :</b> Les nombres de départ sont entiers, mais les conversions peuvent aller dans les deux sens. La virgule peut apparaître dans la réponse.</li>
+                    <li><b>Difficile :</b> Tout est possible. Le nombre de départ peut déjà être décimal et l'écart entre les unités est aléatoire.</li>
+                </ul>
+                <p class="mt-2 text-[10px] italic">💡 Note : Les modes Moyen et Difficile incluent 20% de questions du niveau inférieur pour encourager l'élève.</p>
+            </section>
+
+            <hr class="opacity-10">
+
+            <section>
+                <h3 class="font-bold text-cyan-500 uppercase text-[10px] mb-1">3. Correction & PDF</h3>
+                <p><b>Correction :</b> Cliquez sur l'œil pour vérifier les réponses. Les bonnes réponses deviennent <b>vertes</b> et sont conservées même si vous masquez la correction pour corriger vos erreurs (en <b>rouge</b>).</p>
+                <p><b>PDF :</b> Génère une fiche prête à imprimer avec un tableau de conversion à compléter et les exercices sur deux colonnes. La correction est incluse sur la deuxième page.</p>
+            </section>
+        </div>
+
+        <button onclick="fermerModal('modal-aide')" id="btn-fermer-aide" class="mt-6 w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-transform">J'ai compris</button>
+    </div>
+</div>
+
+<script>
+    const mapCouleurs = { 'red': '#ef4444', 'orange': '#f97316', 'amber': '#f59e0b', 'yellow': '#eab308', 'lime': '#84cc16', 'green': '#22c55e', 'emerald': '#10b981', 'teal': '#14b8a6', 'cyan': '#06b6d4', 'sky': '#0ea5e9', 'blue': '#3b82f6', 'indigo': '#6366f1', 'violet': '#8b5cf6', 'purple': '#a855f7', 'fuchsia': '#d946ef', 'pink': '#ec4899', 'rose': '#f43f5e', 'gray': '#6b7280' };
+    
+    const unitsData = {
+        longueurs: ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm'],
+        masses: ['kg', 'hg', 'dag', 'g', 'dg', 'cg', 'mg'],
+        contenances: ['kL', 'hL', 'daL', 'L', 'dL', 'cL', 'mL'],
+        aires: ['km²', 'hm²', 'dam²', 'm²', 'dm²', 'cm²', 'mm²']
+    };
+
+    let currentType = "";
+    let currentExos = [];
+    let isShowingCorrection = false;
+
+    function convert(value, from, to, type) {
+        const units = unitsData[type];
+        const power = type === 'aires' ? 2 : 1;
+        const fromIdx = units.indexOf(from);
+        const toIdx = units.indexOf(to);
+        const diff = (toIdx - fromIdx) * power;
+        const numericValue = parseFloat(value.toString().replace(',', '.'));
+        const calculation = numericValue * Math.pow(10, diff);
+        return calculation.toLocaleString('fr-FR', { maximumFractionDigits: 5 }).replace(/\s/g, '');
+    }
+
+    function generateExercise() {
+        currentType = document.getElementById('select-type').value;
+        const count = parseInt(document.getElementById('nb-exercices').value);
+        const mainDiff = parseInt(document.getElementById('select-diff').value);
+        const units = unitsData[currentType];
+        
+        let html = `<table class="conv-table"><tr>`;
+        units.forEach(u => {
+            if (currentType === 'aires') html += `<th colspan="2">${u}</th>`;
+            else html += `<th>${u}</th>`;
+        });
+        html += `</tr><tr>`;
+        units.forEach(u => {
+            if (currentType === 'aires') html += `<td></td><td></td>`;
+            else html += `<td></td>`;
+        });
+        html += `</tr></table>`;
+        document.getElementById('table-preview').innerHTML = html;
+
+        currentExos = [];
+        let exosHtml = "";
+
+        for(let i = 0; i < count; i++) {
+            let fromIdx, toIdx, val;
+            let activeDiff = mainDiff;
+            const rand = Math.random();
+            if (mainDiff === 2 && rand < 0.2) activeDiff = 1; 
+            if (mainDiff === 3 && rand < 0.2) activeDiff = 2; 
+
+            let maxEcart = (activeDiff === 1) ? 3 : (activeDiff === 2) ? 2 : units.length;
+
+            if (activeDiff === 1) {
+                fromIdx = Math.floor(Math.random() * (units.length - 1));
+                let possibleTo = Math.min(fromIdx + maxEcart, units.length - 1);
+                toIdx = fromIdx + 1 + Math.floor(Math.random() * (possibleTo - fromIdx));
+                val = Math.floor(Math.random() * 95) + 1;
+            } 
+            else if (activeDiff === 2) {
+                fromIdx = Math.floor(Math.random() * units.length);
+                do {
+                    toIdx = Math.floor(Math.random() * units.length);
+                } while (fromIdx === toIdx || Math.abs(fromIdx - toIdx) > maxEcart);
+                val = Math.floor(Math.random() * 95) + 1;
+            }
+            else {
+                fromIdx = Math.floor(Math.random() * units.length);
+                do {
+                    toIdx = Math.floor(Math.random() * units.length);
+                } while (fromIdx === toIdx);
+                val = (Math.random() * 95).toFixed(2).replace('.', ',');
+            }
+
+            const unit1 = units[fromIdx];
+            const unit2 = units[toIdx];
+            const result = convert(val, unit1, unit2, currentType);
+            
+            currentExos.push({ val, u1: unit1, u2: unit2, result });
+            exosHtml += `
+                <div class="exercice-row">
+                    <span>${val} ${unit1} =</span>
+                    <input type="text" data-index="${i}" placeholder="?">
+                    <span class="w-12">${unit2}</span>
+                </div>`;
+        }
+        
+        document.getElementById('exercises-list').innerHTML = exosHtml;
+        document.getElementById('setup-zone').classList.add('hidden');
+        document.getElementById('game-zone').classList.remove('hidden');
+        isShowingCorrection = false;
+        document.getElementById('validate-btn').innerHTML = "👁️ correction";
+        document.getElementById('validate-btn').className = "btn-game-action bg-green-500";
+    }
+
+    function showCorrection() {
+        const btn = document.getElementById('validate-btn');
+        const inputs = document.querySelectorAll('.exercice-row input');
+        
+        if (!isShowingCorrection) {
+            inputs.forEach(input => {
+                const idx = input.dataset.index;
+                const correct = currentExos[idx].result;
+                const cleanUser = input.value.trim().replace(/\s/g, '').replace(',', '.');
+                const cleanCorrect = correct.replace(/\s/g, '').replace(',', '.');
+                const isCorrect = (cleanUser !== "" && parseFloat(cleanUser) === parseFloat(cleanCorrect));
+
+                if (isCorrect) {
+                    input.dataset.status = "done";
+                    input.style.color = '#10b981';
+                } else {
+                    input.dataset.status = "error";
+                    input.style.color = '#ef4444';
+                }
+                input.value = correct; 
+                input.style.fontWeight = "900";
+                input.disabled = true;
+            });
+            btn.innerHTML = "🙈 masquer"; 
+            btn.classList.replace('bg-green-500', 'bg-orange-500');
+            isShowingCorrection = true;
+        } else {
+            inputs.forEach(input => { 
+                if (input.dataset.status === "error") {
+                    input.value = ""; 
+                    input.style.color = ""; 
+                    input.style.fontWeight = "700";
+                    input.disabled = false; 
+                } 
+            });
+            btn.innerHTML = "👁️ correction"; 
+            btn.classList.replace('bg-orange-500', 'bg-green-500');
+            isShowingCorrection = false;
+        }
+    }
+
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const now = new Date();
+        const dateStr = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+        const filename = `outilsprofs_conversion_${dateStr}.pdf`;
+        const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
+        const units = unitsData[currentType];
+
+        const drawPage = (titleText, isCorr) => {
+            // Bloc ID
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(100);
+            if(!isCorr) {
+                doc.text("Nom : .................................", 20, 15);
+                doc.text("Prénom : .................................", 85, 15);
+                doc.text("Date : .................................", 150, 15);
+            }
+
+            // Titre
+            doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.setTextColor(accent);
+            doc.text(titleText, 105, 30, { align: "center" });
+
+            // Tableau
+            const headers = currentType === 'aires' ? units.map(u => [{content: u, colSpan: 2}]) : [units];
+            const totalCols = currentType === 'aires' ? units.length * 2 : units.length;
+            const tableWidth = 170; const colWidth = tableWidth / totalCols;
+            const emptyRows = Array(Math.min(currentExos.length, 12)).fill(Array(totalCols).fill(''));
+
+            doc.autoTable({
+                startY: 40, head: headers, body: emptyRows, theme: 'grid',
+                styles: { halign: 'center', fontSize: 9, minCellHeight: 10, cellWidth: colWidth },
+                headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold', lineWidth: 0.2 },
+                margin: { left: 20, right: 20 }
+            });
+
+            // Exercices en 2 colonnes
+            doc.setFontSize(11); doc.setTextColor(0);
+            let yStart = doc.lastAutoTable.finalY + 15;
+            doc.setFont("helvetica", "bold");
+            doc.text("Effectue les conversions suivantes :", 20, yStart);
+            doc.setFont("helvetica", "normal");
+            
+            let y = yStart + 12;
+            const midIndex = Math.ceil(currentExos.length / 2);
+            const col1X = 25; const col2X = 110;
+
+            currentExos.forEach((ex, index) => {
+                let currentX = (index < midIndex) ? col1X : col2X;
+                let currentY = (index < midIndex) ? y + (index * 10) : y + ((index - midIndex) * 10);
+                
+                const valDisp = ex.val.toString().replace('.', ',');
+                const resDisp = ex.result.toString().replace('.', ',');
+                const line = `${index + 1}) ${valDisp} ${ex.u1} = ${isCorr ? resDisp : '................'} ${ex.u2}`;
+                doc.text(line, currentX, currentY);
+            });
+        };
+
+        drawPage("Tableau de conversion : " + currentType, false);
+        doc.addPage();
+        drawPage("Correction des exercices", true);
+
+        if (window.Android && window.Android.savePdfFromBase64) {
+            const pdfBase64 = doc.output('datauristring').split(',')[1];
+            window.Android.savePdfFromBase64(pdfBase64, filename);
+        } else {
+            doc.save(filename);
+        }
+    }
+
+    function appliquerTheme() {
+        const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
+        const colPref = themePrefs.gen || 'cyan'; const hexa = mapCouleurs[colPref];
+        const contrast = ['yellow', 'lime', 'amber', 'cyan'].includes(colPref) ? '#000' : '#fff';
+        document.documentElement.style.setProperty('--accent-color', hexa);
+        [document.getElementById('btn-retour-header'), document.getElementById('btn-retour-liste'), document.getElementById('btn-aide'), document.getElementById('mainAddBtn'), document.getElementById('btn-fermer-aide')].forEach(el => { if(el) { el.style.backgroundColor = hexa; el.style.color = contrast; } });
+    }
+
+    function ouvrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function fermerModal(id) { document.getElementById(id).style.display = 'none'; }
+    function retourReglages() { document.getElementById('setup-zone').classList.remove('hidden'); document.getElementById('game-zone').classList.add('hidden'); }
+    window.onload = appliquerTheme;
+</script>
+</body>
+</html>
