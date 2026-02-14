@@ -405,6 +405,8 @@
 
         .modal-content {
             background: var(--card-bg); width: 100%; max-width: 450px;
+			max-height: 80vh; /* Limite la hauteur à 80% de la fenêtre */
+			overflow-y: auto;  /* Ajoute un scroll interne si le texte dépasse */
             border-radius: 1.5rem; border: 1px solid var(--column-border);
             padding: 30px; position: relative;
         }

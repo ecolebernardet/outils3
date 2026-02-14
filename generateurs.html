@@ -398,6 +398,8 @@
 
         .modal-content { 
             background: var(--card-bg); width: 100%; max-width: 450px; 
+			max-height: 80vh; /* Limite la hauteur à 80% de la fenêtre */
+			overflow-y: auto;  /* Ajoute un scroll interne si le texte dépasse */
             border-radius: 1.5rem; border: 1px solid var(--column-border); 
             padding: 30px; position: relative;
         }
@@ -408,8 +410,8 @@
         }
 
         .modal-text { 
-            font-size: 0.6875rem;
-            line-height: 1.7;
+            font-size: 0.65rem;
+            line-height: 1.5;
             opacity: 0.8;
             font-weight: 600;
         }
@@ -648,19 +650,24 @@
 
     const HELP_CONTENT = [
         'Cette section regroupe vos générateurs d\'outils pédagogiques.',
-        '<br>🧮 Le <strong>Générateur de Calcul Mental</strong> vous permet de créer des fiches PDF ou de lancer des sessions chrono.',
-        '<br>📅 Le <strong>Rituel Opérations</strong> permet de configurer une semaine complète de calculs quotidiens.',
-        '<br>🎯 Le <strong>Compte est Bon</strong> génère des tirages de nombres à atteindre avec des solutions garanties.',
-        '<br>🔺 Le <strong>Générateur de Pyramides</strong> crée des défis de calcul basés sur la somme ou le produit de briques adjacentes.',
-        '<br>➗ Le <strong>Générateur de Fractions</strong> crée des exercices de lecture, d\'écriture et de comparaison de fractions.',
-        '<br>📐 Le <strong>Générateur de Reproduction</strong> permet de créer des grilles de reproduction de figures géométriques.',
-        '<br>🀄 Le <strong>Générateur de Dominos</strong> crée des chaînes de calculs ou de révisions thématiques avec sens de lecture.',
-        '<br>🔢 Le <strong>Générateur de Sudokus</strong> crée des grilles de logique de différents niveaux avec leurs corrections.',
-        '<br>📝 Le <strong>Générateur de mots mêlés</strong> crée des grilles personnalisées avec correction.',
-		'<br>✍️ Le <strong>Générateur de Conjugaison</strong> permet de créer des fiches d\'exercices sur les temps et les groupes de verbes.',
-		'<br>🕳️ Le <strong>Générateur de textes à trous</strong> permet de créer des textes à trous sur mesure.',
-        '<br>🎨 Le <strong>Générateur de Pixel Art</strong> permet de transformer des images en grilles à colorier.',
-        '<br>❓ Le <strong>Générateur de Quizz</strong> permet de créer des séries de questions/réponses avec minuteur et export PDF/TXT.'
+		'<br><br><strong>📐 GÉOMÉTRIE ET SPATIAL</strong>',
+		'<br>• <strong>Reproduction</strong> : créer des grilles de reproduction de figures géométriques.',
+		'<br>• <strong>Pixel Art</strong> : créer des grilles à colorier.',
+		'<br><br><strong>📝 LANGUE & CULTURE</strong>',
+		'<br>• <strong>Mots mêlés</strong> : créer des grilles personnalisées avec correction.',
+		'<br>• <strong>Quiz</strong> : créer des séries de questions/réponses avec minuteur et export PDF/TXT.',
+		'<br>• <strong>Conjugaison</strong> : créer des fiches d\'exercices sur les temps et les groupes de verbes.',
+		'<br>• <strong>Texte à trous</strong> : créer des textes à trous sur mesure.',
+		'<br><br><strong>🧮 MATHÉMATIQUES</strong>',
+        '<br>• <strong>Calcul Mental</strong> : créer des fiches PDF ou de lancer des sessions chrono.',
+        '<br>• <strong>Rituel Opérations</strong> : configurer une semaine complète de calculs quotidiens.',
+        '<br>• <strong>Le Compte est Bon</strong> : génèrer des tirages de nombres à atteindre avec des solutions garanties.',
+        '<br>• <strong>Pyramides</strong> : créer des défis de calcul basés sur la somme ou le produit de briques adjacentes.',
+        '<br>• <strong>Fractions</strong> : créer des exercices de lecture, d\'écriture et de comparaison de fractions.',
+		'<br>• <strong>Monnaie</strong> : créer des exercices pour calculer la somme totale des pièces et billets.',
+		'<br><br><strong>🧩 LOGIQUE & RÉFLEXION</strong>',
+        '<br>• <strong>Dominos</strong> : créer des chaînes de calculs ou de révisions thématiques avec sens de lecture.',
+        '<br>• <strong>Sudokus</strong> : créer des grilles de logique de différents niveaux avec leurs corrections.',
     ];
 
     // ====================== UTILITY FUNCTIONS ====================== 
