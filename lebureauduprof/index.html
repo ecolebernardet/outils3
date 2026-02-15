@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Bureau du Prof</title>
+
+<style>
+        /* --- CHARTE GRAPHIQUE --- */
+        :root {
+            --bg-color: #eef2f5;
+            --widget-bg: #ffffff;
+            --primary-color: #4a90e2;
+            --text-color: #333;
+            --shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+            --border-radius: 18px;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+        }
+
+        #board { width: 100vw; height: 100vh; position: relative; z-index: 0; transition: background 0.3s ease; }
+
+        /* --- WIDGETS --- */
+        .widget {
+            position: absolute;
+            background: var(--widget-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+            border: 2px solid transparent;
+            height: auto;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        /* Échelle automatique pour petits écrans */
+        @media (max-width: 1024px) or (max-height: 700px) {
+            .widget { transform: scale(0.85); transform-origin: top left; }
+            .editor-container { min-width: 200px !important; }
+        }
+
+        .widget:focus-within { border-color: var(--primary-color); box-shadow: 0 12px 30px rgba(74, 144, 226, 0.3); }
+        .widget[data-type="homework"]:focus-within { border-color: #ff4757; }
+        .widget[data-type="iframe"]:focus-within { border-color: #2bcbba; }
+
+        /* --- WIDGETS TRANSPARENTS --- */
+        .widget[data-transparent="true"] {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .widget[data-transparent="true"]:hover,
+        .widget[data-transparent="true"]:focus-within {
+            background: rgba(74, 144, 226, 0.05) !important;
+        }
+
+        .widget[data-transparent="true"] .editor-container,
+        .widget[data-transparent="true"] .editor-content {
+            border: none !important;
+            background: transparent !important;
+        }
+
+        /* --- CONTRÔLES ISOLÉS --- */
+        .widget-header { display: none !important; }
+
+        .drag-handle, .widget-close-handle, .widget-pin-handle {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    pointer-events: none;
+}
+
+        .drag-handle { 
+    left: -13px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    cursor: move; 
+    font-size: 14px; 
+    color: #666; 
+}
+        .widget-close-handle {
+    top: 5px;
+    right: 5px;
+}
+
+.widget-pin-handle {
+    top: 5px;
+    right: 35px;
+}
+        .widget-pin-handle { right: 35px; cursor: pointer; font-size: 14px; color: #666; }
+
+        .widget:focus-within .drag-handle,
+        .widget:focus-within .widget-close-handle,
+        .widget:focus-within .widget-pin-handle {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .widget-close-handle:hover { color: #ff5f56; background: white; }
+        .drag-handle:hover { color: var(--primary-color); background: white; }
+        .widget-pin-handle:hover { background: white; }
+
+        .widget.pinned .widget-pin-handle { background: #FFD230; transform: rotate(-45deg); }
+        .widget.pinned { border: 2px solid transparent !important; }
+
+        /* --- CONTENU & ÉDITEUR --- */
+        .widget[data-type="date"], .widget[data-type="time"] { min-width: unset; width: auto; }
+
+        .widget[data-type="date"] .editor-container,
+        .widget[data-type="time"] .editor-container {
+            resize: none;
+            overflow: hidden;
+            container-type: inline-size;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: white;
+        }
+
+        .widget[data-type="date"]:hover .editor-container,
+        .widget[data-type="time"]:hover .editor-container { resize: both; }
+
+        .widget[data-type="date"] .editor-container { min-width: 150px; min-height: 180px; width: 220px; height: 260px; }
+        .widget[data-type="time"] .editor-container { min-width: 120px; min-height: 80px; width: 200px; height: 100px; }
+
+        .editor-toolbar { 
+            display: flex;
+            visibility: hidden; 
+            opacity: 0; 
+            gap: 4px; 
+            padding: 0px 35px; 
+            background: #f8f9fa; 
+            border-bottom: 1px solid #eee; 
+            flex-wrap: wrap; 
+            align-items: center; 
+            min-height: 36px;
+        }
+        .widget:focus-within .editor-toolbar { visibility: visible; opacity: 1; }
+
+        .widget-content { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .editor-container { 
+            display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 8px; background: white; 
+            flex-grow: 1; overflow: hidden; resize: none; min-width: 280px; min-height: 120px;
+        }
+
+        .widget:hover .editor-container { resize: both; }
+        .editor-container::-webkit-resizer { background-color: transparent; }
+        .widget:hover .editor-container::-webkit-resizer { 
+            background-color: #ccc; 
+            background-image: linear-gradient(135deg, transparent 50%, #333 50%, #333 60%, transparent 60%, transparent 70%, #333 70%, #333 80%, transparent 80%);
+        }
+
+        .editor-toolbar button, .editor-toolbar select, .editor-toolbar input { 
+            padding: 2px 4px; cursor: pointer; border: 1px solid #ddd; background: white; 
+            border-radius: 4px; font-size: 11px; height: 26px; box-sizing: border-box;
+        }
+        
+        @font-face { font-family: 'KGPerfectPenmanship'; src: url('./KGPerfectPenmanship.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'Andika'; src: url('./Andika.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'OpenDyslexicLocal'; src: url('./OpenDyslexic-Regular.otf') format('opentype'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'BelleAllureGS'; src: url('BelleAllureGS-Gros.otf') format('opentype'); font-weight: normal; font-style: normal; }
+
+        .editor-content { padding: 10px; outline: none; overflow: auto; text-align: left; flex-grow: 1; }
+
+        /* --- TOOLBAR & MENU PRINCIPAL --- */
+        #toolbar-container { position: fixed; bottom: 30px; left: 30px; display: flex; flex-direction: column; align-items: flex-start; z-index: 9999; }
+        
+        #tools-menu { 
+            display: none; background: #1F1F21; border-radius: 12px; padding: 10px; box-shadow: var(--shadow); 
+            margin-bottom: 15px; flex-direction: column; gap: 8px; min-width: 180px; border: 1px solid #eee; 
+            position: relative; max-height: 70vh; overflow-y: auto; overflow-x: hidden;
+        }
+        #tools-menu.active { display: flex; }
+        
+        #bg-submenu {
+            display: none; position: fixed; left: 220px; bottom: 80px; background: white; border-radius: 12px; 
+            padding: 12px; box-shadow: var(--shadow); grid-template-columns: repeat(3, 1fr); gap: 10px; 
+            min-width: 240px; border: 1px solid #eee; z-index: 10001;
+        }
+        #bg-submenu.active { display: grid; }
+
+        @media (max-width: 600px) {
+            #bg-submenu { left: 30px; bottom: 120px; min-width: 200px; grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        .tool-btn { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .tool-btn2 { width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: filter 0.2s; }
+
+        #undo-btn { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; z-index: 9999; box-shadow: var(--shadow); }
+        #main-tool-btn { background: #333; width: 80px; justify-content: center; }
+
+        .exit-fs-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 99999; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        :fullscreen .exit-fs-btn { display: block; }
+
+        .bg-thumb { width: 70px; height: 50px; border-radius: 6px; border: 2px solid #eee; cursor: pointer; background-size: cover; background-position: center; transition: 0.2s; }
+        .bg-thumb:hover { transform: scale(1.05); border-color: var(--primary-color); }
+        
+        /* --- CALENDRIER & HORLOGE --- */
+        .calendar-page { width: 100%; height: 100%; display: flex; flex-direction: column; border: 1px solid #ced4da; border-radius: 8px; overflow: hidden; background: white; text-align: center; position: relative; padding-top: 15px; box-sizing: border-box; }
+        .calendar-page::before { content: "● ● ●"; position: absolute; top: -8px; left: 0; right: 0; color: #8e9aaf; font-size: 24px; letter-spacing: 15px; text-shadow: 0 5px 0 #6c757d; }
+        .calendar-header { background: #D17B6B; height: 20%; min-height: 30px; border-bottom: 2px solid #D17B6B; margin-bottom: 5px; }
+        .calendar-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding: 5px; }
+        .calendar-day-name { font-size: 12cqw; font-weight: 700; color: #333; text-transform: lowercase; }
+        .calendar-day-number { font-size: 35cqw; font-weight: 800; color: #2c3e50; line-height: 1em; margin: 2cqw 0; }
+        .calendar-month { font-size: 15cqw; font-weight: 600; color: #333; }
+
+        .clock-time { font-size: 26cqw; font-weight: 800; color: var(--primary-color); font-family: 'Courier New', monospace; display: flex; align-items: baseline; justify-content: center; width: 100%; gap: 4px; }
+        .clock-seconds { font-size: 0.5em; color: #888; margin-left: 2cqw; }
+
+        .icon-transparency { display: inline-block; width: 16px; height: 16px; border: 1px solid #333; background-color: #fff; background-image: linear-gradient(45deg, #ddd 25%, transparent 25%), linear-gradient(-45deg, #ddd 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ddd 75%), linear-gradient(-45deg, transparent 75%, #ddd 75%); background-size: 8px 8px; background-position: 0 0, 0 4px, 4px -4px, -4px 0px; vertical-align: middle; border-radius: 2px; }
+        
+        /* --- STYLE DU WIDGET AGENDA --- */
+        .agenda-container { display: flex; flex-direction: column; background: #fff; border-radius: 8px; border: 1px solid #eee; overflow: hidden; min-height: 200px; }
+        .agenda-header-title {
+    background: #2b7fff;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    border-radius: 4px 4px 0 0;
+}
+
+.agenda-current-time {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+        .agenda-header-date, .agenda-header-time {
+            display: inline-block;
+        }
+
+        .agenda-header-time {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .agenda-list { padding: 10px; flex-grow: 1; }
+        .agenda-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px dashed #eee; position: relative; }
+        .agenda-item:last-child { border-bottom: none; }
+        .agenda-item.dragging { opacity: 0.5; background: #f0f7ff; border: 1px dashed var(--primary-color); }
+
+        .agenda-time { font-weight: bold; color: #4a90e2; font-size: 1.2em; min-width: 45px; outline: none; cursor: text; }
+        .agenda-text { outline: none; flex-grow: 1; font-size: 1.2em; color: #333; }
+        
+        .agenda-add-btn { background: #f8f9fa; border: none; border-top: 1px solid #eee; padding: 5px; cursor: pointer; color: #4a90e2; font-weight: bold; font-size: 1.2em; transition: background 0.2s; }
+        .agenda-add-btn:hover { background: #eef2f5; color: #2c3e50; }
+        
+        .agenda-row-handle { cursor: grab; color: #ccc; padding: 0 5px; font-size: 12px; user-select: none; }
+        .agenda-row-handle:active { cursor: grabbing; }
+
+        .agenda-delete-row { cursor: pointer; color: #e74c3c; font-weight: bold; font-size: 16px; padding: 0 5px; opacity: 0; transition: opacity 0.2s; }
+        .agenda-item:hover .agenda-delete-row { opacity: 1; }
+        .agenda-delete-row:hover { transform: scale(1.2); }
+        
+        /* --- MODALES --- */
+        #modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:20000; justify-content:center; align-items:center; }
+        .modal-content { background:white; padding:30px; border-radius:var(--border-radius); box-shadow:var(--shadow); text-align:center; max-width:400px; width:90%; }
+        .modal-content button { padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .modal-content .btn-cancel { border: 1px solid #ddd; background: #f8f9fa; color: var(--text-color); }
+        .modal-content .btn-confirm { border: none; background: #ff4757; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="board"></div>
+
+    <div id="toolbar-container">
+        <div id="tools-menu">
+            <button class="tool-btn" onclick="createWidget('youtube'); toggleMenu()" style="background: #E7180B;"><span>🎬</span> Vidéo YouTube</button>
+            <button class="tool-btn" onclick="createWidget('outilsprofs'); toggleMenu()" style="background: #FF692A;"><span>🎒</span> OutilsProfs</button>
+            <button class="tool-btn" onclick="createWidget('iframe'); toggleMenu()" style="background: #FFD230;"><span>💻</span> Fenêtre Web</button>
+            <button class="tool-btn" onclick="createWidget('time'); toggleMenu()" style="background: #7CCF35;"><span>🕒</span> Heure</button>
+            <button class="tool-btn" onclick="createWidget('date'); toggleMenu()" style="background: #679638;"><span>📅</span> Date</button>
+            <button class="tool-btn" onclick="createWidget('homework'); toggleMenu()" style="background: #3BB8DB;"><span>📝</span> Devoirs</button>
+            <button class="tool-btn" onclick="createWidget('text'); toggleMenu()" style="background: #2B7FFF;"><span>🖊️</span> Texte</button>
+			<button class="tool-btn" onclick="createWidget('agenda'); toggleMenu()" style="background: #8E51FF">📌 Planning</button>
+			<button class="tool-btn" onclick="createWidget('deficalme'); toggleMenu()" style="background: #480eb3;"><span>🧘</span> Défi Calme</button>
+            
+            <hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+            <button class="tool-btn" style="background: #71717B;" onclick="toggleSubMenu(event)"><span>🖼️</span> Choisir fond ❯</button>
+            
+            <div id="bg-submenu">
+                <div class="bg-thumb" style="background-color: #eef2f5;" onclick="applyBackground('none'); saveBg('none')" title="Défaut"></div>
+                <div class="bg-thumb" style="background-color: #2f3542;" onclick="applyBackground('#2f3542'); saveBg('#2f3542')" title="Ardoise"></div>
+                <div class="bg-thumb" style="background-color: #104626;" onclick="applyBackground('#104626'); saveBg('#104626')" title="Vert Tableau"></div>
+                <div class="bg-thumb" style="background-color: #BAA09B;" onclick="applyBackground('#BAA09B'); saveBg('#BAA09B')" title="Vieux rose"></div>
+                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/grid-me.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/grid-me.png)'); saveBg('url(https://www.transparenttextures.com/patterns/grid-me.png)')" title="Carreaux"></div>
+                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/lined-paper.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/lined-paper.png)'); saveBg('url(https://www.transparenttextures.com/patterns/lined-paper.png)')" title="Lignes"></div>
+                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/arches.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/arches.png)'); saveBg('url(https://www.transparenttextures.com/patterns/arches.png)')" title="Arches"></div>
+                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/shattered.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/shattered.png)'); saveBg('url(https://www.transparenttextures.com/patterns/shattered.png)')" title="Éclats"></div>
+                <button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background: #8e44ad; padding: 5px; font-size: 10px; grid-column: span 3; border-radius: 8px;"><span>📷</span> Importer image</button>
+            </div>
+
+            <hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+            <button class="tool-btn2" onclick="exportConfig()"><span>💾</span> Exporter config</button>
+            <button class="tool-btn2" onclick="document.getElementById('import-input').click()"><span>📂</span> Importer config</button>
+            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
+            <button class="tool-btn2" onclick="clearBoard(); toggleMenu()" style="background: #ED8595; margin-top:5px;"><span>❌</span> Effacer tout</button>
+			<button id="undo-btn" onclick="undoAction()"><span>↩️</span> Annuler</button>
+        </div>
+        <button id="main-tool-btn" class="tool-btn" onclick="toggleMenu()">MENU</button>
+    </div>
+
+    <button id="undo-btn" onclick="undoAction()"><span>↩️</span> Annuler</button>
+
+    <div id="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color:#ff4757;">⚠️ Tout effacer ?</h3>
+            <p style="color:#666;">Cette action videra votre bureau. C'est irréversible.</p>
+            <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+                <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+                <button class="btn-confirm" onclick="confirmClearBoard()">Oui, vider tout</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/html" id="toolbar-html">
+    <div class="editor-toolbar">
+        <button onclick="format('bold')">G</button>
+        <button onclick="format('italic')">I</button>
+        <button onclick="format('underline')">S</button>
+        <span style="font-size: 10px; margin-left: 5px;">Texte :</span>
+        <input type="color" onchange="format('foreColor', this.value)" title="Couleur du texte">
+        <span style="font-size: 10px; margin-left: 5px;">Surligner :</span>
+        <input type="color" onchange="format('backColor', this.value)" title="Surligner" value="#ffff00">
+        <span style="font-size: 10px; margin-left: 5px;">Fond :</span>
+        <input type="color" onchange="changeWidgetBg(this, this.value)" title="Fond du cadre" value="#ffffff">
+        <button onclick="toggleTransparency(this)" title="Fond transparent"><span class="icon-transparency"></span></button>
+        <select onchange="formatFontFamily(this.value)" style="width: 140px; margin-left: 5px;">
+                <option value="Arial, sans-serif">Arial</option>
+                <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                <option value="Verdana, sans-serif">Verdana</option>
+                <option value="'KGPerfectPenmanship', sans-serif">KGPerfectPenmanship</option>
+                <option value="'Andika', sans-serif">Andika</option>
+                <option value="'OpenDyslexicLocal', sans-serif">🧩 OpenDyslexic</option>
+                <option value="'BelleAllureGS', cursive">📏 Belle Allure GS</option>
+            </select>
+        <input type="number" value="40" min="8" max="100" onchange="formatFontSize(this.value)" style="width: 40px;">
+    </div>
+    </script>
+
+    <template id="template-text">
+        <div class="editor-container">
+            <div class="editor-toolbar-placeholder"></div>
+            <div class="editor-content" contenteditable="true" oninput="saveBoard()" style="font-size: 40px;"></div>
+        </div>
+    </template>
+
+    <template id="template-homework">
+        <div class="editor-container"><div class="editor-toolbar-placeholder"></div><div class="editor-content" contenteditable="true" oninput="saveBoard()">
+            <span style="color: #D4C9C7; font-size: 25px; font-weight: bold;">✍🏻 Devoirs à noter </span><br>
+            <p><span style="color: red; background-color: #F7E02A; font-size: 38px; font-weight: bold;">Pour</span></p>
+            <p><span style="color: #f7639f; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏻 CE2 =</span></p>
+            <p><span style="color: #12a2e0; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏽 CM2 =</span></p>
+            <p><span style="color: #D9C93B; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉 TOUS =</span></p>
+        </div></div>
+    </template>
+
+    <template id="template-date">
+        <div class="editor-container">
+            <div class="editor-toolbar" style="justify-content: center; border-bottom: none;">
+                <button onclick="toggleTransparency(this)" title="Fond transparent">🫥</button>
+            </div>
+            <div class="calendar-page">
+                <div class="calendar-header"></div>
+                <div class="calendar-body">
+                    <div class="calendar-day-name"></div>
+                    <div class="calendar-day-number"></div>
+                    <div class="calendar-month"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-time">
+        <div class="editor-container">
+            <div class="clock-time">
+                <span class="clock-hm">00:00</span><span class="clock-seconds">00</span>
+            </div>
+        </div>
+    </template>
+
+    <template id="template-iframe">
+        <div class="editor-container" style="height: 400px; width: 550px;">
+            <button class="exit-fs-btn" onclick="document.exitFullscreen()">✖ Quitter Plein Écran</button>
+            <div class="editor-toolbar">
+                <input type="text" placeholder="Collez l'URL ici..." style="flex-grow: 1;" onchange="loadIframe(this)">
+                <button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶</button>
+            </div>
+            <iframe src="" style="flex-grow: 1; border: none; background: white;" allow="microphone; camera; display-capture; autoplay"></iframe>
+        </div>
+    </template>
+
+    <template id="template-outilsprofs">
+        <div class="editor-container" style="height: 500px; width: 800px;">
+            <button class="exit-fs-btn" onclick="document.exitFullscreen()">✖ Quitter Plein Écran</button>
+            <div class="editor-toolbar" style="display: flex; justify-content: flex-end;">
+                <button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶ Plein écran</button>
+            </div>
+            <iframe src="https://ecolebernardet.github.io/outilsprofs" style="flex-grow: 1; border: none; background: white;" allow="microphone; camera; display-capture; autoplay"></iframe>
+        </div>
+    </template>
+
+    <template id="template-youtube">
+        <div class="editor-container" style="height: 350px; width: 600px;">
+            <div class="editor-toolbar">
+                <input type="text" placeholder="Collez le lien YouTube ici..." style="flex-grow: 1;" onchange="loadYoutube(this)">
+                <button onclick="toggleYoutubeView(this, 'none')" title="Mode Audio">🔇 Son seul</button>
+                <button onclick="toggleYoutubeView(this, 'block')" title="Mode Vidéo">📺 Vidéo</button>
+                <button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶</button>
+                <button onclick="toggleTransparency(this)" title="Fond transparent"><span class="icon-transparency"></span></button>
+            </div>
+            <iframe src="" style="flex-grow: 1; border: none; background: #000;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+    </template>
+
+	<template id="template-agenda">
+        <div class="editor-container">
+            <div class="agenda-container">
+                <div class="agenda-header-title">
+					<span class="agenda-current-date"></span>
+					<span class="agenda-current-time"></span>
+				</div>
+                <div class="agenda-list">
+				    <div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <span class="agenda-time" contenteditable="true">08:30</span>
+                        <div class="agenda-text" contenteditable="true">Accueil / Appel / Rituels</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <span class="agenda-time" contenteditable="true">09:15</span>
+                        <div class="agenda-text" contenteditable="true">Français</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <span class="agenda-time" contenteditable="true">10:20</span>
+                        <div class="agenda-text" contenteditable="true">Récréation</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+                   <div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">10:45</div>
+                        <div class="agenda-text" contenteditable="true">Mathématiques</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">11:45</div>
+                        <div class="agenda-text" contenteditable="true">Fin de la matinée</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">---------------------------</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">13:45</div>
+                        <div class="agenda-text" contenteditable="true">Rituel / Quart d'heure lecture</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">14:00</div>
+                        <div class="agenda-text" contenteditable="true">Matière</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">15:20</div>
+                        <div class="agenda-text" contenteditable="true">Récréation</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">15:45</div>
+                        <div class="agenda-text" contenteditable="true">Matière</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+					<div class="agenda-item" draggable="true" ondragstart="handleRowDragStart(event)" ondragover="handleRowDragOver(event)" ondragend="handleRowDragEnd(event)">
+                        <span class="agenda-row-handle">⋮⋮</span>
+                        <div class="agenda-time" contenteditable="true">16:30</div>
+                        <div class="agenda-text" contenteditable="true">Fin de la journée</div>
+						<span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+                    </div>
+                </div>
+				<button class="agenda-add-btn" onclick="addAgendaLine(this)" title="Ajouter une ligne">+</button>
+            </div>
+        </div>
+    </template>
+	
+	<template id="template-deficalme">
+		<div class="editor-container" style="height: 500px; width: 800px;">
+			<button class="exit-fs-btn" onclick="document.exitFullscreen()">✖ Quitter Plein Écran</button>
+			<div class="editor-toolbar" style="display: flex; justify-content: flex-end;">
+				<button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶ Plein écran</button>
+			</div>
+			<iframe src="https://ecolebernardet.github.io/lebureauduprof/deficalme.html" style="flex-grow: 1; border: none; background: white;" allow="microphone; camera; display-capture; autoplay"></iframe>
+		</div>
+	</template>
+
+    <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="handleBgUpload(this)">
+
+<script>
+    let board = document.getElementById('board');
+    let history = [];
+    let isInitialLoading = true;
+
+    window.onload = () => {
+    const savedBg = localStorage.getItem('boardBackground');
+    if (savedBg) applyBackground(savedBg);
+    loadBoard();
+    setTimeout(() => {
+        isInitialLoading = false;
+    }, 1000); 
+    setInterval(updateClock, 1000);
+    window.addEventListener('resize', handleWindowResize);
+};
+
+    function handleWindowResize() {
+        document.querySelectorAll('.widget').forEach(w => {
+            const container = w.querySelector('.editor-container');
+            if (!container) return;
+            
+            const widthPercent = parseFloat(w.dataset.widthPercent || 0);
+            const heightPercent = parseFloat(w.dataset.heightPercent || 0);
+            
+            if (widthPercent > 0) {
+                container.style.width = (widthPercent / 100) * window.innerWidth + 'px';
+            }
+            if (heightPercent > 0) {
+                container.style.height = (heightPercent / 100) * window.innerHeight + 'px';
+            }
+        });
+    }
+
+        function saveBoard() {
+        if (isInitialLoading) return;
+        const widgets = [];
+        document.querySelectorAll('.widget').forEach(w => {
+            const content = w.querySelector('.editor-content');
+            const agendaList = w.querySelector('.agenda-list');
+            const iframe = w.querySelector('iframe');
+            const container = w.querySelector('.editor-container');
+            
+            let htmlContent = null;
+            if (agendaList) {
+                htmlContent = agendaList.innerHTML;
+            } else if (content) {
+                htmlContent = content.innerHTML;
+            }
+            
+            // Convertir les dimensions ET LA POSITION en pourcentage
+            let widthPercent = 0;
+            let heightPercent = 0;
+            let leftPercent = 0;
+            let topPercent = 0;
+            
+            if (container) {
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                widthPercent = (containerWidth / window.innerWidth) * 100;
+                heightPercent = (containerHeight / window.innerHeight) * 100;
+            }
+            
+            // Position en pourcentage
+            const widgetLeft = w.offsetLeft;
+            const widgetTop = w.offsetTop;
+            leftPercent = (widgetLeft / window.innerWidth) * 100;
+            topPercent = (widgetTop / window.innerHeight) * 100;
+            
+            widgets.push({
+                type: w.dataset.type,
+                topPercent: topPercent,
+                leftPercent: leftPercent,
+                widthPercent: widthPercent,
+                heightPercent: heightPercent,
+                html: htmlContent,
+                iframeSrc: iframe ? iframe.src : null,
+                transparent: w.dataset.transparent === "true",
+                bgColor: w.dataset.bgColor || "#ffffff",
+                pinned: w.dataset.pinned === "true"
+            });
+        });
+        localStorage.setItem('profBoardConfig', JSON.stringify(widgets));
+    }
+
+    function loadBoard() {
+        const data = localStorage.getItem('profBoardConfig');
+        if (!data) return;
+        const parsedData = JSON.parse(data);
+        parsedData.forEach(w => {
+            const widget = createWidget(w.type, '100px', '100px', false);
+            const container = widget.querySelector('.editor-container');
+            
+            // Stocker les pourcentages
+            widget.dataset.widthPercent = w.widthPercent;
+            widget.dataset.heightPercent = w.heightPercent;
+            widget.dataset.leftPercent = w.leftPercent;
+            widget.dataset.topPercent = w.topPercent;
+            
+            // Appliquer les dimensions et position en pixels
+            if (container) {
+                if (w.widthPercent > 0) {
+                    container.style.width = (w.widthPercent / 100) * window.innerWidth + 'px';
+                }
+                if (w.heightPercent > 0) {
+                    container.style.height = (w.heightPercent / 100) * window.innerHeight + 'px';
+                }
+            }
+            
+            // Appliquer la position
+            if (w.leftPercent !== undefined) {
+                widget.style.left = (w.leftPercent / 100) * window.innerWidth + 'px';
+            }
+            if (w.topPercent !== undefined) {
+                widget.style.top = (w.topPercent / 100) * window.innerHeight + 'px';
+            }
+            
+            setTimeout(() => {
+                const editor = widget.querySelector('.editor-content');
+                const agendaList = widget.querySelector('.agenda-list');
+                if (w.html) {
+                    if (agendaList) {
+                        agendaList.innerHTML = w.html;
+                        agendaList.querySelectorAll('.agenda-item').forEach(item => {
+                            attachAgendaItemEvents(item);
+                        });
+                    } else if (editor) {
+                        editor.innerHTML = w.html;
+                    }
+                }
+                const iframe = widget.querySelector('iframe');
+                if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
+                if (w.transparent) applyTransparency(widget, true);
+                else if (w.bgColor) {
+                    widget.style.background = w.bgColor;
+                    widget.dataset.bgColor = w.bgColor;
+                }
+                if (w.pinned) {
+                    widget.dataset.pinned = "true";
+                    widget.style.zIndex = "2000";
+                    widget.classList.add('pinned');
+                }
+            }, 50);
+        });
+    }
+
+    function handleWindowResize() {
+        document.querySelectorAll('.widget').forEach(w => {
+            const container = w.querySelector('.editor-container');
+            if (!container) return;
+            
+            const widthPercent = parseFloat(w.dataset.widthPercent || 0);
+            const heightPercent = parseFloat(w.dataset.heightPercent || 0);
+            const leftPercent = parseFloat(w.dataset.leftPercent || 0);
+            const topPercent = parseFloat(w.dataset.topPercent || 0);
+            
+            // Appliquer les nouvelles dimensions basées sur la taille actuelle
+            if (widthPercent > 0) {
+                container.style.width = (widthPercent / 100) * window.innerWidth + 'px';
+            }
+            if (heightPercent > 0) {
+                container.style.height = (heightPercent / 100) * window.innerHeight + 'px';
+            }
+            
+            // Appliquer la nouvelle position basée sur la taille actuelle
+            if (leftPercent > 0) {
+                w.style.left = (leftPercent / 100) * window.innerWidth + 'px';
+            }
+            if (topPercent > 0) {
+                w.style.top = (topPercent / 100) * window.innerHeight + 'px';
+            }
+        });
+    }
+
+    function exportConfig() {
+        const widgets = [];
+        document.querySelectorAll('.widget').forEach(w => {
+            const content = w.querySelector('.editor-content');
+            const agendaList = w.querySelector('.agenda-list');
+            const iframe = w.querySelector('iframe');
+            const container = w.querySelector('.editor-container');
+            
+            let htmlContent = null;
+            if (agendaList) {
+                htmlContent = agendaList.innerHTML;
+            } else if (content) {
+                htmlContent = content.innerHTML;
+            }
+            
+            let widthPercent = 0;
+            let heightPercent = 0;
+            let leftPercent = 0;
+            let topPercent = 0;
+            
+            if (container) {
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                widthPercent = (containerWidth / window.innerWidth) * 100;
+                heightPercent = (containerHeight / window.innerHeight) * 100;
+            }
+            
+            const widgetLeft = w.offsetLeft;
+            const widgetTop = w.offsetTop;
+            leftPercent = (widgetLeft / window.innerWidth) * 100;
+            topPercent = (widgetTop / window.innerHeight) * 100;
+            
+            widgets.push({
+                type: w.dataset.type,
+                topPercent: topPercent,
+                leftPercent: leftPercent,
+                widthPercent: widthPercent,
+                heightPercent: heightPercent,
+                html: htmlContent,
+                iframeSrc: iframe ? iframe.src : null,
+                transparent: w.dataset.transparent === "true",
+                bgColor: w.dataset.bgColor || "#ffffff",
+                pinned: w.dataset.pinned === "true"
+            });
+        });
+
+        const config = {
+            widgets: widgets,
+            background: localStorage.getItem('boardBackground') || 'none'
+        };
+
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const fileName = `lebureauduprof_export_${dateStr}.json`;
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", fileName);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+    
+    async function importConfig(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                takeSnapshot();
+                
+                const widgets = importedData.widgets || importedData;
+                const background = importedData.background || 'none';
+
+                document.querySelectorAll('.widget').forEach(w => w.remove());
+
+                applyBackground(background);
+                saveBg(background);
+
+                localStorage.setItem('profBoardConfig', JSON.stringify(widgets));
+                loadBoard();
+
+                event.target.value = '';
+            } catch (err) {
+                alert("Erreur lors de l'importation : " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    function clearBoard() { document.getElementById('modal-overlay').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+    function confirmClearBoard() {
+        takeSnapshot();
+        document.querySelectorAll('.widget').forEach(w => w.remove());
+        saveBoard();
+        closeModal();
+    }
+
+    function loadBoard() {
+        const data = localStorage.getItem('profBoardConfig');
+        if (!data) return;
+        const parsedData = JSON.parse(data);
+        parsedData.forEach(w => {
+            const widget = createWidget(w.type, w.left, w.top, false);
+            const container = widget.querySelector('.editor-container');
+            
+            widget.dataset.widthPercent = w.widthPercent;
+            widget.dataset.heightPercent = w.heightPercent;
+            
+            if (container) {
+                if (w.widthPercent > 0) {
+                    container.style.width = (w.widthPercent / 100) * window.innerWidth + 'px';
+                }
+                if (w.heightPercent > 0) {
+                    container.style.height = (w.heightPercent / 100) * window.innerHeight + 'px';
+                }
+            }
+            
+            setTimeout(() => {
+                const editor = widget.querySelector('.editor-content');
+                const agendaList = widget.querySelector('.agenda-list');
+                if (w.html) {
+                    if (agendaList) {
+                        agendaList.innerHTML = w.html;
+                        agendaList.querySelectorAll('.agenda-item').forEach(item => {
+                            attachAgendaItemEvents(item);
+                        });
+                    } else if (editor) {
+                        editor.innerHTML = w.html;
+                    }
+                }
+                const iframe = widget.querySelector('iframe');
+                if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
+                if (w.transparent) applyTransparency(widget, true);
+                else if (w.bgColor) {
+                    widget.style.background = w.bgColor;
+                    widget.dataset.bgColor = w.bgColor;
+                }
+                if (w.pinned) {
+                    widget.dataset.pinned = "true";
+                    widget.style.zIndex = "2000";
+                    widget.classList.add('pinned');
+                }
+            }, 50);
+        });
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const optionsDate = { weekday: 'long', day: 'numeric', month: 'long' };
+        const dateStr = now.toLocaleDateString('fr-FR', optionsDate);
+        const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        document.querySelectorAll('.agenda-current-date').forEach(el => el.textContent = dateStr);
+        document.querySelectorAll('.agenda-current-time').forEach(el => el.textContent = timeStr);
+        updateDateTime(); 
+    }
+
+    function togglePin(widget) {
+        const isPinned = widget.dataset.pinned === "true";
+        widget.dataset.pinned = !isPinned;
+        if (!isPinned) {
+            widget.style.zIndex = "2000"; 
+            widget.classList.add('pinned');
+        } else {
+            widget.style.zIndex = "1000";
+            widget.classList.remove('pinned');
+        }
+        saveBoard();
+    }
+
+    function bringToFront(widget) {
+        if (widget.dataset.pinned === "true") return;
+        document.querySelectorAll('.widget').forEach(w => {
+            if (w.dataset.pinned !== "true") w.style.zIndex = "1";
+        });
+        widget.style.zIndex = "1000";
+    }
+
+    function createWidget(type, x = '100px', y = '100px', snapshot = true) {
+        if (snapshot) takeSnapshot();
+        const widget = document.createElement('div');
+        widget.className = 'widget';
+        widget.dataset.type = type;
+        widget.style.left = x;
+        widget.style.top = y;
+        widget.tabIndex = 0;
+        widget.addEventListener('mousedown', () => bringToFront(widget));
+        widget.innerHTML = `
+            <div class="drag-handle" title="Déplacer">✥</div>
+            <div class="widget-pin-handle" onclick="togglePin(this.closest('.widget'))" title="Épingler au premier plan">📌</div>
+            <div class="widget-close-handle" onclick="takeSnapshot(); this.closest('.widget').remove(); saveBoard();" title="Fermer">×</div>
+            <div class="widget-content"></div>`;
+        const contentZone = widget.querySelector('.widget-content');
+        const template = document.getElementById(`template-${type}`);
+        contentZone.appendChild(template.content.cloneNode(true));
+        const toolbarPlaceholder = widget.querySelector('.editor-toolbar-placeholder');
+        if (toolbarPlaceholder) toolbarPlaceholder.innerHTML = document.getElementById('toolbar-html').innerHTML;
+        board.appendChild(widget);
+        makeDraggable(widget);
+        if (type === 'agenda') {
+            updateClock();
+            widget.querySelectorAll('.agenda-item').forEach(item => attachAgendaItemEvents(item));
+        }
+        const editor = widget.querySelector('.editor-content');
+        if (editor) {
+            editor.addEventListener('mouseup', () => syncFontSize(widget));
+            editor.addEventListener('keyup', () => syncFontSize(widget));
+        }
+        if (!isInitialLoading) saveBoard();
+        return widget;
+    }
+
+    function attachAgendaItemEvents(item) {
+        item.querySelectorAll('[contenteditable="true"]').forEach(el => {
+            el.addEventListener('mouseenter', () => item.draggable = false);
+            el.addEventListener('mouseleave', () => item.draggable = true);
+            el.addEventListener('input', saveBoard);
+        });
+        item.addEventListener('dragstart', handleRowDragStart);
+        item.addEventListener('dragover', handleRowDragOver);
+        item.addEventListener('dragend', handleRowDragEnd);
+    }
+
+    function syncFontSize(widget) {
+        const toolbar = widget.querySelector('.editor-toolbar');
+        if (!toolbar) return;
+        const sizeInput = toolbar.querySelector('input[type="number"]');
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            let container = selection.anchorNode.parentElement;
+            let size = window.getComputedStyle(container).fontSize;
+            if (size) sizeInput.value = parseInt(size);
+        }
+    }
+
+    function makeDraggable(elmnt) {
+    const handle = elmnt.querySelector('.drag-handle');
+    handle.onmousedown = (e) => {
+        e.preventDefault();
+        bringToFront(elmnt);
+        let pos3 = e.clientX, pos4 = e.clientY;
+        document.onmousemove = (e) => {
+            elmnt.style.top = (elmnt.offsetTop - (pos4 - e.clientY)) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - (pos3 - e.clientX)) + "px";
+            pos3 = e.clientX; pos4 = e.clientY;
+        };
+        document.onmouseup = () => { 
+            document.onmousemove = null;
+            
+            // Convertir la position en pourcentage après le drag
+            const leftPercent = (elmnt.offsetLeft / window.innerWidth) * 100;
+            const topPercent = (elmnt.offsetTop / window.innerHeight) * 100;
+            elmnt.dataset.leftPercent = leftPercent;
+            elmnt.dataset.topPercent = topPercent;
+            
+            saveBoard(); 
+        };
+    };
+}
+
+    function format(cmd, val = null) {
+        document.execCommand(cmd, false, val);
+        saveBoard();
+    }
+
+    function formatFontSize(size) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+        document.execCommand("fontSize", false, "7");
+        const fontElements = document.getElementsByTagName("font");
+        for (let i = 0; i < fontElements.length; i++) {
+            if (fontElements[i].size === "7") {
+                fontElements[i].removeAttribute("size");
+                fontElements[i].style.fontSize = size + "px";
+            }
+        }
+        saveBoard();
+    }
+
+    function formatFontFamily(font) {
+        document.execCommand('fontName', false, font);
+        const selection = window.getSelection();
+        if (selection.anchorNode) selection.anchorNode.parentElement.style.fontFamily = font;
+        saveBoard();
+    }
+
+    function changeWidgetBg(input, color) {
+        const widget = input.closest('.widget');
+        applyTransparency(widget, false);
+        widget.style.background = color;
+        widget.dataset.bgColor = color;
+        saveBoard();
+    }
+
+    function toggleTransparency(btn) {
+        const widget = btn.closest('.widget');
+        const isTrans = widget.dataset.transparent === "true";
+        applyTransparency(widget, !isTrans);
+        saveBoard();
+    }
+
+    function applyTransparency(widget, enable) {
+        const container = widget.querySelector('.editor-container');
+        const editor = widget.querySelector('.editor-content');
+        const calendar = widget.querySelector('.calendar-page');
+        if (enable) {
+            widget.style.background = "transparent";
+            widget.style.boxShadow = "none";
+            widget.style.border = "none";
+            widget.dataset.transparent = "true";
+            if (container) {
+                container.style.background = "transparent";
+                container.style.border = "none";
+            }
+            if (editor) editor.style.background = "transparent";
+            if (calendar) calendar.style.background = "transparent";
+        } else {
+            const oldBg = widget.dataset.bgColor || "#ffffff";
+            widget.style.background = oldBg;
+            widget.style.boxShadow = "var(--shadow)";
+            widget.style.border = "2px solid transparent";
+            widget.dataset.transparent = "false";
+            if (container) {
+                container.style.background = "white";
+                container.style.border = "1px solid #eee";
+            }
+            if (calendar) calendar.style.background = "white";
+        }
+    }
+
+    function loadIframe(input) {
+        let url = input.value;
+        if (url && !url.startsWith('http')) url = 'https://' + url;
+        input.closest('.editor-container').querySelector('iframe').src = url;
+        saveBoard();
+    }
+
+    function loadYoutube(input) {
+        let url = input.value;
+        let videoId = "";
+        if (url.includes("v=")) videoId = url.split("v=")[1].split("&")[0];
+        else if (url.includes("youtu.be/")) videoId = url.split("youtu.be/")[1];
+        if (videoId) {
+            input.closest('.editor-container').querySelector('iframe').src = `https://www.youtube.com/embed/${videoId}`;
+            saveBoard();
+        }
+    }
+
+    function toggleYoutubeView(btn, display) {
+        btn.closest('.editor-container').querySelector('iframe').style.display = display;
+    }
+
+    function toggleFullScreen(elem) {
+        if (!document.fullscreenElement) elem.requestFullscreen();
+        else document.exitFullscreen();
+    }
+
+    function toggleMenu() { document.getElementById('tools-menu').classList.toggle('active'); }
+    
+    document.addEventListener('mousedown', (e) => {
+        const toolsMenu = document.getElementById('tools-menu');
+        const bgSubmenu = document.getElementById('bg-submenu');
+        const mainBtn = document.getElementById('main-tool-btn');
+        if (toolsMenu && !toolsMenu.contains(e.target) && !mainBtn.contains(e.target)) {
+            toolsMenu.classList.remove('active');
+            if (bgSubmenu) bgSubmenu.classList.remove('active');
+        }
+    });
+
+    function toggleSubMenu(e) { e.stopPropagation(); document.getElementById('bg-submenu').classList.toggle('active'); }
+
+    function applyBackground(bg) {
+        const boardEl = document.getElementById('board');
+        if (bg === 'none') boardEl.style.background = "var(--bg-color)";
+        else boardEl.style.background = bg;
+    }
+
+    function saveBg(bg) { localStorage.setItem('boardBackground', bg); }
+
+    function handleBgUpload(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const url = `url(${e.target.result})`;
+                applyBackground(url);
+                saveBg(url);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function updateDateTime() {
+        const now = new Date();
+        const days = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        document.querySelectorAll('.widget[data-type="date"]').forEach(w => {
+            const dName = w.querySelector('.calendar-day-name');
+            const dNum = w.querySelector('.calendar-day-number');
+            const dMonth = w.querySelector('.calendar-month');
+            if(dName) dName.textContent = days[now.getDay()];
+            if(dNum) dNum.textContent = now.getDate();
+            if(dMonth) dMonth.textContent = months[now.getMonth()];
+        });
+        document.querySelectorAll('.widget[data-type="time"]').forEach(w => {
+            const hm = w.querySelector('.clock-hm');
+            const sec = w.querySelector('.clock-seconds');
+            if(hm) hm.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            if(sec) sec.textContent = now.getSeconds().toString().padStart(2, '0');
+        });
+    }
+
+    let draggingRow = null;
+    function handleRowDragStart(e) {
+        draggingRow = e.currentTarget;
+        e.currentTarget.classList.add('dragging');
+    }
+    function handleRowDragOver(e) {
+        e.preventDefault();
+        const list = e.currentTarget.parentNode;
+        const afterElement = getDragAfterElement(list, e.clientY);
+        if (afterElement == null) list.appendChild(draggingRow);
+        else list.insertBefore(draggingRow, afterElement);
+    }
+    function handleRowDragEnd(e) {
+        e.currentTarget.classList.remove('dragging');
+        draggingRow = null;
+        saveBoard();
+    }
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.agenda-item:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function deleteAgendaLine(btn) {
+        btn.closest('.agenda-item').remove();
+        saveBoard();
+    }
+
+    function addAgendaLine(button) {
+        const list = button.closest('.agenda-container').querySelector('.agenda-list');
+        const newItem = document.createElement('div');
+        newItem.className = 'agenda-item';
+        newItem.draggable = true;
+        newItem.innerHTML = `
+            <span class="agenda-row-handle">⋮⋮</span>
+            <span class="agenda-time" contenteditable="true">00:00</span>
+            <div class="agenda-text" contenteditable="true">...</div>
+            <span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer la ligne">×</span>
+        `;
+        attachAgendaItemEvents(newItem);
+        list.appendChild(newItem);
+        saveBoard();
+    }
+    
+    function takeSnapshot() {
+        history.push(localStorage.getItem('profBoardConfig'));
+        if (history.length > 20) history.shift();
+    }
+
+    function undoAction() {
+        if (history.length > 0) {
+            const last = history.pop();
+            localStorage.setItem('profBoardConfig', last);
+            document.querySelectorAll('.widget').forEach(w => w.remove());
+            loadBoard();
+        }
+    }
+
+    function exportConfig() {
+        const widgets = [];
+        document.querySelectorAll('.widget').forEach(w => {
+            const content = w.querySelector('.editor-content');
+            const agendaList = w.querySelector('.agenda-list');
+            const iframe = w.querySelector('iframe');
+            const container = w.querySelector('.editor-container');
+            
+            let htmlContent = null;
+            if (agendaList) {
+                htmlContent = agendaList.innerHTML;
+            } else if (content) {
+                htmlContent = content.innerHTML;
+            }
+            
+            let widthPercent = 0;
+            let heightPercent = 0;
+            if (container) {
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                widthPercent = (containerWidth / window.innerWidth) * 100;
+                heightPercent = (containerHeight / window.innerHeight) * 100;
+            }
+            
+            widgets.push({
+                type: w.dataset.type,
+                top: w.style.top,
+                left: w.style.left,
+                widthPercent: widthPercent,
+                heightPercent: heightPercent,
+                html: htmlContent,
+                iframeSrc: iframe ? iframe.src : null,
+                transparent: w.dataset.transparent === "true",
+                bgColor: w.dataset.bgColor || "#ffffff",
+                pinned: w.dataset.pinned === "true"
+            });
+        });
+
+        const config = {
+            widgets: widgets,
+            background: localStorage.getItem('boardBackground') || 'none'
+        };
+
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const fileName = `lebureauduprof_export_${dateStr}.json`;
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", fileName);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+    
+    async function importConfig(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                takeSnapshot();
+                
+                // On sépare les widgets du fond d'écran selon la structure du fichier
+                const widgets = importedData.widgets || importedData; // Rétrocompatibilité
+                const background = importedData.background || 'none';
+
+                // 1. Nettoyage
+                document.querySelectorAll('.widget').forEach(w => w.remove());
+
+                // 2. Application du fond
+                applyBackground(background);
+                saveBg(background);
+
+                // 3. Chargement des widgets
+                localStorage.setItem('profBoardConfig', JSON.stringify(widgets));
+                loadBoard();
+
+                event.target.value = '';
+            } catch (err) {
+                alert("Erreur lors de l'importation : " + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    function clearBoard() { document.getElementById('modal-overlay').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+    function confirmClearBoard() {
+        takeSnapshot();
+        document.querySelectorAll('.widget').forEach(w => w.remove());
+        saveBoard();
+        closeModal();
+    }
+	
+	window.addEventListener('resize', () => {
+    document.querySelectorAll('.widget').forEach(w => {
+        const data = JSON.parse(localStorage.getItem('profBoardConfig') || '[]');
+        const widgetData = data.find(widget => 
+            widget.top === w.style.top && widget.left === w.style.left
+        );
+        
+        if (widgetData) {
+            const container = w.querySelector('.editor-container');
+            if (container) {
+                container.style.width = (widgetData.widthPercent / 100) * window.innerWidth + 'px';
+                container.style.height = (widgetData.heightPercent / 100) * window.innerHeight + 'px';
+            }
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>
