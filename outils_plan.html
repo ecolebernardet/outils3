@@ -1203,16 +1203,13 @@ function ouvrirDansOnglet() {
     
     svgClone.style.backgroundColor = "white";
     
+    // Optimisation du texte
     const labels = svgClone.querySelectorAll('.desk-label');
     labels.forEach(label => {
-        label.setAttribute('style', 
-            'font-size: 30px; font-weight: 900; font-family: Inter, sans-serif; fill: #000000;');
+        label.setAttribute('style', 'font-size: 30px; font-weight: 900; font-family: Inter, sans-serif; fill: #000000;');
         label.setAttribute('text-anchor', 'middle');
         label.setAttribute('dominant-baseline', 'central');
     });
-
-    const walls = svgClone.querySelector('rect');
-    if (walls) walls.setAttribute("stroke", "#dddddd");
 
     const svgData = new XMLSerializer().serializeToString(svgClone);
     const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
@@ -1221,7 +1218,6 @@ function ouvrirDansOnglet() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
-    
     canvas.width = 1800;
     canvas.height = 1800;
 
@@ -1229,29 +1225,42 @@ function ouvrirDansOnglet() {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
-        
-        // Conversion du canvas en BLOB (plus robuste que le DataURL)
-        canvas.toBlob((blob) => {
-            const pngUrl = URL.createObjectURL(blob);
-            
-            // On utilise un lien invisible pour forcer l'ouverture proprement
-            const a = document.createElement('a');
-            a.href = pngUrl;
-            a.target = '_blank'; // Ouvre dans un nouvel onglet
-            
-            // Sur Android, cela permet au navigateur de proposer "Ouvrir avec..." 
-            // ou d'afficher l'image directement avec le zoom actif
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        const pngUrl = canvas.toDataURL("image/png");
 
-            // Nettoyage de la mémoire après un court délai
-            setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
-        }, 'image/png');
-        
+        // --- CRÉATION DE LA VISIONNEUSE (OVERLAY) ---
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        `;
+
+        // Bouton pour fermer
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '✕ Fermer';
+        closeBtn.style.cssText = `
+            position: absolute; top: 20px; right: 20px; padding: 10px 20px;
+            background: #ff4444; color: white; border: none; border-radius: 5px; font-weight: bold;
+        `;
+        closeBtn.onclick = () => document.body.removeChild(overlay);
+
+        // L'image
+        const finalImg = document.createElement('img');
+        finalImg.src = pngUrl;
+        finalImg.style.cssText = "max-width: 95%; max-height: 85%; object-fit: contain; box-shadow: 0 0 30px rgba(0,0,0,0.5);";
+
+        // Texte d'aide
+        const helpText = document.createElement('p');
+        helpText.textContent = "Utilisez deux doigts pour zoomer";
+        helpText.style.cssText = "color: white; margin-top: 15px; font-family: sans-serif; opacity: 0.7;";
+
+        overlay.appendChild(closeBtn);
+        overlay.appendChild(finalImg);
+        overlay.appendChild(helpText);
+        document.body.appendChild(overlay);
+
         URL.revokeObjectURL(url);
     };
-
     img.src = url;
 }
 
