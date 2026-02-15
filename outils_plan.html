@@ -468,28 +468,29 @@
             
             <section>
                 <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Outils de Création (Haut)</h3>
-                <p><strong>🔓/🔒 :</strong> Verrouille le plan pour éviter de déplacer un meuble par erreur lors du zoom.</p>
-                <p><strong>↶ / ↷ :</strong> Annuler ou rétablir vos dernières actions.</p>
+                <p><strong>🔓/🔒 :</strong> Verrouille le plan pour éviter de déplacer un meuble par erreur.</p>
+                <p><strong>↶ / ↷ :</strong> Annuler ou rétablir vos dernières actions (Historique).</p>
                 <p><strong>➕ :</strong> Ouvre le menu pour ajouter bureaux, tableaux, meubles ou portes.</p>
-                <p><strong>🧽 :</strong> Supprime l'élément sélectionné (contour épais).</p>
-                <p><strong>📋 :</strong> Génère automatiquement les tables à partir de "Ma classe".</p>
+                <p><strong>🔄 :</strong> Pivote l'élément sélectionné de 45° (active après un clic simple).</p>
+                <p><strong>🧽 :</strong> Supprime l'élément sélectionné (contour rose).</p>
+                <p><strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg> :</strong> Génère automatiquement les tables à partir de la liste "Ma classe".</p>
             </section>
 
             <section>
                 <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Gestion du Plan (Bas)</h3>
                 <p><strong>🗑️ :</strong> Efface tout le plan pour recommencer à zéro.</p>
                 <p><strong>💾 / 📂 :</strong> Sauvegarder ou charger votre plan au format .json.</p>
-                <p><strong>📄 :</strong> Exporte le plan en PDF pour l'impression.</p>
-                <p><strong>🖼️ :</strong> Ouvre le plan en haute définition dans un nouvel onglet.</p>
+                <p><strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> :</strong> Exporte le plan en PDF pour l'impression.</p>
+                <p><strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle;"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M3 17v2a2 2 0 0 0 2 2h2"></path><circle cx="12" cy="10" r="2.5"></circle><path d="M7 18c0-2.5 2-4.5 5-4.5s5 2 5 4.5"></path></svg> :</strong> Ouvre l'aperçu plein écran (mode visionneuse avec zoom).</p>
             </section>
 
             <section>
                 <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Interactions</h3>
+                <p><strong>Sélectionner :</strong> Un clic simple (bordure rose) pour supprimer ou pivoter.</p>
                 <p><strong>Déplacer :</strong> Glissez un élément (si déverrouillé 🔓).</p>
-                <p><strong>Pivoter :</strong> Double-cliquez sur un élément pour une rotation de 45°.</p>
-                <p><strong>Échanger 2 places :</strong> Clic droit (ou appui long sur mobile) sur le 1er élève (bordure orange), puis sur le 2ème pour intervertir les noms.</p>
-                <p><strong>Zoom :</strong> Utilisez les boutons ＋ / － sur le côté. En zoom, glissez sur le fond pour naviguer.</p>
-                <p><strong>Sélection :</strong> Cliquez sur le fond vide pour tout désélectionner.</p>
+                <p><strong>Échanger 2 places :</strong> Double-cliquez sur le 1er prénom (bordure orange), puis double-cliquez sur le 2ème pour intervertir.</p>
+                <p><strong>Zoom :</strong> Boutons ＋ / －. En zoom, glissez sur le fond pour naviguer dans la classe.</p>
+                <p><strong>Désélectionner :</strong> Cliquez sur le fond vide pour annuler une sélection ou un échange.</p>
             </section>
         </div>
         <button onclick="fermerModale('modal-aide')" id="btn-fermer-aide" class="mt-6 btn-modal-action">J'ai compris</button>
