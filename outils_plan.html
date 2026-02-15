@@ -148,13 +148,19 @@
 			/* Permet au SVG de capter les clics même dans les zones vides */
 			pointer-events: all;
 			background-color: transparent;
+			touch-action: none !important;
+			user-select: none;
+			-webkit-user-select: none;
+			-webkit-tap-highlight-color: transparent;
 		}
 		
         /* ============================================
            ÉLÉMENTS DU PLAN (BUREAUX, CHAISES)
         ============================================ */
         .desk-group {
-            cursor: grab;
+            touch-action: none !important;
+			-webkit-user-drag: none;
+			cursor: move;
             user-select: none;
             pointer-events: all;
         }
@@ -170,6 +176,11 @@
             stroke: var(--theme-color);
             stroke-width: 8;
         }
+		.desk-group, .desk-rect, .desk-label {
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			user-select: none;
+		}
 
         .desk-label {
             fill: black;
@@ -465,10 +476,12 @@
             </section>
 
             <section>
-                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px]">Interactions</h3>
+                <h3 class="font-bold border-b border-gray-500/20 mb-1 uppercase text-[10px] text-[var(--theme-color)]">Interactions</h3>
                 <p><strong>Déplacer :</strong> Glissez un élément (si déverrouillé 🔓).</p>
                 <p><strong>Pivoter :</strong> Double-cliquez sur un élément pour une rotation de 45°.</p>
+                <p><strong>Échanger 2 places :</strong> Clic droit (ou appui long sur mobile) sur le 1er élève (bordure orange), puis sur le 2ème pour intervertir les noms.</p>
                 <p><strong>Zoom :</strong> Utilisez les boutons ＋ / － sur le côté. En zoom, glissez sur le fond pour naviguer.</p>
+                <p><strong>Sélection :</strong> Cliquez sur le fond vide pour tout désélectionner.</p>
             </section>
         </div>
         <button onclick="fermerModale('modal-aide')" id="btn-fermer-aide" class="mt-6 btn-modal-action">J'ai compris</button>
@@ -718,17 +731,14 @@ function drawPlan() {
 
     // Dessiner les murs
     const walls = document.createElementNS(SVG_NS, "rect");
-    walls.setAttribute("x", 5);
-    walls.setAttribute("y", 5);
-    walls.setAttribute("width", 1790);
-    walls.setAttribute("height", 1790);
+    walls.setAttribute("x", 5); walls.setAttribute("y", 5);
+    walls.setAttribute("width", 1790); walls.setAttribute("height", 1790);
     walls.setAttribute("fill", "none");
     walls.setAttribute("stroke", "var(--column-border)");
     walls.setAttribute("stroke-width", "10");
     walls.style.pointerEvents = "none";
     layer.appendChild(walls);
 
-    // Dessiner chaque élément
     studentData.forEach((student, index) => {
         const g = document.createElementNS(SVG_NS, "g");
         g.setAttribute("class", "desk-group" + (selectedIndex === index ? " selected" : ""));
@@ -743,77 +753,69 @@ function drawPlan() {
         g.setAttribute("data-y", y);
         g.setAttribute("data-r", r);
         
-        // Déterminer les dimensions selon le type
-        let currentW = DIMENSIONS.DESK_W;
-        let currentH = DIMENSIONS.DESK_H;
-        let hasChair = true;
-        
-        switch(student.niveau) {
-            case 'PROF':
-                currentW = DIMENSIONS.PROF_W;
-                currentH = DIMENSIONS.PROF_H;
-                break;
-            case 'MEUBLE':
-                currentW = DIMENSIONS.MEUBLE_W;
-                currentH = DIMENSIONS.MEUBLE_H;
-                hasChair = false;
-                break;
-            case 'PORTE':
-                currentW = DIMENSIONS.DOOR_W;
-                currentH = DIMENSIONS.DOOR_H;
-                hasChair = false;
-                break;
-            case 'TABLEAU':
-                currentW = DIMENSIONS.BOARD_W;
-                currentH = DIMENSIONS.BOARD_H;
-                hasChair = false;
-                break;
-        }
+        // Dimensions (simplifié pour la lecture)
+        let currentW = DIMENSIONS.DESK_W, currentH = DIMENSIONS.DESK_H, hasChair = true;
+        if(student.niveau === 'PROF') { currentW = DIMENSIONS.PROF_W; currentH = DIMENSIONS.PROF_H; }
+        else if(student.niveau === 'MEUBLE') { currentW = DIMENSIONS.MEUBLE_W; currentH = DIMENSIONS.MEUBLE_H; hasChair = false; }
+        else if(student.niveau === 'PORTE') { currentW = DIMENSIONS.DOOR_W; currentH = DIMENSIONS.DOOR_H; hasChair = false; }
+        else if(student.niveau === 'TABLEAU') { currentW = DIMENSIONS.BOARD_W; currentH = DIMENSIONS.BOARD_H; hasChair = false; }
 
-        // Dessiner le rectangle principal
-        const color = COULEUR_PAR_NIVEAU[student.niveau] || COULEUR_DEFAUT_BUREAU;
         const rect = document.createElementNS(SVG_NS, "rect");
         rect.setAttribute("class", "desk-rect");
-        rect.setAttribute("x", -currentW / 2);
-        rect.setAttribute("y", -currentH / 2);
-        rect.setAttribute("width", currentW);
-        rect.setAttribute("height", currentH);
-        rect.style.fill = color;
+        rect.setAttribute("x", -currentW / 2); rect.setAttribute("y", -currentH / 2);
+        rect.setAttribute("width", currentW); rect.setAttribute("height", currentH);
+        rect.style.fill = COULEUR_PAR_NIVEAU[student.niveau] || COULEUR_DEFAUT_BUREAU;
         g.appendChild(rect);
 
-        // Dessiner la chaise si nécessaire
         if (hasChair) {
             const chair = document.createElementNS(SVG_NS, "rect");
             chair.setAttribute("class", "chair-rect");
-            chair.setAttribute("x", -30);
-            chair.setAttribute("y", currentH / 2 + 5);
-            chair.setAttribute("width", 60);
-            chair.setAttribute("height", 15);
+            chair.setAttribute("x", -30); chair.setAttribute("y", currentH / 2 + 5);
+            chair.setAttribute("width", 60); chair.setAttribute("height", 15);
             g.appendChild(chair);
         }
 
-        // Ajouter le texte
         if (student.name) {
             const text = document.createElementNS(SVG_NS, "text");
             text.setAttribute("class", "desk-label");
-            if (student.niveau === 'TABLEAU') {
-                text.setAttribute("fill", "white");
-            }
-            text.setAttribute("x", "0");
-            text.setAttribute("y", "0");
+            if (student.niveau === 'TABLEAU') text.setAttribute("fill", "white");
+            text.setAttribute("x", "0"); text.setAttribute("y", "0");
             text.textContent = student.name;
-            
-            // Rotation du texte pour lisibilité
-            if (r > 130 && r < 230) {
-                text.setAttribute("transform", `rotate(180)`);
-            }
-            
+            if (r > 130 && r < 230) text.setAttribute("transform", `rotate(180)`);
             g.appendChild(text);
         }
 
-        /// Événements
-        
-        // CLIC GAUCHE : Sélection et Drag (géré par interact.js)
+        // --- GESTION DES ÉVÉNEMENTS ---
+        let timer;
+
+        // Échange (Clic droit / Appui long)
+        const handleExchange = (e) => {
+            e.preventDefault(); e.stopPropagation();
+            if (selectedForSwap === null) {
+                selectedForSwap = index;
+                rect.style.stroke = "#f97316"; rect.style.strokeWidth = "12";
+            } else if (selectedForSwap === index) {
+                selectedForSwap = null; sync();
+            } else {
+                const item1 = studentData[selectedForSwap], item2 = studentData[index];
+                pushHistory();
+                [item1.name, item2.name] = [item2.name, item1.name];
+                [item1.niveau, item2.niveau] = [item2.niveau, item1.niveau];
+                selectedForSwap = null; sync();
+            }
+        };
+
+        g.addEventListener('contextmenu', handleExchange);
+
+        // Tactile (Android)
+        g.addEventListener('touchstart', (e) => {
+            timer = setTimeout(() => handleExchange(e), 600);
+        }, { passive: false });
+
+        g.addEventListener('touchend', () => clearTimeout(timer));
+        g.addEventListener('touchmove', () => clearTimeout(timer));
+
+        // Sélection (Clic gauche)
         g.addEventListener('click', (e) => {
             e.stopPropagation();
             deselectAllManual();
@@ -822,63 +824,7 @@ function drawPlan() {
             updateButtons();
         });
 
-        // CLIC DROIT : Échange de prénoms
-        g.addEventListener('contextmenu', (e) => {
-            e.preventDefault(); // Empêche le menu contextuel du navigateur de s'ouvrir
-            e.stopPropagation();
-
-            // Si c'est le premier qu'on sélectionne pour un échange
-            if (selectedForSwap === null) {
-                selectedForSwap = index;
-                // Effet visuel temporaire pour montrer qu'il est en attente d'échange
-                g.querySelector('.desk-rect').style.stroke = "#f97316"; 
-                g.querySelector('.desk-rect').style.strokeWidth = "12";
-            } 
-            // Si on clique sur le même, on annule
-            else if (selectedForSwap === index) {
-                selectedForSwap = null;
-                sync(); // Rafraîchit le dessin pour enlever l'effet visuel
-            }
-            // Deuxième élément cliqué : on procède à l'échange
-            else {
-                const item1 = studentData[selectedForSwap];
-                const item2 = studentData[index];
-
-                pushHistory();
-
-                // Échange des noms et niveaux
-                const tempName = item1.name;
-                const tempNiv = item1.niveau;
-
-                item1.name = item2.name;
-                item1.niveau = item2.niveau;
-
-                item2.name = tempName;
-                item2.niveau = tempNiv;
-
-                selectedForSwap = null;
-                sync();
-            }
-        });
-		
-        // GESTION MOBILE : Appui long pour l'échange
-        let timer;
-        g.addEventListener('touchstart', (e) => {
-            // On lance un chrono de 500ms
-            timer = setTimeout(() => {
-                // On déclenche manuellement la logique du clic droit
-                g.dispatchEvent(new Event('contextmenu'));
-            }, 600); 
-        });
-
-        g.addEventListener('touchend', () => {
-            clearTimeout(timer); // Annule si on relâche avant 600ms
-        });
-
-        g.addEventListener('touchmove', () => {
-            clearTimeout(timer); // Annule si on glisse (déplacement)
-        });
-		
+        // Rotation
         g.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             if (!isLocked) {
@@ -887,19 +833,12 @@ function drawPlan() {
                 sync();
             }
         });
-        
+
         layer.appendChild(g);
     });
-    
+
     setupInteract();
     applyTransform();
-	// Force la désélection même si interact.js "mange" l'événement
-	document.addEventListener('mousedown', function(e) {
-		// Si on clique sur le fond du SVG ou n'importe où sauf sur un meuble ou un bouton
-		if (e.target.id === 'plan-svg' || e.target.id === 'main-layer') {
-			deselectAllManual();
-		}
-	}, true); // Le "true" ici est crucial : il capture l'événement avant tout le monde
 }
 
 // ============================================
@@ -945,36 +884,30 @@ function deselectAll(e) {
 // ============================================
 
 function setupInteract() {
-    // Interaction pour déplacer les bureaux
+    // 1. MEUBLES
     interact('.desk-group').draggable({
-        onstart: () => {
-            if (!isLocked) pushHistory();
-        },
         listeners: {
+            start: () => { if (!isLocked) pushHistory(); },
             move(event) {
                 if (isLocked) return;
-                
                 const target = event.target;
                 const svg = document.getElementById('plan-svg');
-                const point = svg.createSVGPoint();
-                point.x = event.dx;
-                point.y = event.dy;
-                
                 const ctm = svg.getScreenCTM().inverse();
-                const deltaX = point.x * ctm.a;
-                const deltaY = point.y * ctm.d;
                 
+                // On divise par currentScale pour compenser le zoom
+                const deltaX = event.dx * ctm.a;
+                const deltaY = event.dy * ctm.d;
+
                 let x = (parseFloat(target.getAttribute('data-x')) || 0) + deltaX;
                 let y = (parseFloat(target.getAttribute('data-y')) || 0) + deltaY;
                 let r = target.getAttribute('data-r');
-                
+
                 target.setAttribute('transform', `translate(${x},${y}) rotate(${r})`);
                 target.setAttribute('data-x', x);
                 target.setAttribute('data-y', y);
             },
             end(event) {
                 if (isLocked) return;
-                
                 const idx = event.target.id.split('-')[1];
                 studentData[idx].x = parseFloat(event.target.getAttribute('data-x'));
                 studentData[idx].y = parseFloat(event.target.getAttribute('data-y'));
@@ -983,19 +916,20 @@ function setupInteract() {
         }
     });
 
-    // Déplacement panoramique en mode zoom
+    // 2. FOND DU PLAN
     interact('#plan-svg').draggable({
+        cursorChecker: () => { return 'default'; },
         listeners: {
             move(event) {
                 if (currentScale > 1) {
-                    event.preventDefault();
-                    translateX += event.dx * SPEED_MULTIPLIER;
-                    translateY += event.dy * SPEED_MULTIPLIER;
+                    translateX += event.dx;
+                    translateY += event.dy;
                     applyTransform();
                 }
             }
         },
-        allowFrom: '#plan-svg'
+        // On force interact à ignorer le fond si on touche un meuble
+        ignoreFrom: '.desk-group'
     });
 }
 
