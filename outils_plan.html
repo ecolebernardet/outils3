@@ -365,13 +365,14 @@
 
     <!-- Barre d'outils de création -->
     <div class="creation-bar">
-        <button class="btn-tool" id="btn-mode" onclick="toggleLock()">🔓</button>
-        <button class="btn-tool" id="btn-undo" onclick="undo()">↶</button>
-        <button class="btn-tool" id="btn-redo" onclick="redo()">↷</button>
-        <button class="btn-tool" id="btn-add-menu" onclick="toggleAddMenu()">➕</button>
-        <button class="btn-tool" id="btn-delete-selection" onclick="supprimerSelection()" disabled>🧽</button>
-        <button class="btn-tool" onclick="genererTablesDepuisClasse()">📋</button>
-    </div>
+		<button class="btn-tool" id="btn-mode" onclick="toggleLock()" title="Verrouiller/Déverrouiller le plan">🔓</button>
+		<button class="btn-tool" id="btn-undo" onclick="undo()" title="Annuler l'action (Ctrl+Z)">↶</button>
+		<button class="btn-tool" id="btn-redo" onclick="redo()" title="Rétablir l'action (Ctrl+Y)">↷</button>
+		<button class="btn-tool" id="btn-add-menu" onclick="toggleAddMenu()" title="Ajouter un meuble ou un élève">➕</button>
+		<button class="btn-tool" id="btn-rotate-selection" onclick="pivoterSelection()" title="Pivoter l'élément sélectionné" disabled>🔄</button>
+		<button class="btn-tool" id="btn-delete-selection" onclick="supprimerSelection()" title="Supprimer l'élément sélectionné" disabled>🧽</button>
+		<button class="btn-tool" onclick="genererTablesDepuisClasse()" title="Générer les tables depuis la liste 'Ma Classe'">📋</button>
+	</div>
 
     <!-- Canvas SVG -->
     <div id="canvas-container">
@@ -392,11 +393,12 @@
      BARRE D'OUTILS PRINCIPALE (BAS)
 ============================================ -->
 <div class="toolbar">
-    <button class="btn-tool" onclick="confirmerToutEffacer()">🗑️</button>
-    <button class="btn-tool" onclick="exporterPlan()">💾</button>
-    <button class="btn-tool" onclick="importerPlan()">📂</button>
-    <button class="btn-tool" onclick="exportPDF()">📄</button>
-    <button class="btn-tool" onclick="ouvrirDansOnglet()">🖼️</button>
+    <button class="btn-tool" onclick="exportPDF()" title="Exporter le plan en PDF">📄</button>
+    <button class="btn-tool" onclick="exporterPlan()" title="Sauvegarder le fichier projet (.json)">💾</button>
+    <button class="btn-tool" onclick="importerPlan()" title="Charger un projet existant">📂</button>
+    <button class="btn-tool" onclick="ouvrirDansOnglet()" title="Aperçu plein écran">🖼️</button>
+    <button class="btn-tool" onclick="confirmerToutEffacer()" title="Vider tout le plan">🗑️</button>
+    <button class="btn-tool" onclick="ouvrirAide()" title="Aide et raccourcis">❓</button>
 </div>
 
 <!-- ============================================
@@ -604,6 +606,7 @@ function updateButtons() {
     document.getElementById('btn-undo').disabled = historyStack.length === 0;
     document.getElementById('btn-redo').disabled = redoStack.length === 0;
     document.getElementById('btn-delete-selection').disabled = selectedIndex === null;
+    document.getElementById('btn-rotate-selection').disabled = selectedIndex === null;
 }
 
 // ============================================
@@ -710,6 +713,15 @@ function validerCreationTable() {
     }
 }
 
+function pivoterSelection() {
+    if (selectedIndex !== null && !isLocked) {
+        pushHistory();
+        const student = studentData[selectedIndex];
+        student.r = (parseInt(student.r || 0) + 45) % 360;
+        sync();
+    }
+}
+
 // ============================================
 // DESSIN DU PLAN
 // ============================================
@@ -813,42 +825,44 @@ function drawPlan() {
             g.appendChild(text);
         }
 
-        /// Événements
-        
-        // CLIC GAUCHE : Sélection et Drag (géré par interact.js)
+        // --- GESTION DES ÉVÉNEMENTS ---
+
+        // CLIC SIMPLE : Sélection (sans réinitialiser l'échange en cours)
         g.addEventListener('click', (e) => {
             e.stopPropagation();
-            deselectAllManual();
+            
+            // On retire visuellement la classe selected de tous
+            document.querySelectorAll('.desk-group').forEach(el => el.classList.remove('selected'));
+            
+            // On applique la sélection actuelle
             g.classList.add('selected');
             selectedIndex = index;
             updateButtons();
         });
 
-        // CLIC DROIT : Échange de prénoms
-        g.addEventListener('contextmenu', (e) => {
-            e.preventDefault(); // Empêche le menu contextuel du navigateur de s'ouvrir
+        // DOUBLE-CLIC : Échange de prénoms
+        g.addEventListener('dblclick', (e) => {
             e.stopPropagation();
 
-            // Si c'est le premier qu'on sélectionne pour un échange
             if (selectedForSwap === null) {
+                // Premier élément sélectionné pour l'échange
                 selectedForSwap = index;
-                // Effet visuel temporaire pour montrer qu'il est en attente d'échange
-                g.querySelector('.desk-rect').style.stroke = "#f97316"; 
-                g.querySelector('.desk-rect').style.strokeWidth = "12";
+                const rectElement = g.querySelector('.desk-rect');
+                rectElement.style.stroke = "#f97316"; 
+                rectElement.style.strokeWidth = "12";
             } 
-            // Si on clique sur le même, on annule
             else if (selectedForSwap === index) {
+                // Annulation si on double-clique à nouveau sur le même
                 selectedForSwap = null;
-                sync(); // Rafraîchit le dessin pour enlever l'effet visuel
+                sync();
             }
-            // Deuxième élément cliqué : on procède à l'échange
             else {
+                // Deuxième élément cliqué : on procède à l'échange
                 const item1 = studentData[selectedForSwap];
                 const item2 = studentData[index];
 
                 pushHistory();
 
-                // Échange des noms et niveaux
                 const tempName = item1.name;
                 const tempNiv = item1.niveau;
 
@@ -862,46 +876,19 @@ function drawPlan() {
                 sync();
             }
         });
-		
-        // GESTION MOBILE : Appui long pour l'échange
-        let timer;
-        g.addEventListener('touchstart', (e) => {
-            // On lance un chrono de 500ms
-            timer = setTimeout(() => {
-                // On déclenche manuellement la logique du clic droit
-                g.dispatchEvent(new Event('contextmenu'));
-            }, 600); 
-        });
-
-        g.addEventListener('touchend', () => {
-            clearTimeout(timer); // Annule si on relâche avant 600ms
-        });
-
-        g.addEventListener('touchmove', () => {
-            clearTimeout(timer); // Annule si on glisse (déplacement)
-        });
-		
-        g.addEventListener('dblclick', (e) => {
-            e.stopPropagation();
-            if (!isLocked) {
-                pushHistory();
-                student.r = (parseInt(student.r || 0) + 45) % 360;
-                sync();
-            }
-        });
         
         layer.appendChild(g);
     });
     
     setupInteract();
     applyTransform();
-	// Force la désélection même si interact.js "mange" l'événement
-	document.addEventListener('mousedown', function(e) {
-		// Si on clique sur le fond du SVG ou n'importe où sauf sur un meuble ou un bouton
-		if (e.target.id === 'plan-svg' || e.target.id === 'main-layer') {
-			deselectAllManual();
-		}
-	}, true); // Le "true" ici est crucial : il capture l'événement avant tout le monde
+
+    // Clic sur le fond pour tout désélectionner (y compris l'échange en cours)
+    document.addEventListener('mousedown', function(e) {
+        if (e.target.id === 'plan-svg' || e.target.id === 'main-layer') {
+            deselectAllManual();
+        }
+    }, true);
 }
 
 // ============================================
@@ -963,8 +950,8 @@ function setupInteract() {
                 point.y = event.dy;
                 
                 const ctm = svg.getScreenCTM().inverse();
-                const deltaX = (point.x * ctm.a) / currentScale;  // 👈 Division par currentScale
-                const deltaY = (point.y * ctm.d) / currentScale;  // 👈 Division par currentScale
+                const deltaX = point.x * ctm.a;
+                const deltaY = point.y * ctm.d;
                 
                 let x = (parseFloat(target.getAttribute('data-x')) || 0) + deltaX;
                 let y = (parseFloat(target.getAttribute('data-y')) || 0) + deltaY;
