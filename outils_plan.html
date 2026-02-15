@@ -963,8 +963,8 @@ function setupInteract() {
                 point.y = event.dy;
                 
                 const ctm = svg.getScreenCTM().inverse();
-                const deltaX = point.x * ctm.a;
-                const deltaY = point.y * ctm.d;
+                const deltaX = (point.x * ctm.a) / currentScale;  // 👈 Division par currentScale
+                const deltaY = (point.y * ctm.d) / currentScale;  // 👈 Division par currentScale
                 
                 let x = (parseFloat(target.getAttribute('data-x')) || 0) + deltaX;
                 let y = (parseFloat(target.getAttribute('data-y')) || 0) + deltaY;
