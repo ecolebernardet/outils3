@@ -371,7 +371,14 @@
 		<button class="btn-tool" id="btn-add-menu" onclick="toggleAddMenu()" title="Ajouter un meuble ou un élève">➕</button>
 		<button class="btn-tool" id="btn-rotate-selection" onclick="pivoterSelection()" title="Pivoter l'élément sélectionné" disabled>🔄</button>
 		<button class="btn-tool" id="btn-delete-selection" onclick="supprimerSelection()" title="Supprimer l'élément sélectionné" disabled>🧽</button>
-		<button class="btn-tool" onclick="genererTablesDepuisClasse()" title="Générer les tables depuis la liste 'Ma Classe'">📋</button>
+		<button class="btn-tool" onclick="genererTablesDepuisClasse()" title="Générer les tables depuis la liste 'Ma Classe'" style="display: flex; align-items: center; justify-content: center;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <path d="M20 8v6"></path>
+        <path d="M17 11h6"></path>
+    </svg>
+</button>
 	</div>
 
     <!-- Canvas SVG -->
@@ -393,10 +400,20 @@
      BARRE D'OUTILS PRINCIPALE (BAS)
 ============================================ -->
 <div class="toolbar">
-    <button class="btn-tool" onclick="exportPDF()" title="Exporter le plan en PDF">📄</button>
+    <button class="btn-tool" onclick="exportPDF()" title="Exporter le plan en PDF">PDF</button>
     <button class="btn-tool" onclick="exporterPlan()" title="Sauvegarder le fichier projet (.json)">💾</button>
     <button class="btn-tool" onclick="importerPlan()" title="Charger un projet existant">📂</button>
-    <button class="btn-tool" onclick="ouvrirDansOnglet()" title="Aperçu plein écran">🖼️</button>
+    <button class="btn-tool" onclick="ouvrirDansOnglet()" title="Aperçu plein écran" style="display: flex; align-items: center; justify-content: center;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+        <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+        <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+        <path d="M3 17v2a2 2 0 0 0 2 2h2" />
+        
+        <circle cx="12" cy="10" r="2.5" />
+        <path d="M7 18c0-2.5 2-4.5 5-4.5s5 2 5 4.5" />
+    </svg>
+</button>
     <button class="btn-tool" onclick="confirmerToutEffacer()" title="Vider tout le plan">🗑️</button>
     <button class="btn-tool" onclick="ouvrirAide()" title="Aide et raccourcis">❓</button>
 </div>
@@ -1186,7 +1203,6 @@ function ouvrirDansOnglet() {
     
     svgClone.style.backgroundColor = "white";
     
-    // Augmentation de la taille des prénoms
     const labels = svgClone.querySelectorAll('.desk-label');
     labels.forEach(label => {
         label.setAttribute('style', 
@@ -1195,7 +1211,6 @@ function ouvrirDansOnglet() {
         label.setAttribute('dominant-baseline', 'central');
     });
 
-    // Bordures visibles
     const walls = svgClone.querySelector('rect');
     if (walls) walls.setAttribute("stroke", "#dddddd");
 
@@ -1224,6 +1239,7 @@ function ouvrirDansOnglet() {
                 <html>
                     <head>
                         <title>Aperçu du Plan de Classe</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
                         <style>
                             body { 
                                 margin: 0; 
@@ -1231,14 +1247,16 @@ function ouvrirDansOnglet() {
                                 display: flex; 
                                 justify-content: center; 
                                 align-items: center; 
-                                height: 100vh; 
+                                height: 100vh;
+                                height: -webkit-fill-available; /* Correction pour mobiles */
+                                width: 100vw;
                                 overflow: hidden; 
                             }
                             img { 
-                                height: 100vh;
-                                width: auto;
+                                max-width: 100%;
+                                max-height: 100%;
+                                object-fit: contain; /* L'image s'adapte sans déborder */
                                 box-shadow: 0 0 50px rgba(0,0,0,0.5);
-                                display: block;
                             }
                         </style>
                     </head>
@@ -1247,6 +1265,7 @@ function ouvrirDansOnglet() {
                     </body>
                 </html>
             `);
+            nouvelleFenetre.document.close();
         }
         URL.revokeObjectURL(url);
     };
