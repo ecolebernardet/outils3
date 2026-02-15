@@ -1230,43 +1230,25 @@ function ouvrirDansOnglet() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         
-        const pngUrl = canvas.toDataURL("image/png");
+        // Conversion du canvas en BLOB (plus robuste que le DataURL)
+        canvas.toBlob((blob) => {
+            const pngUrl = URL.createObjectURL(blob);
+            
+            // On utilise un lien invisible pour forcer l'ouverture proprement
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.target = '_blank'; // Ouvre dans un nouvel onglet
+            
+            // Sur Android, cela permet au navigateur de proposer "Ouvrir avec..." 
+            // ou d'afficher l'image directement avec le zoom actif
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Nettoyage de la mémoire après un court délai
+            setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
+        }, 'image/png');
         
-        const nouvelleFenetre = window.open();
-        if (nouvelleFenetre) {
-            nouvelleFenetre.document.write(`
-                <!DOCTYPE html>
-                <html>
-                    <head>
-                        <title>Aperçu du Plan de Classe</title>
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                        <style>
-                            body { 
-                                margin: 0; 
-                                background: #1a1a1a; 
-                                display: flex; 
-                                justify-content: center; 
-                                align-items: center; 
-                                height: 100vh;
-                                height: -webkit-fill-available; /* Correction pour mobiles */
-                                width: 100vw;
-                                overflow: hidden; 
-                            }
-                            img { 
-                                max-width: 100%;
-                                max-height: 100%;
-                                object-fit: contain; /* L'image s'adapte sans déborder */
-                                box-shadow: 0 0 50px rgba(0,0,0,0.5);
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${pngUrl}">
-                    </body>
-                </html>
-            `);
-            nouvelleFenetre.document.close();
-        }
         URL.revokeObjectURL(url);
     };
 
