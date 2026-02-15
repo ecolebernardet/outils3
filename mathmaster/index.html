@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MathMaster Pro - Elite Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+	<link rel="manifest" href="manifest.json">
+	<meta name="theme-color" content="#6366f1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+	
+		body {
+			-webkit-user-select: none; /* Désactive la sélection de texte */
+			user-select: none;
+			-webkit-tap-highlight-color: transparent; /* Désactive le flash bleu au clic sur mobile */
+			touch-action: manipulation; /* Optimise les clics rapides */
+		}
+
+		input {
+			user-select: auto; /* Permet quand même d'écrire dans l'input si besoin */
+		}
+		
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-light: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --radius: 24px;
+            --radius-sm: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: gradientShift 10s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(15px, -15px) scale(1.05); }
+            66% { transform: translate(-15px, 15px) scale(0.95); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-particle 20s infinite;
+            z-index: -1;
+        }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+        }
+
+        /* Layout Container */
+        .layout-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            max-width: 1600px;
+            gap: 2rem;
+            padding: 1rem;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            display: none;
+            flex: 0 0 320px;
+            height: 100vh;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .stats-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .stats-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stats-panel:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: var(--glow);
+            transform: translateY(-2px);
+        }
+
+        .stats-panel h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+            padding-left: 8px;
+            border-radius: 8px;
+        }
+
+        .stat-item:last-child { border-bottom: none; }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Achievement Badge */
+        .achievement-badge {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .achievement-badge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Main Container */
+        #game-container {
+            width: 100%;
+            max-width: 550px;
+            height: 100vh;
+            max-height: 100vh;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow), 0 0 40px rgba(99, 102, 241, 0.1);
+            padding: 1.5rem;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: pulse-glow 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        .hidden { display: none !important; }
+
+        /* ===== SETUP SCREEN ===== */
+        #setup-screen {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .logo-container {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .logo-icon {
+            font-size: clamp(2rem, 8vw, 4.5rem);
+            animation: rotate-3d 4s ease-in-out infinite;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.5));
+        }
+
+        @keyframes rotate-3d {
+            0%, 100% { transform: rotateY(0deg) rotateZ(0deg); }
+            25% { transform: rotateY(180deg) rotateZ(5deg); }
+            50% { transform: rotateY(180deg) rotateZ(-5deg); }
+            75% { transform: rotateY(360deg) rotateZ(5deg); }
+        }
+
+        .setup-header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.5rem, 6vw, 3.8rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+            text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .setup-header .subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(0.85rem, 2vw, 1rem);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        /* Avatar Selection */
+        .avatar-section {
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .section-label i {
+            color: var(--primary-light);
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(15px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .avatar-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: 18px;
+            font-size: clamp(1.5rem, 3.5vw, 1.6rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+			aspect-ratio: 2;
+        }
+
+        .avatar-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .avatar-btn:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .avatar-btn:hover::before {
+            opacity: 1;
+        }
+
+        .avatar-btn.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.5), inset 0 0 20px rgba(99, 102, 241, 0.2);
+            border-width: 3px;
+        }
+
+        .avatar-btn.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+        }
+
+        .avatar-btn span {
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+
+        .avatar-btn.selected span {
+            transform: scale(1.2) rotate(15deg);
+            animation: wiggle 0.5s ease-in-out;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: scale(1.2) rotate(15deg); }
+            25% { transform: scale(1.25) rotate(20deg); }
+            75% { transform: scale(1.15) rotate(10deg); }
+        }
+
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 1.2rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(203, 213, 225, 0.4);
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), var(--glow);
+            transform: translateY(-2px);
+        }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23818cf8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            appearance: none;
+        }
+
+        /* Difficulty Selector */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 1.0rem;
+        }
+
+        .difficulty-btn {
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .difficulty-btn .icon {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
+
+        .difficulty-btn.easy { border-color: rgba(16, 185, 129, 0.3); }
+        .difficulty-btn.medium { border-color: rgba(245, 158, 11, 0.3); }
+        .difficulty-btn.hard { border-color: rgba(239, 68, 68, 0.3); }
+
+        .difficulty-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .difficulty-btn.active {
+            border-width: 3px;
+        }
+
+        .difficulty-btn.easy.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .difficulty-btn.medium.active {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .difficulty-btn.hard.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Operation Buttons */
+        .operation-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .op-btn {
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: clamp(1.5rem, 2.5vw, 1.3rem);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .op-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .op-btn:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .op-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .op-btn.active span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            width: 100%;
+            padding: 15px 18px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: clamp(0.95rem, 2vw, 1.05rem);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Sora', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--text-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* ===== GAME SCREEN ===== */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+
+        .avatar-display {
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+
+        .score-badge {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            transition: var(--transition);
+        }
+
+        .score-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .score-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .score-value {
+            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+            font-weight: 900;
+            margin-top: 3px;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .score-value.success {
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .score-value.danger {
+            color: var(--danger);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: var(--danger);
+            padding: 8px 16px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-stop:hover {
+            background: rgba(239, 68, 68, 0.25);
+            transform: scale(1.05);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--warning));
+            transition: width 0.1s linear;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .timer-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Precision Bar */
+        .precision-track {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        #precision-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--warning));
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+
+        .precision-label {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Question & Answer */
+        .question-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            margin-bottom: 1.2rem;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            transition: var(--transition);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .question-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        #question {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
+        }
+
+        #answer {
+            width: 100%;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 3px solid rgba(148, 163, 184, 0.3);
+            border-radius: 14px;
+            font-size: clamp(1.6rem, 4vw, 2rem);
+            font-weight: 800;
+            text-align: center;
+            color: var(--primary-light);
+            font-family: 'Sora', sans-serif;
+            transition: var(--transition);
+            letter-spacing: -1px;
+        }
+
+        #answer:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25), var(--glow);
+        }
+
+        #answer.correct-flash {
+            border-color: var(--success) !important;
+            background: rgba(16, 185, 129, 0.2) !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.6) !important;
+            animation: pulse-correct 0.3s ease;
+        }
+
+        @keyframes pulse-correct {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        #answer.wrong-flash {
+            border-color: var(--danger) !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important;
+            animation: shake-intense 0.3s ease;
+        }
+
+        @keyframes shake-intense {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Combo Indicator */
+        .combo-indicator {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--warning), var(--secondary));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            animation: slideDown 0.5s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            z-index: 10;
+        }
+
+        @keyframes slideDown {
+            from { top: -60px; opacity: 0; }
+            to { top: -40px; opacity: 1; }
+        }
+
+        /* Enhanced Numpad */
+        #numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: auto;
+            flex-shrink: 1;
+			width: 100%; /* S'assure que la grille occupe 100% du parent */
+		box-sizing: border-box; /* Évite les débordements dus au padding interne */
+		}
+
+        .num-btn {
+            padding: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 14px;
+            font-size: clamp(1rem, 2.8vw, 1.3rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+            min-height: 60px; /* Hauteur minimale pour rester cliquable */
+			height: 12vh; /* Utilise une fraction de la hauteur de l'écran */
+			max-height: 80px; /* Limite pour ne pas pousser le reste hors de l'écran */
+			width: 100%;
+        }
+
+        .num-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .num-btn:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .num-btn:hover::before {
+            opacity: 1;
+        }
+
+        .num-btn:active,
+        .num-btn.active-press {
+            transform: translateY(0px) scale(0.95);
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .num-btn.special {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(236, 72, 153, 0.08));
+            border-color: rgba(236, 72, 153, 0.4);
+            color: var(--secondary);
+        }
+
+        .num-btn.special:hover {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.15));
+        }
+
+        .num-btn.confirm {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border-color: var(--success);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+        }
+
+        .num-btn.confirm:hover {
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
+        }
+
+        /* ===== RESULT SCREEN ===== */
+        .result-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            flex-shrink: 0;
+        }
+
+        .result-icon {
+            font-size: clamp(3rem, 10vw, 5rem);
+            margin-bottom: 1rem;
+            animation: bounce 1s ease-in-out;
+        }
+
+        .result-header h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.6rem, 5vw, 2.3rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-score {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.5rem, 10vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            letter-spacing: -3px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card.errors {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .stat-card.errors::before {
+            background: var(--danger);
+        }
+
+        .stat-card.accuracy {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .stat-card.accuracy::before {
+            background: var(--success);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.6rem, 5vw, 2.2rem);
+            font-weight: 900;
+        }
+
+        .stat-value.danger {
+            color: var(--danger);
+            text-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        .stat-value.success {
+            color: var(--success);
+            text-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(148, 163, 184, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            transition: var(--transition);
+            font-size: 0.95rem;
+            border-radius: 8px;
+        }
+
+        .score-row:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: transparent;
+            transform: translateX(4px);
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-rank {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            font-weight: 700;
+        }
+
+        .rank-badge {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.25);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: var(--primary-light);
+            font-size: 0.85rem;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .score-row:nth-child(1) .rank-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            border-color: #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+        }
+
+        .score-row:nth-child(2) .rank-badge {
+            background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+            color: white;
+            border-color: #9ca3af;
+        }
+
+        .score-row:nth-child(3) .rank-badge {
+            background: linear-gradient(135deg, #cd7f32, #92400e);
+            color: white;
+            border-color: #cd7f32;
+        }
+
+        .score-points {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--primary-light);
+            text-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pop-animation {
+            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Modal */
+        #custom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: rgba(30, 41, 59, 0.98);
+            backdrop-filter: blur(30px);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: var(--radius);
+            padding: clamp(2rem, 6vw, 3rem);
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-icon {
+            font-size: clamp(3rem, 10vw, 4rem);
+            margin-bottom: 1rem;
+            animation: float 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.5));
+        }
+
+        #modal-message {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--danger);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+
+        /* Sound Toggle */
+        .sound-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .sound-toggle.muted {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+
+        @media (min-width: 1024px) {
+            .layout-wrapper {
+                padding: 2rem;
+                gap: 3rem;
+            }
+
+            .sidebar {
+                display: block;
+            }
+
+            #game-container {
+                max-width: 600px;
+                padding: 2.5rem;
+            }
+
+            .stats-panel {
+                padding: 2rem;
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .sidebar {
+                flex: 0 0 360px;
+            }
+
+            #game-container {
+                max-width: 650px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #game-container {
+                padding: 1rem;
+                border-radius: 0;
+                height: 100vh;
+                max-height: 100vh;
+            }
+
+            .question-card {
+                padding: 1.2rem 1rem;
+            }
+
+            .setup-header {
+                margin-bottom: 1.2rem;
+            }
+
+            .layout-wrapper {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating particles -->
+<div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+<div class="particle" style="left: 30%; animation-delay: 3s;"></div>
+<div class="particle" style="left: 50%; animation-delay: 6s;"></div>
+<div class="particle" style="left: 70%; animation-delay: 9s;"></div>
+<div class="particle" style="left: 90%; animation-delay: 12s;"></div>
+
+<div class="layout-wrapper">
+    <!-- SIDEBAR (Desktop only) -->
+    <div class="sidebar">
+        <div class="stats-panel">
+            <h3><i class="fas fa-chart-line"></i> Statistiques</h3>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-gamepad"></i> Total Parties</span>
+                <span class="stat-value" id="total-games">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-trophy"></i> Meilleur Score</span>
+                <span class="stat-value" id="best-score">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-star"></i> Parties Parfaites</span>
+                <span class="stat-value" id="wins">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-bullseye"></i> Précision Moy.</span>
+                <span class="stat-value" id="avg-precision">0%</span>
+            </div>
+        </div>
+
+        <div class="achievement-badge">
+            <div class="achievement-icon">🏆</div>
+            <div style="font-size: 0.9rem; font-weight: 700; color: #fbbf24;">Champion</div>
+            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 4px;">Prochain niveau : 100 pts</div>
+        </div>
+
+        <div class="stats-panel">
+            <h3><i class="fas fa-clock"></i> Session</h3>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-hourglass-half"></i> Temps Joué</span>
+                <span class="stat-value" id="play-time">0m</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label"><i class="fas fa-fire"></i> Série Actuelle</span>
+                <span class="stat-value" id="streak">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN GAME CONTAINER -->
+    <div id="game-container">
+        <!-- Sound Toggle -->
+        <div class="sound-toggle" onclick="toggleSound()" id="sound-btn" title="Activer/Désactiver le son">
+            <i class="fas fa-volume-up" id="sound-icon"></i>
+        </div>
+
+        <!-- MODAL -->
+        <div id="custom-modal" class="hidden" onclick="closeModal()">
+            <div class="modal-content pop-animation" onclick="event.stopPropagation()">
+                <div class="modal-icon">⚠️</div>
+                <h3 id="modal-message">Prénom requis !</h3>
+                <button class="btn btn-primary" onclick="closeModal()">Compris</button>
+            </div>
+        </div>
+
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen">
+            <div class="setup-header">
+                <div class="logo-container">
+                    <div class="logo-icon">🧮</div>
+                </div>
+                <h1>MathMaster Pro</h1>
+                <p class="subtitle">Le maître du calcul mental</p>
+             </div>
+
+            <div class="avatar-section">
+                <span class="section-label"><i class="fas fa-user-circle"></i> Choisis ton avatar</span>
+                <div class="avatar-grid">
+                    <button class="avatar-btn selected" onclick="selectAvatar(this)"><span>🐱</span></button>
+                    <button class="avatar-btn" onclick="selectAvatar(this)"><span>🐼</span></button>
+                    <button class="avatar-btn" onclick="selectAvatar(this)"><span>🐵</span></button>
+                    <button class="avatar-btn" onclick="selectAvatar(this)"><span>🐭</span></button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Entre ton prénom..." maxlength="20">
+            </div>
+
+            <div>
+                <span class="section-label"><i class="fas fa-brain"></i> Niveau de difficulté</span>
+                <div class="difficulty-grid">
+                    <button class="difficulty-btn easy" onclick="selectDifficulty(this, 'easy')">
+                        <span class="icon">🌱</span>
+                        <span>Facile</span>
+                    </button>
+                    <button class="difficulty-btn medium active" onclick="selectDifficulty(this, 'medium')">
+                        <span class="icon">🔥</span>
+                        <span>Moyen</span>
+                    </button>
+                    <button class="difficulty-btn hard" onclick="selectDifficulty(this, 'hard')">
+                        <span class="icon">💀</span>
+                        <span>Difficile</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <span class="section-label"><i class="fas fa-calculator"></i> Opérations</span>
+                <div class="operation-grid">
+                    <button class="op-btn active" onclick="toggleOp(this, '+')"><span>+</span></button>
+                    <button class="op-btn active" onclick="toggleOp(this, '-')"><span>-</span></button>
+                    <button class="op-btn" onclick="toggleOp(this, 'x')"><span>×</span></button>
+                    <button class="op-btn" onclick="toggleOp(this, '÷')"><span>÷</span></button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <select id="game-mode">
+                    <option value="30">⚡ Flash (30s)</option>
+                    <option value="60" selected>⏱️ Standard (60s)</option>
+                    <option value="90">⏳ Longue (90s)</option>
+                    <option value="survival">💀 Mode Survie</option>
+                </select>
+            </div>
+
+            <button class="btn btn-success" onclick="startGame()"><i class="fas fa-play"></i> Commencer</button>
+			<button id="install-btn" class="btn btn-primary hidden" style="background-color: #6366f1; border-color: #4f46e5;">
+				<i class="fas fa-download"></i> Installer l'application
+			</button>
+            <button class="btn btn-secondary" onclick="showHighScores()"><i class="fas fa-trophy"></i> Classement</button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="hidden">
+            <div class="game-header">
+                <div class="avatar-display" id="current-avatar">🐱</div>
+                <div class="score-badge">
+                    <div class="score-item">
+                        <span class="score-label">Score</span>
+                        <span class="score-value success" id="score-val">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">Erreurs</span>
+                        <span class="score-value danger" id="error-val">0</span>
+                    </div>
+                </div>
+                <button class="btn-stop" onclick="endGame()"><i class="fas fa-stop"></i> Stop</button>
+            </div>
+
+            <div class="progress-container" style="position: relative;">
+                <div id="progress-bar"></div>
+                <div class="timer-badge" id="timer-text">--</div>
+            </div>
+
+            <div class="precision-track" style="position: relative;">
+                <div id="precision-bar"></div>
+                <div class="precision-label" id="precision-text">100%</div>
+            </div>
+
+            <div class="question-card">
+                <div id="combo-display"></div>
+                <div id="question">-- + --</div>
+                <input type="text" id="answer" readonly placeholder="?">
+            </div>
+
+            <div id="numpad">
+                <button class="num-btn" data-key="1" onclick="pressKey('1')">1</button>
+                <button class="num-btn" data-key="2" onclick="pressKey('2')">2</button>
+                <button class="num-btn" data-key="3" onclick="pressKey('3')">3</button>
+                <button class="num-btn" data-key="4" onclick="pressKey('4')">4</button>
+                <button class="num-btn" data-key="5" onclick="pressKey('5')">5</button>
+                <button class="num-btn" data-key="6" onclick="pressKey('6')">6</button>
+                <button class="num-btn" data-key="7" onclick="pressKey('7')">7</button>
+                <button class="num-btn" data-key="8" onclick="pressKey('8')">8</button>
+                <button class="num-btn" data-key="9" onclick="pressKey('9')">9</button>
+                <button class="num-btn special" data-key="C" onclick="pressKey('C')"><i class="fas fa-backspace"></i></button>
+                <button class="num-btn" data-key="0" onclick="pressKey('0')">0</button>
+                <button class="num-btn confirm" data-key="Enter" onclick="checkAnswer()"><i class="fas fa-check"></i></button>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-screen" class="hidden">
+            <div class="result-header">
+                <div class="result-icon" id="result-emoji">🎉</div>
+                <h2 id="result-title">Résultats !</h2>
+            </div>
+
+            <div class="final-score" id="final-score">0</div>
+
+            <div class="stats-grid">
+                <div class="stat-card errors">
+                    <div class="stat-label"><i class="fas fa-times-circle"></i> Erreurs</div>
+                    <div class="stat-value danger" id="final-errors">0</div>
+                </div>
+                <div class="stat-card accuracy">
+                    <div class="stat-label"><i class="fas fa-bullseye"></i> Précision</div>
+                    <div class="stat-value success" id="final-accuracy">100%</div>
+                </div>
+            </div>
+
+            <div class="leaderboard">
+                <div class="leaderboard-title"><i class="fas fa-trophy"></i> Top 10 Scores</div>
+                <div id="scores-body"></div>
+            </div>
+
+            <button class="btn btn-primary" onclick="backToMenu()"><i class="fas fa-home"></i> Menu Principal</button>
+            <button class="btn btn-success" onclick="playAgain()"><i class="fas fa-redo"></i> Rejouer</button>
+            <button onclick="clearScores()" style="background: none; border: none; color: var(--text-secondary); font-size: 0.7rem; cursor: pointer; margin-top: 1rem; text-decoration: underline; font-weight: 600; transition: var(--transition);" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-secondary)'">
+                <i class="fas fa-trash"></i> Réinitialiser les records
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== GAME STATE =====
+    let score = 0, errors = 0, timeLeft, timerId, currentAnswer, selectedAvatar = "🐱", isSurvival = false;
+    let selectedOps = ['+', '-'];
+    let difficulty = 'medium';
+    let startTime = 0;
+    let combo = 0;
+    let soundEnabled = true;
+    let gameStats = { 
+        totalGames: 0, 
+        bestScore: 0, 
+        wins: 0, 
+        totalPrecision: 0, 
+        totalTime: 0,
+        streak: 0
+    };
+
+    // ===== AUDIO SYSTEM =====
+    const sounds = {
+        correct: () => playTone(800, 100),
+        wrong: () => playTone(200, 200),
+        combo: () => playTone(1200, 150),
+        gameOver: () => playTone(400, 300)
+    };
+
+    function playTone(freq, duration) {
+        if (!soundEnabled) return;
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration/1000);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + duration/1000);
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('sound-btn');
+        const icon = document.getElementById('sound-icon');
+        
+        if (soundEnabled) {
+            btn.classList.remove('muted');
+            icon.className = 'fas fa-volume-up';
+        } else {
+            btn.classList.add('muted');
+            icon.className = 'fas fa-volume-mute';
+        }
+    }
+
+    // ===== STATS MANAGEMENT =====
+    function loadStats() {
+        const saved = localStorage.getItem('mathMasterStats');
+        if (saved) gameStats = JSON.parse(saved);
+        updateStatsDisplay();
+    }
+
+    function updateStatsDisplay() {
+        document.getElementById('total-games').innerText = gameStats.totalGames;
+        document.getElementById('best-score').innerText = gameStats.bestScore;
+        document.getElementById('wins').innerText = gameStats.wins;
+        const avgPrecision = gameStats.totalGames > 0 ? Math.round(gameStats.totalPrecision / gameStats.totalGames) : 0;
+        document.getElementById('avg-precision').innerText = avgPrecision + "%";
+        
+        const hours = Math.floor(gameStats.totalTime / 60);
+        const minutes = gameStats.totalTime % 60;
+        document.getElementById('play-time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        document.getElementById('streak').innerText = gameStats.streak;
+    }
+
+    // ===== KEYBOARD HANDLING =====
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('custom-modal');
+        if (!modal.classList.contains('hidden')) {
+            if (e.key === 'Enter') { closeModal(); e.preventDefault(); }
+            return;
+        }
+
+        if (document.getElementById('game-screen').classList.contains('hidden')) return;
+        
+        let keyToSimulate = null;
+        if (e.key >= '0' && e.key <= '9') { pressKey(e.key); keyToSimulate = e.key; }
+        else if (e.key === 'Enter') { checkAnswer(); keyToSimulate = 'Enter'; }
+        else if (e.key === 'Backspace' || e.key === 'Escape') { pressKey('C'); keyToSimulate = 'C'; }
+
+        if (keyToSimulate) {
+            const btn = document.querySelector(`.num-btn[data-key="${keyToSimulate}"]`);
+            if (btn) {
+                btn.classList.add('active-press');
+                setTimeout(() => btn.classList.remove('active-press'), 100);
+            }
+        }
+    });
+
+    // ===== MODAL =====
+    function showModal(msg) {
+        document.getElementById('modal-message').innerText = msg;
+        const modal = document.getElementById('custom-modal');
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('custom-modal');
+        modal.classList.add('hidden');
+        if (!document.getElementById('setup-screen').classList.contains('hidden')) {
+            document.getElementById('player-name').focus();
+        }
+    }
+
+    // ===== SETUP LOGIC =====
+    function selectAvatar(el) {
+        document.querySelectorAll('.avatar-btn').forEach(opt => opt.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedAvatar = el.querySelector('span').innerText;
+    }
+
+    function selectDifficulty(btn, level) {
+        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        difficulty = level;
+    }
+
+    function toggleOp(btn, op) {
+        if (selectedOps.includes(op) && selectedOps.length > 1) {
+            selectedOps = selectedOps.filter(o => o !== op);
+            btn.classList.remove('active');
+        } else if (!selectedOps.includes(op)) {
+            selectedOps.push(op);
+            btn.classList.add('active');
+        }
+    }
+
+    function pressKey(key) {
+        const input = document.getElementById('answer');
+        if (key === 'C') { input.value = ''; } 
+        else if (input.value.length < 6) { input.value += key; }
+    }
+
+    function updatePrecision() {
+        const total = score + errors;
+        const ratio = total > 0 ? (score / total) * 100 : 100;
+        const bar = document.getElementById('precision-bar');
+        bar.style.width = ratio + "%";
+        document.getElementById('precision-text').innerText = Math.round(ratio) + "%";
+    }
+
+    function updateCombo() {
+        const display = document.getElementById('combo-display');
+        if (combo >= 3) {
+            display.innerHTML = `<div class="combo-indicator">🔥 COMBO x${combo} 🔥</div>`;
+            sounds.combo();
+        } else {
+            display.innerHTML = '';
+        }
+    }
+
+    // ===== GAME LOGIC =====
+    function startGame() {
+        const name = document.getElementById('player-name').value.trim();
+        if (!name) return showModal("Entre ton prénom pour commencer !");
+        
+        score = 0; 
+        errors = 0;
+        combo = 0;
+        startTime = Date.now();
+        document.getElementById('score-val').innerText = "0";
+        document.getElementById('error-val').innerText = "0";
+        document.getElementById('current-avatar').innerText = selectedAvatar;
+        
+        const mode = document.getElementById('game-mode').value;
+        isSurvival = (mode === 'survival');
+        timeLeft = isSurvival ? 0 : parseInt(mode);
+        const initialTime = timeLeft;
+
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        updatePrecision();
+        updateCombo();
+        nextQuestion();
+
+        if (!isSurvival) {
+            if (timerId) clearInterval(timerId);
+            timerId = setInterval(() => {
+                timeLeft -= 0.1;
+                const percentage = (timeLeft / initialTime * 100);
+                document.getElementById('progress-bar').style.width = percentage + "%";
+                document.getElementById('timer-text').innerText = Math.ceil(timeLeft) + "s";
+                
+                // Warning color when time is low
+                if (timeLeft <= 10) {
+                    document.getElementById('progress-bar').style.background = 'linear-gradient(90deg, var(--danger), var(--warning))';
+                }
+                
+                if (timeLeft <= 0) endGame();
+            }, 100);
+        } else {
+            document.getElementById('progress-bar').style.width = "100%";
+            document.getElementById('timer-text').innerText = "💀 SURVIE";
+        }
+    }
+
+    function nextQuestion() {
+    let op = selectedOps[Math.floor(Math.random() * selectedOps.length)];
+    
+    // ===== SYSTÈME DE PALIERS DE DIFFICULTÉ =====
+    // Progression claire par tranches de 10 points
+    let difficultyLevel = 1;
+    
+    if (score >= 0 && score <= 10) {
+        difficultyLevel = 1; // Très facile - Découverte
+    } else if (score >= 11 && score <= 20) {
+        difficultyLevel = 2; // Facile - Apprentissage
+    } else if (score >= 21 && score <= 30) {
+        difficultyLevel = 3; // Moyen - Maîtrise
+    } else if (score >= 31 && score <= 40) {
+        difficultyLevel = 4; // Difficile - Expert
+    } else {
+        difficultyLevel = 5; // Très difficile - Maître
+    }
+    
+    // Modificateurs selon le niveau choisi par le joueur
+    const diffMultiplier = {
+        'easy': 0.7,    // 30% plus facile
+        'medium': 1,     // Difficulté standard
+        'hard': 1.3      // 30% plus difficile
+    };
+    
+    let n1, n2;
+    const multiplier = diffMultiplier[difficulty];
+
+    // ===== ADDITION =====
+    if (op === '+') {
+        if (difficultyLevel === 1) {
+            // 0-10 pts: additions simples (1-10) + (1-10)
+            // Exemples: 3+5, 7+2, 9+4
+            n1 = Math.floor(Math.random() * 10 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 10 * multiplier) + 1;
+        } else if (difficultyLevel === 2) {
+            // 11-20 pts: additions moyennes (1-20) + (1-20)
+            // Exemples: 15+8, 12+17, 19+6
+            n1 = Math.floor(Math.random() * 20 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 20 * multiplier) + 1;
+        } else if (difficultyLevel === 3) {
+            // 21-30 pts: additions plus grandes (1-50) + (1-50)
+            // Exemples: 35+28, 42+19, 48+37
+            n1 = Math.floor(Math.random() * 50 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 50 * multiplier) + 1;
+        } else if (difficultyLevel === 4) {
+            // 31-40 pts: grandes additions (1-100) + (1-100)
+            // Exemples: 67+84, 92+55, 78+91
+            n1 = Math.floor(Math.random() * 100 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 100 * multiplier) + 1;
+        } else {
+            // 41+ pts: très grandes additions (1-150) + (1-150)
+            // Exemples: 128+97, 145+123, 137+108
+            n1 = Math.floor(Math.random() * 150 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 150 * multiplier) + 1;
+        }
+        currentAnswer = n1 + n2;
+    }
+    
+    // ===== SOUSTRACTION =====
+    else if (op === '-') {
+        if (difficultyLevel === 1) {
+            // 0-10 pts: soustractions simples (résultat positif ≤ 10)
+            // Exemples: 12-5, 15-8, 10-3
+            n1 = Math.floor(Math.random() * 15 * multiplier) + 5;
+            n2 = Math.floor(Math.random() * Math.min(10, n1));
+        } else if (difficultyLevel === 2) {
+            // 11-20 pts: soustractions moyennes
+            // Exemples: 25-12, 30-18, 28-9
+            n1 = Math.floor(Math.random() * 30 * multiplier) + 10;
+            n2 = Math.floor(Math.random() * (n1 - 5));
+        } else if (difficultyLevel === 3) {
+            // 21-30 pts: soustractions plus grandes
+            // Exemples: 65-28, 58-39, 72-45
+            n1 = Math.floor(Math.random() * 70 * multiplier) + 20;
+            n2 = Math.floor(Math.random() * (n1 - 10));
+        } else if (difficultyLevel === 4) {
+            // 31-40 pts: grandes soustractions
+            // Exemples: 115-67, 98-54, 132-89
+            n1 = Math.floor(Math.random() * 120 * multiplier) + 30;
+            n2 = Math.floor(Math.random() * (n1 - 15));
+        } else {
+            // 41+ pts: très grandes soustractions
+            // Exemples: 187-98, 215-137, 195-128
+            n1 = Math.floor(Math.random() * 200 * multiplier) + 50;
+            n2 = Math.floor(Math.random() * (n1 - 20));
+        }
+        currentAnswer = n1 - n2;
+    }
+    
+    // ===== MULTIPLICATION =====
+    else if (op === 'x') {
+        if (difficultyLevel === 1) {
+            // 0-10 pts: tables de 1 à 5
+            // Exemples: 3×4, 2×5, 5×6
+            n1 = Math.floor(Math.random() * 5 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 10) + 1;
+        } else if (difficultyLevel === 2) {
+            // 11-20 pts: tables de 1 à 10
+            // Exemples: 7×8, 6×9, 9×7
+            n1 = Math.floor(Math.random() * 10 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 10) + 1;
+        } else if (difficultyLevel === 3) {
+            // 21-30 pts: tables jusqu'à 15
+            // Exemples: 12×8, 11×9, 14×7
+            n1 = Math.floor(Math.random() * 15 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 12) + 1;
+        } else if (difficultyLevel === 4) {
+            // 31-40 pts: multiplications plus complexes
+            // Exemples: 18×12, 16×14, 19×11
+            n1 = Math.floor(Math.random() * 20 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 15) + 1;
+        } else {
+            // 41+ pts: grandes multiplications
+            // Exemples: 23×17, 21×19, 24×16
+            n1 = Math.floor(Math.random() * 25 * multiplier) + 1;
+            n2 = Math.floor(Math.random() * 20) + 1;
+        }
+        currentAnswer = n1 * n2;
+    }
+    
+    // ===== DIVISION =====
+    else {
+        if (difficultyLevel === 1) {
+            // 0-10 pts: divisions simples (tables de 2 à 5)
+            // Exemples: 12÷3, 20÷4, 15÷5
+            n2 = Math.floor(Math.random() * 4 * multiplier) + 2;  // Diviseur de 2 à 5
+            currentAnswer = Math.floor(Math.random() * 8) + 1;     // Résultat de 1 à 8
+        } else if (difficultyLevel === 2) {
+            // 11-20 pts: divisions moyennes (tables de 2 à 8)
+            // Exemples: 48÷6, 56÷7, 64÷8
+            n2 = Math.floor(Math.random() * 7 * multiplier) + 2;  // Diviseur de 2 à 8
+            currentAnswer = Math.floor(Math.random() * 10) + 1;    // Résultat de 1 à 10
+        } else if (difficultyLevel === 3) {
+            // 21-30 pts: divisions plus grandes
+            // Exemples: 90÷9, 108÷12, 120÷10
+            n2 = Math.floor(Math.random() * 9 * multiplier) + 2;  // Diviseur de 2 à 10
+            currentAnswer = Math.floor(Math.random() * 15) + 1;    // Résultat de 1 à 15
+        } else if (difficultyLevel === 4) {
+            // 31-40 pts: grandes divisions
+            // Exemples: 156÷12, 180÷15, 192÷16
+            n2 = Math.floor(Math.random() * 11 * multiplier) + 2; // Diviseur de 2 à 12
+            currentAnswer = Math.floor(Math.random() * 20) + 1;    // Résultat de 1 à 20
+        } else {
+            // 41+ pts: très grandes divisions
+            // Exemples: 300÷15, 350÷17, 384÷16
+            n2 = Math.floor(Math.random() * 14 * multiplier) + 2; // Diviseur de 2 à 15
+            currentAnswer = Math.floor(Math.random() * 25) + 1;    // Résultat de 1 à 25
+        }
+        n1 = n2 * currentAnswer;
+        op = "÷";
+    }
+    
+    document.getElementById('question').innerText = `${n1} ${op} ${n2}`;
+    document.getElementById('answer').value = '';
+}
+
+// ===== EXPLICATIONS DU SYSTÈME =====
+/*
+PROGRESSION PAR PALIERS:
+
+Niveau 1 (0-10 points) - DÉCOUVERTE:
+- Addition: 1-10 + 1-10 (max 20)
+- Soustraction: résultats ≤ 10
+- Multiplication: tables de 1-5
+- Division: diviseurs 2-5, résultats ≤ 8
+
+Niveau 2 (11-20 points) - APPRENTISSAGE:
+- Addition: 1-20 + 1-20 (max 40)
+- Soustraction: nombres jusqu'à 30
+- Multiplication: tables de 1-10
+- Division: diviseurs 2-8, résultats ≤ 10
+
+Niveau 3 (21-30 points) - MAÎTRISE:
+- Addition: 1-50 + 1-50 (max 100)
+- Soustraction: nombres jusqu'à 70
+- Multiplication: jusqu'à 15×12
+- Division: diviseurs 2-10, résultats ≤ 15
+
+Niveau 4 (31-40 points) - EXPERT:
+- Addition: 1-100 + 1-100 (max 200)
+- Soustraction: nombres jusqu'à 120
+- Multiplication: jusqu'à 20×15
+- Division: diviseurs 2-12, résultats ≤ 20
+
+Niveau 5 (41+ points) - MAÎTRE:
+- Addition: 1-150 + 1-150 (max 300)
+- Soustraction: nombres jusqu'à 200
+- Multiplication: jusqu'à 25×20
+- Division: diviseurs 2-15, résultats ≤ 25
+
+MODIFICATEURS DE DIFFICULTÉ:
+- Facile: ×0.7 (30% plus facile)
+- Moyen: ×1.0 (normal)
+- Difficile: ×1.3 (30% plus difficile)
+*/
+
+    function checkAnswer() {
+        const input = document.getElementById('answer');
+        const val = parseInt(input.value);
+        if (isNaN(val)) return;
+
+        if (val === currentAnswer) {
+            score++;
+            combo++;
+            document.getElementById('score-val').innerText = score;
+            input.classList.add('correct-flash');
+            updatePrecision();
+            updateCombo();
+            sounds.correct();
+            
+            setTimeout(() => {
+                input.classList.remove('correct-flash');
+                nextQuestion();
+            }, 100);
+        } else {
+            errors++;
+            combo = 0;
+            document.getElementById('error-val').innerText = errors;
+            document.getElementById('game-container').classList.add('shake');
+            input.classList.add('wrong-flash');
+            updatePrecision();
+            updateCombo();
+            sounds.wrong();
+            
+            setTimeout(() => {
+                document.getElementById('game-container').classList.remove('shake');
+                input.classList.remove('wrong-flash');
+                if (isSurvival) endGame(); else nextQuestion();
+            }, 500);
+        }
+    }
+
+    function endGame() {
+        clearInterval(timerId);
+        sounds.gameOver();
+        
+        const name = document.getElementById('player-name').value;
+        const elapsedTime = Math.floor((Date.now() - startTime) / 1000 / 60);
+        
+        let scores = JSON.parse(localStorage.getItem('mathMasterScores') || '[]');
+        scores.push({ 
+            name: name, 
+            score: score, 
+            avatar: selectedAvatar, 
+            time: new Date().toLocaleDateString(),
+            difficulty: difficulty
+        });
+        scores.sort((a,b) => b.score - a.score);
+        localStorage.setItem('mathMasterScores', JSON.stringify(scores.slice(0,10)));
+
+        gameStats.totalGames++;
+        gameStats.bestScore = Math.max(gameStats.bestScore, score);
+        if (errors === 0) {
+            gameStats.wins++;
+            gameStats.streak++;
+        } else {
+            gameStats.streak = 0;
+        }
+        
+        const total = score + errors;
+        const accuracy = total > 0 ? Math.round((score / total) * 100) : 100;
+        gameStats.totalPrecision += accuracy;
+        gameStats.totalTime += elapsedTime;
+        localStorage.setItem('mathMasterStats', JSON.stringify(gameStats));
+        updateStatsDisplay();
+
+        // Result screen
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-errors').innerText = errors;
+        document.getElementById('final-accuracy').innerText = accuracy + "%";
+        
+        // Dynamic emoji based on performance
+        const resultEmoji = document.getElementById('result-emoji');
+        if (errors === 0) {
+            resultEmoji.innerText = '🏆';
+            document.getElementById('result-title').innerText = 'Parfait ! 🎉';
+        } else if (accuracy >= 90) {
+            resultEmoji.innerText = '⭐';
+            document.getElementById('result-title').innerText = 'Excellent !';
+        } else if (accuracy >= 75) {
+            resultEmoji.innerText = '👍';
+            document.getElementById('result-title').innerText = 'Bien joué !';
+        } else {
+            resultEmoji.innerText = '💪';
+            document.getElementById('result-title').innerText = 'Continue !';
+        }
+        
+        updateScoreTable();
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        if (score > 0) {
+            confetti({ 
+                particleCount: 100, 
+                spread: 70, 
+                origin: { y: 0.6 },
+                colors: ['#6366f1', '#ec4899', '#10b981', '#f59e0b']
+            });
+        }
+    }
+
+    function updateScoreTable() {
+        let scores = JSON.parse(localStorage.getItem('mathMasterScores') || '[]');
+        const body = document.getElementById('scores-body');
+        
+        if (scores.length === 0) {
+            body.innerHTML = '<div style="color: var(--text-secondary); padding: 20px; text-align: center; font-size: 0.9rem;"><i class="fas fa-trophy"></i><br>Aucun record enregistré</div>';
+            return;
+        }
+        
+        body.innerHTML = scores.map((s, idx) => {
+            const difficultyBadge = {
+                'easy': '<span style="color: var(--success); font-size: 0.7rem;">🌱</span>',
+                'medium': '<span style="color: var(--warning); font-size: 0.7rem;">🔥</span>',
+                'hard': '<span style="color: var(--danger); font-size: 0.7rem;">💀</span>'
+            };
+            
+            return `
+            <div class="score-row">
+                <div class="score-rank">
+                    <div class="rank-badge">${idx+1}</div>
+                    <div style="flex: 1;">
+                        <div>${s.avatar} ${s.name} ${difficultyBadge[s.difficulty] || ''}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">${s.time}</div>
+                    </div>
+                </div>
+                <div class="score-points">${s.score}</div>
+            </div>
+        `}).join('');
+    }
+
+    function clearScores() {
+        if (confirm("⚠️ Effacer tous les records ?\n\nCette action est irréversible !")) {
+            localStorage.removeItem('mathMasterScores');
+            updateScoreTable();
+        }
+    }
+
+    function showHighScores() {
+        updateScoreTable();
+        document.getElementById('result-emoji').innerText = '🏆';
+        document.getElementById('result-title').innerText = 'Hall of Fame';
+        document.getElementById('final-score').innerText = gameStats.bestScore;
+        document.getElementById('final-errors').innerText = gameStats.totalGames;
+        document.getElementById('final-accuracy').innerText = (gameStats.totalGames > 0 ? Math.round(gameStats.totalPrecision / gameStats.totalGames) : 0) + "%";
+        
+        document.querySelector('.stat-card.errors .stat-label').innerHTML = '<i class="fas fa-gamepad"></i> Parties Jouées';
+        document.querySelector('.stat-card.accuracy .stat-label').innerHTML = '<i class="fas fa-bullseye"></i> Précision Moy.';
+        
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+    }
+
+    function backToMenu() {
+        // Reset labels
+        document.querySelector('.stat-card.errors .stat-label').innerHTML = '<i class="fas fa-times-circle"></i> Erreurs';
+        document.querySelector('.stat-card.accuracy .stat-label').innerHTML = '<i class="fas fa-bullseye"></i> Précision';
+        
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+    }
+
+    function playAgain() {
+        document.getElementById('result-screen').classList.add('hidden');
+        startGame();
+    }
+
+    // ===== INITIALIZATION =====
+    loadStats();
+    document.getElementById('player-name').focus();
+	
+	let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Empêche Chrome d'afficher sa propre bannière automatique
+    e.preventDefault();
+    // Stocke l'événement pour l'utiliser plus tard
+    deferredPrompt = e;
+    // Affiche notre bouton personnalisé
+    installBtn.classList.remove('hidden');
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        // Affiche la boîte de dialogue d'installation
+        deferredPrompt.prompt();
+        // Attend la réponse de l'utilisateur
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`L'utilisateur a répondu : ${outcome}`);
+        // On réinitialise la variable
+        deferredPrompt = null;
+        // On cache le bouton
+        installBtn.classList.add('hidden');
+    }
+});
+
+// Cache le bouton si l'app est déjà installée
+window.addEventListener('appinstalled', () => {
+    installBtn.classList.add('hidden');
+    console.log('Application installée avec succès !');
+});
+	
+	// Enregistrement du Service Worker
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('./sw.js')
+					.then(reg => console.log('SW enregistré !'))
+					.catch(err => console.log('Erreur SW:', err));
+		});
+		}
+</script>
+</body>
+</html>
