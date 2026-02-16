@@ -83,7 +83,15 @@
             border-bottom: 0px solid var(--border-color);
             box-shadow: 0px 15px 10px -5px var(--shadow-color);
             transition: transform 0.2s ease;
+			cursor: pointer;
+			touch-action: none; /* Crucial pour Android */
+			-webkit-user-select: none;
+			user-select: none;
         }
+		
+		.menu-card > * {
+			pointer-events: none; 
+		}
 		
 		.menu-card a {
 			-webkit-tap-highlight-color: transparent;
@@ -136,6 +144,7 @@
 			-webkit-user-select: none;
 			user-select: none;
 			-webkit-tap-highlight-color: transparent;
+			pointer-events: auto !important;
         }
 
         .drag-handle span {
@@ -379,31 +388,31 @@
         </header>
 
         <nav id="grid-menu">
-            <div data-id="inscr" class="menu-card">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
-                <a href="maclasse.html" class="flex flex-col items-center text-center">
-                    <div class="icon-box">📝</div>
-                    <h2 class="font-bold uppercase tracking-wider">Ma classe</h2>
-                    <span class="tile-subtitle font-semibold">enregistrement des élèves</span>
-                </a>
-            </div>
+            <div data-id="inscr" class="menu-card" onclick="navigateTo('maclasse.html')">
+				<div class="drag-handle">
+					<span></span><span></span><span></span>
+					<span></span><span></span><span></span>
+					<span></span><span></span><span></span>
+				</div>
+				<div class="flex flex-col items-center text-center">
+					<div class="icon-box">📝</div>
+					<h2 class="font-bold uppercase tracking-wider">Ma classe</h2>
+					<span class="tile-subtitle font-semibold">enregistrement des élèves</span>
+				</div>
+			</div>
 
-            <div data-id="liens" class="menu-card">
-                <div class="drag-handle">
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                    <span></span><span></span><span></span>
-                </div>
-                <a href="liens.html" class="flex flex-col items-center text-center">
-                    <div class="icon-box">🔗</div>
-                    <h2 class="font-bold uppercase tracking-wider">Liens</h2>
-                    <span class="tile-subtitle font-semibold">répertoire web</span>
-                </a>
-            </div>
+			<div data-id="liens" class="menu-card" onclick="navigateTo('liens.html')">
+				<div class="drag-handle">
+					<span></span><span></span><span></span>
+					<span></span><span></span><span></span>
+					<span></span><span></span><span></span>
+				</div>
+				<div class="flex flex-col items-center text-center">
+					<div class="icon-box">🔗</div>
+					<h2 class="font-bold uppercase tracking-wider">Liens</h2>
+					<span class="tile-subtitle font-semibold">répertoire web</span>
+				</div>
+			</div>
 
             <div data-id="h108" class="menu-card">
                 <div class="drag-handle">
