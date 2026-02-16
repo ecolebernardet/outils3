@@ -22,27 +22,24 @@
         .col-pts { width: 4%; font-weight: bold; background: #f0f0f0; cursor: pointer; }
         .col-pts:hover { background: var(--win); color: white; }
         
-		/* Mise en évidence de la ligne survolée */
-		.student-row:hover { background-color: #f1f7ff; }
+        .student-row:hover { background-color: #f1f7ff; }
 
-        /* Verrouillage */
         .is-locked .btn-cycle, 
         .is-locked .btn-del, 
         .is-locked .col-pts,
         .is-locked .reward-item { pointer-events: none; opacity: 0.8; }
         .is-locked .col-name { cursor: default; }
 
-        /* Drag & Drop Visual */
         tr.dragging { opacity: 0.5; background: #e0e0e0; }
         tr.drag-over { border-top: 3px solid var(--win); }
 
-		.handle {
-			color: #bdc3c7; /* Gris clair */
-			font-weight: normal;
-			margin-right: 5px;
-			font-size: 10px;
-			user-select: none; /* Empêche la sélection du texte */
-		}
+        .handle {
+            color: #bdc3c7;
+            font-weight: normal;
+            margin-right: 5px;
+            font-size: 10px;
+            user-select: none;
+        }
 
         .winner-name { 
             background-color: #fdf2ab !important; 
@@ -65,7 +62,6 @@
 
         th.week-col { font-size: 9px; background: #ddd; }
         
-        /* Correspondance Couleurs - Valeurs */
         .c-5 { background-color: var(--v) !important; color: white !important; }
         .c-3 { background-color: var(--j) !important; color: black !important; }
         .c-2 { background-color: var(--o) !important; color: white !important; }
@@ -108,6 +104,7 @@
         <button style="background:#27ae60; color:white;" class="btn-main" onclick="exportData()">💾 Export JSON</button>
         <button style="background:#8e44ad; color:white;" class="btn-main" onclick="document.getElementById('importFile').click()">📁 Import JSON</button>
         <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+		<button style="background:#c0392b; color:white;" class="btn-main" onclick="resetAllData()">⚠️ Reset Total</button>
     </div>
 
     <table id="mainTable">
@@ -136,9 +133,9 @@
 
 <script>
     /* --- CONFIGURATION SUPABASE --- */
-	const SUPABASE_URL = "https://osxbonycajarenugqsfa.supabase.co";
-	const SUPABASE_KEY = "sb_publishable_oZNXxeJO2yNfZyzhJx3scQ_UipEH136";
-	const TABLE_ID = 1;
+    const SUPABASE_URL = "https://osxbonycajarenugqsfa.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_oZNXxeJO2yNfZyzhJx3scQ_UipEH136";
+    const TABLE_ID = 1;
 
     const descP = ["Casquette", "1er rang", "Tablette", "Moins contrat", "Foot A/B", "Chaise confort", "Bureau maître", "A côté ami", "Pyjama", "Stylo couleur", "Craie récré", "Chanson", "Dessin table", "Dessin porte"];
     const descT = ["Crayon flex", "Crayon ArcEnCiel", "Feuilles à gratter", "Gomme animal", "Capsule Kawaii", "Squishy", "Déco crayon", "Scotch déco", "3 Stickers", "3 Billes"];
@@ -160,23 +157,27 @@
                     'Authorization': `Bearer ${SUPABASE_KEY}`
                 }
             });
+            
+            if (!response.ok) throw new Error("Erreur HTTP: " + response.status);
+            
             const data = await response.json();
             if (data && data.length > 0 && data[0].content) {
                 classData = data[0].content;
                 localStorage.setItem('classData36_vFinal', JSON.stringify(classData));
                 fullRender();
+                console.log("✅ Données chargées de Supabase");
             }
         } catch (e) { 
-            console.error("Erreur de chargement Supabase :", e); 
+            console.error("❌ Erreur chargement :", e.message); 
         }
     }
 
     // --- SAUVEGARDE SUPABASE ---
-    async function saveData(syncToDrive = true) { 
+    async function saveData(sync = true) { 
         localStorage.setItem('classData36_vFinal', JSON.stringify(classData)); 
-        if (syncToDrive) {
+        if (sync) {
             try {
-                await fetch(`${SUPABASE_URL}/rest/v1/couleurs_data?id=eq.${TABLE_ID}`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/couleurs_data?id=eq.${TABLE_ID}`, {
                     method: 'PATCH',
                     headers: {
                         'apikey': SUPABASE_KEY,
@@ -184,12 +185,16 @@
                         'Content-Type': 'application/json',
                         'Prefer': 'return=minimal'
                     },
-                    body: JSON.stringify({
-                        content: classData
-                    })
+                    body: JSON.stringify({ content: classData })
                 });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erreur ${response.status}: ${errorText}`);
+                }
+                console.log("✅ Sauvegarde Supabase réussie");
             } catch (e) { 
-                console.error("Erreur de synchronisation Supabase"); 
+                console.error("❌ Erreur sauvegarde :", e.message); 
             }
         }
     }
@@ -221,24 +226,6 @@
     function getNetScore(student) {
         const total = student.weeks.reduce((sum, v) => sum + (pointsMap[v] || 0), 0);
         return total - (student.pointsUsed || 0);
-    }
-
-    // --- SAUVEGARDE DRIVE ---
-    async function saveData(syncToDrive = true) { 
-        localStorage.setItem('classData36_vFinal', JSON.stringify(classData)); 
-        if (syncToDrive) {
-            try {
-                // On envoie les données ET le nom du fichier souhaité
-                await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify({
-                        filename: DRIVE_FILE_NAME,
-                        data: classData
-                    })
-                });
-            } catch (e) { console.error("Erreur de synchronisation Drive"); }
-        }
     }
 
     function addStudent() {
@@ -439,10 +426,26 @@
 
     function importData(event) {
         const reader = new FileReader();
-        reader.onload = (e) => { classData = JSON.parse(e.target.result); saveData(); fullRender(); };
+        reader.onload = (e) => { 
+            classData = JSON.parse(e.target.result); 
+            saveData(); 
+            fullRender(); 
+        };
         reader.readAsText(event.target.files[0]);
     }
     
+	function resetAllData() {
+        if (confirm("🚨 ATTENTION : Voulez-vous vraiment effacer TOUTES les données (élèves, scores, privilèges) ? Cette action est irréversible.")) {
+            const doubleCheck = confirm("Dernière vérification : vous allez TOUT supprimer. Êtes-vous sûr ?");
+            if (doubleCheck) {
+                classData = []; // On vide le tableau local
+                saveData();     // On synchronise le vide sur Supabase
+                fullRender();   // On rafraîchit l'affichage
+                alert("Tableau réinitialisé avec succès.");
+            }
+        }
+    }
+	
     // Initialisation
     fullRender();
     loadFromDrive();
