@@ -125,6 +125,9 @@
             gap: 2px;
             cursor: grab;
             opacity: 0.2;
+			touch-action: none; /* Empêche le scroll quand on touche la poignée */
+			padding: 10px;      /* Agrandit la zone de contact pour les doigts */
+			margin: -10px;      /* Compense le padding pour garder la position visuelle */
         }
 
         .drag-handle span {
@@ -639,18 +642,20 @@
 
         // Initialisation du drag & drop
         function initializeSortable() {
-            const gridMenu = document.getElementById('grid-menu');
-            
-            new Sortable(gridMenu, {
-                handle: '.drag-handle',
-                animation: 200,
-                ghostClass: 'opacity-0',
-                onEnd: function() {
-                    const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
-                    localStorage.setItem('menu_order', JSON.stringify(order));
-                }
-            });
-        }
+			const gridMenu = document.getElementById('grid-menu');
+			
+			new Sortable(gridMenu, {
+				handle: '.drag-handle',
+				animation: 200,
+				ghostClass: 'opacity-0',
+				forceFallback: true,     // Améliore la compatibilité sur certains navigateurs mobiles
+				fallbackTolerance: 3,    // Permet de différencier un clic d'un glissement
+				onEnd: function() {
+					const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
+					localStorage.setItem('menu_order', JSON.stringify(order));
+				}
+			});
+		}
 
 		function toggleModal(show) {
             const modal = document.getElementById('modalAbout');
