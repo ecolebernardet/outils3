@@ -148,7 +148,7 @@
             margin: 0 auto;
             padding: 15px 20px 10px 20px;
         }
-
+		
         #categoriesContainer {
 			display: grid;
 			grid-template-columns: 1fr;
@@ -555,6 +555,61 @@
             box-shadow: 0 0 5px #f97316;
             animation: blink-point 1.5s infinite;
         }
+		
+		/* ================ Animation spécifique pour l'icône MathMaster ================== */
+		.animate-math-icon {
+			animation: rotate-3d-icon 4s linear infinite;
+			display: inline-block;
+			transform-style: preserve-3d;
+		}
+
+		@keyframes rotate-3d-icon {
+			0% { 
+				transform: rotateY(0deg) scale(1);
+				filter: drop-shadow(0 5px 10px rgba(244, 63, 94, 0.2));
+			}
+			50% { 
+				transform: rotateY(180deg) scale(1.2);
+				filter: drop-shadow(0 8px 20px rgba(244, 63, 94, 0.5));
+			}
+			100% { 
+				transform: rotateY(360deg) scale(1);
+				filter: drop-shadow(0 5px 10px rgba(244, 63, 94, 0.2));
+			}
+		}
+
+		/* Animation des particules mathématiques */
+		.math-particle {
+			position: absolute;
+			pointer-events: none;
+			font-size: 12px;
+			font-weight: bold;
+			color: #f43f5e;
+			opacity: 0;
+			z-index: 10;
+		}
+
+		/* On déclenche l'animation des particules au hover de la tuile */
+		.group:hover .p1 { animation: math-fly 1s ease-out forwards; }
+		.group:hover .p2 { animation: math-fly 1s ease-out 0.1s forwards; }
+		.group:hover .p3 { animation: math-fly 1s ease-out 0.2s forwards; }
+		.group:hover .p4 { animation: math-fly 1s ease-out 0.3s forwards; }
+
+		@keyframes math-fly {
+			0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+			20% { opacity: 1; }
+			100% { 
+				transform: translate(var(--tw-x), var(--tw-y)) rotate(var(--tw-r)) scale(1.2); 
+				opacity: 0; 
+			}
+		}
+
+		/* Variables de direction pour chaque particule */
+		.p1 { --tw-x: -30px; --tw-y: -30px; --tw-r: 45deg; }
+		.p2 { --tw-x: 30px; --tw-y: -35px; --tw-r: -30deg; }
+		.p3 { --tw-x: -25px; --tw-y: 30px; --tw-r: 15deg; }
+		.p4 { --tw-x: 35px; --tw-y: 25px; --tw-r: -45deg; }
+
     </style>
 </head>
 <body class="pb-10">
@@ -645,24 +700,32 @@
 <!-- ============ MAIN CONTENT ============ -->
 <div class="main-wrapper">
 	<div class="main-wrapper">
-    <div class="mb-8">
-        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-3 ml-1">Du même auteur :</h3>
-        <a href="https://outilsprofs.fr/mathmaster" target="_blank" 
-           class="link-item !p-4 border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/60 group !mb-0 transition-all">
-            <div class="link-favicon !w-10 !h-10 !bg-rose-500/20 !text-xl shadow-inner">
-                🧮
-            </div>
-            <div class="link-info ml-2">
-                <span class="link-name !text-[12px] text-rose-500">MathMaster</span>
-                <span class="link-url !text-[10px] opacity-70">Plateforme de calcul mental</span>
-            </div>
-            <div class="link-actions">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500/40 group-hover:text-rose-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-            </div>
-        </a>
-    </div>
+    <div class="mb-4">
+		<h3 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-3 ml-1">Application Autonome</h3>
+		<a href="https://votre-lien-mathmaster.fr" target="_blank" 
+		   class="link-item !p-4 border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/60 group !mb-0 transition-all relative overflow-visible">
+			
+			<div class="link-favicon !w-10 !h-10 !bg-transparent !text-2xl shadow-none relative flex items-center justify-center">
+				<span class="math-particle p1">+</span>
+				<span class="math-particle p2">−</span>
+				<span class="math-particle p3">×</span>
+				<span class="math-particle p4">÷</span>
+				
+				<span class="animate-math-icon">🧮</span>
+			</div>
+
+			<div class="link-info ml-3">
+				<span class="link-name !text-[13px] font-bold text-rose-500">MathMaster</span>
+				<span class="link-url !text-[10px] opacity-70">Plateforme de calcul mental</span>
+			</div>
+			
+			<div class="link-actions">
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500/40 group-hover:text-rose-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+				</svg>
+			</div>
+		</a>
+	</div>
 
     <div class="h-[1px] bg-white/10 dark:bg-black/5 w-full mb-8"></div>
 
