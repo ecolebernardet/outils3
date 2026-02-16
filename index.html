@@ -89,14 +89,19 @@
 			user-select: none;
         }
 		
-		.menu-card > * {
-			pointer-events: none; 
-		}
-		
 		.menu-card a {
-			-webkit-tap-highlight-color: transparent;
-			user-select: none;
-		}
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto; /* Permet le clic sur le lien */
+            -webkit-tap-highlight-color: transparent;
+        }
+		
+		.menu-card a > * {
+            pointer-events: none; /* L'icône et le titre ne bloquent pas le clic du lien */
+        }
 		
 		.menu-card h2 {
 			font-size: 14px; /* Taille mobile */
@@ -658,29 +663,26 @@
         }
 
         // Initialisation du drag & drop
-		function initializeSortable() {
-			const gridMenu = document.getElementById('grid-menu');
-			if (!gridMenu || Sortable.get(gridMenu)) return;
+        function initializeSortable() {
+            const gridMenu = document.getElementById('grid-menu');
+            if (!gridMenu || Sortable.get(gridMenu)) return;
 
-			new Sortable(gridMenu, {
-				handle: '.drag-handle',
-				animation: 200,
-				ghostClass: 'opacity-0',
-				forceFallback: true,    // Obligatoire pour Android
-				fallbackOnBody: true,
-				delay: 150,             // Un petit délai permet de distinguer le "scroll" du "drag"
-				delayOnTouchOnly: true,
-				
-				// AJOUT CRUCIAL : ignore les clics accidentels sur les liens pendant le drag
-				filter: "a, button", 
-				preventOnFilter: false, // Laisse le clic fonctionner si on ne drag pas
-				
-				onEnd: function() {
-					const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
-					localStorage.setItem('menu_order', JSON.stringify(order));
-				}
-			});
-		}
+            new Sortable(gridMenu, {
+                handle: '.drag-handle',
+                animation: 200,
+                ghostClass: 'opacity-0',
+                forceFallback: true,    
+                fallbackOnBody: true,
+                // Configuration spécifique pour différencier clic et drag
+                delay: 150,             
+                delayOnTouchOnly: true, // IMPORTANT : pas de délai à la souris sur PC
+                
+                onEnd: function() {
+                    const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
+                    localStorage.setItem('menu_order', JSON.stringify(order));
+                }
+            });
+        }
 
 		// Initialisation au chargement de la page (Suppression de l'appel en double)
 		document.addEventListener('DOMContentLoaded', function() {
