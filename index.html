@@ -224,7 +224,6 @@
     </style>
 </head>
 <body class="flex flex-col items-center">
-    <!-- Chargement du thème avant le rendu -->
     <script>
         if (localStorage.getItem('theme_mode') === 'light') {
             document.body.classList.add('light-mode');
@@ -232,7 +231,6 @@
     </script>
 
     <div class="w-full max-w-[360px] md:max-w-6xl md:px-6">
-        <!-- En-tête -->
         <header class="flex justify-between items-center mb-6 px-1">
             <button onclick="goToSettings()" class="ui-btn active:scale-90" aria-label="Menu paramètres">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,9 +241,7 @@
             <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar cursor-pointer active:scale-90 transition-transform" onclick="toggleModal(true)">
         </header>
 
-        <!-- Grille de navigation -->
         <nav id="grid-menu" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-8">
-            <!-- Ma classe -->
             <div data-id="inscr" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -259,7 +255,6 @@
                 </a>
             </div>
 
-            <!-- Liens -->
             <div data-id="liens" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -273,7 +268,6 @@
                 </a>
             </div>
 
-            <!-- 108 heures -->
             <div data-id="h108" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -287,7 +281,6 @@
                 </a>
             </div>
 
-            <!-- Mémos -->
             <div data-id="memos" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -300,9 +293,7 @@
                     <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">pense-bêtes</span>
                 </a>
             </div>
-
             
-            <!-- Observations -->
             <div data-id="obs" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -316,7 +307,6 @@
                 </a>
             </div>
 
-            <!-- Compteur -->
             <div data-id="compt" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -330,7 +320,6 @@
                 </a>
             </div>
 
-            <!-- Générateurs -->
             <div data-id="gen" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -344,7 +333,6 @@
                 </a>
             </div>
 
-            <!-- Outils -->
             <div data-id="outils" class="menu-card p-3 md:p-6">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
@@ -357,58 +345,59 @@
                     <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">gestion de la classe</span>
                 </a>
             </div>
-			
-		<div id="modalAbout" class="modal-overlay" onclick="toggleModal(false)">
-			<div class="modal-content p-6" onclick="event.stopPropagation()">
-				<button onclick="toggleModal(false)" class="absolute top-4 right-4 text-gray-500">
-					<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-					</svg>
-				</button>
-            
-				<div id="propos" class="text-center">
-    <div class="flex flex-col items-center">
-        <img src="outilsprofs_icone.png" id="avatar-propos" alt="Avatar">
-        <p class="text-xs font-bold">Application conçue par Nicolas BERNARDET<br>avec la grande aide de l'IA<br>pour la programmation.</p>
-        <div class="h-[1px] bg-gray-500/20 w-full my-6"></div>
-        <p class="text-[12px] font-black text-gray-500 mb-6">OutilsProfs version 7.1</p>
-    </div>
-
-    <div class="space-y-4">
-        <div class="text-left bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-blue-500/20">
-            <div class="flex items-center gap-2 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h3 class="font-black text-xs uppercase">Usage sur PC et VPI</h3>
-            </div>
-            <p class="text-xs leading-relaxed mb-3">
-                OutilsProfs est parfaitement adapté pour une utilisation sur <strong>ordinateur</strong> ou une projection sur <strong>VPI/TBI</strong> en classe.
-            </p>
-            <div class="url-copy-box">
-                <code id="app-url-propos" class="font-bold">https://outilsprofs.fr</code>
-                <button onclick="copyUrl(this)" class="copy-btn active:scale-95">Copier l'URL</button>
-            </div>
-        </div>
-
-        <div class="text-left bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-green-500/20">
-            <div class="flex items-center gap-2 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3.609 1.814L13.792 12 3.61 22.186c-.183.183-.356.12-.356-.145V1.958c0-.264.173-.328.356-.144zM14.504 12.711l2.791 2.791L4.806 21.05c-.328.188-.614.004-.442-.314l10.14-10.025zm2.79-1.423l-2.79 2.79-1.353-1.336 1.353-1.337 2.79-1.117zm-3.502-1.288L3.609 2.01c-.172-.318.114-.502.442-.314l12.489 5.549-2.791 2.791z"/>
-                </svg>
-                <h3 class="font-black text-xs uppercase">Application Android</h3>
-            </div>
-            <p class="text-xs leading-relaxed mb-3">
-                Retrouvez également OutilsProfs sur votre tablette ou smartphone Android.
-            </p>
-            <a href="https://play.google.com/store/apps/details?id=com.monsite.outilsprofs&hl=fr" target="_blank" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition-colors active:scale-95">
-                Disponible sur Google Play
-            </a>
-        </div>
-    </div>
-</div>
-			</div>
         </nav>
+    </div>
+
+    <div id="modalAbout" class="modal-overlay" onclick="toggleModal(false)">
+        <div class="modal-content p-6" onclick="event.stopPropagation()">
+            <button onclick="toggleModal(false)" class="absolute top-4 right-4 text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        
+            <div id="propos" class="text-center">
+                <div class="flex flex-col items-center">
+                    <img src="outilsprofs_icone.png" id="avatar-propos" alt="Avatar">
+                    <p class="text-xs font-bold">Application conçue par Nicolas BERNARDET<br>avec la grande aide de l'IA<br>pour la programmation.</p>
+                    <div class="h-[1px] bg-gray-500/20 w-full my-6"></div>
+                    <p class="text-[12px] font-black text-gray-500 mb-6">OutilsProfs version 7.1</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="text-left bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-blue-500/20">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <h3 class="font-black text-xs uppercase">Usage sur PC et VPI</h3>
+                        </div>
+                        <p class="text-xs leading-relaxed mb-3">
+                            OutilsProfs est parfaitement adapté pour une utilisation sur <strong>ordinateur</strong> ou une projection sur <strong>VPI/TBI</strong> en classe.
+                        </p>
+                        <div class="url-copy-box">
+                            <code id="app-url-propos" class="font-bold">https://outilsprofs.fr</code>
+                            <button onclick="copyUrl(this)" class="copy-btn active:scale-95">Copier l'URL</button>
+                        </div>
+                    </div>
+
+                    <div class="text-left bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-green-500/20">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3.609 1.814L13.792 12 3.61 22.186c-.183.183-.356.12-.356-.145V1.958c0-.264.173-.328.356-.144zM14.504 12.711l2.791 2.791L4.806 21.05c-.328.188-.614.004-.442-.314l10.14-10.025zm2.79-1.423l-2.79 2.79-1.353-1.336 1.353-1.337 2.79-1.117zm-3.502-1.288L3.609 2.01c-.172-.318.114-.502.442-.314l12.489 5.549-2.791 2.791z"/>
+                            </svg>
+                            <h3 class="font-black text-xs uppercase">Application Android</h3>
+                        </div>
+                        <p class="text-xs leading-relaxed mb-3">
+                            Retrouvez également OutilsProfs sur votre tablette ou smartphone Android.
+                        </p>
+                        <a href="https://play.google.com/store/apps/details?id=com.monsite.outilsprofs&hl=fr" target="_blank" class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition-colors active:scale-95">
+                            Disponible sur Google Play
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
