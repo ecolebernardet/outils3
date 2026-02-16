@@ -70,6 +70,8 @@
 			grid-template-columns: repeat(2, minmax(0, 1fr));
 			gap: 15px; /* Espace uniforme sur mobile */
 			justify-items: center; /* Centre les tuiles horizontalement dans leur colonne */
+			touch-action: none !important;
+			-webkit-user-drag: none;
 		}
 		
         .menu-card { 
@@ -82,7 +84,12 @@
             box-shadow: 0px 15px 10px -5px var(--shadow-color);
             transition: transform 0.2s ease;
         }
-        
+		
+		.menu-card a {
+			-webkit-tap-highlight-color: transparent;
+			user-select: none;
+		}
+		
 		.menu-card h2 {
 			font-size: 14px; /* Taille mobile */
 		}
@@ -642,40 +649,36 @@
         }
 
         // Initialisation du drag & drop
-        // Initialisation du drag & drop
-function initializeSortable() {
-    const gridMenu = document.getElementById('grid-menu');
-    
-    // On vérifie si une instance existe déjà pour éviter les doublons
-    if (Sortable.get(gridMenu)) return;
+		function initializeSortable() {
+			const gridMenu = document.getElementById('grid-menu');
+			if (!gridMenu || Sortable.get(gridMenu)) return;
 
-    new Sortable(gridMenu, {
-        handle: '.drag-handle',
-        animation: 200,
-        ghostClass: 'opacity-0',
-        
-        // Paramètres optimisés pour Android
-        delay: 100,             // Réduit légèrement pour plus de réactivité
-        delayOnTouchOnly: true, 
-        touchStartThreshold: 3, // Plus sensible aux petits mouvements
-        
-        forceFallback: true,    
-        fallbackOnBody: true,   
-        preventOnFilter: true,  // Empêche les comportements par défaut (indispensable)
+			new Sortable(gridMenu, {
+				handle: '.drag-handle',
+				animation: 200,
+				ghostClass: 'opacity-0',
+				forceFallback: true,    // Obligatoire pour Android
+				fallbackOnBody: true,
+				delay: 150,             // Un petit délai permet de distinguer le "scroll" du "drag"
+				delayOnTouchOnly: true,
+				
+				// AJOUT CRUCIAL : ignore les clics accidentels sur les liens pendant le drag
+				filter: "a, button", 
+				preventOnFilter: false, // Laisse le clic fonctionner si on ne drag pas
+				
+				onEnd: function() {
+					const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
+					localStorage.setItem('menu_order', JSON.stringify(order));
+				}
+			});
+		}
 
-        onEnd: function() {
-            const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
-            localStorage.setItem('menu_order', JSON.stringify(order));
-        }
-    });
-}
-
-// Initialisation au chargement de la page (Suppression de l'appel en double)
-document.addEventListener('DOMContentLoaded', function() {
-    applyColors();
-    restoreTileOrder();
-    initializeSortable();
-});
+		// Initialisation au chargement de la page (Suppression de l'appel en double)
+		document.addEventListener('DOMContentLoaded', function() {
+			applyColors();
+			restoreTileOrder();
+			initializeSortable();
+		});
 
 // Suppression des appels directs qui étaient ici pour éviter les conflits sur mobile
 
@@ -759,14 +762,41 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeSortable();
 		
 		if ('serviceWorker' in navigator) {
-		window.addEventListener('load', () => {
-			navigator.serviceWorker.register('sw.js')
-				.then(reg => console.log('Service Worker enregistré !'))
-				.catch(err => console.log('Erreur SW:', err));
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('sw.js').then(reg => {
+					reg.addEventListener('updatefound', () => {
+						const newWorker = reg.installing;
+						newWorker.addEventListener('statechange', () => {
+							if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+								// Un nouveau SW est installé, on affiche la notification
+								showUpdateNotification();
+							}
+						});
+					});
+				});
 			});
 		}
-    </script>
-	
+
+		function showUpdateNotification() {
+			// Création d'une petite bannière discrète en bas de l'écran
+			const updateBar = document.createElement('div');
+			updateBar.innerHTML = `
+				<div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+							background: #3b82f6; color: white; padding: 12px 20px; border-radius: 50px; 
+							box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; display: flex; 
+							align-items: center; gap: 15px; font-size: 13px; font-weight: bold; width: max-content;">
+					<span>Mise à jour disponible !</span>
+					<button onclick="window.location.reload()" 
+							style="background: white; color: #3b82f6; border: none; padding: 5px 12px; 
+							border-radius: 20px; cursor: pointer; font-size: 11px; text-transform: uppercase;">
+						Actualiser
+					</button>
+				</div>
+			`;
+			document.body.appendChild(updateBar);
+		}
+
+</script>
 	
 
 </body>
