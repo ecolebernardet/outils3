@@ -64,7 +64,16 @@
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
+		#grid-menu {
+			display: grid;
+			/* 2 colonnes par défaut (mobile) */
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 20px; /* Espace uniforme sur mobile */
+		}
+		
         .menu-card { 
+			width: 150px;
+            height: 130px;
             position: relative;
             background: var(--card-bg);
             border-radius: 1.25rem;
@@ -73,6 +82,10 @@
             transition: transform 0.2s ease;
         }
         
+		.menu-card h2 {
+			font-size: 14px; /* Taille mobile */
+		}
+			
         .menu-card:active { 
             transform: scale(0.96); 
         }
@@ -86,12 +99,16 @@
             justify-content: center;
             background: rgba(128, 128, 128, 0.1);
             margin-bottom: 5px;
-            font-size: 30px;
+			margin-top: 15px;
+			margin-top: 15px;
+            font-size: 24px;
             border: 1px solid var(--border-color);
         }
 
+				
         .tile-subtitle {
             color: var(--text-muted);
+			font-size: 10px;
             margin-top: 7px;
 			margin-bottom: 7px;
             text-align: center;
@@ -134,6 +151,104 @@
             border: 2px solid var(--card-bg);
         }
 
+
+
+		/* Version Tablettes et PC (md: 768px et plus) */
+		
+		@media (min-width: 768px) {
+			#grid-menu {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				/* Espacement différencié : 64px vertical (gap-y) et 32px horizontal (gap-x) */
+				column-gap: 32px;
+				row-gap: 64px;
+			}
+			
+			header {
+				margin-bottom: 50px !important; /* Augmente l'espace sous le titre */
+			}
+			
+			.icon-box {
+                width: 52px;
+                height: 52px;
+                font-size: 28px;
+                border-radius: 16px;
+				margin-top: 20px;
+                margin-bottom: 12px;
+            }
+			.menu-card { 
+				width: 160px;
+				height: 160px;
+				position: relative;
+				background: var(--card-bg);
+				border-radius: 1.25rem;
+				border-bottom: 0px solid var(--border-color);
+				box-shadow: 0px 15px 10px -5px var(--shadow-color);
+				transition: transform 0.2s ease;
+			}
+			
+			.menu-card h2 {
+				font-size: 16px;
+			}
+			
+			.tile-subtitle {
+				color: var(--text-muted);
+				font-size: 12px;
+				margin-top: 10px;
+				margin-bottom: 7px;
+				text-align: center;
+				line-height: 1.1;
+			}
+		}
+		
+		
+		@media (min-width: 1024px) {
+			#grid-menu {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+				/* Espacement différencié : 50px vertical (gap-y) et 80px horizontal (gap-x) */
+				column-gap: 50px;
+				row-gap: 80px;
+			}
+			
+			header {
+				margin-bottom: 80px !important; /* Augmente l'espace sous le titre */
+			}
+			
+			.icon-box {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+                border-radius: 16px;
+				margin-top: 30px;
+                margin-bottom: 20px;
+            }
+			.menu-card { 
+				justify-content: space-between;
+				width: 230px;
+				height: 230px;
+				position: relative;
+				background: var(--card-bg);
+				border-radius: 1.25rem;
+				border-bottom: 0px solid var(--border-color);
+				box-shadow: 0px 15px 10px -5px var(--shadow-color);
+				transition: transform 0.2s ease;
+			}
+			
+			.menu-card h2 {
+				font-size: 20px;
+			}
+			
+			.tile-subtitle {
+				color: var(--text-muted);
+				font-size: 14px;
+				margin-top: 15px;
+				margin-bottom: 7px;
+				text-align: center;
+				line-height: 1.1;
+			}
+		}
+		
+		
+		
         /* Animation de halo sur l'ombre de l'avatar */
         @keyframes shadowPulse {
             0% { box-shadow: 0 0 0 0px rgba(12, 80, 57, 0.5); }
@@ -143,17 +258,6 @@
 
         .pulse-animation {
             animation: shadowPulse 2s infinite ease-in-out;
-        }
-		
-        /* Responsive design pour PC */
-        @media (min-width: 768px) {
-            .icon-box {
-                width: 64px;
-                height: 64px;
-                font-size: 32px;
-                border-radius: 16px;
-                margin-bottom: 12px;
-            }
         }
 		
 		/* Styles de la modale */
@@ -260,8 +364,8 @@
             <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar cursor-pointer active:scale-90 transition-transform pulse-animation" onclick="toggleModal(true)">
         </header>
 
-        <nav id="grid-menu" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-8">
-            <div data-id="inscr" class="menu-card p-3 md:p-6">
+        <nav id="grid-menu">
+            <div data-id="inscr" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -269,12 +373,12 @@
                 </div>
                 <a href="maclasse.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📝</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Ma classe</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">enregistrement des élèves</span>
+                    <h2 class="font-bold uppercase tracking-wider">Ma classe</h2>
+                    <span class="tile-subtitle font-semibold">enregistrement des élèves</span>
                 </a>
             </div>
 
-            <div data-id="liens" class="menu-card p-3 md:p-6">
+            <div data-id="liens" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -282,12 +386,12 @@
                 </div>
                 <a href="liens.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🔗</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Liens</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">répertoire web</span>
+                    <h2 class="font-bold uppercase tracking-wider">Liens</h2>
+                    <span class="tile-subtitle font-semibold">répertoire web</span>
                 </a>
             </div>
 
-            <div data-id="h108" class="menu-card p-3 md:p-6">
+            <div data-id="h108" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -295,12 +399,12 @@
                 </div>
                 <a href="108heures.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">⏱️</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">108 heures</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">suivi des réunions</span>
+                    <h2 class="font-bold uppercase tracking-wider">108 heures</h2>
+                    <span class="tile-subtitle font-semibold">suivi des réunions</span>
                 </a>
             </div>
 
-            <div data-id="memos" class="menu-card p-3 md:p-6">
+            <div data-id="memos" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -308,12 +412,12 @@
                 </div>
                 <a href="memos.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">📒</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Mémos</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">pense-bêtes</span>
+                    <h2 class="font-bold uppercase tracking-wider">Mémos</h2>
+                    <span class="tile-subtitle font-semibold">pense-bêtes</span>
                 </a>
             </div>
             
-            <div data-id="obs" class="menu-card p-3 md:p-6">
+            <div data-id="obs" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -321,12 +425,12 @@
                 </div>
                 <a href="observations.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">✏️</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Observations</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">profil des élèves</span>
+                    <h2 class="font-bold uppercase tracking-wider">Observations</h2>
+                    <span class="tile-subtitle font-semibold">profil des élèves</span>
                 </a>
             </div>
 
-            <div data-id="compt" class="menu-card p-3 md:p-6">
+            <div data-id="compt" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -334,12 +438,12 @@
                 </div>
                 <a href="compteur.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🚥</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Compteur</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">suivi du comportement</span>
+                    <h2 class="font-bold uppercase tracking-wider">Compteur</h2>
+                    <span class="tile-subtitle font-semibold">suivi du comportement</span>
                 </a>
             </div>
 
-            <div data-id="gen" class="menu-card p-3 md:p-6">
+            <div data-id="gen" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -347,12 +451,12 @@
                 </div>
                 <a href="generateurs.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🛠️</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Générateurs</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">création de supports</span>
+                    <h2 class="font-bold uppercase tracking-wider">Générateurs</h2>
+                    <span class="tile-subtitle font-semibold">création de supports</span>
                 </a>
             </div>
 
-            <div data-id="outils" class="menu-card p-3 md:p-6">
+            <div data-id="outils" class="menu-card">
                 <div class="drag-handle">
                     <span></span><span></span><span></span>
                     <span></span><span></span><span></span>
@@ -360,8 +464,8 @@
                 </div>
                 <a href="outils.html" class="flex flex-col items-center text-center">
                     <div class="icon-box">🧰</div>
-                    <h2 class="font-bold text-[13px] md:text-[16px] uppercase tracking-wider">Outils</h2>
-                    <span class="tile-subtitle text-[10px] md:text-[12px] font-semibold">gestion de la classe</span>
+                    <h2 class="font-bold uppercase tracking-wider">Outils</h2>
+                    <span class="tile-subtitle font-semibold">gestion de la classe</span>
                 </a>
             </div>
         </nav>
