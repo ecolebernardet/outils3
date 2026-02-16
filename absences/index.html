@@ -347,6 +347,48 @@
     const SUPABASE_URL = 'https://osxbonycajarenugqsfa.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_oZNXxeJO2yNfZyzhJx3scQ_UipEH136';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+	
+	/* --- SÉCURITÉ PBKDF2 --- */
+	const AUTH_CONFIG = {
+		salt: "8e44ad8e44ad",
+		hash: "b28af9d18cb5fedd2036c1397eeb48b0b20cf7f20b65493ea20c8173929f3d07"
+	};
+
+	async function verifyPass(p) {
+		const enc = new TextEncoder();
+		const km = await crypto.subtle.importKey("raw", enc.encode(p), "PBKDF2", false, ["deriveBits"]);
+		const b = await crypto.subtle.deriveBits({name: "PBKDF2", salt: enc.encode(AUTH_CONFIG.salt), iterations: 100000, hash: "SHA-256"}, km, 256);
+		return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('') === AUTH_CONFIG.hash;
+	}
+
+	async function checkAccess() {
+		if (sessionStorage.getItem('app_access_granted') === 'true') return;
+		const p = prompt("Mot de passe d'accès :");
+		if (p && await verifyPass(p)) {
+			sessionStorage.setItem('app_access_granted', 'true');
+		} else {
+			document.body.innerHTML = "<div style='text-align:center;padding:50px;'><h1>Accès verrouillé</h1><button onclick='location.reload()'>Réessayer</button></div>";
+			throw new Error("Unauthorized");
+		}
+	}
+
+	// Protection du Reset avec le même mot de passe
+	async function resetAllData() {
+		const p = prompt("Saisissez le mot de passe maître pour TOUT effacer :");
+		if (p && await verifyPass(p)) {
+			if (confirm("🚨 ATTENTION : Voulez-vous vraiment effacer TOUTES les données ?")) {
+				classData = [];
+				saveData();
+				fullRender();
+				alert("Tableau réinitialisé.");
+			}
+		} else {
+			alert("Mot de passe incorrect.");
+		}
+	}
+
+	// On lance la vérification à l'ouverture
+	checkAccess();
 
     let schoolData = [];
     let excludedDates = [];
