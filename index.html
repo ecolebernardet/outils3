@@ -68,7 +68,7 @@
 			display: grid;
 			/* 2 colonnes par défaut (mobile) */
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: 20px; /* Espace uniforme sur mobile */
+			gap: 15px; /* Espace uniforme sur mobile */
 			justify-items: center; /* Centre les tuiles horizontalement dans leur colonne */
 		}
 		
@@ -125,9 +125,10 @@
             gap: 2px;
             cursor: grab;
             opacity: 0.2;
-			touch-action: none; /* Empêche le scroll quand on touche la poignée */
-			padding: 10px;      /* Agrandit la zone de contact pour les doigts */
-			margin: -10px;      /* Compense le padding pour garder la position visuelle */
+			touch-action: none;
+			-webkit-user-select: none;
+			user-select: none;
+			-webkit-tap-highlight-color: transparent;
         }
 
         .drag-handle span {
@@ -648,8 +649,15 @@
 				handle: '.drag-handle',
 				animation: 200,
 				ghostClass: 'opacity-0',
-				forceFallback: true,     // Améliore la compatibilité sur certains navigateurs mobiles
-				fallbackTolerance: 3,    // Permet de différencier un clic d'un glissement
+				
+				// Paramètres spécifiques pour le tactile
+				delay: 150,            // Temps de pression (ms) avant que le déplacement commence
+				delayOnTouchOnly: true, // Applique le délai uniquement sur mobile/tablette
+				touchStartThreshold: 5, // Déplacement minimal du doigt (px) avant d'annuler le délai
+				
+				forceFallback: true,    // Utilise le mode simulation (indispensable sur Android)
+				fallbackOnBody: true,   // Permet de sortir du conteneur pendant le drag
+				
 				onEnd: function() {
 					const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
 					localStorage.setItem('menu_order', JSON.stringify(order));
