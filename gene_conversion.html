@@ -441,7 +441,7 @@
                 
                 const valDisp = ex.val.toString().replace('.', ',');
                 const resDisp = ex.result.toString().replace('.', ',');
-                const line = `${index + 1}) ${valDisp} ${ex.u1} = ${isCorr ? resDisp : '................'} ${ex.u2}`;
+                const line = `${index + 1}) ${valDisp} ${ex.u1} = ${isCorr ? resDisp : '......................'} ${ex.u2}`;
                 doc.text(line, currentX, currentY);
             });
         };
