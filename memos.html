@@ -94,10 +94,11 @@
         }
 
         .container { 
-            width: 100%; 
-            max-width: 600px; 
-            padding: 0 4px; 
-        }
+			width: 95% !important; 
+			max-width: 1600px !important; /* On élargit pour que les 4 colonnes respirent */
+			margin: 0 auto;
+			padding: 0;
+		}
 
         /* ====================== SEARCH BAR ====================== */
         #searchWrapper { 
@@ -148,33 +149,43 @@
         }
 
         /* ====================== NOTES GRID ====================== */
-        .note-grid { 
-            column-count: 2; 
-            column-gap: 10px; 
-            width: 100%; 
-            margin-bottom: 1.5rem;
-        }
 
-        @media (min-width: 600px) { 
-            .note-grid { 
-                column-count: 3; 
-            } 
-        }
+		.note-grid { 
+			/* L'effet Pinterest nécessite column-count */
+			display: block !important; /* TRÈS IMPORTANT : column-count ne marche pas avec flex ou grid */
+			column-count: 2; 
+			column-gap: 12px; 
+			width: 100% !important; 
+		}
 
+		/* Tablettes */
+		@media (min-width: 768px) { 
+			.note-grid { 
+				column-count: 3; 
+			} 
+		}
+
+		/* Grands écrans - On force les 4 colonnes */
+		@media (min-width: 1025px) { 
+			.note-grid { 
+				column-count: 4 !important; 
+			} 
+		}
+				
         /* ====================== NOTE CARD ====================== */
         .note-card { 
-            break-inside: avoid; 
-            display: inline-block; 
-            width: 100%; 
-            margin-bottom: 10px; 
-            border-radius: 12px; 
-            padding: 10px; 
-            border: 1px solid rgba(0, 0, 0, 0.1); 
-            position: relative; 
-            cursor: pointer; 
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+			break-inside: avoid-column !important;
+			display: inline-block; 
+			width: 100% !important;
+			margin-bottom: 12px;
+			border-radius: 12px; 
+			padding: 10px; 
+			border: 1px solid rgba(0, 0, 0, 0.1); 
+			position: relative; 
+			cursor: pointer; 
+			transition: all 0.2s ease;
+			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+		}
 
         .note-card.editing { 
             transform: scale(0.98);
@@ -501,11 +512,11 @@
         <footer class="bottom-nav flex flex-col gap-2">
             <div class="flex gap-2 w-full">
                 <label class="nav-btn cursor-pointer flex-1">
-                    👇importer .txt👇
+                    👇 importer .txt
                     <input type="file" id="importNotesFile" class="hidden" accept=".txt">
                 </label>
                 <button id="btn-export" onclick="DataManager.export()" class="nav-btn flex-1 relative overflow-visible">
-                    👆exporter .txt👆
+                    👆 exporter .txt
                     <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-orange-500 rounded-full border-2 border-white badge-pulse"></span>
                 </button>
             </div>
