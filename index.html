@@ -134,6 +134,17 @@
             border: 2px solid var(--card-bg);
         }
 
+        /* Animation de halo sur l'ombre de l'avatar */
+        @keyframes shadowPulse {
+            0% { box-shadow: 0 0 0 0px rgba(12, 80, 57, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(12, 80, 57, 0); }
+            100% { box-shadow: 0 0 0 0px rgba(12, 80, 57, 0); }
+        }
+
+        .pulse-animation {
+            animation: shadowPulse 2s infinite ease-in-out;
+        }
+		
         /* Responsive design pour PC */
         @media (min-width: 768px) {
             .icon-box {
@@ -246,7 +257,7 @@
                 </svg>
             </button>
             <h1 class="text-[13px] md:text-[18px] font-black tracking-[0.4em] uppercase opacity-90">Outils Profs</h1>
-            <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar cursor-pointer active:scale-90 transition-transform" onclick="toggleModal(true)">
+            <img src="outilsprofs_icone.png" alt="Avatar" class="header-avatar cursor-pointer active:scale-90 transition-transform pulse-animation" onclick="toggleModal(true)">
         </header>
 
         <nav id="grid-menu" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5 md:gap-8">
@@ -537,6 +548,10 @@
 		function toggleModal(show) {
             const modal = document.getElementById('modalAbout');
             modal.style.display = show ? 'flex' : 'none';
+			// Supprime l'animation dès que la modale est ouverte
+            if (show) {
+                document.querySelector('.header-avatar').classList.remove('pulse-animation');
+            }
         }
 
         function copyUrl(btn) {
