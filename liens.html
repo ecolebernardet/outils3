@@ -644,6 +644,28 @@
 
 <!-- ============ MAIN CONTENT ============ -->
 <div class="main-wrapper">
+	<div class="main-wrapper">
+    <div class="mb-8">
+        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-3 ml-1">Du même auteur :</h3>
+        <a href="https://outilsprofs.fr/mathmaster" target="_blank" 
+           class="link-item !p-4 border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 hover:border-rose-500/60 group !mb-0 transition-all">
+            <div class="link-favicon !w-10 !h-10 !bg-rose-500/20 !text-xl shadow-inner">
+                🧮
+            </div>
+            <div class="link-info ml-2">
+                <span class="link-name !text-[12px] text-rose-500">MathMaster</span>
+                <span class="link-url !text-[10px] opacity-70">Plateforme de calcul mental</span>
+            </div>
+            <div class="link-actions">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-rose-500/40 group-hover:text-rose-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </div>
+        </a>
+    </div>
+
+    <div class="h-[1px] bg-white/10 dark:bg-black/5 w-full mb-8"></div>
+
     <div id="categoriesContainer"></div>
 
     <!-- ============ FOOTER NAVIGATION ============ -->
@@ -759,13 +781,20 @@
     }
 
     function getFaviconUrl(urlString) {
-        try {
-            const url = new URL(urlString);
-            return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
-        } catch (e) {
-            return null;
-        }
-    }
+		try {
+			const url = new URL(urlString);
+			
+			// Si le domaine est ton site, on renvoie directement ton icône GitHub
+			if (url.hostname === 'outilsprofs.fr' || url.hostname === 'www.outilsprofs.fr') {
+				return 'https://ecolebernardet.github.io/outilsprofs/outilsprofs_icone.png';
+			}
+			
+			// Pour les autres sites, on continue d'utiliser Google
+			return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
+		} catch (e) {
+			return null;
+		}
+	}
 
     // ============ STORAGE & PERSISTENCE ============
     function updateExportBadge(needsExport) {
