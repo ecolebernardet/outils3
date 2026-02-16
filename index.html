@@ -608,15 +608,17 @@
         applyColors();
         restoreTileOrder();
         initializeSortable();
+		
+		if ('serviceWorker' in navigator) {
+		window.addEventListener('load', () => {
+			navigator.serviceWorker.register('sw.js')
+				.then(reg => console.log('Service Worker enregistré !'))
+				.catch(err => console.log('Erreur SW:', err));
+			});
+		}
     </script>
 	
-	if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker enregistré !'))
-            .catch(err => console.log('Erreur SW:', err));
-		});
-	}
+	
 
 </body>
 </html>
