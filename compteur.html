@@ -82,7 +82,7 @@
 
         /* Student Items */
         .student-item { 
-            background-color: var(--card-student); padding: 6px 10px 6px 20px; display: flex; 
+            background-color: var(--card-student); padding: 7px 10px 7px 20px; display: flex; 
             justify-content: space-between; align-items: center; cursor: pointer; 
             border-radius: 50px; margin-bottom: 4px; transition: all 0.1s;
             border: 1.5px solid transparent; min-width: 0;
@@ -465,7 +465,6 @@ function createStudentRow(studentName, gender, allStudentsList) {
         }
 
         // ====================== RENDERING ====================== 
-        // ====================== RENDERING ====================== 
         function renderStudents() {
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = '';
@@ -490,7 +489,7 @@ function createStudentRow(studentName, gender, allStudentsList) {
 
             sortedLevels.forEach(level => {
                 const levelWrapper = document.createElement('div');
-                levelWrapper.className = "level-group mb-8";
+                levelWrapper.className = "level-group mb-2";
 
                 const levelColor = customPalette[level] || customPalette[level.toLowerCase()] || LEVEL_COLORS[level] || '#ffffff';
 
@@ -512,7 +511,7 @@ function createStudentRow(studentName, gender, allStudentsList) {
                         // Empêche un bloc élève d'être coupé ou mal aligné
                         row.style.breakInside = "avoid";
                         row.style.display = "flex"; 
-                        row.style.marginBottom = "8px";
+                        row.style.marginBottom = "4px";
                         list.appendChild(row);
                     });
 
