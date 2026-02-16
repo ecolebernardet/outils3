@@ -127,12 +127,9 @@
 
         /* ===== GRILLE PRINCIPALE ===== */
         #listeContainer {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            display: block;
             width: 100%;
             max-width: 900px;
-            align-items: start;
         }
 
         /* ===== GROUPES DE NIVEAUX ===== */
@@ -304,17 +301,17 @@
     <div id="listeContainer"></div>
 
     <!-- ===== NAVIGATION FOOTER ===== -->
-    <footer class="bottom-nav flex flex-col gap-3 px-2">
-        <div class="flex gap-2">
+    <footer class="bottom-nav flex flex-col gap-1 px-2">
+        <div class="flex gap-1">
             <label class="nav-btn bg-neutral-800 text-white cursor-pointer text-center">
-                👇importer .txt👇
+                👇 charger .txt
                 <input type="file" id="importFile" class="hidden" accept=".txt">
             </label>
             <button onclick="exportToFile()" class="nav-btn bg-neutral-800 text-white relative">
-                👆exporter .txt👆
+                👆sauver .txt
                 <span id="badge-export" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full animate-pulse border-2 border-white"></span>
             </button>
-            <button onclick="generatePDF()" class="nav-btn bg-neutral-800 text-white">📄 récapitulatif PDF</button>
+            <button onclick="generatePDF()" class="nav-btn bg-neutral-800 text-white">📄 récap. PDF</button>
         </div>
         <button onclick="clearAllData()" class="nav-btn bg-red-500 text-red-100 shadow-lg">⚠️ effacer les données</button>
     </footer>
@@ -537,11 +534,11 @@
         }
 
         /**
-         * Crée un groupe de niveau avec ses élèves
+         * Crée un groupe de niveau avec ses élèves répartis sur deux colonnes
          */
         function createLevelGroup(level, students) {
             const wrapper = document.createElement('div');
-            wrapper.className = "level-group";
+            wrapper.className = "level-group mb-6"; // Ajout d'une marge entre les niveaux si plusieurs
             
             // Titre du niveau
             const title = document.createElement('h2');
@@ -550,16 +547,24 @@
             title.textContent = level;
             wrapper.appendChild(title);
 
-            // Liste des élèves
-            const list = document.createElement('div');
+            // Conteneur d'élèves en colonnes
+            const studentList = document.createElement('div');
+            // column-count sépare la liste en 2 colonnes automatiquement
+            studentList.style.columnCount = "2";
+            studentList.style.columnGap = "12px";
+            
             students
                 .sort((a, b) => a.identite.localeCompare(b.identite))
                 .forEach(student => {
                     const studentBlock = createStudentBlock(student);
-                    list.appendChild(studentBlock);
+                    // Empêche un bloc élève d'être coupé entre deux colonnes
+                    studentBlock.style.breakInside = "avoid";
+                    studentBlock.style.display = "inline-block";
+                    studentBlock.style.width = "100%";
+                    studentList.appendChild(studentBlock);
                 });
             
-            wrapper.appendChild(list);
+            wrapper.appendChild(studentList);
             return wrapper;
         }
 
@@ -853,9 +858,9 @@
                     <section class="bg-black/20 p-3 rounded-xl border border-white/5">
                         <p class="font-bold uppercase text-[9px] mb-1 opacity-60 italic">📤 Exportation & Transfert</p>
                         <ul class="list-disc pl-4 space-y-1">
-                            <li><strong>Exporter .txt :</strong> Télécharge un fichier contenant toutes vos observations. Pratique pour les récupérer sur PC.</li>
-                            <li><strong>Importer .txt :</strong> Permet de restaurer vos notes ou de synchroniser vos données depuis un autre appareil.</li>
-                            <li><strong>Récapitulatif PDF :</strong> Génère un document propre et prêt à imprimer pour vos dossiers.</li>
+                            <li><strong>sauver .txt :</strong> Sauvegarde dans un fichier .txt toutes vos observations. Pratique pour les récupérer sur PC.</li>
+                            <li><strong>charger .txt :</strong> Permet de restaurer vos notes ou de synchroniser vos données depuis un autre appareil.</li>
+                            <li><strong>récap. PDF :</strong> Génère un document propre et prêt à imprimer pour vos dossiers.</li>
                         </ul>
                     </section>
                 </div>

@@ -783,45 +783,65 @@
             });
 
             const levelPresent = Object.keys(groups).sort((a, b) => LEVEL_ORDER.indexOf(a) - LEVEL_ORDER.indexOf(b));
-            container.className = levelPresent.length === 2 ? "grid grid-cols-2 gap-4 max-w-4xl mx-auto" : "pinterest-grid max-w-4xl mx-auto";
 
             levelPresent.forEach(level => {
-                const levelColumn = document.createElement('div');
-                levelColumn.className = levelPresent.length === 2 ? "w-full" : "pinterest-item";
+                // Création du bloc pour le niveau
+                const levelBlock = document.createElement('div');
+                levelBlock.className = "mb-8 w-full max-w-4xl mx-auto";
+                
                 const levelColor = LEVEL_COLORS[level] || THEME_HEX;
-                levelColumn.innerHTML = `<h3 style="color:${levelColor}" class="text-[11px] font-black uppercase tracking-widest text-center mb-3">${level}</h3>`;
+                levelBlock.innerHTML = `<h3 style="color:${levelColor}" class="text-[11px] font-black uppercase tracking-widest text-center mb-4 border-b pb-1" style="border-color:${levelColor}33">${level}</h3>`;
 
-                const list = document.createElement('div');
-                list.className = "flex flex-col gap-0.5";
-
-                groups[level].sort((a, b) => {
+                // Tri des élèves du niveau
+                const sortedLevelEleves = groups[level].sort((a, b) => {
                     const partsA = a.identite.split(" ");
                     const partsB = b.identite.split(" ");
                     const pA = partsA[0], nA = partsA.slice(1).join(" ");
                     const pB = partsB[0], nB = partsB.slice(1).join(" ");
                     return modeTriApp === 'nom' ? nA.localeCompare(nB) : pA.localeCompare(pB);
-                }).forEach(el => {
-                    const item = document.createElement('div');
-                    const genderClass = el.sexe.toUpperCase() === 'F' ? 'text-girl-custom' : 'text-boy-custom';
-                    item.className = `student-item ${genderClass}`;
-
-                    const parts = el.identite.split(" ");
-                    const displayName = modeTriApp === 'nom' ? `${parts.slice(1).join(" ")} ${parts[0]}` : `${parts[0]} ${parts.slice(1).join(" ")}`;
-
-                    item.innerHTML = `
-                        <div class="flex flex-col flex-grow overflow-hidden" onclick="preparerModification('${el.id}')">
-                            <span class="text-[10px] font-black truncate leading-tight">${displayName}</span>
-                            ${el.dateNaissance ? `<span class="text-[8px] mt-0.5 text-gray-500">${el.dateNaissance}</span>` : ""}
-                        </div>
-                        <button onclick="supprimer('${el.id}')" class="ml-1 opacity-20 hover:opacity-100 p-1" style="background:none;border:none;cursor:pointer;">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    `;
-                    list.appendChild(item);
                 });
 
-                levelColumn.appendChild(list);
-                container.appendChild(levelColumn);
+                // Division de la liste en deux
+                const mid = Math.ceil(sortedLevelEleves.length / 2);
+                const leftColEleves = sortedLevelEleves.slice(0, mid);
+                const rightColEleves = sortedLevelEleves.slice(mid);
+
+                // Conteneur Grille (2 colonnes)
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-2 gap-x-4 gap-y-1";
+
+                const createListHtml = (list) => {
+                    return list.map(el => {
+                        const genderClass = el.sexe.toUpperCase() === 'F' ? 'text-girl-custom' : 'text-boy-custom';
+                        const parts = el.identite.split(" ");
+                        const displayName = modeTriApp === 'nom' ? `${parts.slice(1).join(" ")} ${parts[0]}` : `${parts[0]} ${parts.slice(1).join(" ")}`;
+                        
+                        return `
+                            <div class="student-item ${genderClass} flex items-center justify-between p-1">
+                                <div class="flex flex-col flex-grow overflow-hidden cursor-pointer pl-4" onclick="preparerModification('${el.id}')">
+                                    <span class="text-[10px] font-black truncate leading-tight">${displayName}</span>
+                                    ${el.dateNaissance ? `<span class="text-[8px] text-gray-500">${el.dateNaissance}</span>` : ""}
+                                </div>
+                                <button onclick="supprimer('${el.id}')" class="ml-1 opacity-20 hover:opacity-100 p-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </div>
+                        `;
+                    }).join('');
+                };
+
+                const leftCol = document.createElement('div');
+                leftCol.className = "flex flex-col gap-0.5";
+                leftCol.innerHTML = createListHtml(leftColEleves);
+
+                const rightCol = document.createElement('div');
+                rightCol.className = "flex flex-col gap-0.5";
+                rightCol.innerHTML = createListHtml(rightColEleves);
+
+                grid.appendChild(leftCol);
+                grid.appendChild(rightCol);
+                levelBlock.appendChild(grid);
+                container.appendChild(levelBlock);
             });
         }
 
@@ -904,7 +924,7 @@
             reader.readAsText(file);
         });
 
-        // ====================== PDF GENERATION ====================== 
+        // ====================== PDF GENERATION UTILS ====================== 
         function getDateFormatted() {
             const now = new Date();
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -955,6 +975,7 @@
             }
         }
 
+        // ====================== SPECIFIC PDF GENERATORS ====================== 
         function genererEmargement() {
             if (eleves.length === 0) {
                 customConfirm("La liste est vide !", () => {}, [{text: 'D\'accord', value: 'ok', type: 'primary'}]);

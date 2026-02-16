@@ -62,8 +62,11 @@
 
         /* Layout Grid */
         .columns-container { 
-            column-count: 2; column-gap: 15px; width: 100%; 
-            max-width: 600px; margin: 0 auto; padding: 0 10px;
+            display: block;
+            width: 100%; 
+            max-width: 800px; /* Augmenté pour accommoder les 2 colonnes d'élèves */
+            margin: 0 auto; 
+            padding: 0 10px;
         }
 
         /* Level Groups */
@@ -462,6 +465,7 @@ function createStudentRow(studentName, gender, allStudentsList) {
         }
 
         // ====================== RENDERING ====================== 
+        // ====================== RENDERING ====================== 
         function renderStudents() {
             const mainContent = document.getElementById('mainContent');
             mainContent.innerHTML = '';
@@ -481,16 +485,12 @@ function createStudentRow(studentName, gender, allStudentsList) {
                 return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
             });
 
-            // Adjust layout for 2 levels
-            if (sortedLevels.length === 2) {
-                mainContent.className = "grid grid-cols-2 gap-4 w-full max-w-[600px] mx-auto px-2";
-            } else {
-                mainContent.className = "columns-container";
-            }
+            // On force toujours le conteneur en mode bloc (plus de grid-cols-2 ici)
+            mainContent.className = "columns-container";
 
             sortedLevels.forEach(level => {
                 const levelWrapper = document.createElement('div');
-                levelWrapper.className = sortedLevels.length === 2 ? "w-full" : "level-group";
+                levelWrapper.className = "level-group mb-8";
 
                 const levelColor = customPalette[level] || customPalette[level.toLowerCase()] || LEVEL_COLORS[level] || '#ffffff';
 
@@ -500,13 +500,21 @@ function createStudentRow(studentName, gender, allStudentsList) {
                 title.innerText = level;
                 levelWrapper.appendChild(title);
 
+                // Conteneur de la liste d'élèves divisé en 2 colonnes
                 const list = document.createElement('div');
+                list.style.columnCount = "2";
+                list.style.columnGap = "15px";
+                
                 groups[level]
-    .sort((a, b) => a.identite.localeCompare(b.identite))
-    .forEach(student => {
-        // Ajout de allStudents en 3ème argument
-        list.appendChild(createStudentRow(student.identite, student.sexe, allStudents));
-    });
+                    .sort((a, b) => a.identite.localeCompare(b.identite))
+                    .forEach(student => {
+                        const row = createStudentRow(student.identite, student.sexe, allStudents);
+                        // Empêche un bloc élève d'être coupé ou mal aligné
+                        row.style.breakInside = "avoid";
+                        row.style.display = "flex"; 
+                        row.style.marginBottom = "8px";
+                        list.appendChild(row);
+                    });
 
                 levelWrapper.appendChild(list);
                 mainContent.appendChild(levelWrapper);
