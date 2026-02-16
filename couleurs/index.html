@@ -135,10 +135,10 @@
 </div>
 
 <script>
-    // URL de votre application web Google Apps Script
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbw-qXbfVkaX9_ns-9C1gxoKTJvBmocj4l4RVlh0jAYFHbfBPCw-qYc-mSWOGyczbvce/exec";
-    // Nom exact du fichier sur le Drive
-    const DRIVE_FILE_NAME = "suivi_couleurs_data.json";
+    /* --- CONFIGURATION SUPABASE --- */
+	const SUPABASE_URL = "https://osxbonycajarenugqsfa.supabase.co";
+	const SUPABASE_KEY = "sb_publishable_oZNXxeJO2yNfZyzhJx3scQ_UipEH136";
+	const TABLE_ID = 1;
 
     const descP = ["Casquette", "1er rang", "Tablette", "Moins contrat", "Foot A/B", "Chaise confort", "Bureau maître", "A côté ami", "Pyjama", "Stylo couleur", "Craie récré", "Chanson", "Dessin table", "Dessin porte"];
     const descT = ["Crayon flex", "Crayon ArcEnCiel", "Feuilles à gratter", "Gomme animal", "Capsule Kawaii", "Squishy", "Déco crayon", "Scotch déco", "3 Stickers", "3 Billes"];
@@ -150,17 +150,48 @@
     const cycle = ['', '5', '3', '2', '1'];
     let draggedIndex = null;
 
-    // --- CHARGEMENT DEPUIS DRIVE ---
+    // --- CHARGEMENT DEPUIS SUPABASE ---
     async function loadFromDrive() {
         try {
-            const response = await fetch(GAS_URL + "?filename=" + DRIVE_FILE_NAME, { method: 'GET', redirect: 'follow' });
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/couleurs_data?id=eq.${TABLE_ID}`, {
+                method: 'GET',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
             const data = await response.json();
-            if (data && Array.isArray(data) && data.length > 0) {
-                classData = data;
-                saveData(false); 
+            if (data && data.length > 0 && data[0].content) {
+                classData = data[0].content;
+                localStorage.setItem('classData36_vFinal', JSON.stringify(classData));
                 fullRender();
             }
-        } catch (e) { console.log("Fichier " + DRIVE_FILE_NAME + " non trouvé ou Drive vide."); }
+        } catch (e) { 
+            console.error("Erreur de chargement Supabase :", e); 
+        }
+    }
+
+    // --- SAUVEGARDE SUPABASE ---
+    async function saveData(syncToDrive = true) { 
+        localStorage.setItem('classData36_vFinal', JSON.stringify(classData)); 
+        if (syncToDrive) {
+            try {
+                await fetch(`${SUPABASE_URL}/rest/v1/couleurs_data?id=eq.${TABLE_ID}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        content: classData
+                    })
+                });
+            } catch (e) { 
+                console.error("Erreur de synchronisation Supabase"); 
+            }
+        }
     }
 
     const headerRow = document.getElementById('headerRow');
