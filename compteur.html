@@ -77,7 +77,7 @@
 
         .level-title { 
             font-size: 0.6875rem; font-weight: 900; text-transform: uppercase; 
-            letter-spacing: 0.05em; text-align: center; margin-bottom: 0.5rem;
+            letter-spacing: 0.05em; text-align: center; margin-bottom: 0.5rem; background: rgba(128,128,128,0.1);
         }
 
         /* Student Items */
@@ -375,51 +375,51 @@ function formatNameDisplay(fullName, allStudentsList) {
         }
 
         // ====================== STUDENT ROW CREATION ====================== 
-function createStudentRow(studentName, gender, allStudentsList) {
-    const card = document.createElement('div');
-    const genderClass = getGenderClass(gender);
-    card.className = `student-item ${genderClass}`;
+		function createStudentRow(studentName, gender, allStudentsList) {
+			const card = document.createElement('div');
+			const genderClass = getGenderClass(gender);
+			card.className = `student-item ${genderClass}`;
 
-    // Name element - Utilisation de la nouvelle logique
-    const nameEl = document.createElement('span');
-    nameEl.className = 'student-name';
-    nameEl.innerText = formatNameDisplay(studentName, allStudentsList);
+			// Name element - Utilisation de la nouvelle logique
+			const nameEl = document.createElement('span');
+			nameEl.className = 'student-name';
+			nameEl.innerText = formatNameDisplay(studentName, allStudentsList);
 
-    // ... (le reste du code de la fonction reste identique)
-    const badge = document.createElement('div');
-    badge.className = 'counter-badge';
+			// ... (le reste du code de la fonction reste identique)
+			const badge = document.createElement('div');
+			badge.className = 'counter-badge';
 
-    const counterSpan = document.createElement('span');
-    counterSpan.setAttribute('data-name', studentName);
-    counterSpan.className = 'counter-val';
-    counterSpan.innerText = '0';
+			const counterSpan = document.createElement('span');
+			counterSpan.setAttribute('data-name', studentName);
+			counterSpan.className = 'counter-val';
+			counterSpan.innerText = '0';
 
-    badge.appendChild(counterSpan);
+			badge.appendChild(counterSpan);
 
-    let clickCount = 0;
-    let clickTimer;
+			let clickCount = 0;
+			let clickTimer;
 
-    card.addEventListener('click', () => {
-        clickCount++;
-        if (clickCount === 1) {
-            clickTimer = setTimeout(() => {
-                if (clickCount === 1) {
-                    incrementCounter(counterSpan, badge);
-                }
-                clickCount = 0;
-            }, COUNTER_CONFIG.clickTimeout);
-        } else if (clickCount === 2) {
-            clearTimeout(clickTimer);
-            decrementCounter(counterSpan, badge);
-            clickCount = 0;
-        }
-    });
+			card.addEventListener('click', () => {
+				clickCount++;
+				if (clickCount === 1) {
+					clickTimer = setTimeout(() => {
+						if (clickCount === 1) {
+							incrementCounter(counterSpan, badge);
+						}
+						clickCount = 0;
+					}, COUNTER_CONFIG.clickTimeout);
+				} else if (clickCount === 2) {
+					clearTimeout(clickTimer);
+					decrementCounter(counterSpan, badge);
+					clickCount = 0;
+				}
+			});
 
-    card.oncontextmenu = (e) => { e.preventDefault(); };
-    card.appendChild(nameEl);
-    card.appendChild(badge);
-    return card;
-}
+			card.oncontextmenu = (e) => { e.preventDefault(); };
+			card.appendChild(nameEl);
+			card.appendChild(badge);
+			return card;
+		}
 
         // ====================== THEME APPLICATION ====================== 
         function applyTheme() {

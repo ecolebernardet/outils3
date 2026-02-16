@@ -156,7 +156,7 @@
 
         .student-item { 
             background-color: var(--card-student);
-            padding: 5px 14px;
+            padding: 6px 10px 6px 20px;
             display: flex; 
             justify-content: space-between;
             align-items: center;
@@ -293,9 +293,10 @@
 
     <!-- ===== CONTRÔLES GÉNÉRAUX ===== -->
     <div class="general-controls">
-        <button class="ctrl-btn-gen" onclick="toggleAllDrawers(true)">Tout ouvrir</button>
-        <button class="ctrl-btn-gen" onclick="toggleAllDrawers(false)">Tout fermer</button>
-    </div>
+		<button id="btnToggleAll" onclick="toggleAllDrawers()" class="ctrl-btn-gen">
+			Tout ouvrir
+		</button>
+	</div>
 
     <!-- ===== LISTE DES ÉLÈVES ===== -->
     <div id="listeContainer"></div>
@@ -448,20 +449,40 @@
         /**
          * Ouvre ou ferme tous les tiroirs d'observations
          */
-        function toggleAllDrawers(shouldOpen) {
+        function toggleAllDrawers() {
+            const btn = document.getElementById('btnToggleAll');
+            if (!btn) return;
+
+            const isOpening = btn.getAttribute('data-state') !== 'open';
+            
             document.querySelectorAll('.obs-drawer').forEach(drawer => {
                 const item = drawer.previousElementSibling;
                 const textarea = drawer.querySelector('textarea');
                 
-                if (shouldOpen) {
+                if (isOpening) {
                     drawer.classList.add('open');
-                    item.classList.add('active');
-                    autoResize(textarea);
+                    if (item) item.classList.add('active');
+                    if (typeof autoResize === 'function') autoResize(textarea);
                 } else {
                     drawer.classList.remove('open');
-                    item.classList.remove('active');
+                    if (item) item.classList.remove('active');
                 }
             });
+
+            // Mise à jour du texte, de l'état et de la COULEUR
+            if (isOpening) {
+                btn.innerText = "Tout fermer";
+                btn.setAttribute('data-state', 'open');
+                // Style quand c'est ouvert (fond coloré, texte blanc)
+                btn.style.backgroundColor = "var(--primary)";
+                btn.style.color = "white";
+            } else {
+                btn.innerText = "Tout ouvrir";
+                btn.setAttribute('data-state', 'closed');
+                // Style quand c'est fermé (contour coloré, fond transparent)
+                btn.style.backgroundColor = "transparent";
+                btn.style.color = "var(--primary)";
+            }
         }
 
         /**
@@ -538,7 +559,7 @@
          */
         function createLevelGroup(level, students) {
             const wrapper = document.createElement('div');
-            wrapper.className = "level-group mb-6"; // Ajout d'une marge entre les niveaux si plusieurs
+            wrapper.className = "level-group mb-2"; // Ajout d'une marge entre les niveaux si plusieurs
             
             // Titre du niveau
             const title = document.createElement('h2');
@@ -551,7 +572,7 @@
             const studentList = document.createElement('div');
             // column-count sépare la liste en 2 colonnes automatiquement
             studentList.style.columnCount = "2";
-            studentList.style.columnGap = "12px";
+            studentList.style.columnGap = "15px";
             
             students
                 .sort((a, b) => a.identite.localeCompare(b.identite))
