@@ -632,8 +632,13 @@ body.fullscreen-mode #container-retour-liste {
         renderQuestions(config.mode);
         updateActionButtons(config.mode);
         startTimer();
+        
+        // MODIFICATION ICI : On ne cache plus tout le conteneur, 
+        // seulement le bouton de retour à la liste.
         document.getElementById('setup-zone').classList.add('hidden');
-        document.getElementById('container-retour-liste').classList.add('hidden');
+        const btnRetour = document.getElementById('btn-retour-liste');
+        if (btnRetour) btnRetour.classList.add('hidden'); 
+        
         document.getElementById('game-zone').classList.remove('hidden');
     }
 
