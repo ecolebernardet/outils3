@@ -642,28 +642,42 @@
         }
 
         // Initialisation du drag & drop
-        function initializeSortable() {
-			const gridMenu = document.getElementById('grid-menu');
-			
-			new Sortable(gridMenu, {
-				handle: '.drag-handle',
-				animation: 200,
-				ghostClass: 'opacity-0',
-				
-				// Paramètres spécifiques pour le tactile
-				delay: 150,            // Temps de pression (ms) avant que le déplacement commence
-				delayOnTouchOnly: true, // Applique le délai uniquement sur mobile/tablette
-				touchStartThreshold: 5, // Déplacement minimal du doigt (px) avant d'annuler le délai
-				
-				forceFallback: true,    // Utilise le mode simulation (indispensable sur Android)
-				fallbackOnBody: true,   // Permet de sortir du conteneur pendant le drag
-				
-				onEnd: function() {
-					const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
-					localStorage.setItem('menu_order', JSON.stringify(order));
-				}
-			});
-		}
+        // Initialisation du drag & drop
+function initializeSortable() {
+    const gridMenu = document.getElementById('grid-menu');
+    
+    // On vérifie si une instance existe déjà pour éviter les doublons
+    if (Sortable.get(gridMenu)) return;
+
+    new Sortable(gridMenu, {
+        handle: '.drag-handle',
+        animation: 200,
+        ghostClass: 'opacity-0',
+        
+        // Paramètres optimisés pour Android
+        delay: 100,             // Réduit légèrement pour plus de réactivité
+        delayOnTouchOnly: true, 
+        touchStartThreshold: 3, // Plus sensible aux petits mouvements
+        
+        forceFallback: true,    
+        fallbackOnBody: true,   
+        preventOnFilter: true,  // Empêche les comportements par défaut (indispensable)
+
+        onEnd: function() {
+            const order = Array.from(gridMenu.children).map(child => child.getAttribute('data-id'));
+            localStorage.setItem('menu_order', JSON.stringify(order));
+        }
+    });
+}
+
+// Initialisation au chargement de la page (Suppression de l'appel en double)
+document.addEventListener('DOMContentLoaded', function() {
+    applyColors();
+    restoreTileOrder();
+    initializeSortable();
+});
+
+// Suppression des appels directs qui étaient ici pour éviter les conflits sur mobile
 
 		function toggleModal(show) {
             const modal = document.getElementById('modalAbout');
