@@ -1,0 +1,20 @@
+{
+  "name": "OutilsProfs",
+  "short_name": "OutilsProfs",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "outilsprofs_icone.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "outilsprofs_icone.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
