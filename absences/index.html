@@ -277,37 +277,24 @@
 	
 	.sticky-note {
 		position: fixed;
-		/* On enlève bottom/right fixes pour laisser le JS gérer la position */
-		bottom: 20px; 
+		bottom: 20px;
 		right: 20px;
-		width: 220px;
+		width: 300px;
 		background: #fff9c4;
 		border: 1px solid #fbc02d;
-		box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-		border-radius: 4px;
+		box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 		z-index: 10000;
-		display: flex;
-		flex-direction: column;
-		/* On retire la transition transform pour que le déplacement soit fluide */
-		transition: none; 
-	}
-
-	.sticky-note.minimized {
-		transform: translateY(165px); /* Ne laisse dépasser que le header */
 	}
 
 	.sticky-header {
 		background: #fbc02d;
-		color: #5f4b00;
-		padding: 8px 10px;
-		font-size: 11px;
+		padding: 8px;
+		cursor: move; /* Très important pour l'utilisateur */
+		font-size: 12px;
 		font-weight: bold;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		cursor: move; /* Indique qu'on peut déplacer */
-		user-select: none;
+		text-align: left;
 	}
+	
 	.sticky-header button {
 		background: none;
 		border: none;
@@ -318,7 +305,7 @@
 
 	#noteContent {
 		width: 100%;
-		height: 150px;
+		height: 120px;
 		border: none;
 		background: transparent;
 		padding: 10px;
@@ -674,25 +661,16 @@ window.onclick = function(event) {
     let initialX, initialY;
 
     function saveNote() {
-        save(); // Sauvegarde le texte sur le Cloud
+        save(); // Envoie le texte au Cloud
     }
 
-    function toggleNote() {
-        const note = document.getElementById('stickyNote');
-        note.classList.toggle('minimized');
-        localStorage.setItem('noteMinimized', note.classList.contains('minimized'));
-    }
-
-    // Fonctions de Drag & Drop
     function setupDraggableNote() {
         const note = document.getElementById("stickyNote");
         const header = note.querySelector(".sticky-header");
 
-        // Appliquer la position sauvegardée au démarrage
         setTranslate(xOffset, yOffset, note);
 
         header.addEventListener("mousedown", (e) => {
-            if (e.target.tagName === 'BUTTON') return;
             initialX = e.clientX - xOffset;
             initialY = e.clientY - yOffset;
             isDragging = true;
@@ -725,46 +703,42 @@ window.onclick = function(event) {
                 schoolData = data.content.schoolData || []; 
                 excludedDates = data.content.excludedDates || [];
                 
-                // Récupération de la note partagée depuis le Cloud
+                // Récupération de la note partagée
                 if (data.content.sharedNote !== undefined) {
                     document.getElementById('noteContent').value = data.content.sharedNote;
                 }
 
+                // Force la fermeture des classes pour la clarté visuelle
                 schoolData.forEach(classe => classe.isOpen = false);
 
                 document.getElementById('syncIndicator').innerText = "✅ Connecté"; 
+
+                // --- RÉINTÉGRATION DU MOIS AUTOMATIQUE ---
                 const now = new Date();
                 const foundIdx = monthConfigs.findIndex(m => m.m === now.getMonth() && m.y === now.getFullYear());
-                if (foundIdx !== -1 && activeMonth === null) activeMonth = foundIdx;
-                
+                if (foundIdx !== -1) {
+                    activeMonth = foundIdx; // Définit le mois actuel comme actif
+                }
+                // ------------------------------------------
+
                 refreshSchoolMonths();
                 renderAll(); 
             }
-        } catch (e) { console.error(e); }
-
-        // Initialisation des états visuels locaux
-        if (localStorage.getItem('noteMinimized') === 'true') {
-            document.getElementById('stickyNote').classList.add('minimized');
+        } catch (e) { 
+            console.error("Erreur de chargement:", e); 
+            document.getElementById('syncIndicator').innerText = "❌ Erreur de connexion";
         }
-        setupDraggableNote();
+
+        setupDraggableNote(); // Initialise le déplacement du post-it
     }
 
     async function save() {
-        const syncInd = document.getElementById('syncIndicator');
-        if(syncInd) syncInd.innerText = "☁️ Sauvegarde...";
-        
         const currentNote = document.getElementById('noteContent').value;
-
         await _supabase.from('absences_data').upsert({ 
             id: 1, 
-            content: { 
-                schoolData, 
-                excludedDates, 
-                sharedNote: currentNote 
-            } 
+            content: { schoolData, excludedDates, sharedNote: currentNote } 
         });
-        
-        if(syncInd) syncInd.innerText = "✅ Synchronisé";
+        document.getElementById('syncIndicator').innerText = "✅ Synchronisé";
     }
 	
     function refreshSchoolMonths() {
@@ -1783,12 +1757,11 @@ window.removeVacation = (i) => {
 // Lancement initial
 loadFromCloud();
 </script>
-<div id="stickyNote" class="sticky-note">
-    <div class="sticky-header">
-        <span>📌 Note des collègues</span>
-        <button onclick="toggleNote()">_</button>
-    </div>
-    <textarea id="noteContent" placeholder="Écrire un message ici..." oninput="saveNote()"></textarea>
-</div>
+	<div id="stickyNote" class="sticky-note">
+		<div class="sticky-header">
+			<span>📌 Note déplaçable</span>
+		</div>
+		<textarea id="noteContent" placeholder="Écrire un message ici..." oninput="saveNote()"></textarea>
+	</div>
 </body>
 </html>
