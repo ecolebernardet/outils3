@@ -276,18 +276,20 @@
     }
 	
 	.sticky-note {
-    position: fixed;
-		bottom: 20px;
+		position: fixed;
+		/* On enlève bottom/right fixes pour laisser le JS gérer la position */
+		bottom: 20px; 
 		right: 20px;
 		width: 220px;
-		background: #fff9c4; /* Jaune post-it */
+		background: #fff9c4;
 		border: 1px solid #fbc02d;
 		box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 		border-radius: 4px;
 		z-index: 10000;
 		display: flex;
 		flex-direction: column;
-		transition: transform 0.3s ease;
+		/* On retire la transition transform pour que le déplacement soit fluide */
+		transition: none; 
 	}
 
 	.sticky-note.minimized {
@@ -297,15 +299,15 @@
 	.sticky-header {
 		background: #fbc02d;
 		color: #5f4b00;
-		padding: 5px 10px;
+		padding: 8px 10px;
 		font-size: 11px;
 		font-weight: bold;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		cursor: pointer;
+		cursor: move; /* Indique qu'on peut déplacer */
+		user-select: none;
 	}
-
 	.sticky-header button {
 		background: none;
 		border: none;
@@ -664,18 +666,54 @@ window.onclick = function(event) {
     }
 }
 	
-// --- Gestion du Post-it (Synchronisé) ---
+// --- Gestion du Post-it (Synchronisé & Déplaçable) ---
+
+    let isDragging = false;
+    let xOffset = localStorage.getItem('noteX') ? parseFloat(localStorage.getItem('noteX')) : 0;
+    let yOffset = localStorage.getItem('noteY') ? parseFloat(localStorage.getItem('noteY')) : 0;
+    let initialX, initialY;
 
     function saveNote() {
-        // On déclenche la sauvegarde générale qui inclut maintenant la note
-        save();
+        save(); // Sauvegarde le texte sur le Cloud
     }
 
     function toggleNote() {
         const note = document.getElementById('stickyNote');
         note.classList.toggle('minimized');
-        // On garde en mémoire locale uniquement l'état (ouvert/fermé) pour le confort de l'utilisateur
         localStorage.setItem('noteMinimized', note.classList.contains('minimized'));
+    }
+
+    // Fonctions de Drag & Drop
+    function setupDraggableNote() {
+        const note = document.getElementById("stickyNote");
+        const header = note.querySelector(".sticky-header");
+
+        // Appliquer la position sauvegardée au démarrage
+        setTranslate(xOffset, yOffset, note);
+
+        header.addEventListener("mousedown", (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            isDragging = true;
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                xOffset = e.clientX - initialX;
+                yOffset = e.clientY - initialY;
+                localStorage.setItem('noteX', xOffset);
+                localStorage.setItem('noteY', yOffset);
+                setTranslate(xOffset, yOffset, note);
+            }
+        });
+
+        document.addEventListener("mouseup", () => isDragging = false);
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     }
 
     // --- Cloud & Logique ---
@@ -692,7 +730,6 @@ window.onclick = function(event) {
                     document.getElementById('noteContent').value = data.content.sharedNote;
                 }
 
-                // Force la fermeture de toutes les classes au chargement
                 schoolData.forEach(classe => classe.isOpen = false);
 
                 document.getElementById('syncIndicator').innerText = "✅ Connecté"; 
@@ -705,19 +742,19 @@ window.onclick = function(event) {
             }
         } catch (e) { console.error(e); }
 
-        // Restauration de l'état réduit/ouvert du post-it
+        // Initialisation des états visuels locaux
         if (localStorage.getItem('noteMinimized') === 'true') {
             document.getElementById('stickyNote').classList.add('minimized');
         }
+        setupDraggableNote();
     }
 
     async function save() {
-        document.getElementById('syncIndicator').innerText = "☁️ Sauvegarde...";
+        const syncInd = document.getElementById('syncIndicator');
+        if(syncInd) syncInd.innerText = "☁️ Sauvegarde...";
         
-        // On récupère le texte actuel du post-it
         const currentNote = document.getElementById('noteContent').value;
 
-        // On envoie tout au Cloud : absences, dates exclues ET la note
         await _supabase.from('absences_data').upsert({ 
             id: 1, 
             content: { 
@@ -727,46 +764,47 @@ window.onclick = function(event) {
             } 
         });
         
-        document.getElementById('syncIndicator').innerText = "✅ Synchronisé";
+        if(syncInd) syncInd.innerText = "✅ Synchronisé";
     }
+	
     function refreshSchoolMonths() {
-    console.log("Config Mars:", monthConfigs[6]); 
-console.log("Config Avril:", monthConfigs[7]);
-	schoolMonths = monthConfigs.map((conf) => {
-        let days = []; 
-        // On crée une date de référence pour le 1er du mois à midi
-        let d = new Date(conf.y, conf.m, 1, 12, 0, 0);
+		console.log("Config Mars:", monthConfigs[6]); 
+		console.log("Config Avril:", monthConfigs[7]);
+		schoolMonths = monthConfigs.map((conf) => {
+			let days = []; 
+			// On crée une date de référence pour le 1er du mois à midi
+			let d = new Date(conf.y, conf.m, 1, 12, 0, 0);
 
-        while (d.getMonth() === conf.m) { 
-            const dayNum = d.getDate();
-            const dayOfWeek = d.getDay();
-            
-            // 1. Définir si c'est un jour ouvré (Lun, Mar, Jeu, Ven)
-            const isWorkDay = [1, 2, 4, 5].includes(dayOfWeek);
-            
-            // 2. Vérifier si c'est une période de vacances
-            const isVacation = excludedDates.some(v => {
-                // On compare uniquement les chaînes YYYY-MM-DD pour être infaillible
-                // Cela évite tout problème d'objet Date ou de fuseau horaire
-                const dateString = `${conf.y}-${String(conf.m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-                return dateString >= v.start && dateString <= v.end;
-            });
+			while (d.getMonth() === conf.m) { 
+				const dayNum = d.getDate();
+				const dayOfWeek = d.getDay();
+				
+				// 1. Définir si c'est un jour ouvré (Lun, Mar, Jeu, Ven)
+				const isWorkDay = [1, 2, 4, 5].includes(dayOfWeek);
+				
+				// 2. Vérifier si c'est une période de vacances
+				const isVacation = excludedDates.some(v => {
+					// On compare uniquement les chaînes YYYY-MM-DD pour être infaillible
+					// Cela évite tout problème d'objet Date ou de fuseau horaire
+					const dateString = `${conf.y}-${String(conf.m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+					return dateString >= v.start && dateString <= v.end;
+				});
 
-            // 3. Ajouter le jour s'il est ouvré et NON exclu
-            if (isWorkDay && !isVacation) {
-                days.push({ 
-                    num: dayNum, 
-                    label: dayLabels[dayOfWeek] 
-                }); 
-            }
+				// 3. Ajouter le jour s'il est ouvré et NON exclu
+				if (isWorkDay && !isVacation) {
+					days.push({ 
+						num: dayNum, 
+						label: dayLabels[dayOfWeek] 
+					}); 
+				}
 
-            // Passer au jour suivant en forçant midi pour éviter le saut d'heure de Mars/Avril
-            d.setDate(d.getDate() + 1);
-            d.setHours(12, 0, 0, 0);
-        }
-        return { name: conf.name, days };
-    });
-}
+				// Passer au jour suivant en forçant midi pour éviter le saut d'heure de Mars/Avril
+				d.setDate(d.getDate() + 1);
+				d.setHours(12, 0, 0, 0);
+			}
+			return { name: conf.name, days };
+		});
+	}
 
     function addClass() { 
         const v = document.getElementById('newClassName').value; 
