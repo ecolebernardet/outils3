@@ -274,6 +274,59 @@
         .modal { width: 95%; padding: 15px; }
         .stats-footer { flex-direction: column; gap: 10px; text-align: center; }
     }
+	
+	.sticky-note {
+    position: fixed;
+		bottom: 20px;
+		right: 20px;
+		width: 220px;
+		background: #fff9c4; /* Jaune post-it */
+		border: 1px solid #fbc02d;
+		box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+		border-radius: 4px;
+		z-index: 10000;
+		display: flex;
+		flex-direction: column;
+		transition: transform 0.3s ease;
+	}
+
+	.sticky-note.minimized {
+		transform: translateY(165px); /* Ne laisse dépasser que le header */
+	}
+
+	.sticky-header {
+		background: #fbc02d;
+		color: #5f4b00;
+		padding: 5px 10px;
+		font-size: 11px;
+		font-weight: bold;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		cursor: pointer;
+	}
+
+	.sticky-header button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-weight: bold;
+		color: #5f4b00;
+	}
+
+	#noteContent {
+		width: 100%;
+		height: 150px;
+		border: none;
+		background: transparent;
+		padding: 10px;
+		font-family: 'Handlee', 'Comic Sans MS', cursive; /* Style écriture manuscrite si dispo */
+		font-size: 13px;
+		resize: none;
+		outline: none;
+		color: #333;
+	}
+
 </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -610,6 +663,34 @@ window.onclick = function(event) {
         }
     }
 }
+	
+	// --- Gestion du Post-it ---
+
+	function saveNote() {
+		const text = document.getElementById('noteContent').value;
+		localStorage.setItem('schoolNote', text);
+	}
+
+	function loadNote() {
+		const savedNote = localStorage.getItem('schoolNote');
+		if (savedNote) {
+			document.getElementById('noteContent').value = savedNote;
+		}
+	}
+
+	function toggleNote() {
+		const note = document.getElementById('stickyNote');
+		note.classList.toggle('minimized');
+		localStorage.setItem('noteMinimized', note.classList.contains('minimized'));
+	}
+
+	// Initialisation de la note au chargement
+	document.addEventListener('DOMContentLoaded', () => {
+		loadNote();
+		if (localStorage.getItem('noteMinimized') === 'true') {
+			document.getElementById('stickyNote').classList.add('minimized');
+		}
+	});
 
     // --- Cloud & Logique ---
     async function loadFromCloud() {
@@ -1654,5 +1735,12 @@ window.removeVacation = (i) => {
 // Lancement initial
 loadFromCloud();
 </script>
+<div id="stickyNote" class="sticky-note">
+    <div class="sticky-header">
+        <span>📌 Note des collègues</span>
+        <button onclick="toggleNote()">_</button>
+    </div>
+    <textarea id="noteContent" placeholder="Écrire un message ici..." oninput="saveNote()"></textarea>
+</div>
 </body>
 </html>
