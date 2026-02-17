@@ -201,7 +201,6 @@
         .tool-btn { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
         .tool-btn2 { width: 100%; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: filter 0.2s; }
 
-        #undo-btn { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; z-index: 9999; box-shadow: var(--shadow); }
         #main-tool-btn { background: #333; width: 80px; justify-content: center; }
 
         .exit-fs-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 99999; background: rgba(0, 0, 0, 0.5); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
@@ -210,6 +209,32 @@
         .bg-thumb { width: 70px; height: 50px; border-radius: 6px; border: 2px solid #eee; cursor: pointer; background-size: cover; background-position: center; transition: 0.2s; }
         .bg-thumb:hover { transform: scale(1.05); border-color: var(--primary-color); }
         
+		#draw-canvas {
+			position: absolute;
+			top: 0; left: 0;
+			z-index: 500;
+			cursor: crosshair;
+			touch-action: none;
+		}
+		#draw-canvas.inactive {
+			pointer-events: none;
+			cursor: default;
+		}
+
+		.widget.selected {
+			outline: 3px dashed #f39c12 !important;
+			outline-offset: 4px;
+		}
+
+		#selection-rect {
+			position: absolute;
+			border: 2px dashed #f39c12;
+			background: rgba(243, 156, 18, 0.08);
+			pointer-events: none;
+			z-index: 600;
+			display: none;
+		}
+
         /* --- CALENDRIER & HORLOGE --- */
         /* Les font-size sont en em, relatifs à la taille de base posée en style inline   */
         /* sur .calendar-page et .clock-time, scalée par scaleFontSizesBy() au resize.    */
@@ -262,42 +287,112 @@
     <div id="board"></div>
 
     <div id="toolbar-container">
-        <div id="tools-menu">
-            <button class="tool-btn" onclick="createWidget('youtube'); toggleMenu()" style="background: #E7180B;"><span>🎬</span> Vidéo YouTube</button>
-            <button class="tool-btn" onclick="createWidget('outilsprofs'); toggleMenu()" style="background: #FF692A;"><span>🎒</span> OutilsProfs</button>
-            <button class="tool-btn" onclick="createWidget('iframe'); toggleMenu()" style="background: #FFD230;"><span>💻</span> Fenêtre Web</button>
-            <button class="tool-btn" onclick="createWidget('time'); toggleMenu()" style="background: #7CCF35;"><span>🕒</span> Heure</button>
-            <button class="tool-btn" onclick="createWidget('date'); toggleMenu()" style="background: #679638;"><span>📅</span> Date</button>
-            <button class="tool-btn" onclick="createWidget('homework'); toggleMenu()" style="background: #3BB8DB;"><span>📝</span> Devoirs</button>
-            <button class="tool-btn" onclick="createWidget('text'); toggleMenu()" style="background: #2B7FFF;"><span>🖊️</span> Texte</button>
-            <button class="tool-btn" onclick="createWidget('agenda'); toggleMenu()" style="background: #8E51FF">📌 Planning</button>
-            <button class="tool-btn" onclick="createWidget('deficalme'); toggleMenu()" style="background: #480eb3;"><span>🧘</span> Défi Calme</button>
-            
-            <hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 5px 0;">
-            <button class="tool-btn" style="background: #71717B;" onclick="toggleSubMenu(event)"><span>🖼️</span> Choisir fond ❯</button>
-            
-            <div id="bg-submenu">
-                <div class="bg-thumb" style="background-color: #eef2f5;" onclick="applyBackground('none'); saveBg('none')" title="Défaut"></div>
-                <div class="bg-thumb" style="background-color: #2f3542;" onclick="applyBackground('#2f3542'); saveBg('#2f3542')" title="Ardoise"></div>
-                <div class="bg-thumb" style="background-color: #104626;" onclick="applyBackground('#104626'); saveBg('#104626')" title="Vert Tableau"></div>
-                <div class="bg-thumb" style="background-color: #BAA09B;" onclick="applyBackground('#BAA09B'); saveBg('#BAA09B')" title="Vieux rose"></div>
-                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/grid-me.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/grid-me.png)'); saveBg('url(https://www.transparenttextures.com/patterns/grid-me.png)')" title="Carreaux"></div>
-                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/lined-paper.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/lined-paper.png)'); saveBg('url(https://www.transparenttextures.com/patterns/lined-paper.png)')" title="Lignes"></div>
-                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/arches.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/arches.png)'); saveBg('url(https://www.transparenttextures.com/patterns/arches.png)')" title="Arches"></div>
-                <div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/shattered.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/shattered.png)'); saveBg('url(https://www.transparenttextures.com/patterns/shattered.png)')" title="Éclats"></div>
-                <button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background: #8e44ad; padding: 5px; font-size: 10px; grid-column: span 3; border-radius: 8px;"><span>📷</span> Importer image</button>
-            </div>
 
-            <hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 5px 0;">
-            <button class="tool-btn2" onclick="exportConfig()"><span>💾</span> Exporter config</button>
-            <button class="tool-btn2" onclick="document.getElementById('import-input').click()"><span>📂</span> Importer config</button>
-            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
-            <button class="tool-btn2" onclick="clearBoard(); toggleMenu()" style="background: #ED8595; margin-top:5px;"><span>❌</span> Effacer tout</button>
-        </div>
-        <button id="main-tool-btn" class="tool-btn" onclick="toggleMenu()">MENU</button>
-    </div>
+		<div id="tools-menu">
+			<button class="tool-btn" onclick="createWidget('youtube'); toggleMenu()" style="background: #E7180B;"><span>🎬</span> Vidéo YouTube</button>
+			<button class="tool-btn" onclick="createWidget('outilsprofs'); toggleMenu()" style="background: #FF692A;"><span>🎒</span> OutilsProfs</button>
+			<button class="tool-btn" onclick="createWidget('iframe'); toggleMenu()" style="background: #FFD230;"><span>💻</span> Fenêtre Web</button>
+			<button class="tool-btn" onclick="createWidget('time'); toggleMenu()" style="background: #7CCF35;"><span>🕒</span> Heure</button>
+			<button class="tool-btn" onclick="createWidget('date'); toggleMenu()" style="background: #679638;"><span>📅</span> Date</button>
+			<button class="tool-btn" onclick="createWidget('homework'); toggleMenu()" style="background: #3BB8DB;"><span>📝</span> Devoirs</button>
+			<button class="tool-btn" onclick="createWidget('text'); toggleMenu()" style="background: #2B7FFF;"><span>🖊️</span> Texte</button>
+			<button class="tool-btn" onclick="createWidget('agenda'); toggleMenu()" style="background: #8E51FF">📌 Planning</button>
+			<button class="tool-btn" onclick="createWidget('deficalme'); toggleMenu()" style="background: #480eb3;"><span>🧘</span> Défi Calme</button>
+			<hr style="width: 100%; border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+			<button class="tool-btn" style="background: #71717B;" onclick="toggleSubMenu(event)"><span>🖼️</span> Choisir fond ❯</button>
+			<div id="bg-submenu">
+				<div class="bg-thumb" style="background-color: #eef2f5;" onclick="applyBackground('none'); saveBg('none')" title="Défaut"></div>
+				<div class="bg-thumb" style="background-color: #2f3542;" onclick="applyBackground('#2f3542'); saveBg('#2f3542')" title="Ardoise"></div>
+				<div class="bg-thumb" style="background-color: #104626;" onclick="applyBackground('#104626'); saveBg('#104626')" title="Vert Tableau"></div>
+				<div class="bg-thumb" style="background-color: #BAA09B;" onclick="applyBackground('#BAA09B'); saveBg('#BAA09B')" title="Vieux rose"></div>
+				<div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/grid-me.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/grid-me.png)'); saveBg('url(https://www.transparenttextures.com/patterns/grid-me.png)')" title="Carreaux"></div>
+				<div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/lined-paper.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/lined-paper.png)'); saveBg('url(https://www.transparenttextures.com/patterns/lined-paper.png)')" title="Lignes"></div>
+				<div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/arches.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/arches.png)'); saveBg('url(https://www.transparenttextures.com/patterns/arches.png)')" title="Arches"></div>
+				<div class="bg-thumb" style="background-image: url('https://www.transparenttextures.com/patterns/shattered.png');" onclick="applyBackground('url(https://www.transparenttextures.com/patterns/shattered.png)'); saveBg('url(https://www.transparenttextures.com/patterns/shattered.png)')" title="Éclats"></div>
+				<button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background: #8e44ad; padding: 5px; font-size: 10px; grid-column: span 3; border-radius: 8px;"><span>📷</span> Importer image</button>
+			</div>
+		</div>
 
-    <button id="undo-btn" onclick="undoAction()"><span>↩️</span> Annuler</button>
+		<div id="draw-toolbar" style="display: none; position: fixed; bottom: 80px; left: 30px; background: #1F1F21; border-radius: 12px; padding: 12px 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); z-index: 9998; border: 1px solid #444;">
+			<div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+				<span style="color: #ccc; font-size: 12px; font-weight: 600;">✏️ Dessin</span>
+				<span style="color: #ccc; font-size: 11px;">Couleur :</span>
+				<input type="color" id="draw-color" value="#e84393" style="width: 32px; height: 28px; border: none; cursor: pointer; background: none;">
+				<span style="color: #ccc; font-size: 11px;">Épaisseur :</span>
+				<input type="range" id="draw-size" min="1" max="40" value="4" style="width: 90px; cursor: pointer;">
+				<span id="draw-size-label" style="color: #fff; font-size: 12px; min-width: 20px;">4</span>
+				<button onclick="clearCanvas()" style="background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">🗑️ Effacer</button>
+				<button onclick="stopDrawing()" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">✖ Fermer</button>
+			</div>
+		</div>
+
+		<div id="select-toolbar" style="display: none; position: fixed; bottom: 80px; left: 30px; background: #1F1F21; border-radius: 12px; padding: 12px 16px; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); z-index: 9998; border: 1px solid #444;">
+			<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+				<span style="color: #ccc; font-size: 12px; font-weight: 600;">🔲 Sélection</span>
+				<button id="obj-btn" onclick="activateSelectObj()" style="background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;">🖱️ Objet</button>
+				<button id="zone-btn" onclick="activateSelectZone()" style="background: #f39c12; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;">⬚ Zone</button>
+				<div style="width: 1px; height: 24px; background: #444;"></div>
+				<button id="move-btn" onclick="toggleMoveMode()" style="background: #2B7FFF; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: not-allowed; opacity: 0.4; font-size: 13px;">✥ Déplacer</button>
+				<button id="rotate-btn" onclick="toggleRotateMode()" style="background: #8E51FF; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: not-allowed; opacity: 0.4; font-size: 13px;">🔄 Rotation</button>
+				<span id="rotate-label" style="color: #fff; font-size: 12px; display: none; min-width: 35px;">0°</span>
+				<div style="width: 1px; height: 24px; background: #444;"></div>
+				<button id="delete-btn" onclick="deleteSelected()" style="background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: not-allowed; opacity: 0.4; font-size: 13px;">🗑️ Supprimer</button>
+				<button onclick="stopSelectMode()" style="background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px;">✖ Fermer</button>
+			</div>
+		</div>
+
+		<div id="global-toolbar" style="position: fixed; bottom: 80px; left: 30px; right: 30px; background: #1F1F21; border-radius: 12px; display: none; padding: 10px 15px; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); z-index: 9998; border: 1px solid #444;">
+			<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+				<button onmousedown="savedSelection = saveCurrentSelection()" onclick="formatGlobal('bold')" title="Gras"><b>G</b></button>
+				<button onmousedown="savedSelection = saveCurrentSelection()" onclick="formatGlobal('italic')" title="Italique"><i>I</i></button>
+				<button onmousedown="savedSelection = saveCurrentSelection()" onclick="formatGlobal('underline')" title="Souligné"><u>S</u></button>
+				<span style="font-size: 10px; color:#ccc;">Texte :</span>
+				<input type="color" onmousedown="savedSelection = saveCurrentSelection()" onchange="applyTextColor(this.value)" title="Couleur du texte">
+				<span style="font-size: 10px; color:#ccc;">Surligner :</span>
+				<input type="color" onmousedown="savedSelection = saveCurrentSelection()" onchange="applyHighlightColor(this.value)" title="Surligner" value="#ffff00">
+				<span style="font-size: 10px; color:#ccc;">Fond widget :</span>
+				<input type="color" onchange="changeWidgetBgGlobal(this, this.value)" title="Fond du cadre" value="#ffffff">
+				<button onmousedown="savedSelection = saveCurrentSelection()" onclick="toggleTransparencyGlobal()" title="Fond transparent"><span class="icon-transparency"></span></button>
+				<select onmousedown="savedSelection = saveCurrentSelection()" onchange="formatFontFamilyGlobal(this.value)" style="width: 140px;">
+					<option value="Arial, sans-serif">Arial</option>
+					<option value="'Segoe UI', sans-serif">Segoe UI</option>
+					<option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+					<option value="Verdana, sans-serif">Verdana</option>
+					<option value="'KGPerfectPenmanship', sans-serif">KGPerfectPenmanship</option>
+					<option value="'Andika', sans-serif">Andika</option>
+					<option value="'OpenDyslexicLocal', sans-serif">🧩 OpenDyslexic</option>
+					<option value="'BelleAllureGS', cursive">📏 Belle Allure GS</option>
+				</select>
+				<input type="number" id="font-size-input" value="40" min="8" max="100"
+				  onmousedown="savedSelection = saveCurrentSelection()"
+				  onkeydown="if(event.key==='Enter'){applyFontSizeOnBlur(this);this.blur();}"
+				  onblur="applyFontSizeOnBlur(this)" style="width: 40px;">
+				<button onclick="closeGlobalToolbar()" style="margin-left: auto; background: #6c757d; color: white; padding: 4px 8px; border-radius: 4px;">✖</button>
+			</div>
+		</div><!-- ← fermeture correcte de #global-toolbar -->
+
+		<!-- Barre de boutons du bas -->
+		<div style="position: fixed; bottom: 30px; left: 0; right: 0; display: flex; align-items: center; padding: 0 30px; gap: 10px; z-index: 9999; pointer-events: none;">
+			<div style="display: flex; gap: 10px; align-items: center; pointer-events: auto;">
+				<button id="main-tool-btn" class="tool-btn" onclick="toggleMenu()">MENU</button>
+				<button id="undo-btn" class="tool-btn" onclick="undoAction()" style="background: #6c757d; opacity: 0.4; cursor: not-allowed;">↩️ Annuler</button>
+				<button id="redo-btn" class="tool-btn" onclick="redoAction()" style="background: #6c757d; opacity: 0.4; cursor: not-allowed;">↪️ Refaire</button>
+				<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background: #e84393;">✏️ Dessin</button>
+				<button id="select-btn" class="tool-btn" onclick="toggleSelectToolbar()" style="background: #f39c12;">🔲 Sélectionner</button>
+				<button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background: #2B7FFF;">🖊️ Texte</button>
+			</div>
+			<div style="flex: 1;"></div>
+			<div style="display: flex; gap: 10px; align-items: center; pointer-events: auto;">
+				<button class="tool-btn" onclick="exportConfig()" style="background: #2bcbba;">💾 Exporter</button>
+				<button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background: #2bcbba;">📂 Importer</button>
+				<input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
+				<button class="tool-btn" onclick="clearBoard()" style="background: #ff4757;">❌ Effacer tout</button>
+			</div>
+		</div>
+
+	</div>
+
+    
 
     <div id="modal-overlay">
         <div class="modal-content">
@@ -338,19 +433,20 @@
 
     <template id="template-text">
         <div class="editor-container">
-            <div class="editor-toolbar-placeholder"></div>
             <div class="editor-content" contenteditable="true" oninput="saveBoard()" style="font-size: 40px;"></div>
         </div>
     </template>
 
     <template id="template-homework">
-        <div class="editor-container"><div class="editor-toolbar-placeholder"></div><div class="editor-content" contenteditable="true" oninput="saveBoard()">
-            <span style="color: #D4C9C7; font-size: 25px; font-weight: bold;">✍🏻 Devoirs à noter </span><br>
-            <p><span style="color: red; background-color: #F7E02A; font-size: 38px; font-weight: bold;">Pour</span></p>
-            <p><span style="color: #f7639f; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏻 CE2 =</span></p>
-            <p><span style="color: #12a2e0; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏽 CM2 =</span></p>
-            <p><span style="color: #D9C93B; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉 TOUS =</span></p>
-        </div></div>
+        <div class="editor-container">
+			<div class="editor-content" contenteditable="true" oninput="saveBoard()">
+				<span style="color: #D4C9C7; font-size: 25px; font-weight: bold;">✍🏻 Devoirs à noter </span><br>
+				<p><span style="color: red; background-color: #F7E02A; font-size: 38px; font-weight: bold;">Pour</span></p>
+				<p><span style="color: #f7639f; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏻 CE2 =</span></p>
+				<p><span style="color: #12a2e0; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉🏽 CM2 =</span></p>
+				<p><span style="color: #D9C93B; font-size: 35px; font-weight: bold;">&nbsp;&nbsp;👉 TOUS =</span></p>
+			</div>
+		</div>
     </template>
 
     <template id="template-date">
@@ -506,20 +602,50 @@
     let board = document.getElementById('board');
     let history = [];
     let isInitialLoading = true;
+	let savedSelection = null;
 
     window.onload = () => {
-        const savedBg = localStorage.getItem('boardBackground');
-        if (savedBg) applyBackground(savedBg);
-        // Appliquer le ratio 16:9 au board dès le départ
-        applyBoardRatio(window.innerWidth);
-        loadBoard();
-        setTimeout(() => {
-            isInitialLoading = false;
-            _lastW = window.innerWidth;
-        }, 1000);
-        setInterval(updateClock, 1000);
-        window.addEventListener('resize', handleWindowResize);
-    };
+		const savedBg = localStorage.getItem('boardBackground');
+		if (savedBg) applyBackground(savedBg);
+		// Appliquer le ratio 16:9 au board dès le départ
+		applyBoardRatio(window.innerWidth);
+		loadBoard();
+		setTimeout(() => {
+			isInitialLoading = false;
+			_lastW = window.innerWidth;
+
+			// ✅ Attacher l'écouteur après que le DOM soit chargé
+			const fontSizeInput = document.getElementById('font-size-input');
+			if (fontSizeInput) {
+				fontSizeInput.addEventListener('focus', () => {
+					if (!currentActiveWidget) return;
+					const selection = window.getSelection();
+					if (selection.rangeCount > 0) {
+						savedSelection = selection.getRangeAt(0).cloneRange(); // Sauvegarder la sélection
+						console.log('Sélection sauvegardée');
+					}
+				});
+			} else {
+				console.warn('Champ #font-size-input non trouvé — attente supplémentaire...');
+				// Optionnel : réessayer après un délai
+				setTimeout(() => {
+					const retryInput = document.getElementById('font-size-input');
+					if (retryInput) {
+						retryInput.addEventListener('focus', () => {
+							if (!currentActiveWidget) return;
+							const selection = window.getSelection();
+							if (selection.rangeCount > 0) {
+								savedSelection = selection.getRangeAt(0).cloneRange();
+								console.log('Sélection sauvegardée (retry)');
+							}
+						});
+					}
+				}, 500);
+			}
+		}, 1000);
+		setInterval(updateClock, 1000);
+		window.addEventListener('resize', handleWindowResize);
+	};
 
     // =========================================================================
     // SYSTÈME DE SCALING — RATIO FIXE 16:9
@@ -561,18 +687,18 @@
      * Traite tous les descendants ET l'élément root lui-même.
      */
     function scaleFontSizesBy(widgetEl, factor) {
-        if (Math.abs(factor - 1) < 0.001) return;
-        widgetEl.querySelectorAll('*').forEach(el => {
-            if (!el.style || !el.style.fontSize) return;
-            const match = el.style.fontSize.match(/^([\d.]+)px$/);
-            if (match) el.style.fontSize = (parseFloat(match[1]) * factor) + 'px';
-        });
-        // L'élément root lui-même (non inclus dans querySelectorAll)
-        if (widgetEl.style && widgetEl.style.fontSize) {
-            const match = widgetEl.style.fontSize.match(/^([\d.]+)px$/);
-            if (match) widgetEl.style.fontSize = (parseFloat(match[1]) * factor) + 'px';
-        }
-    }
+		if (Math.abs(factor - 1) < 0.001) return;
+		widgetEl.querySelectorAll('*').forEach(el => {
+			if (!el.style || !el.style.fontSize) return;
+			// ← PLUS de vérification data-manual-font-size
+			const match = el.style.fontSize.match(/^([\d.]+)px$/);
+			if (match) el.style.fontSize = (parseFloat(match[1]) * factor) + 'px';
+		});
+		if (widgetEl.style && widgetEl.style.fontSize) {
+			const match = widgetEl.style.fontSize.match(/^([\d.]+)px$/);
+			if (match) widgetEl.style.fontSize = (parseFloat(match[1]) * factor) + 'px';
+		}
+	}
 
     /**
      * Applique le scaling depuis la largeur de référence (sauvegarde) vers la largeur courante.
@@ -638,63 +764,58 @@
         _lastW = newW;
     }
 
-    // =========================================================================
-    // SAUVEGARDE / CHARGEMENT
-    // =========================================================================
 
-    function saveBoard() {
-        if (isInitialLoading) return;
 
-        const curW  = window.innerWidth;
-        const curVH = virtualH(curW); // hauteur virtuelle 16:9
+	// =========================================================================
+	// SAUVEGARDE
+	// =========================================================================
 
-        const widgets = [];
-        document.querySelectorAll('.widget').forEach(w => {
-            const content    = w.querySelector('.editor-content');
-            const agendaList = w.querySelector('.agenda-list');
-            const iframe     = w.querySelector('iframe');
-            const container  = w.querySelector('.editor-container');
+	function saveBoard() {
+		if (isInitialLoading || isUndoing) return;
 
-            let htmlContent = null;
-            if (agendaList) htmlContent = agendaList.innerHTML;
-            else if (content) htmlContent = content.innerHTML;
+		// Snapshot de l'état ACTUEL (avant d'écraser) → permet d'annuler vers cet état
+		takeSnapshot();
 
-            let widthPercent = 0, contentHPercent = 0, leftPercent = 0, topPercent = 0;
+		const curW  = window.innerWidth;
+		const curVH = virtualH(curW);
+		const widgets = [];
 
-            if (container) {
-                const toolbarH = getToolbarHeight(container);
-                // Largeur en % de la largeur du board
-                widthPercent   = (container.offsetWidth               / curW)  * 100;
-                // Hauteur de CONTENU (sans toolbar) en % de la hauteur virtuelle 16:9
-                contentHPercent = ((container.offsetHeight - toolbarH) / curVH) * 100;
-            }
-            // Position en % de l'espace de référence 16:9
-            leftPercent = (w.offsetLeft / curW)  * 100;
-            topPercent  = (w.offsetTop  / curVH) * 100;
+		document.querySelectorAll('.widget').forEach(w => {
+			const content    = w.querySelector('.editor-content');
+			const agendaList = w.querySelector('.agenda-list');
+			const iframe     = w.querySelector('iframe');
+			const container  = w.querySelector('.editor-container');
 
-            // Mise à jour des dataset pour handleWindowResize
-            w.dataset.widthPercent    = widthPercent;
-            w.dataset.contentHPercent = contentHPercent;
-            w.dataset.leftPercent     = leftPercent;
-            w.dataset.topPercent      = topPercent;
+			let htmlContent = null;
+			if (agendaList) htmlContent = agendaList.innerHTML;
+			else if (content) htmlContent = content.innerHTML;
 
-            widgets.push({
-                type:           w.dataset.type,
-                topPercent,     leftPercent,
-                widthPercent,   contentHPercent,
-                html:           htmlContent,
-                iframeSrc:      iframe ? iframe.src : null,
-                transparent:    w.dataset.transparent === "true",
-                bgColor:        w.dataset.bgColor || "#ffffff",
-                pinned:         w.dataset.pinned === "true"
-            });
-        });
-        const config = {
-            widgets,
-            refWidth: curW  // seule la largeur compte, la hauteur est déduite du ratio 16:9
-        };
-        localStorage.setItem('profBoardConfig', JSON.stringify(config));
-    }
+			let widthPercent = 0, contentHPercent = 0, leftPercent = 0, topPercent = 0;
+			if (container) {
+				const toolbarH   = getToolbarHeight(container);
+				widthPercent     = (container.offsetWidth               / curW)  * 100;
+				contentHPercent  = ((container.offsetHeight - toolbarH) / curVH) * 100;
+			}
+			leftPercent = (w.offsetLeft / curW)  * 100;
+			topPercent  = (w.offsetTop  / curVH) * 100;
+
+			w.dataset.widthPercent    = widthPercent;
+			w.dataset.contentHPercent = contentHPercent;
+			w.dataset.leftPercent     = leftPercent;
+			w.dataset.topPercent      = topPercent;
+
+			widgets.push({
+				type: w.dataset.type, topPercent, leftPercent, widthPercent, contentHPercent,
+				html: htmlContent, iframeSrc: iframe ? iframe.src : null,
+				transparent: w.dataset.transparent === "true",
+				bgColor: w.dataset.bgColor || "#ffffff",
+				pinned: w.dataset.pinned === "true"
+			});
+		});
+
+		const config = { widgets, refWidth: curW };
+		localStorage.setItem('profBoardConfig', JSON.stringify(config));
+	}
 
     function loadBoard() {
         const raw = localStorage.getItem('profBoardConfig');
@@ -828,10 +949,7 @@
         reader.onload = async (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
-                takeSnapshot();
-
                 const background = importedData.background || 'none';
-
                 document.querySelectorAll('.widget').forEach(w => w.remove());
                 applyBackground(background);
                 saveBg(background);
@@ -850,7 +968,6 @@
     function clearBoard()    { document.getElementById('modal-overlay').style.display = 'flex'; }
     function closeModal()    { document.getElementById('modal-overlay').style.display = 'none'; }
     function confirmClearBoard() {
-        takeSnapshot();
         document.querySelectorAll('.widget').forEach(w => w.remove());
         saveBoard();
         closeModal();
@@ -870,6 +987,7 @@
         updateDateTime();
     }
 
+	
     // =========================================================================
     // GESTION DES WIDGETS
     // =========================================================================
@@ -895,9 +1013,54 @@
         widget.style.zIndex = "1000";
     }
 
-    function createWidget(type, x = '100px', y = '100px', snapshot = true) {
-        if (snapshot) takeSnapshot();
-        const widget = document.createElement('div');
+	function findFreePosition() {
+		const curW  = window.innerWidth;
+		const curVH = virtualH(curW);
+		const margin = 20;
+		const stepX = 320;
+		const stepY = 200;
+
+		// Récupérer les rectangles de tous les widgets existants
+		const occupied = Array.from(document.querySelectorAll('.widget')).map(w => ({
+			left:   w.offsetLeft,
+			top:    w.offsetTop,
+			right:  w.offsetLeft + w.offsetWidth,
+			bottom: w.offsetTop  + w.offsetHeight
+		}));
+
+		// Tester des positions sur une grille jusqu'à trouver une case libre
+		for (let y = margin; y < curVH - stepY; y += stepY) {
+			for (let x = margin; x < curW - stepX; x += stepX) {
+				const candidateW = 300;
+				const candidateH = 180;
+				const overlaps = occupied.some(r =>
+					x < r.right  + margin &&
+					x + candidateW + margin > r.left &&
+					y < r.bottom + margin &&
+					y + candidateH + margin > r.top
+				);
+				if (!overlaps) return { x, y };
+			}
+		}
+
+		// Fallback : décalage en cascade si le bureau est très chargé
+		const count = document.querySelectorAll('.widget').length;
+		return {
+			x: (margin + count * 30) % (curW  - 200),
+			y: (margin + count * 30) % (curVH - 200)
+		};
+	}
+
+	function createWidget(type, x = null, y = null, snapshot = true) {
+
+		// Si pas de position fournie, trouver une zone libre
+		if (x === null || y === null) {
+			const pos = findFreePosition();
+			x = pos.x + 'px';
+			y = pos.y + 'px';
+		}
+
+		const widget = document.createElement('div');
         widget.className  = 'widget';
         widget.dataset.type = type;
         widget.style.left = x;
@@ -993,6 +1156,582 @@
             };
         };
     }
+
+
+// =========================================================================
+// DESSIN LIBRE — traits vectorisés
+// =========================================================================
+
+let drawCanvas    = null;
+let drawCtx       = null;
+let isPainting    = false;
+let isDrawMode    = false;
+let strokes       = [];      // tous les traits [ { points, color, size } ]
+let currentStroke = null;    // trait en cours
+
+function initCanvas() {
+    if (drawCanvas) return;
+    drawCanvas = document.createElement('canvas');
+    drawCanvas.id = 'draw-canvas';
+    resizeCanvas();
+    board.appendChild(drawCanvas);
+    drawCtx = drawCanvas.getContext('2d');
+
+    drawCanvas.addEventListener('mousedown',  startPaint);
+    drawCanvas.addEventListener('mousemove',  paint);
+    drawCanvas.addEventListener('mouseup',    endPaint);
+    drawCanvas.addEventListener('mouseleave', endPaint);
+    drawCanvas.addEventListener('touchstart', e => { e.preventDefault(); startPaint(e.touches[0]); }, { passive: false });
+    drawCanvas.addEventListener('touchmove',  e => { e.preventDefault(); paint(e.touches[0]); },      { passive: false });
+    drawCanvas.addEventListener('touchend',   endPaint);
+
+    document.getElementById('draw-size').addEventListener('input', function() {
+        document.getElementById('draw-size-label').textContent = this.value;
+    });
+}
+
+function resizeCanvas() {
+    if (!drawCanvas) return;
+    drawCanvas.width  = board.offsetWidth;
+    drawCanvas.height = board.offsetHeight;
+    redrawStrokes();
+}
+
+function getPos(e) {
+    const rect = drawCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function startPaint(e) {
+    if (!isDrawMode) return;
+    isPainting = true;
+    const pos = getPos(e);
+    currentStroke = {
+        points: [pos],
+        color:  document.getElementById('draw-color').value,
+        size:   parseInt(document.getElementById('draw-size').value)
+    };
+}
+
+function paint(e) {
+    if (!isPainting || !isDrawMode || !currentStroke) return;
+    const pos = getPos(e);
+    currentStroke.points.push(pos);
+    redrawStrokes(currentStroke);
+}
+
+function endPaint() {
+    if (!isPainting || !currentStroke) return;
+    isPainting = false;
+    if (currentStroke.points.length > 1) strokes.push(currentStroke);
+    currentStroke = null;
+    redrawStrokes();
+}
+
+function redrawStrokes(extraStroke = null) {
+    if (!drawCtx) return;
+    drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    const all = extraStroke ? [...strokes, extraStroke] : strokes;
+    all.forEach(stroke => drawStroke(stroke));
+    // Surligner les traits sélectionnés
+    selectedStrokes.forEach(stroke => drawStroke(stroke, true));
+}
+
+function drawStroke(stroke, highlight = false) {
+    if (!stroke.points || stroke.points.length < 2) return;
+    drawCtx.save();
+    drawCtx.beginPath();
+    drawCtx.lineCap   = 'round';
+    drawCtx.lineJoin  = 'round';
+    drawCtx.strokeStyle = highlight ? '#f39c12' : stroke.color;
+    drawCtx.lineWidth   = highlight ? stroke.size + 6 : stroke.size;
+    if (highlight) drawCtx.globalAlpha = 0.5;
+    drawCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+    stroke.points.forEach(p => drawCtx.lineTo(p.x, p.y));
+    drawCtx.stroke();
+    drawCtx.restore();
+    if (highlight) {
+        // Re-dessiner le trait par-dessus en couleur originale
+        drawCtx.save();
+        drawCtx.beginPath();
+        drawCtx.lineCap  = 'round';
+        drawCtx.lineJoin = 'round';
+        drawCtx.strokeStyle = stroke.color;
+        drawCtx.lineWidth   = stroke.size;
+        drawCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        stroke.points.forEach(p => drawCtx.lineTo(p.x, p.y));
+        drawCtx.stroke();
+        drawCtx.restore();
+    }
+}
+
+function toggleDrawToolbar() {
+    const toolbar = document.getElementById('draw-toolbar');
+    const isVisible = toolbar.style.display === 'flex';
+    if (isVisible) { stopDrawing(); return; }
+    stopSelectMode();
+    toolbar.style.display = 'flex';
+    initCanvas();
+    enableDrawing();
+}
+
+function enableDrawing() {
+    isDrawMode = true;
+    drawCanvas.classList.remove('inactive');
+    document.getElementById('draw-btn').style.background = '#c0136f';
+    document.getElementById('draw-btn').textContent = '✏️ En cours…';
+}
+
+function stopDrawing() {
+    isDrawMode = false;
+    if (drawCanvas) drawCanvas.classList.add('inactive');
+    document.getElementById('draw-toolbar').style.display = 'none';
+    document.getElementById('draw-btn').style.background = '#e84393';
+    document.getElementById('draw-btn').textContent = '✏️ Dessin';
+}
+
+function clearCanvas() {
+    strokes = [];
+    selectedStrokes = [];
+    redrawStrokes();
+}
+
+const _origHandleWindowResize = handleWindowResize;
+handleWindowResize = function() {
+    _origHandleWindowResize();
+    resizeCanvas();
+};
+
+// =========================================================================
+// MODE SÉLECTION
+// =========================================================================
+
+let isSelectMode     = false;
+let isSelectObj      = false; // mode "sélectionner objet"
+let isSelectZone     = false; // mode "sélectionner zone"
+
+let selectedWidgets  = [];    // widgets sélectionnés
+let selectedStrokes  = [];    // traits sélectionnés
+
+// Rectangle de sélection zone
+let isSelectingRect  = false;
+let selectStartX     = 0, selectStartY = 0;
+let selectionRect    = null;
+
+// Déplacement
+let isMoveMode       = false;
+let moveStartX       = 0, moveStartY = 0;
+let widgetMoveOrigins = []; // { widget, origLeft, origTop }
+let strokeMoveOrigins = []; // { stroke, origPoints }
+
+// Rotation
+let isRotateMode     = false;
+let rotateCenterX    = 0, rotateCenterY = 0;
+let rotateStartAngle = 0;
+let currentRotation  = 0;
+
+function initSelectionRect() {
+    if (selectionRect) return;
+    selectionRect = document.createElement('div');
+    selectionRect.id = 'selection-rect';
+    board.appendChild(selectionRect);
+}
+
+// ── OUVRIR / FERMER ───────────────────────────────────────────────────────
+
+function toggleSelectToolbar() {
+    const toolbar = document.getElementById('select-toolbar');
+    if (toolbar.style.display === 'flex') { stopSelectMode(); return; }
+    stopDrawing();
+    toolbar.style.display = 'flex';
+    isSelectMode = true;
+    initCanvas();
+    initSelectionRect();
+    document.getElementById('select-btn').style.background = '#c87000';
+    document.getElementById('select-btn').textContent = '🔲 Sélection ON';
+    // Désactiver drag natif des widgets
+    document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'none');
+}
+
+function stopSelectMode() {
+    isSelectMode = isSelectObj = isSelectZone = false;
+    isMoveMode   = false;
+    isRotateMode = false;
+    document.getElementById('select-toolbar').style.display = 'none';
+    document.getElementById('select-btn').style.background = '#f39c12';
+    document.getElementById('select-btn').textContent = '🔲 Sélectionner';
+    clearSelection();
+    document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'auto');
+    // Remettre le curseur du canvas
+    if (drawCanvas) { drawCanvas.classList.add('inactive'); drawCanvas.style.cursor = ''; }
+}
+
+function clearSelection() {
+    selectedWidgets.forEach(w => w.classList.remove('selected'));
+    selectedWidgets = [];
+    selectedStrokes = [];
+    redrawStrokes();
+    if (selectionRect) selectionRect.style.display = 'none';
+    updateSelectionBtns();
+}
+
+// ── BOUTONS OBJET / ZONE ──────────────────────────────────────────────────
+
+function activateSelectObj() {
+    isSelectObj  = true;
+    isSelectZone = false;
+    clearSelection();
+    // Activer le canvas pour détecter les clics sur les traits
+    if (drawCanvas) {
+        drawCanvas.classList.remove('inactive');
+        drawCanvas.style.cursor = 'crosshair';
+    }
+    // Listeners
+    board.addEventListener('mousedown', onObjMouseDown);
+    board.removeEventListener('mousedown', onZoneMouseDown);
+    highlightBtn('obj-btn', true);
+    highlightBtn('zone-btn', false);
+}
+
+function activateSelectZone() {
+    isSelectZone = true;
+    isSelectObj  = false;
+    clearSelection();
+    if (drawCanvas) {
+        drawCanvas.classList.remove('inactive');
+        drawCanvas.style.cursor = 'crosshair';
+    }
+    board.addEventListener('mousedown', onZoneMouseDown);
+    board.removeEventListener('mousedown', onObjMouseDown);
+    highlightBtn('zone-btn', true);
+    highlightBtn('obj-btn', false);
+}
+
+function highlightBtn(id, active) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.style.outline = active ? '2px solid #fff' : 'none';
+    btn.style.opacity = active ? '1' : '0.7';
+}
+
+// ── SÉLECTION OBJET ───────────────────────────────────────────────────────
+
+function onObjMouseDown(e) {
+    if (!isSelectObj) return;
+
+    // Widget cliqué ?
+    const widget = e.target.closest('.widget');
+    if (widget) {
+        e.stopPropagation();
+        clearSelection();
+        selectedWidgets = [widget];
+        widget.classList.add('selected');
+        updateSelectionBtns();
+        return;
+    }
+
+    // Trait cliqué ?
+    const pos    = getCanvasPos(e);
+    const stroke = findStrokeAt(pos.x, pos.y);
+    if (stroke) {
+        clearSelection();
+        selectedStrokes = [stroke];
+        redrawStrokes();
+        updateSelectionBtns();
+    } else {
+        clearSelection();
+    }
+}
+
+function getCanvasPos(e) {
+    const rect = board.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+// Détecte si un point (x,y) est proche d'un trait (tolérance = size/2 + 5px)
+function findStrokeAt(x, y) {
+    // Parcourir les traits en sens inverse (le dernier dessiné en priorité)
+    for (let i = strokes.length - 1; i >= 0; i--) {
+        const stroke = strokes[i];
+        const tol    = stroke.size / 2 + 5;
+        for (let j = 1; j < stroke.points.length; j++) {
+            const a = stroke.points[j - 1];
+            const b = stroke.points[j];
+            if (distToSegment(x, y, a, b) <= tol) return stroke;
+        }
+    }
+    return null;
+}
+
+function distToSegment(px, py, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(px - a.x, py - a.y);
+    let t = ((px - a.x) * dx + (py - a.y) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (a.x + t * dx), py - (a.y + t * dy));
+}
+
+// ── SÉLECTION ZONE ────────────────────────────────────────────────────────
+
+function onZoneMouseDown(e) {
+    if (!isSelectZone) return;
+    if (e.target.closest('.widget')) return; // ne pas interférer avec les widgets
+    clearSelection();
+    isSelectingRect = true;
+    const pos = getCanvasPos(e);
+    selectStartX = pos.x; selectStartY = pos.y;
+    selectionRect.style.cssText = `display:block; left:${pos.x}px; top:${pos.y}px; width:0; height:0;`;
+    board.addEventListener('mousemove', onZoneMouseMove);
+    board.addEventListener('mouseup',   onZoneMouseUp);
+}
+
+function onZoneMouseMove(e) {
+    if (!isSelectingRect) return;
+    const pos = getCanvasPos(e);
+    const x = Math.min(pos.x, selectStartX);
+    const y = Math.min(pos.y, selectStartY);
+    const w = Math.abs(pos.x - selectStartX);
+    const h = Math.abs(pos.y - selectStartY);
+    selectionRect.style.left   = x + 'px';
+    selectionRect.style.top    = y + 'px';
+    selectionRect.style.width  = w + 'px';
+    selectionRect.style.height = h + 'px';
+}
+
+function onZoneMouseUp(e) {
+    if (!isSelectingRect) return;
+    isSelectingRect = false;
+    board.removeEventListener('mousemove', onZoneMouseMove);
+    board.removeEventListener('mouseup',   onZoneMouseUp);
+
+    const pos = getCanvasPos(e);
+    const rx = Math.min(pos.x, selectStartX);
+    const ry = Math.min(pos.y, selectStartY);
+    const rw = Math.abs(pos.x - selectStartX);
+    const rh = Math.abs(pos.y - selectStartY);
+    if (rw < 5 && rh < 5) { clearSelection(); return; }
+
+    // Widgets dans la zone
+    document.querySelectorAll('.widget').forEach(w => {
+        const wr = w.getBoundingClientRect();
+        const br = board.getBoundingClientRect();
+        const wl = wr.left - br.left, wt = wr.top - br.top;
+        if (wl < rx + rw && wl + wr.width > rx && wt < ry + rh && wt + wr.height > ry) {
+            selectedWidgets.push(w);
+            w.classList.add('selected');
+        }
+    });
+
+    // Traits dans la zone
+    strokes.forEach(stroke => {
+        const inZone = stroke.points.some(p => p.x >= rx && p.x <= rx + rw && p.y >= ry && p.y <= ry + rh);
+        if (inZone) selectedStrokes.push(stroke);
+    });
+
+    redrawStrokes();
+    updateSelectionBtns();
+    if (selectionRect) selectionRect.style.display = 'none';
+}
+
+// ── DÉPLACEMENT ───────────────────────────────────────────────────────────
+
+function toggleMoveMode() {
+    const has = selectedWidgets.length > 0 || selectedStrokes.length > 0;
+    if (!has) return;
+    isMoveMode   = !isMoveMode;
+    isRotateMode = false;
+    const btn = document.getElementById('move-btn');
+    btn.style.background = isMoveMode ? '#0056d6' : '#2B7FFF';
+    btn.textContent      = isMoveMode ? '✥ Dépl. actif' : '✥ Déplacer';
+    document.getElementById('rotate-btn').style.background = '#8E51FF';
+    document.getElementById('rotate-btn').textContent      = '🔄 Rotation';
+    document.getElementById('rotate-label').style.display  = 'none';
+
+    if (isMoveMode) {
+        board.addEventListener('mousedown', onMoveStart);
+    } else {
+        board.removeEventListener('mousedown', onMoveStart);
+    }
+}
+
+function onMoveStart(e) {
+    if (!isMoveMode) return;
+    const pos = getCanvasPos(e);
+    moveStartX = pos.x; moveStartY = pos.y;
+    // Mémoriser les positions d'origine
+    widgetMoveOrigins = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop }));
+    strokeMoveOrigins = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({ ...p })) }));
+    board.addEventListener('mousemove', onMoveMove);
+    board.addEventListener('mouseup',   onMoveEnd);
+}
+
+function onMoveMove(e) {
+    const pos = getCanvasPos(e);
+    const dx  = pos.x - moveStartX;
+    const dy  = pos.y - moveStartY;
+    widgetMoveOrigins.forEach(({ widget, origLeft, origTop }) => {
+        widget.style.left = (origLeft + dx) + 'px';
+        widget.style.top  = (origTop  + dy) + 'px';
+    });
+    strokeMoveOrigins.forEach(({ stroke, origPoints }) => {
+        stroke.points = origPoints.map(p => ({ x: p.x + dx, y: p.y + dy }));
+    });
+    redrawStrokes();
+}
+
+function onMoveEnd() {
+    board.removeEventListener('mousemove', onMoveMove);
+    board.removeEventListener('mouseup',   onMoveEnd);
+    // Mettre à jour les dataset % des widgets
+    const curW  = window.innerWidth;
+    const curVH = virtualH(curW);
+    selectedWidgets.forEach(w => {
+        w.dataset.leftPercent = (w.offsetLeft / curW)  * 100;
+        w.dataset.topPercent  = (w.offsetTop  / curVH) * 100;
+    });
+    saveBoard();
+}
+
+// ── ROTATION ──────────────────────────────────────────────────────────────
+
+function toggleRotateMode() {
+    const has = selectedWidgets.length > 0 || selectedStrokes.length > 0;
+    if (!has) return;
+    isRotateMode = !isRotateMode;
+    isMoveMode   = false;
+    const btn = document.getElementById('rotate-btn');
+    const lbl = document.getElementById('rotate-label');
+    btn.style.background = isRotateMode ? '#5a1fb8' : '#8E51FF';
+    btn.textContent      = isRotateMode ? '🔄 Rot. active' : '🔄 Rotation';
+    lbl.style.display    = isRotateMode ? 'inline' : 'none';
+    document.getElementById('move-btn').style.background = '#2B7FFF';
+    document.getElementById('move-btn').textContent      = '✥ Déplacer';
+
+    if (isRotateMode) {
+        board.addEventListener('mousedown', onRotateStart);
+    } else {
+        board.removeEventListener('mousedown', onRotateStart);
+    }
+}
+
+function getSelectionCenter() {
+    // Centre de la sélection (bounding box de tous les éléments)
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    const br = board.getBoundingClientRect();
+    selectedWidgets.forEach(w => {
+        const r = w.getBoundingClientRect();
+        minX = Math.min(minX, r.left - br.left);
+        minY = Math.min(minY, r.top  - br.top);
+        maxX = Math.max(maxX, r.right  - br.left);
+        maxY = Math.max(maxY, r.bottom - br.top);
+    });
+    selectedStrokes.forEach(s => {
+        s.points.forEach(p => {
+            minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+        });
+    });
+    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+}
+
+let rotateOrigWidgetTransforms = [];
+let rotateOrigStrokePoints     = [];
+
+function onRotateStart(e) {
+    if (!isRotateMode) return;
+    const center = getSelectionCenter();
+    rotateCenterX    = center.x;
+    rotateCenterY    = center.y;
+    rotateStartAngle = Math.atan2(e.clientY - board.getBoundingClientRect().top - rotateCenterY,
+                                  e.clientX - board.getBoundingClientRect().left - rotateCenterX);
+    currentRotation  = 0;
+    // Sauvegarder états d'origine
+    rotateOrigWidgetTransforms = selectedWidgets.map(w => ({
+        widget: w,
+        origLeft: w.offsetLeft, origTop: w.offsetTop,
+        origRot: getCurrentRotation(w)
+    }));
+    rotateOrigStrokePoints = selectedStrokes.map(s => ({
+        stroke: s,
+        origPoints: s.points.map(p => ({ ...p }))
+    }));
+    board.addEventListener('mousemove', onRotateMove);
+    board.addEventListener('mouseup',   onRotateEnd);
+}
+
+function onRotateMove(e) {
+    const br    = board.getBoundingClientRect();
+    const angle = Math.atan2(e.clientY - br.top  - rotateCenterY,
+                             e.clientX - br.left - rotateCenterX);
+    const delta = (angle - rotateStartAngle) * (180 / Math.PI);
+    document.getElementById('rotate-label').textContent = Math.round(delta) + '°';
+
+    // Rotation des widgets autour du centre de sélection
+    rotateOrigWidgetTransforms.forEach(({ widget, origLeft, origTop, origRot }) => {
+        const cx = origLeft + widget.offsetWidth  / 2 - rotateCenterX;
+        const cy = origTop  + widget.offsetHeight / 2 - rotateCenterY;
+        const rad = delta * Math.PI / 180;
+        const nx  = cx * Math.cos(rad) - cy * Math.sin(rad);
+        const ny  = cx * Math.sin(rad) + cy * Math.cos(rad);
+        widget.style.left      = (rotateCenterX + nx - widget.offsetWidth  / 2) + 'px';
+        widget.style.top       = (rotateCenterY + ny - widget.offsetHeight / 2) + 'px';
+        widget.style.transform = `rotate(${origRot + delta}deg)`;
+    });
+
+    // Rotation des traits autour du centre de sélection
+    rotateOrigStrokePoints.forEach(({ stroke, origPoints }) => {
+        const rad = delta * Math.PI / 180;
+        stroke.points = origPoints.map(p => {
+            const dx = p.x - rotateCenterX;
+            const dy = p.y - rotateCenterY;
+            return {
+                x: rotateCenterX + dx * Math.cos(rad) - dy * Math.sin(rad),
+                y: rotateCenterY + dx * Math.sin(rad) + dy * Math.cos(rad)
+            };
+        });
+    });
+    redrawStrokes();
+}
+
+function onRotateEnd() {
+    board.removeEventListener('mousemove', onRotateMove);
+    board.removeEventListener('mouseup',   onRotateEnd);
+    saveBoard();
+}
+
+function getCurrentRotation(widget) {
+    const transform = widget.style.transform;
+    if (!transform) return 0;
+    const match = transform.match(/rotate\(([-\d.]+)deg\)/);
+    return match ? parseFloat(match[1]) : 0;
+}
+
+// ── SUPPRESSION ───────────────────────────────────────────────────────────
+
+function deleteSelected() {
+    if (!selectedWidgets.length && !selectedStrokes.length) return;
+    selectedWidgets.forEach(w => { w.classList.remove('selected'); w.remove(); });
+    selectedWidgets = [];
+    strokes = strokes.filter(s => !selectedStrokes.includes(s));
+    selectedStrokes = [];
+    redrawStrokes();
+    if (selectionRect) selectionRect.style.display = 'none';
+    updateSelectionBtns();
+    saveBoard();
+}
+
+// ── ÉTAT DES BOUTONS ──────────────────────────────────────────────────────
+
+function updateSelectionBtns() {
+    const has = selectedWidgets.length > 0 || selectedStrokes.length > 0;
+    ['delete-btn', 'move-btn', 'rotate-btn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        btn.style.opacity = has ? '1' : '0.4';
+        btn.style.cursor  = has ? 'pointer' : 'not-allowed';
+    });
+}
 
     // =========================================================================
     // FORMATAGE TEXTE
@@ -1204,34 +1943,332 @@
             document.getElementById('bg-submenu').classList.remove('active');
         }
     });
+	
+	let currentActiveWidget = null;
+
+	function toggleGlobalToolbar() {
+		const toolbar = document.getElementById('global-toolbar');
+		toolbar.style.display = toolbar.style.display === 'flex' ? 'none' : 'flex';
+		// ← ne jamais toucher à la visibilité du bouton
+	}
+
+	function closeGlobalToolbar() {
+		document.getElementById('global-toolbar').style.display = 'none';
+		currentActiveWidget = null;
+	}
+
+	function formatGlobal(cmd, val = null) {
+		if (!currentActiveWidget) return;
+		if (savedSelection) {
+			const selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(savedSelection);
+			savedSelection = null;
+		}
+		document.execCommand(cmd, false, val);
+		saveBoard();
+	}
+
+	function formatFontSizeGlobal(size) {
+		if (!currentActiveWidget) return;
+		const editor = currentActiveWidget.querySelector('.editor-content');
+		if (!editor) return;
+
+		if (savedSelection) {
+			const selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(savedSelection);
+		}
+
+		const selection = window.getSelection();
+		if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+			const range = selection.getRangeAt(0);
+			const span = document.createElement('span');
+			span.style.fontSize = size + 'px';
+			// ← PLUS de data-manual-font-size
+			try {
+				range.surroundContents(span);
+			} catch(e) {
+				const fragment = range.extractContents();
+				span.appendChild(fragment);
+				range.insertNode(span);
+			}
+			const newRange = document.createRange();
+			newRange.setStartAfter(span);
+			newRange.collapse(true);
+			selection.removeAllRanges();
+			selection.addRange(newRange);
+		} else {
+			editor.style.fontSize = size + 'px';
+			// ← PLUS de data-manual-font-size
+			editor.querySelectorAll('*').forEach(el => {
+				if (el.style.fontSize) {
+					el.style.fontSize = size + 'px';
+					// ← PLUS de data-manual-font-size
+				}
+			});
+		}
+
+		savedSelection = null;
+		saveBoard();
+	}
+
+	function saveCurrentSelection() {
+		const selection = window.getSelection();
+		if (selection && selection.rangeCount > 0) {
+			return selection.getRangeAt(0).cloneRange();
+		}
+		return null;
+	}
+	
+	function formatFontFamilyGlobal(font) {
+		if (!currentActiveWidget) return;
+		document.execCommand('fontName', false, font);
+		const selection = window.getSelection();
+		if (selection.anchorNode) selection.anchorNode.parentElement.style.fontFamily = font;
+		saveBoard();
+	}
+
+	function changeWidgetBgGlobal(input, color) {
+		if (!currentActiveWidget) return;
+		const container = currentActiveWidget.querySelector('.editor-container');
+		if (!container) return;
+		applyTransparency(currentActiveWidget, false);
+		container.style.background = color;
+		currentActiveWidget.dataset.bgColor = color;
+		saveBoard();
+	}
+
+	function toggleTransparencyGlobal() {
+		if (!currentActiveWidget) return;
+		const widget  = currentActiveWidget;
+		const isTrans = widget.dataset.transparent === "true";
+		applyTransparency(widget, !isTrans);
+		saveBoard();
+	}
+
+	function applyTextColor(color) {
+		if (!currentActiveWidget) return;
+		if (savedSelection) {
+			const sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(savedSelection);
+			savedSelection = null;
+		}
+		document.execCommand('foreColor', false, color);
+		saveBoard();
+	}
+
+	function applyHighlightColor(color) {
+		if (!currentActiveWidget) return;
+		if (savedSelection) {
+			const sel = window.getSelection();
+			sel.removeAllRanges();
+			sel.addRange(savedSelection);
+			savedSelection = null;
+		}
+		document.execCommand('backColor', false, color);
+		saveBoard();
+	}
+
+	function applyTransparency(widget, isTransparent) {
+		const container = widget.querySelector('.editor-container');
+		widget.dataset.transparent = isTransparent;
+		if (isTransparent) {
+			widget.style.background  = 'transparent';
+			widget.style.boxShadow   = 'none';
+			widget.style.border      = 'none';
+			if (container) container.style.background = 'transparent';
+		} else {
+			const bgColor = widget.dataset.bgColor || '#ffffff';
+			widget.style.background = '';
+			widget.style.boxShadow  = '';
+			widget.style.border     = '';
+			if (container) container.style.background = bgColor;
+		}
+	}
+
+	function syncFontSizeGlobal() {
+		if (!currentActiveWidget) return;
+		const editor = currentActiveWidget.querySelector('.editor-content');
+		if (!editor) return;
+
+		const selection = window.getSelection();
+		let size = 40;
+
+		if (selection.rangeCount > 0) {
+			const node = selection.anchorNode.parentElement;
+			if (node && node.style.fontSize) {
+				size = parseInt(node.style.fontSize) || 40;
+			}
+		} else {
+			size = parseInt(window.getComputedStyle(editor).fontSize) || 40;
+		}
+
+		const sizeInput = document.querySelector('#global-toolbar input[type="number"]');
+		if (sizeInput) sizeInput.value = size;
+	}
+
+	function validateAndApplyFontSize(input) {
+		let value = parseInt(input.value);
+		if (isNaN(value) || value < 8) value = 8;
+		if (value > 100) value = 100;
+		input.value = value;
+
+		formatFontSizeGlobal(value);
+	}
+
+	function applyFontSizeFromInput(input) {
+		const size = parseInt(input.value);
+		if (isNaN(size) || size < 8) {
+			input.value = 8;
+			return;
+		}
+		if (size > 100) {
+			input.value = 100;
+			return;
+		}
+
+		formatFontSizeGlobal(size);
+	}
+
+	function applyFontSizeOnBlur(input) {
+		const size = parseInt(input.value);
+		if (isNaN(size) || size < 8) {
+			input.value = 8;
+			return;
+		}
+		if (size > 100) {
+			input.value = 100;
+			return;
+		}
+
+		formatFontSizeGlobal(size);
+
+		// Restaurer la sélection sauvegardée
+		if (savedSelection) {
+			const selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(savedSelection);
+			savedSelection = null; // Nettoyer
+			console.log('Sélection restaurée');
+		}
+	}
+
+	// Écouteur sur les widgets texte/devoirs
+	document.addEventListener('click', (e) => {
+		const widget = e.target.closest('.widget');
+		const isTextOrHomework = widget && (widget.dataset.type === 'text' || widget.dataset.type === 'homework');
+
+		if (isTextOrHomework) {
+			currentActiveWidget = widget;
+			document.getElementById('global-toolbar').style.display = 'flex';
+			syncFontSizeGlobal();
+			return;
+		}
+
+		if (!e.target.closest('#global-toolbar') && !e.target.closest('#toolbar-toggle-btn') && !isTextOrHomework) {
+			if (currentActiveWidget) {
+				currentActiveWidget = null;
+				document.getElementById('global-toolbar').style.display = 'none';
+			}
+		}
+	});
 
     // =========================================================================
-    // ANNULER (UNDO)
-    // =========================================================================
+	// ANNULER REFAIRE
+	// =========================================================================
 
-    function takeSnapshot() {
-        history.push({
-            config:     localStorage.getItem('profBoardConfig'),
-            background: localStorage.getItem('boardBackground')
-        });
-        if (history.length > 20) history.shift();
-    }
+	let isUndoing = false;
+	let lastSavedConfig = null; // Pour éviter les doublons
 
-    function undoAction() {
-        if (history.length === 0) return;
-        const snap = history.pop();
-        if (snap.config !== null) {
-            localStorage.setItem('profBoardConfig', snap.config);
-        }
-        if (snap.background) {
-            localStorage.setItem('boardBackground', snap.background);
-            applyBackground(snap.background);
-        }
-        document.querySelectorAll('.widget').forEach(w => w.remove());
-        // Réinitialiser _lastW à la largeur courante avant de recharger
-        _lastW = window.innerWidth;
-        loadBoard();
-    }
+	function takeSnapshot() {
+		if (isInitialLoading || isUndoing) return;
+		const currentConfig = localStorage.getItem('profBoardConfig') || null;
+		if (history.length > 0 && history[history.length - 1].config === currentConfig) return;
+		history.push({
+			config:     currentConfig,
+			background: localStorage.getItem('boardBackground') || 'none'
+		});
+		redoHistory = []; // ← toute nouvelle action efface le futur
+		updateUndoRedoBtns();
+	}
+
+	function undoAction() {
+		if (history.length === 0) return;
+		isUndoing = true;
+		const snap = history.pop();
+		if (snap.config) localStorage.setItem('profBoardConfig', snap.config);
+		if (snap.background) {
+			localStorage.setItem('boardBackground', snap.background);
+			applyBackground(snap.background);
+		}
+		document.querySelectorAll('.widget').forEach(w => w.remove());
+		_lastW = window.innerWidth;
+		loadBoard();
+		isUndoing = false;
+	}
+	
+	let redoHistory = [];
+
+	function undoAction() {
+		if (history.length === 0) return;
+		isUndoing = true;
+
+		// Sauvegarder l'état courant dans redoHistory avant de reculer
+		redoHistory.push({
+			config:     localStorage.getItem('profBoardConfig') || null,
+			background: localStorage.getItem('boardBackground') || 'none'
+		});
+
+		const snap = history.pop();
+		if (snap.config) localStorage.setItem('profBoardConfig', snap.config);
+		if (snap.background) {
+			localStorage.setItem('boardBackground', snap.background);
+			applyBackground(snap.background);
+		}
+		document.querySelectorAll('.widget').forEach(w => w.remove());
+		_lastW = window.innerWidth;
+		loadBoard();
+		isUndoing = false;
+		updateUndoRedoBtns();
+	}
+
+	function redoAction() {
+		if (redoHistory.length === 0) return;
+		isUndoing = true;
+
+		// Sauvegarder l'état courant dans history avant de refaire
+		history.push({
+			config:     localStorage.getItem('profBoardConfig') || null,
+			background: localStorage.getItem('boardBackground') || 'none'
+		});
+
+		const snap = redoHistory.pop();
+		if (snap.config) localStorage.setItem('profBoardConfig', snap.config);
+		if (snap.background) {
+			localStorage.setItem('boardBackground', snap.background);
+			applyBackground(snap.background);
+		}
+		document.querySelectorAll('.widget').forEach(w => w.remove());
+		_lastW = window.innerWidth;
+		loadBoard();
+		isUndoing = false;
+		updateUndoRedoBtns();
+	}
+
+	function updateUndoRedoBtns() {
+		const undoBtn = document.getElementById('undo-btn');
+		const redoBtn = document.getElementById('redo-btn');
+		if (undoBtn) {
+			undoBtn.style.opacity = history.length === 0 ? '0.4' : '1';
+			undoBtn.style.cursor  = history.length === 0 ? 'not-allowed' : 'pointer';
+		}
+		if (redoBtn) {
+			redoBtn.style.opacity = redoHistory.length === 0 ? '0.4' : '1';
+			redoBtn.style.cursor  = redoHistory.length === 0 ? 'not-allowed' : 'pointer';
+		}
+	}
 
     // =========================================================================
     // MISE À JOUR DATE/HEURE (widgets Date et Heure)
@@ -1254,5 +2291,8 @@
     }
 
 </script>
+
+	
+	
 </body>
 </html>
