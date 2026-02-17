@@ -1280,125 +1280,152 @@ window.onclick = function(event) {
     /**
      * Génération du rapport PDF global (Bilan Directeur)
      */
-    function saveDashboardAsPDF() {
+    /**
+ * Génération du rapport PDF global (Bilan Directeur)
+ */
+/**
+ * Génération du rapport PDF global (Bilan Directeur)
+ */
+function saveDashboardAsPDF() {
+    try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
-        const today = new Date().toLocaleDateString();
+        const today = new Date().toLocaleDateString('fr-FR');
 
-        // Header
+        // 1. Entête
         doc.setFontSize(18);
         doc.setTextColor(44, 62, 80);
         doc.text("Bilan Directeur : État des Absences", 105, 20, { align: 'center' });
         
         doc.setFontSize(10);
         doc.setTextColor(100);
-        doc.text(`Établissement scolaire - Généré le ${today}`, 105, 28, { align: 'center' });
-        doc.line(20, 35, 190, 35);
+        doc.text(`Généré le ${today}`, 105, 28, { align: 'center' });
+        doc.line(20, 32, 190, 32);
 
-        // Collecte des données
+        // 2. Calcul des données (Indépendant du DOM pour plus de fiabilité)
         let totalA = 0, totalE = 0;
-    const classRows = [];
+        const classRows = [];
 
-    schoolData.forEach(classe => {
-        let cA = 0, cE = 0;
-        classe.students.forEach(st => {
-            Object.keys(st.data).forEach(k => {
-                const [mIdx, dNum] = k.split('-').map(Number);
-                // VÉRIFICATION CRUCIALE : On ignore le calcul si le jour est exclu
-                if (!isDayExcluded(mIdx, dNum)) {
-                    const v = st.data[k];
-                    if(v === 'A') { totalA++; cA++; }
-                    if(v === 'Exc') { totalE++; cE++; }
-                }
+        schoolData.forEach(classe => {
+            let cA = 0, cE = 0;
+            classe.students.forEach(st => {
+                Object.keys(st.data).forEach(k => {
+                    const [mIdx, dNum] = k.split('-').map(Number);
+                    // On vérifie si la fonction isDayExcluded existe, sinon on compte tout
+                    const excluded = (typeof isDayExcluded === 'function') ? isDayExcluded(mIdx, dNum) : false;
+                    
+                    if (!excluded) {
+                        if (st.data[k] === 'A') { totalA++; cA++; }
+                        if (st.data[k] === 'Exc') { totalE++; cE++; }
+                    }
+                });
             });
+            classRows.push([classe.name, (cA + cE), cE, cA]);
         });
-        classRows.push([classe.name, (cA + cE), cE, cA]);
-    });
 
-        // Tableau 1 : Synthèse
+        const totalAbsences = totalA + totalE;
+
+        // 3. Tableau de Synthèse
         doc.setFontSize(12);
         doc.setTextColor(0);
-        doc.text("1. SYNTHÈSE DE L'ÉCOLE", 20, 45);
+        doc.text("1. RÉSUMÉ GLOBAL", 20, 42);
         
         doc.autoTable({
-            startY: 50,
+            startY: 47,
             head: [['Indicateur', 'Valeur']],
             body: [
-                ['Cumul Total des absences', (totalA + totalE).toString()],
-                ['Absences Excusées', totalE.toString()],
+                ['Total des absences cumulées', totalAbsences.toString()],
+                ['Absences Justifiées (Excusées)', totalE.toString()],
                 ['Absences Non Justifiées', totalA.toString()],
-                ['Taux de Justification', (totalA + totalE > 0 ? Math.round((totalE / (totalA + totalE)) * 100) : 0) + '%']
+                ['Taux de Justification', (totalAbsences > 0 ? Math.round((totalE / totalAbsences) * 100) : 0) + '%']
             ],
             theme: 'striped',
-            headStyles: { fillColor: [52, 152, 219] }
+            headStyles: { fillColor: [52, 152, 219] },
+            margin: { left: 20, right: 20 }
         });
 
-        // Tableau 2 : Détail
-        doc.text("2. DÉTAIL PAR CLASSE", 20, doc.lastAutoTable.finalY + 15);
+        // 4. Tableau de Détail par Classe
+        doc.text("2. RÉPARTITION PAR CLASSE", 20, doc.lastAutoTable.finalY + 15);
+        
         doc.autoTable({
             startY: doc.lastAutoTable.finalY + 20,
-            head: [['Classe', 'Total Absences', 'Excusées', 'Non Justifiées']],
+            head: [['Classe', 'Total', 'Excusées', 'Injustifiées']],
             body: classRows,
             headStyles: { fillColor: [44, 62, 80] },
             styles: { fontSize: 9 },
-            alternateRowStyles: { fillColor: [245, 245, 245] }
+            alternateRowStyles: { fillColor: [245, 245, 245] },
+            margin: { left: 20, right: 20 }
         });
 
+        // 5. Sauvegarde
         doc.save(`Bilan_Directeur_${today.replace(/\//g, '-')}.pdf`);
+
+    } catch (error) {
+        console.error("Erreur lors de la génération du PDF Directeur:", error);
+        alert("Erreur lors de la génération du PDF. Vérifiez la console (F12).");
     }
+}
 
-    /**
-     * PDF Mensuel détaillé
-     */
-    async function exportPDF() {
-        if (activeMonth === null) { alert("Sélectionnez un mois"); return; }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const mConf = monthConfigs[activeMonth];
+/**
+ * PDF Mensuel détaillé
+ */
+async function exportPDF() {
+    if (activeMonth === null) { alert("Veuillez sélectionner un mois dans le tableau d'abord."); return; }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const mConf = monthConfigs[activeMonth];
+    const today = new Date().toLocaleDateString('fr-FR');
 
-        doc.setFontSize(14); 
-        doc.text(`Bilan des Absences : ${mConf.name} ${mConf.y}`, 14, 12);
+    doc.setFontSize(14); 
+    doc.text(`Bilan des Absences : ${mConf.name} ${mConf.y}`, 14, 12);
 
-        let tableRows = [];
-        const sortedClasses = [...schoolData].sort((a, b) => a.name.localeCompare(b.name));
+    let tableRows = [];
+    // Tri alphabétique des classes
+    const sortedClasses = [...schoolData].sort((a, b) => a.name.localeCompare(b.name));
 
-        sortedClasses.forEach(classe => {
-            let classStudentsRows = [];
-            const sortedSt = [...classe.students].sort((a, b) => a.name.localeCompare(b.name));
+    sortedClasses.forEach(classe => {
+        let classStudentsRows = [];
+        const sortedSt = [...classe.students].sort((a, b) => a.name.localeCompare(b.name));
 
-            sortedSt.forEach(st => {
-                let datesA = [], datesExc = [];
-                Object.keys(st.data).filter(k => k.startsWith(activeMonth + '-')).forEach(k => {
-                    const day = k.split('-')[1];
-                    if (st.data[k] === 'A') datesA.push(parseInt(day));
-                    if (st.data[k] === 'Exc') datesExc.push(parseInt(day));
-                });
-
-                const total = datesA.length + datesExc.length;
-                if (total > 0) {
-                    let detail = `${total} abs. (${[...datesA, ...datesExc].sort((a,b)=>a-b).join(', ')})`;
-                    if (datesExc.length > 0) detail += ` dont ${datesExc.length} exc. (${datesExc.sort((a,b)=>a-b).join(', ')})`;
-                    classStudentsRows.push([st.name, detail]);
-                }
+        sortedSt.forEach(st => {
+            let datesA = [], datesExc = [];
+            Object.keys(st.data).filter(k => k.startsWith(activeMonth + '-')).forEach(k => {
+                const day = k.split('-')[1];
+                if (st.data[k] === 'A') datesA.push(parseInt(day));
+                if (st.data[k] === 'Exc') datesExc.push(parseInt(day));
             });
 
-            if (classStudentsRows.length > 0) {
-                tableRows.push([{ content: `CLASSE : ${classe.name}`, colSpan: 2, styles: { fillColor: [230, 230, 230], fontStyle: 'bold' } }]);
-                classStudentsRows.forEach(row => tableRows.push(row));
+            const total = datesA.length + datesExc.length;
+            if (total > 0) {
+                let detail = `${total} abs. (${[...datesA, ...datesExc].sort((a,b)=>a-b).join(', ')})`;
+                if (datesExc.length > 0) detail += ` dont ${datesExc.length} exc. (${datesExc.sort((a,b)=>a-b).join(', ')})`;
+                classStudentsRows.push([st.name, detail]);
             }
         });
 
-        doc.autoTable({
-            startY: 20,
-            head: [['Élève', 'Détail des absences']],
-            body: tableRows,
-            theme: 'grid',
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [44, 62, 80] }
-        });
+        if (classStudentsRows.length > 0) {
+            tableRows.push([{ content: `CLASSE : ${classe.name}`, colSpan: 2, styles: { fillColor: [230, 230, 230], fontStyle: 'bold' } }]);
+            classStudentsRows.forEach(row => tableRows.push(row));
+        }
+    });
 
-        doc.save(`Bilan_Directeur_${today.replace(/\//g, '-')}.pdf`);
+    if (tableRows.length === 0) {
+        alert("Aucune absence à signaler pour ce mois.");
+        return;
     }
+
+    doc.autoTable({
+        startY: 20,
+        head: [['Élève', 'Détail des absences']],
+        body: tableRows,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [44, 62, 80] }
+    });
+
+    doc.save(`Bilan_Mensuel_${mConf.name}_${mConf.y}.pdf`);
+}
 
     // --- LOGIQUE DE RESET ---
 
