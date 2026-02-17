@@ -664,35 +664,22 @@ window.onclick = function(event) {
     }
 }
 	
-	// --- Gestion du Post-it ---
+// --- Gestion du Post-it (Synchronisé) ---
 
-	function saveNote() {
-		const text = document.getElementById('noteContent').value;
-		localStorage.setItem('schoolNote', text);
-	}
+    function saveNote() {
+        // On déclenche la sauvegarde générale qui inclut maintenant la note
+        save();
+    }
 
-	function loadNote() {
-		const savedNote = localStorage.getItem('schoolNote');
-		if (savedNote) {
-			document.getElementById('noteContent').value = savedNote;
-		}
-	}
-
-	function toggleNote() {
-		const note = document.getElementById('stickyNote');
-		note.classList.toggle('minimized');
-		localStorage.setItem('noteMinimized', note.classList.contains('minimized'));
-	}
-
-	// Initialisation de la note au chargement
-	document.addEventListener('DOMContentLoaded', () => {
-		loadNote();
-		if (localStorage.getItem('noteMinimized') === 'true') {
-			document.getElementById('stickyNote').classList.add('minimized');
-		}
-	});
+    function toggleNote() {
+        const note = document.getElementById('stickyNote');
+        note.classList.toggle('minimized');
+        // On garde en mémoire locale uniquement l'état (ouvert/fermé) pour le confort de l'utilisateur
+        localStorage.setItem('noteMinimized', note.classList.contains('minimized'));
+    }
 
     // --- Cloud & Logique ---
+
     async function loadFromCloud() {
         try {
             const { data } = await _supabase.from('absences_data').select('content').eq('id', 1).single();
@@ -700,6 +687,11 @@ window.onclick = function(event) {
                 schoolData = data.content.schoolData || []; 
                 excludedDates = data.content.excludedDates || [];
                 
+                // Récupération de la note partagée depuis le Cloud
+                if (data.content.sharedNote !== undefined) {
+                    document.getElementById('noteContent').value = data.content.sharedNote;
+                }
+
                 // Force la fermeture de toutes les classes au chargement
                 schoolData.forEach(classe => classe.isOpen = false);
 
@@ -707,18 +699,36 @@ window.onclick = function(event) {
                 const now = new Date();
                 const foundIdx = monthConfigs.findIndex(m => m.m === now.getMonth() && m.y === now.getFullYear());
                 if (foundIdx !== -1 && activeMonth === null) activeMonth = foundIdx;
+                
                 refreshSchoolMonths();
                 renderAll(); 
             }
         } catch (e) { console.error(e); }
+
+        // Restauration de l'état réduit/ouvert du post-it
+        if (localStorage.getItem('noteMinimized') === 'true') {
+            document.getElementById('stickyNote').classList.add('minimized');
+        }
     }
 
     async function save() {
         document.getElementById('syncIndicator').innerText = "☁️ Sauvegarde...";
-        await _supabase.from('absences_data').upsert({ id: 1, content: { schoolData, excludedDates } });
+        
+        // On récupère le texte actuel du post-it
+        const currentNote = document.getElementById('noteContent').value;
+
+        // On envoie tout au Cloud : absences, dates exclues ET la note
+        await _supabase.from('absences_data').upsert({ 
+            id: 1, 
+            content: { 
+                schoolData, 
+                excludedDates, 
+                sharedNote: currentNote 
+            } 
+        });
+        
         document.getElementById('syncIndicator').innerText = "✅ Synchronisé";
     }
-
     function refreshSchoolMonths() {
     console.log("Config Mars:", monthConfigs[6]); 
 console.log("Config Avril:", monthConfigs[7]);
