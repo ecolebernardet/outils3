@@ -208,64 +208,97 @@
     }
     
 		function generateExercise() {
-			// --- RÉINITIALISATION DE L'ÉTAT DE CORRECTION ---
-			isShowingCorrection = false;
-			const btnCorr = document.getElementById('validate-btn');
-			if (btnCorr) {
-				btnCorr.innerHTML = "👁️ correction";
-				btnCorr.classList.remove('bg-orange-500');
-				btnCorr.classList.add('bg-green-500');
-			}
-
-			const nb = document.getElementById('nb-questions').value;
-			const mode = document.getElementById('difficulte').value;
-			const list = document.getElementById('exercises-list');
-		
-			list.innerHTML = "";
-			currentQuestions = [];
-			const taillesEcran = { 2: 1.15, 1: 1.05, 0.50: 1.0, 0.20: 0.95, 0.10: 0.85, 0.05: 0.90, 0.02: 0.80, 0.01: 0.75 };
-
-        for (let i = 0; i < nb; i++) {
-            let total = 0; let items = []; let pool;
-            if (mode === 'easy') { pool = [50, 20, 10, 5, 2, 1]; } 
-            else if (mode === 'medium') { pool = [50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10, 0.05]; } 
-            else { pool = [200, 100, 50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01]; }
-            let nbItems = Math.floor(Math.random() * 4) + 4;
-            for (let j = 0; j < nbItems; j++) {
-                let val = pool[Math.floor(Math.random() * pool.length)];
-                items.push(val); total += val;
-            }
-            currentQuestions.push({ items, total: total.toFixed(2) });
-            const card = document.createElement('div');
-            card.className = "light-card flex flex-col items-center justify-between gap-6 h-full";
-            const moneyContainer = document.createElement('div');
-            moneyContainer.className = "flex flex-wrap justify-center items-center gap-2";
-            items.sort((a,b) => b-a).forEach(val => {
-                const el = document.createElement('div');
-                const color = COULEURS_MONNAIE[val] || '#ccc';
-                if (val >= 5) {
-                    el.className = "money-item billet"; el.style.backgroundColor = color; el.textContent = val + " €";
-                } else {
-                    el.className = "money-item piece"; const ratio = taillesEcran[val] || 1;
-                    el.style.width = (35 * ratio) + "px"; el.style.height = (35 * ratio) + "px";
-                    el.style.fontSize = (10 * ratio) + "px"; el.style.backgroundColor = color;
-                    if (val === 2) { el.style.border = "3px solid #fbbf24"; el.style.backgroundColor = "#e5e7eb"; }
-                    else if (val === 1) { el.style.border = "3px solid #e5e7eb"; el.style.backgroundColor = "#fef08a"; }
-                    el.textContent = val >= 1 ? val + "€" : (val*100).toFixed(0) + "c";
-                }
-                moneyContainer.appendChild(el);
-            });
-            card.appendChild(moneyContainer);
-            const input = document.createElement('input');
-            input.type = "text"; input.placeholder = "Total ?";
-            input.className = "input-field text-center money-input mt-auto";
-            input.setAttribute("data-answer", total.toFixed(2));
-            card.appendChild(input);
-            list.appendChild(card);
-        }
-        document.getElementById('setup-zone').classList.add('hidden');
-        document.getElementById('game-zone').classList.remove('hidden');
+    isShowingCorrection = false;
+    const btnCorr = document.getElementById('validate-btn');
+    if (btnCorr) {
+        btnCorr.innerHTML = "👁️ correction";
+        btnCorr.classList.remove('bg-orange-500');
+        btnCorr.classList.add('bg-green-500');
     }
+
+    const nb = document.getElementById('nb-questions').value;
+    const mode = document.getElementById('difficulte').value;
+    const list = document.getElementById('exercises-list');
+
+    list.innerHTML = "";
+    currentQuestions = [];
+    const taillesEcran = { 2: 1.15, 1: 1.05, 0.50: 1.0, 0.20: 0.95, 0.10: 0.85, 0.05: 0.90, 0.02: 0.80, 0.01: 0.75 };
+
+    for (let i = 0; i < nb; i++) {
+        let items = []; 
+        let pool;
+
+        if (mode === 'easy') { 
+            pool = [50, 20, 10, 5, 2, 1]; 
+        } 
+        else if (mode === 'medium') { 
+            pool = [50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10, 0.05]; 
+        } 
+        else { 
+            pool = [100, 50, 20, 10, 5, 2, 1, 0.50, 0.20, 0.10, 0.05, 0.02, 0.01];
+        }
+
+        let nbItems = mode === 'expert' ? Math.floor(Math.random() * 3) + 8 : Math.floor(Math.random() * 3) + 5;
+
+        for (let j = 0; j < nbItems; j++) {
+            let val = pool[Math.floor(Math.random() * pool.length)];
+            
+            // --- LOGIQUE MOYEN : Pas de dépassement d'1€ en centimes ---
+            if (mode === 'medium' && val < 1) {
+                let centimesActuels = items.filter(v => v < 1).reduce((a, b) => a + b, 0);
+                if (centimesActuels + val >= 1) {
+                    val = Math.random() > 0.5 ? 1 : 2; // On remplace par 1€ ou 2€
+                }
+            }
+            items.push(val); 
+        }
+
+        // --- LOGIQUE EXPERT : Forcer le dépassement d'1€ (conversion) ---
+        if (mode === 'expert') {
+            let totalCentimes = items.filter(v => v < 1).reduce((a, b) => a + b, 0);
+            // Si on a moins de 1€ de centimes, on rajoute des pièces de 50c jusqu'à dépasser
+            while (totalCentimes < 1.10) { 
+                items.push(0.50);
+                totalCentimes += 0.50;
+            }
+        }
+
+        let total = items.reduce((a, b) => a + b, 0);
+        currentQuestions.push({ items, total: total.toFixed(2) });
+        
+        const card = document.createElement('div');
+        card.className = "light-card flex flex-col items-center justify-between gap-6 h-full";
+        
+        const moneyContainer = document.createElement('div');
+        moneyContainer.className = "flex flex-wrap justify-center items-center gap-2";
+        
+        items.sort((a,b) => b-a).forEach(val => {
+            const el = document.createElement('div');
+            const color = COULEURS_MONNAIE[val] || '#ccc';
+            if (val >= 5) {
+                el.className = "money-item billet"; el.style.backgroundColor = color; el.textContent = val + " €";
+            } else {
+                el.className = "money-item piece"; const ratio = taillesEcran[val] || 1;
+                el.style.width = (35 * ratio) + "px"; el.style.height = (35 * ratio) + "px";
+                el.style.fontSize = (10 * ratio) + "px"; el.style.backgroundColor = color;
+                if (val === 2) { el.style.border = "3px solid #fbbf24"; el.style.backgroundColor = "#e5e7eb"; }
+                else if (val === 1) { el.style.border = "3px solid #e5e7eb"; el.style.backgroundColor = "#fef08a"; }
+                el.textContent = val >= 1 ? val + "€" : (val*100).toFixed(0) + "c";
+            }
+            moneyContainer.appendChild(el);
+        });
+        
+        card.appendChild(moneyContainer);
+        const input = document.createElement('input');
+        input.type = "text"; input.placeholder = "Total ?";
+        input.className = "input-field text-center money-input mt-auto";
+        input.setAttribute("data-answer", total.toFixed(2));
+        card.appendChild(input);
+        list.appendChild(card);
+    }
+    document.getElementById('setup-zone').classList.add('hidden');
+    document.getElementById('game-zone').classList.remove('hidden');
+}
 
     function showCorrection() {
         const inputs = document.querySelectorAll('.money-input');
@@ -298,11 +331,144 @@
         }
     }
 
-    function exportToPDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("Exercices de Monnaie", 20, 20);
-        doc.save("monnaie.pdf");
+    async function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    
+    const maintenant = new Date();
+    const dateStr = maintenant.getFullYear() + 
+                    String(maintenant.getMonth() + 1).padStart(2, '0') + 
+                    String(maintenant.getDate()).padStart(2, '0');
+    const nomFichier = `outilsprofs_monnaie_${dateStr}.pdf`;
+
+    const cards = document.querySelectorAll('#exercises-list .light-card');
+
+    const genererContenuPage = (isCorrectionPage = false) => {
+        let yInitial = 45; 
+        doc.setFont("helvetica", "bold");
+        
+        if (!isCorrectionPage && doc.internal.getNumberOfPages() === 1) {
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            doc.text("Nom : ..........................  Prénom : ..........................  Date : ...../...../.....", 20, 15);
+        }
+
+        doc.setFontSize(18);
+        doc.text(isCorrectionPage ? "Corrigé : La Monnaie" : "La Monnaie", 105, 30, { align: "center" });
+
+        cards.forEach((card, index) => {
+            if (index > 0 && index % 6 === 0) { 
+                doc.addPage(); 
+                yInitial = 35; 
+            }
+
+            const col = index % 2;
+            const row = Math.floor((index % 6) / 2);
+            const x = 20 + (col * 95);
+            const y = yInitial + (row * 75);
+            const data = currentQuestions[index];
+
+            // --- CADRE ---
+            doc.setDrawColor(180);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(x, y + 8, 85, 42, 2, 2, 'S');
+
+            // --- LOGIQUE DE COMPRESSION DYNAMIQUE ---
+            // On ajuste le ratio selon le nombre d'items pour éviter le débordement vertical
+            let ratioSize = 1;
+            if (data.items.length > 12) ratioSize = 0.75;
+            else if (data.items.length > 9) ratioSize = 0.85;
+            
+            let currentX = x + 3; 
+            let currentY = y + 11;
+            const maxWidth = x + 82; 
+            const maxHeight = y + 48; // Limite basse du cadre
+
+            data.items.sort((a,b) => b-a).forEach((val) => {
+                const isBillet = val >= 5;
+                const itemWidth = (isBillet ? 24 : 13) * ratioSize;
+                const itemHeight = (isBillet ? 11 : 12) * ratioSize;
+
+                // Si on dépasse à droite, on passe à la ligne
+                if (currentX + itemWidth > maxWidth) {
+                    currentX = x + 3;
+                    currentY += (isBillet ? 13 : 14) * ratioSize;
+                }
+
+                // SÉCURITÉ ULTIME : Si on dépasse en bas du cadre, on remonte un peu ou on réduit encore
+                if (currentY + itemHeight > maxHeight) {
+                    currentY -= 2; // Compression de dernière minute
+                }
+
+                const colorHex = COULEURS_MONNAIE[val] || '#cccccc';
+                const rgb = hexToRgb(colorHex);
+                doc.setDrawColor(0);
+                doc.setLineWidth(0.2);
+
+                if (isBillet) {
+                    const w = 22 * ratioSize;
+                    const h = 11 * ratioSize;
+                    doc.setFillColor(rgb.r, rgb.g, rgb.b);
+                    doc.roundedRect(currentX, currentY, w, h, 1, 1, 'FD');
+                    doc.setFontSize(8 * ratioSize);
+                    doc.setTextColor(0);
+                    doc.text(val + " \u20AC", currentX + (w/2), currentY + (h/1.5), { align: "center" });
+                    currentX += (w + 2); 
+                } else {
+                    const radius = (val >= 1 ? 5.5 : 4.5) * ratioSize;
+                    doc.setFillColor(rgb.r, rgb.g, rgb.b);
+                    if (val === 2) doc.setLineWidth(0.6 * ratioSize);
+                    doc.circle(currentX + radius, currentY + radius, radius, 'FD');
+                    doc.setFontSize(7 * ratioSize);
+                    doc.setTextColor(0);
+                    const txt = val >= 1 ? val + "\u20AC" : (val * 100).toFixed(0) + "c";
+                    doc.text(txt, currentX + radius, currentY + radius + (1 * ratioSize), { align: "center" });
+                    currentX += (radius * 2 + 2); 
+                }
+            });
+
+            // --- CASE RÉPONSE ---
+            doc.setDrawColor(200);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(x, y + 55, 85, 10, 1, 1, 'S');
+            doc.setFontSize(9);
+            
+            if (!isCorrectionPage) {
+                doc.setTextColor(150);
+                doc.text("Réponse : .....................................................", x + 5, y + 61.5);
+            } else {
+                doc.setTextColor('#10b981');
+                const totalFloat = parseFloat(data.total);
+                const euros = Math.floor(totalFloat);
+                const centimes = Math.round((totalFloat - euros) * 100);
+                const texteComplet = `${data.total.replace('.', ',')} \u20AC = ${euros} \u20AC${centimes > 0 ? ' ' + centimes + ' c' : ''}`;
+                doc.text(texteComplet, x + 42.5, y + 61.5, { align: "center" });
+            }
+
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            doc.text(`${index + 1}.`, x - 5, y + 5);
+        });
+    };
+
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 200, g: 200, b: 200 };
     }
+
+    genererContenuPage(false); 
+    doc.addPage();
+    genererContenuPage(true); 
+
+    const outputData = doc.output('datauristring');
+    if (window.Android && window.Android.savePdfFromBase64) {
+        window.Android.savePdfFromBase64(outputData.split(',')[1], nomFichier);
+    } else {
+        const link = document.createElement('a');
+        link.href = outputData; link.download = nomFichier;
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+}
 
     function appliquerTheme() {
         const themePrefs = JSON.parse(localStorage.getItem('theme_tuiles')) || {};
