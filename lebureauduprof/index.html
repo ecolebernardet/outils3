@@ -95,11 +95,11 @@
         #bg-submenu { display: none; position: fixed; left: 220px; bottom: 80px; background: white; border-radius: 12px; padding: 12px; box-shadow: var(--shadow); grid-template-columns: repeat(3, 1fr); gap: 10px; min-width: 240px; border: 1px solid #eee; z-index: 10001; }
         #bg-submenu.active { display: grid; }
         @media (max-width: 600px) { #bg-submenu { left: 30px; bottom: 120px; min-width: 200px; grid-template-columns: repeat(2, 1fr); } }
-        .tool-btn { background: var(--primary-color); color: black; border: none; padding: 5px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .tool-btn { background: var(--primary-color); color: black; border: none; padding: 5px 5px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
 		.widget-btn { color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.menu-btn { background: #cccccc; color: white; border: none; padding: 9px 30px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.undo-btn { background: #cccccc; color: white; border: none; padding: 5px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.redo-btn { background: #cccccc; color: white; border: none; padding: 5px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+		.menu-btn { background: #cccccc; color: white; border: none; padding: 12px 30px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+		.undo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+		.redo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
         #main-tool-btn { background: #333; width: 100px; justify-content: center; }
         .exit-fs-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 99999; background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
         :fullscreen .exit-fs-btn { display: block; }
@@ -148,29 +148,6 @@
         .modal-content .btn-cancel { border: 1px solid #ddd; background: #f8f9fa; color: var(--text-color); }
         .modal-content .btn-confirm { border: none; background: #ff4757; color: white; }
 
-        /* --- MODALE "CHARGER UN BUREAU" (miniatures) --- */
-        #load-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; justify-content: center; align-items: center; z-index: 20010; }
-        .modal-content.load-modal { width: min(980px, 92vw); max-width: 980px; text-align: left; padding: 18px; }
-        .load-modal-header { display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; margin-bottom: 10px; }
-        .load-subtitle { font-size: 12px; color: #666; margin-top: 4px; }
-        .load-close { width: 36px; height: 36px; border-radius: 10px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; font-size: 22px; line-height: 1; }
-        .load-actions { display:flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 14px; }
-        .load-actions .btn-confirm { background: var(--primary-color); }
-        .load-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; max-height: min(62vh, 680px); overflow:auto; padding: 2px; }
-        .saved-card { border: 1px solid #e6e6e6; border-radius: 14px; overflow: hidden; cursor: pointer; background: white; box-shadow: 0 6px 16px rgba(0,0,0,0.06); transition: transform 0.12s ease, box-shadow 0.12s ease; }
-        .saved-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.12); }
-        .thumb { height: 130px; position: relative; background: #eef2f5; overflow: hidden; }
-        .thumb-widget { position:absolute; border-radius: 6px; border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.9); }
-        .thumb-widget.text { border-left: 4px solid #4a90e2; }
-        .thumb-widget.agenda { border-left: 4px solid #D17B6B; }
-        .thumb-widget.iframe { border-left: 4px solid #2bcbba; }
-        .thumb-widget.homework { border-left: 4px solid #ff4757; }
-        .thumb-widget.other { border-left: 4px solid #8E51FF; }
-        .saved-meta { padding: 10px 12px 12px; display:flex; flex-direction:column; gap: 4px; }
-        .saved-name { font-weight: 800; font-size: 13px; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .saved-date { font-size: 12px; color: #666; }
-        .saved-stats { font-size: 11px; color: #777; }
-        .load-empty { color:#444; background:#fafafa; border:1px dashed #ddd; padding:14px; border-radius:12px; }
 </style>
 </head>
 <body>
@@ -258,18 +235,19 @@
     <div style="position:fixed;bottom:30px;left:0;right:0;display:flex;align-items:center;padding:0 30px;gap:10px;z-index:9999;pointer-events:none;">
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
             <button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="font-size:15px;" t>WIDGETS</button>
-            <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; font-size:18px;" title="Annuler la dernière action">↩</button>
-            <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; font-size:18px;" title="Annuler la dernière action">↪</button>
-            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee; font-size:18px;" title="Outil dessin">✏️</button>
-            <button id="select-btn" class="tool-btn" onclick="toggleSelectMode()" style="background:#eeeeee; cursor:pointer; font-size:18px;" title="Sélectionner">👆</button>
-            <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee; cursor:pointer; font-size:18px; " title="Outils texte">🖊️</button>
+            <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Annuler la dernière action">↩</button>
+            <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Annuler la dernière action">↪</button>
+            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Outil dessin">✏️</button>
+            <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee; cursor:pointer; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px; " title="Outils texte">🖊️</button>
+            <button id="select-btn" class="tool-btn" onclick="toggleSelectMode()" style="background:#eeeeee; cursor:pointer; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Sélectionner">👆</button>
         </div>
         <div style="flex:1;"></div>
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-            <button class="tool-btn" onclick="exportConfig()" style="background:#dddddd; font-size:18px;" title="Sauvegarder le bureau">💾</button>
-            <button class="tool-btn" onclick="openLoadSavedBoardsModal()" style="background:#dddddd; font-size:18px;" title="Charger un bureau">📂</button>
+            <button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Sauvegarder le bureau">💾</button>
+            <button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Charger un bureau">📂</button>
             <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
-            <button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee; border: 2px solid red; font-size:18px;" title="Effacer tout le bureau">❌</button>
+            <button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee; border: 2px solid rgba(255, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Effacer tout le bureau">❌</button>
+            <button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee; font-size:20px;" title="Aide">❓</button>
         </div>
     </div>
 </div>
@@ -285,23 +263,59 @@
     </div>
 </div>
 
-<div id="load-overlay">
-    <div class="modal-content load-modal">
-        <div class="load-modal-header">
+<div id="help-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:20010;justify-content:center;align-items:center;">
+    <div class="modal-content" style="max-width:640px;width:92%;text-align:left;max-height:80vh;overflow:auto;padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
             <div>
-                <h3 style="margin:0;">📂 Charger un bureau</h3>
-                <div class="load-subtitle" id="load-subtitle">Sélectionnez un bureau sauvegardé.</div>
+                <h3 style="margin:0 0 6px 0;">Aide – Le Bureau du Prof</h3>
+                <p style="margin:0 0 10px 0;color:#555;font-size:13px;">Voici les fonctions principales pour utiliser le bureau au quotidien.</p>
             </div>
-            <button class="load-close" onclick="closeLoadSavedBoardsModal()" title="Fermer">×</button>
+            <button onclick="closeHelpModal()" style="border:1px solid #ddd;background:#f8f9fa;border-radius:10px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;">×</button>
         </div>
 
-        <div class="load-actions">
-            <button class="btn-confirm" id="pick-sauvegardes-btn" onclick="requestSauvegardesAccess()">Choisir le dossier `sauvegardes`</button>
-            <button class="btn-cancel" onclick="document.getElementById('import-input').click()">Importer un fichier JSON…</button>
-        </div>
+        <h4 style="margin:14px 0 4px 0;">1. Ajouter et déplacer des widgets</h4>
+        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
+            <li>Ouvrez le menu <b>WIDGETS</b> pour ajouter un widget (Texte, Devoirs, Planning, Date, Heure, Web, etc.).</li>
+            <li>Utilisez la poignée <b>✥</b> à gauche du cadre pour déplacer un widget.</li>
+            <li>Le bouton <b>📌</b> fixe un widget au premier plan, <b>⧉</b> le duplique, <b>×</b> le ferme.</li>
+        </ul>
 
-        <div class="load-grid" id="load-grid"></div>
-        <div class="load-empty" id="load-empty" style="display:none;"></div>
+        <h4 style="margin:10px 0 4px 0;">2. Modifier le texte</h4>
+        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
+            <li>Cliquez dans un widget Texte ou Devoirs pour écrire directement.</li>
+            <li>La petite barre au-dessus du texte (ou la grande barre “Outils texte”) permet de mettre en <b>gras</b>, <i>italique</i>, changer la police, la taille, la couleur et le surlignage.</li>
+            <li>Les changements sont enregistrés automatiquement dès que vous tapez ou modifiez le texte.</li>
+        </ul>
+
+        <h4 style="margin:10px 0 4px 0;">3. Sauvegarder et charger un bureau</h4>
+        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
+            <li>Le bouton <b>💾 Sauvegarder le bureau</b> exporte la disposition actuelle dans un fichier <code>.json</code>.</li>
+            <li>Le bouton <b>📂 Charger un bureau</b> permet de choisir un fichier <code>.json</code> déjà enregistré pour retrouver un bureau.</li>
+            <li>Une copie du bureau est également gardée dans le navigateur pour retrouver automatiquement le dernier état à l’ouverture.</li>
+        </ul>
+
+        <h4 style="margin:10px 0 4px 0;">4. Fond du bureau et apparence</h4>
+        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
+            <li>Dans le menu <b>Choisir fond</b>, sélectionnez une couleur ou un motif de fond.</li>
+            <li>Dans la barre texte, la pipette “Fond widget” change la couleur du cadre d’un widget.</li>
+            <li>Le bouton “Fond transparent” permet de cacher le fond d’un widget pour ne garder que le texte.</li>
+        </ul>
+
+        <h4 style="margin:10px 0 4px 0;">5. Dessin et sélection</h4>
+        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
+            <li>Le bouton <b>✏️</b> active le mode dessin libre (couleur + épaisseur réglables).</li>
+            <li>Le bouton <b>👆</b> active la sélection multiple de widgets pour les déplacer ensemble ou les dupliquer.</li>
+        </ul>
+
+        <h4 style="margin:10px 0 4px 0;">6. Effacer le bureau</h4>
+        <ul style="margin:4px 0 10px 0;font-size:13px;color:#333;">
+            <li>Le bouton <b>❌ Tout effacer</b> supprime tous les widgets du bureau après confirmation.</li>
+            <li>Pensez à sauvegarder votre bureau avec 💾 avant d’effacer si vous voulez le retrouver plus tard.</li>
+        </ul>
+
+        <div style="text-align:right;margin-top:10px;">
+            <button class="btn-cancel" onclick="closeHelpModal()">Fermer</button>
+        </div>
     </div>
 </div>
 
@@ -546,7 +560,7 @@ function getInnerHTMLNormalized(widget) {
     return agendaList ? agendaList.innerHTML : (content ? content.innerHTML : null);
 }
 
-function getTextWidgetStyleNormalized(widget, refWidth = 1920) {
+function getEditorStyleNormalized(widget, refWidth = 1920) {
     const editor = widget.querySelector('.editor-content');
     if (!editor) return null;
     const cs = window.getComputedStyle(editor);
@@ -560,7 +574,7 @@ function getTextWidgetStyleNormalized(widget, refWidth = 1920) {
     };
 }
 
-function applyTextWidgetStyleFromConfig(widget, style) {
+function applyEditorStyleFromConfig(widget, style) {
     if (!style) return;
     const editor = widget.querySelector('.editor-content');
     if (!editor) return;
@@ -588,10 +602,10 @@ function saveBoard() {
         tP = (w.offsetTop  / curVH) * 100;
         Object.assign(w.dataset, { widthPercent: wP, contentHPercent: hP, leftPercent: lP, topPercent: tP });
         widgets.push({ type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
-            html, iframeSrc: iframe?.src || null,
+            html, content: html, iframeSrc: iframe?.src || null,
             transparent: w.dataset.transparent === "true",
             bgColor: w.dataset.bgColor || "#ffffff",
-            textStyle: isTextLike ? getTextWidgetStyleNormalized(w, 1920) : null,
+            editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
             pinned: w.dataset.pinned === "true" });
     });
     localStorage.setItem('profBoardConfig', JSON.stringify({ widgets, refWidth: 1920 }));
@@ -619,13 +633,18 @@ function loadBoard() {
         setTimeout(() => {
             const editor = widget.querySelector('.editor-content');
             const agenda = widget.querySelector('.agenda-list');
-            if (w.html) {
-                if (agenda) { agenda.innerHTML = w.html; agenda.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents); }
-                else if (editor) editor.innerHTML = w.html;
+            const htmlContent = w.html ?? w.content ?? null;
+            if (htmlContent) {
+                if (agenda) {
+                    agenda.innerHTML = htmlContent;
+                    agenda.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents);
+                } else if (editor) {
+                    editor.innerHTML = htmlContent;
+                }
             }
             const iframe = widget.querySelector('iframe');
             if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
-            applyTextWidgetStyleFromConfig(widget, w.textStyle);
+            applyEditorStyleFromConfig(widget, w.editorStyle);
             if (w.transparent) applyTransparency(widget, true);
             else if (w.bgColor) {
                 widget.style.background = w.bgColor;
@@ -650,10 +669,10 @@ function exportConfig() {
         let wP = 0, hP = 0;
         if (c) { wP = (c.offsetWidth / curW) * 100; hP = ((c.offsetHeight - getToolbarHeight(c)) / curVH) * 100; }
         widgets.push({ type: w.dataset.type, topPercent: (w.offsetTop/curVH)*100, leftPercent: (w.offsetLeft/curW)*100,
-            widthPercent: wP, contentHPercent: hP, html, iframeSrc: iframe?.src || null,
+            widthPercent: wP, contentHPercent: hP, html, content: html, iframeSrc: iframe?.src || null,
             transparent: w.dataset.transparent==="true",
             bgColor: w.dataset.bgColor||"#ffffff",
-            textStyle: isTextLike ? getTextWidgetStyleNormalized(w, 1920) : null,
+            editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
             pinned: w.dataset.pinned==="true" });
     });
     const config = { widgets, background: localStorage.getItem('boardBackground')||'none', refWidth: 1920, };
@@ -678,276 +697,18 @@ function importConfig(event) {
     reader.readAsText(file);
 }
 
-// =========================================================================
-// CHARGER UN BUREAU (miniatures depuis /sauvegardes)
-// =========================================================================
-const _FS_DB_NAME = 'lebureauduprof-fs';
-const _FS_STORE   = 'handles';
-
-function _idbOpen() {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(_FS_DB_NAME, 1);
-        req.onupgradeneeded = () => {
-            const db = req.result;
-            if (!db.objectStoreNames.contains(_FS_STORE)) db.createObjectStore(_FS_STORE);
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-    });
-}
-
-async function _idbGet(key) {
-    const db = await _idbOpen();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(_FS_STORE, 'readonly');
-        const st = tx.objectStore(_FS_STORE);
-        const req = st.get(key);
-        req.onsuccess = () => resolve(req.result ?? null);
-        req.onerror = () => reject(req.error);
-        tx.oncomplete = () => db.close();
-    });
-}
-
-async function _idbSet(key, value) {
-    const db = await _idbOpen();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(_FS_STORE, 'readwrite');
-        const st = tx.objectStore(_FS_STORE);
-        const req = st.put(value, key);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
-        tx.oncomplete = () => db.close();
-    });
-}
-
-function _fmtDate(ts) {
-    try {
-        return new Date(ts).toLocaleString('fr-FR', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-    } catch { return ''; }
-}
-
-function _displayNameFromFilename(name) {
-    return (name || '').replace(/\.json$/i, '').replace(/_/g, ' ');
-}
-
-function _applyBackgroundToElement(el, value) {
-    if (!el) return;
-    if (!value || value === 'none') { el.style.background = ''; el.style.backgroundColor = '#eef2f5'; return; }
-    if (value.startsWith('#') || value.startsWith('rgb')) { el.style.background = ''; el.style.backgroundColor = value; return; }
-    el.style.background = value;
-    el.style.backgroundSize = 'cover';
-    el.style.backgroundPosition = 'center';
-}
-
-function _makeThumb(config) {
-    const t = document.createElement('div');
-    t.className = 'thumb';
-    _applyBackgroundToElement(t, config?.background || 'none');
-    const widgets = Array.isArray(config?.widgets) ? config.widgets : [];
-    // Afficher seulement les X premiers pour garder une miniature lisible
-    widgets.slice(0, 24).forEach(w => {
-        const r = document.createElement('div');
-        const type = w?.type || 'other';
-        r.className = 'thumb-widget ' + (['text','agenda','iframe','homework'].includes(type) ? type : 'other');
-        const left = Math.max(0, Math.min(100, +(w.leftPercent ?? 0)));
-        const top  = Math.max(0, Math.min(100, +(w.topPercent ?? 0)));
-        const width = Math.max(2, Math.min(100, +(w.widthPercent ?? 12)));
-        const height = Math.max(2, Math.min(100, +(w.contentHPercent ?? 10)));
-        r.style.left = left + '%';
-        r.style.top  = top + '%';
-        r.style.width  = width + '%';
-        r.style.height = height + '%';
-        if (w.transparent) {
-            r.style.background = 'rgba(255,255,255,0.35)';
-            r.style.borderStyle = 'dashed';
-        } else if (w.bgColor) {
-            r.style.background = w.bgColor;
-        }
-        t.appendChild(r);
-    });
-    return t;
-}
-
-function _countByType(widgets) {
-    const c = {};
-    widgets.forEach(w => { const t = (w?.type || 'other'); c[t] = (c[t] || 0) + 1; });
-    return c;
-}
-
-function _statsLine(widgets) {
-    const c = _countByType(widgets);
-    const parts = [];
-    const order = ['text','homework','agenda','iframe','youtube','date','time','outilsprofs','deficalme','other'];
-    order.forEach(k => { if (c[k]) parts.push(`${k}:${c[k]}`); });
-    const total = widgets.length;
-    return `${total} widget${total > 1 ? 's' : ''}` + (parts.length ? ` • ${parts.join(' • ')}` : '');
-}
-
-function closeLoadSavedBoardsModal() {
-    const ov = document.getElementById('load-overlay');
-    if (ov) ov.style.display = 'none';
-}
-
-async function _getSauvegardesDirHandleIfGranted() {
-    if (!('showDirectoryPicker' in window)) return null;
-    const h = await _idbGet('sauvegardesDir');
-    if (!h) return null;
-    try {
-        let perm = await h.queryPermission?.({ mode: 'read' });
-        if (perm !== 'granted') perm = await h.requestPermission?.({ mode: 'read' });
-        if (perm === 'granted') return h;
-    } catch {}
-    return null;
-}
-
-async function requestSauvegardesAccess() {
-    if (!('showDirectoryPicker' in window)) {
-        alert("Votre navigateur ne permet pas d'accéder au dossier 'sauvegardes' automatiquement. Utilisez 'Importer un fichier JSON…'.");
-        return;
-    }
-    try {
-        const picked = await window.showDirectoryPicker({ mode: 'read' });
-        let dir = picked;
-        // Si l'utilisateur choisit le dossier parent, on tente d'aller dans 'sauvegardes'
-        if (picked?.name !== 'sauvegardes') {
-            try { dir = await picked.getDirectoryHandle('sauvegardes', { create: false }); }
-            catch { /* garder picked */ }
-        }
-        // On vérifie qu'on est bien dans un dossier nommé sauvegardes
-        if (dir?.name !== 'sauvegardes') {
-            alert("Choisis le dossier 'sauvegardes' (ou le dossier parent qui contient un sous-dossier 'sauvegardes').");
-            return;
-        }
-        await _idbSet('sauvegardesDir', dir);
-        await _populateSavedBoardsGrid(dir);
-    } catch (e) {
-        // Annulation silencieuse
-    }
-}
-
-async function _populateSavedBoardsGrid(dirHandle) {
-    const grid = document.getElementById('load-grid');
-    const empty = document.getElementById('load-empty');
-    const subtitle = document.getElementById('load-subtitle');
-    if (!grid || !empty || !subtitle) return;
-
-    grid.innerHTML = '';
-    empty.style.display = 'none';
-    subtitle.textContent = "Chargement des sauvegardes…";
-
-    const entries = [];
-    try {
-        for await (const [name, handle] of dirHandle.entries()) {
-            if (handle.kind !== 'file') continue;
-            if (!name.toLowerCase().endsWith('.json')) continue;
-            const file = await handle.getFile();
-            entries.push({ name, handle, file });
-        }
-    } catch (e) {
-        subtitle.textContent = "Accès au dossier refusé ou indisponible.";
-        empty.style.display = 'block';
-        empty.textContent = "Impossible de lire le dossier. Tu peux utiliser “Importer un fichier JSON…”.";
-        return;
-    }
-
-    entries.sort((a, b) => (b.file.lastModified || 0) - (a.file.lastModified || 0));
-
-    if (!entries.length) {
-        subtitle.textContent = "Aucune sauvegarde trouvée.";
-        empty.style.display = 'block';
-        empty.textContent = "Le dossier 'sauvegardes' ne contient aucun fichier .json.";
-        return;
-    }
-
-    subtitle.textContent = `${entries.length} sauvegarde${entries.length > 1 ? 's' : ''} trouvée${entries.length > 1 ? 's' : ''}.`;
-
-    for (const it of entries) {
-        let cfg = null;
-        try { cfg = JSON.parse(await it.file.text()); } catch { cfg = null; }
-        if (!cfg || (!Array.isArray(cfg.widgets) && !Array.isArray(cfg))) continue;
-        const config = Array.isArray(cfg) ? { widgets: cfg, background: 'none', refWidth: 1920 } : cfg;
-        const widgets = Array.isArray(config.widgets) ? config.widgets : [];
-
-        const card = document.createElement('div');
-        card.className = 'saved-card';
-        card.appendChild(_makeThumb(config));
-
-        const meta = document.createElement('div');
-        meta.className = 'saved-meta';
-
-        const nameEl = document.createElement('div');
-        nameEl.className = 'saved-name';
-        nameEl.textContent = config?.meta?.name || _displayNameFromFilename(it.name);
-
-        const dateEl = document.createElement('div');
-        dateEl.className = 'saved-date';
-        const savedAt = config?.meta?.savedAt ? Date.parse(config.meta.savedAt) : NaN;
-        dateEl.textContent = _fmtDate(Number.isFinite(savedAt) ? savedAt : it.file.lastModified);
-
-        const statsEl = document.createElement('div');
-        statsEl.className = 'saved-stats';
-        statsEl.textContent = _statsLine(widgets);
-
-        meta.appendChild(nameEl);
-        meta.appendChild(dateEl);
-        meta.appendChild(statsEl);
-        card.appendChild(meta);
-
-        card.onclick = () => {
-            try {
-                // Charger comme importConfig, mais sans file picker
-                document.querySelectorAll('.widget').forEach(w => w.remove());
-                const bg = config.background || 'none';
-                applyBackground(bg); saveBg(bg);
-                isInitialLoading = true;
-                localStorage.setItem('profBoardConfig', JSON.stringify(config));
-                loadBoard();
-                setTimeout(() => { isInitialLoading = false; }, 250);
-                closeLoadSavedBoardsModal();
-            } catch (e) {
-                alert("Erreur de chargement : " + (e?.message || e));
-            }
-        };
-
-        grid.appendChild(card);
-    }
-}
-
-async function openLoadSavedBoardsModal() {
-    const ov = document.getElementById('load-overlay');
-    const grid = document.getElementById('load-grid');
-    const empty = document.getElementById('load-empty');
-    const subtitle = document.getElementById('load-subtitle');
-    if (!ov || !grid || !empty || !subtitle) return;
-
-    ov.style.display = 'flex';
-    grid.innerHTML = '';
-    empty.style.display = 'none';
-
-    if (!('showDirectoryPicker' in window)) {
-        subtitle.textContent = "Ce navigateur ne peut pas lister automatiquement le dossier local 'sauvegardes'.";
-        empty.style.display = 'block';
-        empty.textContent = "Utilise “Importer un fichier JSON…” (bouton ci-dessus).";
-        return;
-    }
-
-    const dir = await _getSauvegardesDirHandleIfGranted();
-    if (!dir) {
-        subtitle.textContent = "Autorise l'accès au dossier `sauvegardes` pour afficher les miniatures.";
-        empty.style.display = 'block';
-        empty.textContent = "Clique sur “Choisir le dossier `sauvegardes`”, puis sélectionne le bon dossier.";
-        return;
-    }
-    await _populateSavedBoardsGrid(dir);
-}
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeLoadSavedBoardsModal();
-});
-
 function clearBoard() { document.getElementById('modal-overlay').style.display = 'flex'; }
 function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 function confirmClearBoard() { document.querySelectorAll('.widget').forEach(w => w.remove()); saveBoard(); closeModal(); }
+
+function openHelpModal() {
+    const ov = document.getElementById('help-modal-overlay');
+    if (ov) ov.style.display = 'flex';
+}
+function closeHelpModal() {
+    const ov = document.getElementById('help-modal-overlay');
+    if (ov) ov.style.display = 'none';
+}
 
 // =========================================================================
 // HORLOGE / DATE
@@ -1028,7 +789,13 @@ function createWidget(type, x = null, y = null, snapshot = true) {
         <div class="widget-close-handle" onclick="takeSnapshot();this.closest('.widget').remove();saveBoard();" title="Fermer">×</div>
         <div class="widget-content"></div>`;
     const contentZone = widget.querySelector('.widget-content');
-    contentZone.appendChild(document.getElementById(`template-${type}`).content.cloneNode(true));
+    const tpl = document.getElementById(`template-${type}`);
+    if (tpl && tpl.content) {
+        contentZone.appendChild(tpl.content.cloneNode(true));
+    } else {
+        // Type inconnu : widget vide mais sans erreur bloquante
+        contentZone.innerHTML = `<div style="padding:10px;color:#b00;font-size:12px;">Type de widget inconnu : <code>${type}</code></div>`;
+    }
     board.appendChild(widget);
     makeDraggable(widget);
     makeDraggableRotate(widget);
