@@ -36,6 +36,17 @@
         .drag-handle          { left: -13px; top: 50%; transform: translateY(-50%); cursor: move; font-size: 14px; color: #666; }
         .widget-rotate-handle { right: -13px; top: 50%; transform: translateY(-50%); cursor: grab; font-size: 14px; color: #8E51FF; }
         .widget-rotate-handle:active { cursor: grabbing; }
+        #rotation-indicator {
+            position: fixed; background: rgba(30,30,30,0.82); color: #fff;
+            font-size: 12px; font-family: 'Courier New', monospace; font-weight: 700;
+            padding: 3px 9px; border-radius: 6px; pointer-events: none;
+            z-index: 99999; display: none; white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transform: translate(14px, -50%);
+        }
+        #rotation-indicator .rot-reset-hint {
+            font-size: 10px; color: #aaa; margin-left: 6px;
+        }
         .widget-close-handle  { top: 5px; right: 5px; cursor: pointer; font-size: 14px; color: #ff5f56; }
         .widget-pin-handle    { top: -13px; left: calc(50% - 16px); transform: translateX(-50%); cursor: pointer; font-size: 13px; color: #f39c12; }
         .widget-back-handle   { top: -13px; left: calc(50% + 16px); transform: translateX(-50%); cursor: pointer; font-size: 13px; color: #888; }
@@ -52,6 +63,31 @@
         .shape-widget:focus-within .widget-back-handle,
         .shape-widget:focus-within .widget-rotate-handle,
         .shape-widget:focus-within .widget-menu-handle { opacity: 1; pointer-events: auto; }
+        /* En multi-sélection, forcer le masquage des poignées malgré focus-within */
+        #board.multi-select .widget.selected .drag-handle,
+        #board.multi-select .widget.selected .widget-close-handle,
+        #board.multi-select .widget.selected .widget-pin-handle,
+        #board.multi-select .widget.selected .widget-back-handle,
+        #board.multi-select .widget.selected .widget-rotate-handle,
+        #board.multi-select .widget.selected .widget-menu-handle,
+        #board.multi-select .widget.selected:focus-within .drag-handle,
+        #board.multi-select .widget.selected:focus-within .widget-close-handle,
+        #board.multi-select .widget.selected:focus-within .widget-pin-handle,
+        #board.multi-select .widget.selected:focus-within .widget-back-handle,
+        #board.multi-select .widget.selected:focus-within .widget-rotate-handle,
+        #board.multi-select .widget.selected:focus-within .widget-menu-handle,
+        #board.multi-select .shape-widget.selected .drag-handle,
+        #board.multi-select .shape-widget.selected .widget-close-handle,
+        #board.multi-select .shape-widget.selected .widget-pin-handle,
+        #board.multi-select .shape-widget.selected .widget-back-handle,
+        #board.multi-select .shape-widget.selected .widget-rotate-handle,
+        #board.multi-select .shape-widget.selected .widget-menu-handle,
+        #board.multi-select .shape-widget.selected:focus-within .drag-handle,
+        #board.multi-select .shape-widget.selected:focus-within .widget-close-handle,
+        #board.multi-select .shape-widget.selected:focus-within .widget-pin-handle,
+        #board.multi-select .shape-widget.selected:focus-within .widget-back-handle,
+        #board.multi-select .shape-widget.selected:focus-within .widget-rotate-handle,
+        #board.multi-select .shape-widget.selected:focus-within .widget-menu-handle { opacity: 0 !important; pointer-events: none !important; }
         .widget-close-handle:hover  { color: #ff5f56; background: white; }
         .drag-handle:hover          { color: var(--primary-color); background: white; }
         .widget-pin-handle:hover    { background: white; }
@@ -116,6 +152,17 @@
             outline-offset: 6px;
             box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important;
         }
+        /* Poignées visibles quand sélection UNIQUE uniquement */
+        #board.single-select .widget.selected .drag-handle,
+        #board.single-select .widget.selected .widget-close-handle,
+        #board.single-select .widget.selected .widget-back-handle,
+        #board.single-select .widget.selected .widget-rotate-handle,
+        #board.single-select .widget.selected .widget-menu-handle,
+        #board.single-select .shape-widget.selected .drag-handle,
+        #board.single-select .shape-widget.selected .widget-close-handle,
+        #board.single-select .shape-widget.selected .widget-back-handle,
+        #board.single-select .shape-widget.selected .widget-rotate-handle,
+        #board.single-select .shape-widget.selected .widget-menu-handle { opacity: 1; pointer-events: auto; }
 
         /* --- Sous-menu formes --- */
         #shape-toolbar {
@@ -155,7 +202,11 @@
         .shape-toolbar-close:hover { color: #fff; background: #444; }
 
         /* --- OVERLAY DE SÉLECTION --- */
-        #selection-controls { position: absolute; pointer-events: none; z-index: 9990; display: none; }
+        #selection-controls {
+            position: absolute; pointer-events: none; z-index: 9990; display: none;
+            border: 2px dashed rgba(243,156,18,0.7); border-radius: 4px;
+            box-shadow: 0 0 0 1px rgba(243,156,18,0.15);
+        }
         #selection-controls .sc-btn {
             position: absolute; width: 32px; height: 32px; background: #f8f9fa; border-radius: 6px;
             display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;
@@ -165,14 +216,23 @@
         #selection-controls .sc-move   { left: -16px; top: 50%; transform: translateY(-50%); color: #666; cursor: move; }
         #selection-controls .sc-rotate { right: -16px; top: 50%; transform: translateY(-50%); color: #8E51FF; cursor: grab; }
         #selection-controls .sc-rotate:active { cursor: grabbing; }
-        #selection-controls .sc-pin    { top: -16px; left: 50%; transform: translateX(-50%); color: #f39c12; }
         #selection-controls .sc-delete { top: 5px; right: 5px; color: #ff5f56; }
         #selection-controls .sc-menu   { top: 5px; left: 5px; color: #555; }
+        #selection-controls .sc-merge   { bottom: -18px; left: 50%; transform: translateX(-50%); color: #2bcbba; display: none; white-space: nowrap; width: auto; padding: 0 10px; font-size: 11px; font-weight: 600; }
+        #selection-controls .sc-ungroup { bottom: -18px; left: 50%; transform: translateX(-50%); color: #f39c12; display: none; white-space: nowrap; width: auto; padding: 0 10px; font-size: 11px; font-weight: 600; }
+        #selection-controls .sc-resize  { right: -8px; bottom: -8px; width: 18px; height: 18px; cursor: se-resize; font-size: 11px; color: #f39c12; background: white; border-color: #f39c12; border-radius: 3px; }
         #selection-controls .sc-btn:hover { background: white; }
         #selection-controls .sc-move:hover   { transform: translateY(-50%) scale(1.1); }
         #selection-controls .sc-rotate:hover { transform: translateY(-50%) scale(1.1); }
-        #selection-controls .sc-pin:hover    { transform: translateX(-50%) scale(1.1); }
-        #selection-controls .sc-pin.pinned   { background: #FFD230; }
+        #selection-controls .sc-merge:hover   { background: #e0faf8; transform: translateX(-50%) scale(1.05); }
+        #selection-controls .sc-ungroup:hover { background: #fff8e6; transform: translateX(-50%) scale(1.05); }
+        /* Membres d'un groupe au repos : bordure ambrée discrète */
+        .widget[data-group-id]              { border-color: rgba(243,156,18,0.35) !important; box-shadow: none !important; }
+        .widget[data-group-id]:focus-within { border-color: rgba(243,156,18,0.5)  !important; box-shadow: none !important; }
+        .shape-widget[data-group-id]        { outline: 1px dashed rgba(243,156,18,0.35) !important; box-shadow: none !important; }
+        /* Membres sélectionnés (groupe actif) : bordure ambrée nette */
+        .widget.selected[data-group-id]        { outline: 2px solid rgba(243,156,18,0.6) !important; outline-offset: 4px; box-shadow: none !important; }
+        .shape-widget.selected[data-group-id]  { outline: 2px solid rgba(243,156,18,0.6) !important; outline-offset: 4px; box-shadow: none !important; }
         #sc-ctx-menu {
             position: absolute; top: 38px; left: 5px; background: #1F1F21;
             border: 1px solid #444; border-radius: 10px; padding: 5px 0;
@@ -277,9 +337,11 @@
     <div id="selection-controls">
         <div class="sc-btn sc-move"   id="sc-move-btn"   title="Déplacer">✥</div>
         <div class="sc-btn sc-rotate" id="sc-rotate-btn" title="Faire pivoter">↻</div>
-        <div class="sc-btn sc-pin"    id="sc-pin-btn"    title="Épingler au premier plan">📌</div>
         <div class="sc-btn sc-delete" id="sc-delete-btn" title="Supprimer">×</div>
         <div class="sc-btn sc-menu"   id="sc-menu-btn"   title="Menu">☰</div>
+        <div class="sc-btn sc-resize"  id="sc-resize-btn"  title="Redimensionner le groupe">↘</div>
+        <div class="sc-btn sc-merge"   id="sc-merge-btn"   title="Grouper les widgets sélectionnés">⊞ Grouper</div>
+        <div class="sc-btn sc-ungroup" id="sc-ungroup-btn" title="Dissocier le groupe">⛓️ Dissocier</div>
         <div id="sc-ctx-menu"></div>
     </div>
 </div>
@@ -416,7 +478,6 @@
             <button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gomme">🧹</button>
             <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
             <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Outils texte">🖊️</button>
-            <button id="select-btn" class="tool-btn" onclick="toggleSelectMode()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sélectionner">👆</button>
         </div>
         <div style="flex:1;"></div>
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
@@ -449,9 +510,9 @@
             </div>
             <button onclick="closeHelpModal()" style="border:1px solid #ddd;background:#f8f9fa;border-radius:10px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;">×</button>
         </div>
-        <h4 style="margin:14px 0 4px 0;">1. Ajouter et déplacer des widgets</h4>
+        <h4 style="margin:14px 0 4px 0;">1. Sélectionner et déplacer des widgets</h4>
         <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
-            <li>Ouvrez le menu <b>WIDGETS</b> pour ajouter un widget.</li>
+            <li>Cliquez sur un widget pour le sélectionner (bordure bleue). Cliquez-glissez sur le fond pour sélectionner une zone.</li>
             <li>Utilisez la poignée <b>✥</b> à gauche pour déplacer. <b>📌</b> épingle au premier plan, <b>🔽</b> envoie derrière, <b>×</b> ferme.</li>
             <li>Le bouton <b>☰</b> (bas du widget) donne accès à dupliquer et modifier.</li>
         </ul>
@@ -585,6 +646,7 @@
     </div>
 </template>
 
+<div id="rotation-indicator"><span id="rot-deg">0°</span><span class="rot-reset-hint">double-clic → 0°</span></div>
 <input type="file" id="bg-upload" style="display:none" accept="image/*" onchange="handleBgUpload(this)">
 
 <script>
@@ -615,6 +677,7 @@ window.onload = () => {
         isInitialLoading = false;
         _lastW = window.innerWidth;
         initSelectionControls();
+        initBoardSelection(); // ← sélection toujours active
         const fontSizeInput = document.getElementById('font-size-input');
         if (fontSizeInput) {
             fontSizeInput.addEventListener('focus', () => {
@@ -830,7 +893,8 @@ function buildBoardState() {
             bgColor: w.dataset.bgColor || "#ffffff",
             editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
             pinned: w.dataset.pinned === "true",
-            background: w.dataset.background === "true"
+            background: w.dataset.background === "true",
+            groupId: w.dataset.groupId || null
         });
     });
     const shapes = [];
@@ -849,7 +913,8 @@ function buildBoardState() {
             strokeWidth: parseInt(w.dataset.strokeWidth || 4),
             leftPercent: lP, topPercent: tP, wPercent: wP, hPercent: hP,
             transform: w.style.transform || '', pinned: w.dataset.pinned === "true",
-            background: w.dataset.background === "true"
+            background: w.dataset.background === "true",
+            groupId: w.dataset.groupId || null
         });
     });
     return { widgets, shapes, refWidth: 1920, background: localStorage.getItem('boardBackground') || 'none' };
@@ -902,6 +967,7 @@ function restoreBoardFromJSON(json) {
             else if (w.bgColor) { widget.style.background = w.bgColor; widget.dataset.bgColor = w.bgColor; const container = widget.querySelector('.editor-container'); if (container) container.style.background = w.bgColor; }
             if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
             else if (w.pinned) bringToFront(widget, true);
+            if (w.groupId) widget.dataset.groupId = w.groupId;
             scaleFontSizesFromRef(widget, refW);
         }, 50);
     });
@@ -914,6 +980,7 @@ function restoreBoardFromJSON(json) {
             if (s.transform) w2.style.transform = s.transform;
             if (s.background) { w2.style.zIndex = 1; w2.dataset.background = "true"; }
             else if (s.pinned) bringToFront(w2, true);
+            if (s.groupId) w2.dataset.groupId = s.groupId;
             w2.dataset.leftPercent = s.leftPercent; w2.dataset.topPercent = s.topPercent;
             w2.dataset.wPercent = s.wPercent; w2.dataset.hPercent = s.hPercent;
         });
@@ -1076,8 +1143,6 @@ function addCtxBtn(menu, label, fn) {
     menu.appendChild(btn);
 }
 
-function makeSep() { return document.createElement('hr'); }
-
 function findFreePosition() {
     const curW = window.innerWidth, curVH = virtualH(curW);
     const occupied = Array.from(document.querySelectorAll('.widget, .shape-widget')).map(w => ({
@@ -1101,8 +1166,9 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
     widget.dataset.type = type;
     widget.style.left = x; widget.style.top = y;
     widget.tabIndex = 0;
-    widget.addEventListener('mousedown', () => {
-        if (!isSelectMode && widget.dataset.background !== "true") bringToFront(widget);
+    widget.addEventListener('mousedown', (e) => {
+        if (isDrawMode || isEraserMode) return;
+        if (widget.dataset.background !== "true") bringToFront(widget);
     });
     widget.innerHTML = `
         <div class="drag-handle" title="Déplacer">✥</div>
@@ -1170,6 +1236,8 @@ function makeDraggable(elmnt) {
         elmnt.dataset.background = "false";
         bringToFront(elmnt);
         snapshotNow();
+        // Désélectionner tout lors d'un drag
+        clearSelection();
         let px = e.clientX, py = e.clientY;
         document.onmousemove = (e) => {
             elmnt.style.top  = (elmnt.offsetTop  + e.clientY - py) + "px";
@@ -1188,6 +1256,16 @@ function makeDraggable(elmnt) {
 
 function makeDraggableRotate(elmnt) {
     const handle = elmnt.querySelector('.widget-rotate-handle'); if (!handle) return;
+
+    // Double-clic sur la poignée → retour à 0°
+    handle.ondblclick = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        snapshotNow();
+        elmnt.style.transform = '';
+        hideRotationIndicator();
+        saveBoard();
+    };
+
     handle.onmousedown = (e) => {
         e.preventDefault(); e.stopPropagation();
         bringToFront(elmnt);
@@ -1196,11 +1274,45 @@ function makeDraggableRotate(elmnt) {
         const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
         const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
         const startRot   = getCurrentRotation(elmnt);
-        document.onmousemove = (e) => {
-            elmnt.style.transform = `rotate(${startRot + (Math.atan2(e.clientY - cy, e.clientX - cx) - startAngle) * 180 / Math.PI}deg)`;
+        const indicator  = document.getElementById('rotation-indicator');
+        document.onmousemove = (ev) => {
+            const newRot = startRot + (Math.atan2(ev.clientY - cy, ev.clientX - cx) - startAngle) * 180 / Math.PI;
+            const snapped = snapRotation(newRot);
+            elmnt.style.transform = `rotate(${snapped}deg)`;
+            // Afficher l'indicateur près du curseur
+            if (indicator) {
+                const deg = Math.round(((snapped % 360) + 360) % 360);
+                document.getElementById('rot-deg').textContent = deg + '°';
+                indicator.style.display = 'block';
+                indicator.style.left = ev.clientX + 'px';
+                indicator.style.top  = ev.clientY + 'px';
+                // Masquer le hint "double-clic" si on est à 0
+                indicator.querySelector('.rot-reset-hint').style.display = (deg === 0) ? 'none' : 'inline';
+            }
         };
-        document.onmouseup = () => { document.onmousemove = null; saveBoard(); };
+        document.onmouseup = () => {
+            document.onmousemove = null;
+            hideRotationIndicator();
+            saveBoard();
+        };
     };
+}
+
+function snapRotation(deg) {
+    // Aimantation douce : snap uniquement dans un couloir étroit de ±2°
+    // pour ne pas bloquer le mouvement en dehors de ces angles
+    const snaps = [0, 45, 90, 135, 180, 225, 270, 315, 360];
+    const norm = ((deg % 360) + 360) % 360;
+    for (const s of snaps) {
+        const diff = Math.abs(norm - s);
+        if (diff < 2) return s === 360 ? 0 : s;
+    }
+    return deg;
+}
+
+function hideRotationIndicator() {
+    const ind = document.getElementById('rotation-indicator');
+    if (ind) ind.style.display = 'none';
 }
 
 function cloneWidget(widget) {
@@ -1397,7 +1509,8 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
     makeShapeResizable(widget);
 
     widget.addEventListener('mousedown', (e) => {
-        if (!isSelectMode && widget.dataset.background !== "true") bringToFront(widget);
+        if (isDrawMode || isEraserMode) return;
+        if (widget.dataset.background !== "true") bringToFront(widget);
     });
     widget.addEventListener('dblclick', (e) => {
         const ignore = '.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-back-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu,.shape-resize-handle';
@@ -1536,7 +1649,7 @@ function drawStroke(stroke, highlight = false) {
 function toggleDrawToolbar() {
     const tb = document.getElementById('draw-toolbar');
     if (tb.style.display === 'flex') { stopDrawing(); return; }
-    stopSelectMode(); stopEraserMode();
+    stopEraserMode();
     document.getElementById('shape-toolbar').classList.remove('active');
     document.getElementById('shape-btn').style.background = '#eeeeee';
     tb.style.display = 'flex';
@@ -1546,6 +1659,7 @@ function enableDrawing() {
     isDrawMode = true; drawCanvas.classList.remove('inactive');
     document.getElementById('draw-btn').style.background = '#e6b8de';
     document.getElementById('draw-btn').textContent = '✏️ en cours…';
+    clearSelection();
 }
 function stopDrawing() {
     isDrawMode = false;
@@ -1566,7 +1680,7 @@ let isEraserMode = false, isErasing = false;
 
 function toggleEraserMode() {
     if (isEraserMode) { stopEraserMode(); return; }
-    stopDrawing(); stopSelectMode();
+    stopDrawing();
     document.getElementById('shape-toolbar').classList.remove('active');
     document.getElementById('shape-btn').style.background = '#eeeeee';
     document.getElementById('global-toolbar').style.display = 'none';
@@ -1584,6 +1698,7 @@ function toggleEraserMode() {
     drawCanvas.addEventListener('touchstart', eTouchStart, { passive: false });
     drawCanvas.addEventListener('touchmove',  eTouchMove,  { passive: false });
     drawCanvas.addEventListener('touchend',   endErase);
+    clearSelection();
 }
 
 function stopEraserMode() {
@@ -1693,13 +1808,12 @@ function drawEraserPreview(pos, r) {
 }
 
 // =========================================================================
-// MODE SÉLECTION
+// SÉLECTION — toujours active avec le curseur normal
 // =========================================================================
-let isSelectMode = false;
 let selectedWidgets = [], selectedStrokes = [];
 let selectionRect = null;
 let isSelectingRect = false, selectStartX = 0, selectStartY = 0;
-let mouseDownPos = null;
+let mouseDownClientX = 0, mouseDownClientY = 0;
 let moveStartX = 0, moveStartY = 0;
 let widgetMoveOrigins = [], strokeMoveOrigins = [];
 let rotateCenterX = 0, rotateCenterY = 0, rotateStartAngle = 0;
@@ -1712,109 +1826,185 @@ function initSelectionRect() {
     board.appendChild(selectionRect);
 }
 
-function toggleSelectMode() {
-    if (isSelectMode) { stopSelectMode(); return; }
-    stopDrawing();
-    isSelectMode = true;
-    initCanvas();
+/**
+ * Initialise la sélection permanente sur le board.
+ * Pas besoin d'un mode dédié — le curseur flèche gère tout.
+ */
+function initBoardSelection() {
     initSelectionRect();
-    drawCanvas.classList.add('inactive');
-    drawCanvas.style.cursor = 'default';
-    document.getElementById('select-btn').style.background = '#e6b8de';
-    document.getElementById('select-btn').textContent = '👆 en cours...';
-    document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'none');
-    board.addEventListener('mousedown', onSelectMouseDown);
+    board.addEventListener('mousedown', onBoardMouseDown);
 }
 
-function stopSelectMode() {
-    isSelectMode = false;
-    board.removeEventListener('mousedown', onSelectMouseDown);
-    document.getElementById('select-btn').style.background = '#eeeeee';
-    document.getElementById('select-btn').textContent = '👆';
-    clearSelection();
-    document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'auto');
-    if (drawCanvas) { drawCanvas.classList.add('inactive'); drawCanvas.style.cursor = ''; }
-}
-
-function onSelectMouseDown(e) {
-    if (!isSelectMode) return;
+function onBoardMouseDown(e) {
+    // Ignorer si mode dessin ou gomme actif
+    if (isDrawMode || isEraserMode) return;
+    // Ignorer si clic sur les contrôles de sélection overlay
     if (e.target.closest('#selection-controls')) return;
-    const pos = getBoardPos(e);
-    mouseDownPos = { x: e.clientX, y: e.clientY };
+    // Ignorer si clic sur la toolbar ou menus
+    if (e.target.closest('#toolbar-container')) return;
+    if (e.target.closest('.widget-ctx-menu')) return;
+    if (e.target.closest('#shape-edit-panel')) return;
+
+    mouseDownClientX = e.clientX;
+    mouseDownClientY = e.clientY;
+
     const widget = e.target.closest('.widget, .shape-widget');
+
     if (widget) {
-        e.stopPropagation();
-        clearSelection();
-        selectedWidgets = [widget];
-        widget.classList.add('selected');
-        updateSelectionOverlay();
+        if (e.ctrlKey || e.metaKey) {
+            // Ctrl+clic : ajouter/retirer de la sélection (+ groupe si applicable)
+            const gid = widget.dataset.groupId;
+            const members = gid
+                ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
+                : [widget];
+            const allAlreadySelected = members.every(m => selectedWidgets.includes(m));
+            if (allAlreadySelected) {
+                members.forEach(m => { selectedWidgets = selectedWidgets.filter(w => w !== m); m.classList.remove('selected'); });
+            } else {
+                members.forEach(m => { if (!selectedWidgets.includes(m)) { selectedWidgets.push(m); m.classList.add('selected'); } });
+            }
+            updateSelectionOverlay();
+        } else {
+            // Clic simple : sélectionner ce widget (et son groupe si applicable)
+            const gid = widget.dataset.groupId;
+            const members = gid
+                ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
+                : [widget];
+            const allAlreadySelected = members.every(m => selectedWidgets.includes(m));
+            if (!allAlreadySelected) {
+                clearSelection();
+                members.forEach(m => { selectedWidgets.push(m); m.classList.add('selected'); });
+                updateSelectionOverlay();
+            }
+        }
+        // Pas de rubber-band
         return;
     }
-    const stroke = findStrokeAt(pos.x, pos.y);
-    if (stroke) {
-        clearSelection();
-        selectedStrokes = [stroke];
-        redrawStrokes();
-        updateSelectionOverlay();
-        return;
-    }
+
+    // Clic sur le fond : démarrer rubber-band
+    const pos = getBoardPos(e);
     clearSelection();
     isSelectingRect = true;
-    selectStartX = pos.x; selectStartY = pos.y;
+    selectStartX = pos.x;
+    selectStartY = pos.y;
     selectionRect.style.cssText = `display:block;left:${pos.x}px;top:${pos.y}px;width:0;height:0;`;
-    document.addEventListener('mousemove', onZoneMouseMove);
-    document.addEventListener('mouseup',   onZoneMouseUp);
-    function onEmptyClick(ev) {
-        document.removeEventListener('mouseup', onEmptyClick);
-        if (Math.abs(ev.clientX - e.clientX) < 5 && Math.abs(ev.clientY - e.clientY) < 5) {
-            isSelectingRect = false;
-            document.removeEventListener('mousemove', onZoneMouseMove);
-            document.removeEventListener('mouseup',   onZoneMouseUp);
-            if (selectionRect) selectionRect.style.display = 'none';
-            stopSelectMode();
-        }
-    }
-    document.addEventListener('mouseup', onEmptyClick);
-}
 
-function onZoneMouseMove(e) {
-    if (!isSelectingRect) return;
-    const pos = getBoardPos(e);
-    const x = Math.min(pos.x, selectStartX), y = Math.min(pos.y, selectStartY);
-    Object.assign(selectionRect.style, { left: x+'px', top: y+'px', width: Math.abs(pos.x-selectStartX)+'px', height: Math.abs(pos.y-selectStartY)+'px' });
-}
+    const onMove = (ev) => {
+        if (!isSelectingRect) return;
+        const p = getBoardPos(ev);
+        const x = Math.min(p.x, selectStartX), y = Math.min(p.y, selectStartY);
+        Object.assign(selectionRect.style, {
+            left: x+'px', top: y+'px',
+            width: Math.abs(p.x - selectStartX)+'px',
+            height: Math.abs(p.y - selectStartY)+'px'
+        });
+    };
 
-function onZoneMouseUp(e) {
-    if (!isSelectingRect) return;
-    isSelectingRect = false;
-    document.removeEventListener('mousemove', onZoneMouseMove);
-    document.removeEventListener('mouseup',   onZoneMouseUp);
-    const pos = getBoardPos(e);
-    const rx = Math.min(pos.x, selectStartX), ry = Math.min(pos.y, selectStartY);
-    const rw = Math.abs(pos.x - selectStartX), rh = Math.abs(pos.y - selectStartY);
-    if (rw < 5 && rh < 5) { clearSelection(); return; }
-    const br = board.getBoundingClientRect();
-    document.querySelectorAll('.widget, .shape-widget').forEach(w => {
-        const r = w.getBoundingClientRect();
-        const wl = r.left - br.left, wt = r.top - br.top;
-        if (wl < rx+rw && wl+r.width > rx && wt < ry+rh && wt+r.height > ry) {
-            selectedWidgets.push(w); w.classList.add('selected');
+    const onUp = (ev) => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        if (!isSelectingRect) return;
+        isSelectingRect = false;
+
+        const dx = Math.abs(ev.clientX - mouseDownClientX);
+        const dy = Math.abs(ev.clientY - mouseDownClientY);
+
+        if (dx < 5 && dy < 5) {
+            // Simple clic sur le fond → désélectionner
+            clearSelection();
+            return;
         }
-    });
-    strokes.forEach(s => {
-        if (s.points.some(p => p.x >= rx && p.x <= rx+rw && p.y >= ry && p.y <= ry+rh)) selectedStrokes.push(s);
-    });
-    redrawStrokes();
-    updateSelectionOverlay();
-    selectionRect.style.display = 'none';
+
+        // Sélectionner les éléments dans le rectangle
+        const pos2 = getBoardPos(ev);
+        const rx = Math.min(pos2.x, selectStartX), ry = Math.min(pos2.y, selectStartY);
+        const rw = Math.abs(pos2.x - selectStartX), rh = Math.abs(pos2.y - selectStartY);
+        const br = board.getBoundingClientRect();
+
+        document.querySelectorAll('.widget, .shape-widget').forEach(w => {
+            const r = w.getBoundingClientRect();
+            const wl = r.left - br.left, wt = r.top - br.top;
+            if (wl < rx+rw && wl+r.width > rx && wt < ry+rh && wt+r.height > ry) {
+                selectedWidgets.push(w);
+                w.classList.add('selected');
+            }
+        });
+
+        // Sélectionner traits canvas dans le rectangle
+        if (strokes) {
+            strokes.forEach(s => {
+                if (s.points.some(p => p.x >= rx && p.x <= rx+rw && p.y >= ry && p.y <= ry+rh))
+                    selectedStrokes.push(s);
+            });
+        }
+
+        if (drawCtx) redrawStrokes();
+        updateSelectionOverlay();
+        if (selectionRect) selectionRect.style.display = 'none';
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
 }
 
 function clearSelection() {
     selectedWidgets.forEach(w => w.classList.remove('selected'));
     selectedWidgets = []; selectedStrokes = [];
-    redrawStrokes();
+    if (drawCtx) redrawStrokes();
     document.getElementById('selection-controls').style.display = 'none';
     if (selectionRect) selectionRect.style.display = 'none';
+    board.classList.remove('single-select');
+    board.classList.remove('multi-select');
+}
+
+
+// =========================================================================
+// GROUPEMENT DE WIDGETS
+// =========================================================================
+let groupCounter = 0;
+
+function mergeWidgets() {
+    if (selectedWidgets.length < 2) return;
+    snapshotNow();
+
+    // Générer un identifiant de groupe unique
+    groupCounter++;
+    const groupId = 'grp-' + Date.now() + '-' + groupCounter;
+
+    // Affecter le groupe à chaque widget sélectionné
+    selectedWidgets.forEach(w => {
+        // Si déjà dans un autre groupe, on fusionne les deux groupes
+        const existingGroup = w.dataset.groupId;
+        if (existingGroup && existingGroup !== groupId) {
+            // Étendre le groupe à tous les membres de l'ancien groupe
+            document.querySelectorAll(`.widget[data-group-id="${existingGroup}"], .shape-widget[data-group-id="${existingGroup}"]`).forEach(m => {
+                m.dataset.groupId = groupId;
+            });
+        }
+        w.dataset.groupId = groupId;
+    });
+
+    // Garder la sélection visible
+    updateSelectionOverlay();
+    saveBoard();
+}
+
+function ungroupWidgets() {
+    if (selectedWidgets.length === 0) return;
+    snapshotNow();
+
+    // Collecter tous les groupIds concernés
+    const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
+
+    // Retirer le groupId de tous les membres de ces groupes
+    groupIds.forEach(gid => {
+        document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`).forEach(w => {
+            delete w.dataset.groupId;
+        });
+    });
+
+    clearSelection();
+    saveBoard();
 }
 
 function initSelectionControls() {
@@ -1828,32 +2018,84 @@ function initSelectionControls() {
         document.addEventListener('mousemove', onMoveMove);
         document.addEventListener('mouseup',   onMoveEnd);
     };
+    // Double-clic sur ↻ de l'overlay → reset rotation à 0° pour tous
+    document.getElementById('sc-rotate-btn').ondblclick = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        snapshotNow();
+        selectedWidgets.forEach(w => {
+            // Restaurer la position et rotation d'avant toute rotation de groupe
+            if (w.dataset.preRotLeft !== undefined) {
+                w.style.left      = w.dataset.preRotLeft;
+                w.style.top       = w.dataset.preRotTop;
+                w.style.transform = w.dataset.preRotTransform || '';
+                delete w.dataset.preRotLeft;
+                delete w.dataset.preRotTop;
+                delete w.dataset.preRotTransform;
+            } else {
+                w.style.transform = '';
+            }
+        });
+        hideRotationIndicator();
+        saveBoard(); updateSelectionOverlay();
+    };
     document.getElementById('sc-rotate-btn').onmousedown = (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
+        // Sauvegarder l'état initial (avant toute rotation de groupe) — 1 seule fois
+        selectedWidgets.forEach(w => {
+            if (w.dataset.preRotLeft === undefined) {
+                w.dataset.preRotLeft      = w.style.left;
+                w.dataset.preRotTop       = w.style.top;
+                w.dataset.preRotTransform = w.style.transform || '';
+            }
+        });
         const center = getSelectionCenter();
         rotateCenterX = center.x; rotateCenterY = center.y;
         const br = board.getBoundingClientRect();
         rotateStartAngle = Math.atan2(e.clientY - br.top - rotateCenterY, e.clientX - br.left - rotateCenterX);
         rotateOrigWidgetTransforms = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop, origRot: getCurrentRotation(w) }));
         rotateOrigStrokePoints = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({...p})) }));
-        document.addEventListener('mousemove', onRotateMoveOverlay);
-        document.addEventListener('mouseup',   onRotateEndOverlay);
-    };
-    document.getElementById('sc-pin-btn').onclick = (e) => {
-        e.stopPropagation();
-        snapshotNow();
-        const allPinned = selectedWidgets.every(w => w.dataset.pinned === "true");
-        selectedWidgets.forEach(w => {
-            if (allPinned) {
-                w.dataset.pinned = "false"; w.classList.remove('pinned');
-                widgetZCounter++; w.style.zIndex = widgetZCounter;
-            } else {
-                bringToFront(w, true);
+        const indicator = document.getElementById('rotation-indicator');
+        const onMove = (ev) => {
+            const br2 = board.getBoundingClientRect();
+            const angle = Math.atan2(ev.clientY - br2.top - rotateCenterY, ev.clientX - br2.left - rotateCenterX);
+            const delta = (angle - rotateStartAngle) * 180 / Math.PI;
+            rotateOrigWidgetTransforms.forEach(({ widget, origLeft, origTop, origRot }) => {
+                const cx2 = origLeft + widget.offsetWidth/2  - rotateCenterX;
+                const cy2 = origTop  + widget.offsetHeight/2 - rotateCenterY;
+                const rad = delta * Math.PI / 180;
+                widget.style.left      = (rotateCenterX + cx2*Math.cos(rad) - cy2*Math.sin(rad) - widget.offsetWidth/2)  + 'px';
+                widget.style.top       = (rotateCenterY + cx2*Math.sin(rad) + cy2*Math.cos(rad) - widget.offsetHeight/2) + 'px';
+                widget.style.transform = `rotate(${snapRotation(origRot + delta)}deg)`;
+            });
+            rotateOrigStrokePoints.forEach(({ stroke, origPoints }) => {
+                const rad = delta * Math.PI / 180;
+                stroke.points = origPoints.map(p => ({
+                    x: rotateCenterX + (p.x-rotateCenterX)*Math.cos(rad) - (p.y-rotateCenterY)*Math.sin(rad),
+                    y: rotateCenterY + (p.x-rotateCenterX)*Math.sin(rad) + (p.y-rotateCenterY)*Math.cos(rad)
+                }));
+            });
+            // Indicateur degrés
+            if (indicator && rotateOrigWidgetTransforms.length > 0) {
+                const deg = Math.round(((snapRotation(rotateOrigWidgetTransforms[0].origRot + delta) % 360) + 360) % 360);
+                document.getElementById('rot-deg').textContent = deg + '°';
+                indicator.style.display = 'block';
+                indicator.style.left = ev.clientX + 'px';
+                indicator.style.top  = ev.clientY + 'px';
+                indicator.querySelector('.rot-reset-hint').style.display = deg === 0 ? 'none' : 'inline';
             }
-        });
-        updateSelectionOverlay(); saveBoard();
+            if (drawCtx) redrawStrokes(); updateSelectionOverlay();
+        };
+        const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            hideRotationIndicator();
+            saveBoard(); updateSelectionOverlay();
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
     };
+    // Pas de bouton pin dans l'overlay de sélection
     document.getElementById('sc-delete-btn').onclick = (e) => {
         e.stopPropagation();
         snapshotNow();
@@ -1861,7 +2103,7 @@ function initSelectionControls() {
         selectedWidgets = [];
         strokes = strokes.filter(s => !selectedStrokes.includes(s));
         selectedStrokes = [];
-        redrawStrokes();
+        if (drawCtx) redrawStrokes();
         document.getElementById('selection-controls').style.display = 'none';
         saveBoard();
     };
@@ -1871,6 +2113,106 @@ function initSelectionControls() {
         const isOpen = menu.classList.contains('open');
         menu.classList.toggle('open', !isOpen);
         if (!isOpen) buildScCtxMenu(menu);
+    };
+    document.getElementById('sc-resize-btn').onmousedown = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (selectedWidgets.length < 2) return;
+        snapshotNow();
+        // Boîte englobante en coordonnées board via getBoundingClientRect
+        const br = board.getBoundingClientRect();
+        let bMinX=Infinity, bMinY=Infinity, bMaxX=-Infinity, bMaxY=-Infinity;
+        selectedWidgets.forEach(w => {
+            const r = w.getBoundingClientRect();
+            const l = r.left - br.left, t = r.top - br.top;
+            const rr = r.right - br.left, rb = r.bottom - br.top;
+            if (l  < bMinX) bMinX = l;  if (t  < bMinY) bMinY = t;
+            if (rr > bMaxX) bMaxX = rr; if (rb > bMaxY) bMaxY = rb;
+        });
+        const origBoxW = bMaxX - bMinX, origBoxH = bMaxY - bMinY;
+        if (origBoxW < 1 || origBoxH < 1) return;
+        const startClientX = e.clientX, startClientY = e.clientY;
+        // Pour chaque widget : position et taille initiales en coordonnées board
+        const origins = selectedWidgets.map(w => {
+            const r = w.getBoundingClientRect();
+            const wL = r.left  - br.left, wT = r.top    - br.top;
+            const wW = r.width,           wH = r.height;
+            const c = w.querySelector('.editor-container');
+            const svg = w.querySelector('svg');
+            return {
+                widget:  w,
+                relL: (wL - bMinX) / origBoxW,   // position relative dans la boîte [0..1]
+                relT: (wT - bMinY) / origBoxH,
+                relW: wW / origBoxW,              // taille relative
+                relH: wH / origBoxH,
+                container: c,
+                origCW: c   ? c.offsetWidth  : 0,
+                origCH: c   ? c.offsetHeight : 0,
+                svg: svg,
+                origSW: svg ? parseFloat(svg.getAttribute('width')  || svg.getBoundingClientRect().width)  : 0,
+                origSH: svg ? parseFloat(svg.getAttribute('height') || svg.getBoundingClientRect().height) : 0,
+            };
+        });
+        const onMove = (ev) => {
+            const dx = ev.clientX - startClientX, dy = ev.clientY - startClientY;
+            const newBoxW = Math.max(80, origBoxW + dx);
+            const newBoxH = Math.max(80, origBoxH + dy);
+            const scaleX = newBoxW / origBoxW, scaleY = newBoxH / origBoxH;
+            origins.forEach(({ widget, relL, relT, relW, relH, container, origCW, origCH, svg, origSW, origSH }) => {
+                // Repositionner en coordonnées board
+                widget.style.left = (bMinX + relL * newBoxW) + 'px';
+                widget.style.top  = (bMinY + relT * newBoxH) + 'px';
+                // Redimensionner le contenu
+                if (container && origCW > 0) {
+                    container.style.width  = (origCW * scaleX) + 'px';
+                    container.style.height = (origCH * scaleY) + 'px';
+                }
+                if (svg && origSW > 0) {
+                    const newSW = origSW * scaleX, newSH = origSH * scaleY;
+                    svg.setAttribute('width', newSW);
+                    svg.setAttribute('height', newSH);
+                    // Redimensionner le widget shape lui-même
+                    widget.style.width  = newSW + 'px';
+                    widget.style.height = newSH + 'px';
+                }
+            });
+            updateSelectionOverlay();
+        };
+        const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            // Mettre à jour les pourcentages
+            const curW = window.innerWidth, curVH = virtualH(curW);
+            selectedWidgets.forEach(w => {
+                w.dataset.leftPercent = (w.offsetLeft / curW) * 100;
+                w.dataset.topPercent  = (w.offsetTop  / curVH) * 100;
+                const c = w.querySelector('.editor-container');
+                if (c) {
+                    w.dataset.widthPercent    = (c.offsetWidth  / curW) * 100;
+                    w.dataset.contentHPercent = (c.offsetHeight / curVH) * 100;
+                }
+            });
+            saveBoard();
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+    };
+    document.getElementById('sc-merge-btn').onclick = (e) => {
+        e.stopPropagation();
+        mergeWidgets();
+    };
+    document.getElementById('sc-ungroup-btn').onclick = (e) => {
+        e.stopPropagation();
+        // Inline pour être sûr que selectedWidgets est encore valide
+        const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
+        if (groupIds.size === 0) return;
+        snapshotNow();
+        groupIds.forEach(gid => {
+            document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`).forEach(w => {
+                delete w.dataset.groupId;
+            });
+        });
+        clearSelection();
+        saveBoard();
     };
 }
 
@@ -1905,6 +2247,23 @@ function buildScCtxMenu(menu) {
             else cloneWidget(w);
         });
     });
+    // Afficher "Dissocier" si au moins un widget est dans un groupe
+    const hasGroup = selectedWidgets.some(w => w.dataset.groupId);
+    if (hasGroup) {
+        // Capturer les groupIds maintenant (avant fermeture du menu)
+        const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
+        addSep();
+        addBtn('⛓️‍💥 Dissocier le groupe', () => {
+            snapshotNow();
+            groupIds.forEach(gid => {
+                document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`).forEach(w => {
+                    delete w.dataset.groupId;
+                });
+            });
+            clearSelection();
+            saveBoard();
+        });
+    }
 }
 
 function onMoveMove(e) {
@@ -1916,7 +2275,7 @@ function onMoveMove(e) {
     strokeMoveOrigins.forEach(({ stroke, origPoints }) => {
         stroke.points = origPoints.map(p => ({ x: p.x + dx, y: p.y + dy }));
     });
-    redrawStrokes(); updateSelectionOverlay();
+    if (drawCtx) redrawStrokes(); updateSelectionOverlay();
 }
 
 function onMoveEnd() {
@@ -1963,7 +2322,7 @@ function onRotateMoveOverlay(e) {
             y: rotateCenterY + (p.x-rotateCenterX)*Math.sin(rad) + (p.y-rotateCenterY)*Math.cos(rad)
         }));
     });
-    redrawStrokes(); updateSelectionOverlay();
+    if (drawCtx) redrawStrokes(); updateSelectionOverlay();
 }
 
 function onRotateEndOverlay() {
@@ -1975,7 +2334,20 @@ function onRotateEndOverlay() {
 function updateSelectionOverlay() {
     const has = selectedWidgets.length > 0 || selectedStrokes.length > 0;
     const ctrl = document.getElementById('selection-controls');
-    if (!has) { ctrl.style.display = 'none'; return; }
+    if (!has) {
+        ctrl.style.display = 'none';
+        board.classList.remove('single-select');
+        return;
+    }
+    // Sélection unique : pas d'overlay, les poignées natives suffisent
+    if (selectedWidgets.length === 1 && selectedStrokes.length === 0) {
+        board.classList.add('single-select');
+        board.classList.remove('multi-select');
+        ctrl.style.display = 'none';
+        return;
+    }
+    board.classList.remove('single-select');
+    board.classList.add('multi-select');
     let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
     const br = board.getBoundingClientRect();
     selectedWidgets.forEach(w => {
@@ -1989,9 +2361,27 @@ function updateSelectionOverlay() {
     ctrl.style.display = 'block';
     ctrl.style.left   = minX + 'px'; ctrl.style.top    = minY + 'px';
     ctrl.style.width  = (maxX - minX) + 'px'; ctrl.style.height = (maxY - minY) + 'px';
-    if (selectedWidgets.length > 0) {
-        const allPinned = selectedWidgets.every(w => w.dataset.pinned === "true");
-        document.getElementById('sc-pin-btn').classList.toggle('pinned', allPinned);
+    // Bouton Grouper / Dissocier
+    const mergeBtn   = document.getElementById('sc-merge-btn');
+    const ungroupBtn = document.getElementById('sc-ungroup-btn');
+    if (mergeBtn && ungroupBtn) {
+        const noStrokes = selectedStrokes.length === 0;
+        const multi     = selectedWidgets.length >= 2;
+        // "Tous dans le même groupe" = tous ont un groupId ET c'est le même pour tous
+        const groupIds  = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
+        const allSameGroup = groupIds.size === 1 && selectedWidgets.every(w => w.dataset.groupId);
+        if (noStrokes && allSameGroup) {
+            // Sélection = un groupe existant → montrer Dissocier
+            mergeBtn.style.display   = 'none';
+            ungroupBtn.style.display = 'flex';
+        } else if (noStrokes && multi) {
+            // Sélection multiple sans groupe commun → montrer Grouper
+            mergeBtn.style.display   = 'flex';
+            ungroupBtn.style.display = 'none';
+        } else {
+            mergeBtn.style.display   = 'none';
+            ungroupBtn.style.display = 'none';
+        }
     }
 }
 
@@ -2155,7 +2545,6 @@ function toggleGlobalToolbar() {
         isTextPlacementMode = true;
         boardEl.classList.add('cursor-pencil');
         if (typeof stopDrawing === "function") stopDrawing();
-        if (isSelectMode) toggleSelectMode();
     } else {
         closeGlobalToolbar();
     }
