@@ -27,7 +27,7 @@
 
         /* --- CONTRÔLES NATIFS DES WIDGETS --- */
         .widget-header { display: none !important; }
-        .drag-handle, .widget-close-handle, .widget-pin-handle, .widget-rotate-handle, .widget-menu-handle {
+        .drag-handle, .widget-close-handle, .widget-pin-handle, .widget-rotate-handle, .widget-menu-handle, .widget-back-handle {
             position: absolute; width: 26px; height: 26px; background: #f8f9fa; border-radius: 6px;
             display: flex; align-items: center; justify-content: center; z-index: 100;
             opacity: 0; transition: opacity 0.2s; border: 1px solid #ddd;
@@ -37,25 +37,35 @@
         .widget-rotate-handle { right: -13px; top: 50%; transform: translateY(-50%); cursor: grab; font-size: 14px; color: #8E51FF; }
         .widget-rotate-handle:active { cursor: grabbing; }
         .widget-close-handle  { top: 5px; right: 5px; cursor: pointer; font-size: 14px; color: #ff5f56; }
-        .widget-pin-handle    { top: -13px; left: 50%; transform: translateX(-50%); cursor: pointer; font-size: 13px; color: #f39c12; }
-        .widget-menu-handle   { top: 5px; left: 5px; cursor: pointer; font-size: 13px; color: #555; }
+        .widget-pin-handle    { top: -13px; left: calc(50% - 16px); transform: translateX(-50%); cursor: pointer; font-size: 13px; color: #f39c12; }
+        .widget-back-handle   { top: -13px; left: calc(50% + 16px); transform: translateX(-50%); cursor: pointer; font-size: 13px; color: #888; }
+        .widget-menu-handle   { bottom: -13px; left: 50%; transform: translateX(-50%); top: auto; cursor: pointer; font-size: 13px; color: #555; }
         .widget:focus-within .drag-handle,
         .widget:focus-within .widget-close-handle,
         .widget:focus-within .widget-pin-handle,
+        .widget:focus-within .widget-back-handle,
         .widget:focus-within .widget-rotate-handle,
         .widget:focus-within .widget-menu-handle { opacity: 1; pointer-events: auto; }
+        .shape-widget:focus-within .drag-handle,
+        .shape-widget:focus-within .widget-close-handle,
+        .shape-widget:focus-within .widget-pin-handle,
+        .shape-widget:focus-within .widget-back-handle,
+        .shape-widget:focus-within .widget-rotate-handle,
+        .shape-widget:focus-within .widget-menu-handle { opacity: 1; pointer-events: auto; }
         .widget-close-handle:hover  { color: #ff5f56; background: white; }
         .drag-handle:hover          { color: var(--primary-color); background: white; }
         .widget-pin-handle:hover    { background: white; }
+        .widget-back-handle:hover   { background: white; }
         .widget-rotate-handle:hover { color: #5a1fb8; background: white; }
         .widget-menu-handle:hover   { background: white; }
         .widget.pinned .widget-pin-handle { background: #FFD230; }
         .widget.pinned { border: 2px solid transparent !important; }
+        .shape-widget.pinned .widget-pin-handle { background: #FFD230; }
 
         /* --- MENU CONTEXTUEL --- */
         .widget-ctx-menu {
-            position: absolute; top: 28px; left: 2px; background: #1F1F21;
-            border: 1px solid #444; border-radius: 10px; padding: 5px 0;
+            position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); top: auto;
+            background: #1F1F21; border: 1px solid #444; border-radius: 10px; padding: 5px 0;
             min-width: 170px; z-index: 200; box-shadow: 0 6px 20px rgba(0,0,0,0.35);
             display: none; flex-direction: column;
         }
@@ -68,8 +78,8 @@
         .widget-ctx-menu button:hover { background: #333; }
         .widget-ctx-menu hr { border: none; border-top: 1px solid #444; margin: 4px 0; }
 
-		/* Curseur crayon pour le mode insertion de texte */
-		.cursor-pencil { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='fill:black'><text y='20' font-size='20'>✏️</text></svg>"), auto !important; }
+        /* Curseur crayon pour le mode insertion de texte */
+        .cursor-pencil { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='fill:black'><text y='20' font-size='20'>✏️</text></svg>"), auto !important; }
         /* Curseur gomme */
         #draw-canvas.eraser-mode { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><rect x='4' y='10' width='24' height='16' rx='3' fill='%23fff' stroke='%23aaa' stroke-width='2'/><rect x='4' y='10' width='12' height='16' rx='3' fill='%23ffcccc'/></svg>"), crosshair !important; }
 
@@ -83,14 +93,8 @@
             display: flex; flex-direction: column;
         }
         .shape-widget .drag-handle, .shape-widget .widget-close-handle,
-        .shape-widget .widget-pin-handle, .shape-widget .widget-rotate-handle,
-        .shape-widget .widget-menu-handle { opacity: 0; pointer-events: none; }
-        .shape-widget:focus-within .drag-handle,
-        .shape-widget:focus-within .widget-close-handle,
-        .shape-widget:focus-within .widget-pin-handle,
-        .shape-widget:focus-within .widget-rotate-handle,
-        .shape-widget:focus-within .widget-menu-handle { opacity: 1; pointer-events: auto; }
-        .shape-widget.pinned .widget-pin-handle { background: #FFD230; }
+        .shape-widget .widget-pin-handle, .shape-widget .widget-back-handle,
+        .shape-widget .widget-rotate-handle, .shape-widget .widget-menu-handle { opacity: 0; pointer-events: none; }
         .shape-svg-wrap { display: flex; align-items: center; justify-content: center; padding: 16px; min-width: 80px; min-height: 80px; cursor: default; }
         .shape-svg-wrap svg { overflow: visible; display: block; pointer-events: none; }
         .shape-resize-handle {
@@ -100,6 +104,18 @@
             border-radius: 0 0 4px 0;
         }
         .shape-widget:focus-within .shape-resize-handle { opacity: 1; }
+
+        /* --- SÉLECTION --- */
+        .widget.selected, .widget.selected:focus-within {
+            outline: 3px solid #4a90e2 !important;
+            outline-offset: 6px;
+            box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important;
+        }
+        .shape-widget.selected, .shape-widget.selected:focus-within {
+            outline: 3px solid #4a90e2 !important;
+            outline-offset: 6px;
+            box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important;
+        }
 
         /* --- Sous-menu formes --- */
         #shape-toolbar {
@@ -151,13 +167,12 @@
         #selection-controls .sc-rotate:active { cursor: grabbing; }
         #selection-controls .sc-pin    { top: -16px; left: 50%; transform: translateX(-50%); color: #f39c12; }
         #selection-controls .sc-delete { top: 5px; right: 5px; color: #ff5f56; }
-        #selection-controls .sc-menu   { top: 5px; left: 5px;  color: #555; }
+        #selection-controls .sc-menu   { top: 5px; left: 5px; color: #555; }
         #selection-controls .sc-btn:hover { background: white; }
         #selection-controls .sc-move:hover   { transform: translateY(-50%) scale(1.1); }
         #selection-controls .sc-rotate:hover { transform: translateY(-50%) scale(1.1); }
         #selection-controls .sc-pin:hover    { transform: translateX(-50%) scale(1.1); }
         #selection-controls .sc-pin.pinned   { background: #FFD230; }
-        /* Menu contextuel de l'overlay de sélection */
         #sc-ctx-menu {
             position: absolute; top: 38px; left: 5px; background: #1F1F21;
             border: 1px solid #444; border-radius: 10px; padding: 5px 0;
@@ -187,10 +202,10 @@
         .editor-container::-webkit-resizer { background-color: transparent; }
         .widget:hover .editor-container::-webkit-resizer { background-color: #ccc; background-image: linear-gradient(135deg, transparent 50%, #333 50%, #333 60%, transparent 60%, transparent 70%, #333 70%, #333 80%, transparent 80%); }
         .editor-toolbar button, .editor-toolbar select, .editor-toolbar input { padding: 2px 4px; cursor: pointer; border: 1px solid #ddd; background: white; border-radius: 4px; font-size: 11px; height: 26px; box-sizing: border-box; }
-        @font-face { font-family: 'KGPerfectPenmanship'; src: url('./KGPerfectPenmanship.ttf') format('truetype'); }
-        @font-face { font-family: 'Andika'; src: url('./Andika.ttf') format('truetype'); }
-        @font-face { font-family: 'OpenDyslexicLocal'; src: url('./OpenDyslexic-Regular.otf') format('opentype'); }
-        @font-face { font-family: 'BelleAllureGS'; src: url('BelleAllureGS-Gros.otf') format('opentype'); }
+        @font-face { font-family: 'KGPerfectPenmanship'; src: url('polices/KGPerfectPenmanship.ttf') format('truetype'); }
+        @font-face { font-family: 'Andika'; src: url('polices/Andika.ttf') format('truetype'); }
+        @font-face { font-family: 'OpenDyslexicLocal'; src: url('polices/OpenDyslexic-Regular.otf') format('opentype'); }
+        @font-face { font-family: 'BelleAllureGS'; src: url('polices/BelleAllureGS-Gros.otf') format('opentype'); }
         .editor-content { padding: 10px; outline: none; overflow: auto; text-align: left; flex-grow: 1; }
 
         /* --- TOOLBAR & MENUS --- */
@@ -201,10 +216,10 @@
         #bg-submenu.active { display: grid; }
         @media (max-width: 600px) { #bg-submenu { left: 30px; bottom: 120px; min-width: 200px; grid-template-columns: repeat(2, 1fr); } }
         .tool-btn { background: var(--primary-color); color: black; border: none; padding: 5px 5px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.widget-btn { color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.menu-btn { background: #cccccc; color: white; border: none; padding: 12px 30px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.undo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.redo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .widget-btn { color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .menu-btn { background: #cccccc; color: white; border: none; padding: 12px 30px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .undo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+        .redo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
         #main-tool-btn { background: #333; width: 100px; justify-content: center; }
         .exit-fs-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 99999; background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
         :fullscreen .exit-fs-btn { display: block; }
@@ -214,7 +229,6 @@
         /* --- CANVAS --- */
         #draw-canvas { position: absolute; top: 0; left: 0; z-index: 12000; cursor: crosshair; touch-action: none; }
         #draw-canvas.inactive { pointer-events: none; cursor: default; z-index: 500; }
-        .widget.selected { outline: 3px dashed #f39c12 !important; outline-offset: 4px; }
         #selection-rect { position: absolute; border: 2px dashed #f39c12; background: rgba(243,156,18,0.08); pointer-events: none; z-index: 600; display: none; }
 
         /* --- CALENDRIER & HORLOGE --- */
@@ -223,7 +237,7 @@
         .calendar-header { background: #D17B6B; height: 20%; min-height: 30px; border-bottom: 2px solid #D17B6B; margin-bottom: 5px; }
         .calendar-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding: 5px; }
         .calendar-day-name   { font-size: 0.75em; font-weight: 700; color: #333; text-transform: lowercase; }
-        .calendar-day-number { font-size: 2.2em;  font-weight: 800; color: #2c3e50; line-height: 1em; margin: 0.12em 0; }
+        .calendar-day-number { font-size: 2.2em; font-weight: 800; color: #2c3e50; line-height: 1em; margin: 0.12em 0; }
         .calendar-month      { font-size: 0.95em; font-weight: 600; color: #333; }
         .clock-time { font-weight: 800; color: var(--primary-color); font-family: 'Courier New', monospace; display: flex; align-items: baseline; justify-content: center; width: 100%; gap: 4px; }
         .clock-seconds { font-size: 0.5em; color: #888; margin-left: 0.1em; }
@@ -246,13 +260,15 @@
         .agenda-delete-row { cursor: pointer; color: #e74c3c; font-weight: bold; font-size: 1em; padding: 0 5px; opacity: 0; transition: opacity 0.2s; }
         .agenda-item:hover .agenda-delete-row { opacity: 1; }
 
+        /* --- PANNEAU ÉDITION FORME --- */
+        #shape-edit-panel { display:none; position:fixed; background:#1F1F21; border-radius:14px; padding:14px 16px; box-shadow:0 -4px 30px rgba(0,0,0,0.4); z-index:10000; border:1px solid #3a3a3f; min-width:300px; }
+
         /* --- MODALES --- */
         #modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:20000; justify-content:center; align-items:center; }
         .modal-content { background:white; padding:30px; border-radius:var(--border-radius); box-shadow:var(--shadow); text-align:center; max-width:400px; width:90%; }
         .modal-content button { padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
         .modal-content .btn-cancel { border: 1px solid #ddd; background: #f8f9fa; color: var(--text-color); }
         .modal-content .btn-confirm { border: none; background: #ff4757; color: white; }
-
 </style>
 </head>
 <body>
@@ -279,7 +295,7 @@
         <button class="widget-btn" onclick="createWidget('text'); toggleMenu()" style="background:#2B7FFF;"><span>🖊️</span> Texte</button>
         <button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()" style="background:#8E51FF;">📌 Planning</button>
         <button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()" style="background:#480eb3;"><span>🧘</span> Défi Calme</button>
-		<button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()" style="background:#E74C3C;"><span>📄</span> PDF</button>
+        <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()" style="background:#E74C3C;"><span>📄</span> PDF</button>
         <hr style="width:100%;border:0;border-top:1px solid #eee;margin:5px 0;">
         <button class="widget-btn" style="background:#71717B;" onclick="toggleSubMenu(event)"><span>🖼️</span> Choisir fond ❯</button>
         <div id="bg-submenu">
@@ -288,7 +304,7 @@
             <div class="bg-thumb" style="background-color:#104626;" onclick="applyBackground('#104626');saveBg('#104626')" title="Vert Tableau"></div>
             <div class="bg-thumb" style="background-color:#BAA09B;" onclick="applyBackground('#BAA09B');saveBg('#BAA09B')" title="Vieux rose"></div>
             <div class="bg-thumb" style="background-color:#EDD9D5;" onclick="applyBackground('#EDD9D5');saveBg('#EDD9D5')" title="Beige"></div>
-			<div class="bg-thumb" style="background-color:#000000;" onclick="applyBackground('#000000');saveBg('#000000')" title="Noir"></div>
+            <div class="bg-thumb" style="background-color:#000000;" onclick="applyBackground('#000000');saveBg('#000000')" title="Noir"></div>
             <button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background:#8e44ad;padding:5px;font-size:10px;grid-column:span 3;border-radius:8px;"><span>📷</span> Importer image</button>
         </div>
     </div>
@@ -297,9 +313,7 @@
     <div id="shape-toolbar" style="position:relative;">
         <button class="shape-toolbar-close" onclick="toggleShapeToolbar()" title="Fermer">✖</button>
         <div class="shape-toolbar-title">Choisir une forme</div>
-        <div class="shape-grid" id="shape-grid">
-            <!-- rempli par JS -->
-        </div>
+        <div class="shape-grid" id="shape-grid"></div>
         <div class="shape-controls">
             <label>Contour :</label>
             <input type="color" id="shape-stroke-color" value="#2c3e50" title="Couleur du contour">
@@ -318,21 +332,21 @@
     </div>
 
     <!-- Panneau d'édition d'une forme existante -->
-    <div id="shape-edit-panel" style="display:none;position:fixed;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:10000;border:1px solid #3a3a3f;min-width:300px;">
+    <div id="shape-edit-panel">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span style="color:#aaa;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Modifier la forme</span>
             <button onclick="closeShapeEditPanel()" style="background:none;border:none;color:#666;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;">✖</button>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid #333;padding-top:10px;">
             <label style="color:#aaa;font-size:11px;">Contour :</label>
-            <input type="color" id="edit-stroke-color" value="#2c3e50" title="Couleur du contour" onchange="applyShapeEdit()">
+            <input type="color" id="edit-stroke-color" value="#2c3e50" onchange="applyShapeEdit()">
             <label style="color:#aaa;font-size:11px;">Épaisseur :</label>
             <input type="range" id="edit-stroke-width" min="1" max="20" value="4" style="width:70px;cursor:pointer;" oninput="document.getElementById('edit-stroke-width-val').textContent=this.value+'px';applyShapeEdit()">
             <span id="edit-stroke-width-val" style="color:#fff;font-size:11px;min-width:28px;">4px</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;">
             <label style="color:#aaa;font-size:11px;">Remplissage :</label>
-            <input type="color" id="edit-fill-color" value="#4a90e2" title="Couleur de remplissage" onchange="applyShapeEdit()">
+            <input type="color" id="edit-fill-color" value="#4a90e2" onchange="applyShapeEdit()">
             <label style="color:#aaa;font-size:11px;">Opacité :</label>
             <input type="range" id="edit-fill-opacity" min="0" max="100" value="60" style="width:70px;cursor:pointer;" oninput="document.getElementById('edit-fill-opacity-val').textContent=this.value+'%';applyShapeEdit()">
             <span id="edit-fill-opacity-val" style="color:#fff;font-size:11px;min-width:28px;">60%</span>
@@ -395,22 +409,22 @@
     <!-- Barre du bas -->
     <div style="position:fixed;bottom:30px;left:0;right:0;display:flex;align-items:center;padding:0 30px;gap:10px;z-index:9999;pointer-events:none;">
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-            <button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="font-size:15px;">WIDGETS</button>
-            <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Annuler la dernière action">↩</button>
-            <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Refaire">↪</button>
-			<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Outil dessin">✏️</button>
-            <button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Gomme">🧹</button>
-            <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee; cursor:pointer; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Ajouter une forme">🔲</button>
-            <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee; cursor:pointer; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Outils texte">🖊️</button>
-            <button id="select-btn" class="tool-btn" onclick="toggleSelectMode()" style="background:#eeeeee; cursor:pointer; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Sélectionner">👆</button>
+            <button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="border:2px solid rgba(0,0,0,0.5);box-sizing:border-box; font-size:15px;">WIDGETS</button>
+            <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Annuler">↩</button>
+            <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Refaire">↪</button>
+            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Outil dessin">✏️</button>
+            <button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gomme">🧹</button>
+            <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
+            <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Outils texte">🖊️</button>
+            <button id="select-btn" class="tool-btn" onclick="toggleSelectMode()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sélectionner">👆</button>
         </div>
         <div style="flex:1;"></div>
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-            <button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Sauvegarder le bureau">💾</button>
-            <button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Charger un bureau">📂</button>
+            <button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sauvegarder">💾</button>
+            <button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Charger">📂</button>
             <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
-            <button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee; border: 2px solid rgba(255, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Effacer tout le bureau">❌</button>
-            <button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee; border: 2px solid rgba(0, 0, 0, 0.5); box-sizing: border-box; font-size:20px;" title="Aide">❓</button>
+            <button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee; border:2px solid rgba(255,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Effacer tout">❌</button>
+            <button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee; border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Aide">❓</button>
         </div>
     </div>
 </div>
@@ -437,31 +451,17 @@
         </div>
         <h4 style="margin:14px 0 4px 0;">1. Ajouter et déplacer des widgets</h4>
         <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
-            <li>Ouvrez le menu <b>WIDGETS</b> pour ajouter un widget (Texte, Devoirs, Planning, Date, Heure, Web, etc.).</li>
-            <li>Utilisez la poignée <b>✥</b> à gauche du cadre pour déplacer un widget.</li>
-            <li>Le bouton <b>📌</b> fixe un widget au premier plan, <b>⧉</b> le duplique, <b>×</b> le ferme.</li>
+            <li>Ouvrez le menu <b>WIDGETS</b> pour ajouter un widget.</li>
+            <li>Utilisez la poignée <b>✥</b> à gauche pour déplacer. <b>📌</b> épingle au premier plan, <b>🔽</b> envoie derrière, <b>×</b> ferme.</li>
+            <li>Le bouton <b>☰</b> (bas du widget) donne accès à dupliquer et modifier.</li>
         </ul>
         <h4 style="margin:10px 0 4px 0;">2. Formes géométriques</h4>
         <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
-            <li>Cliquez sur <b>⬟</b> dans la barre du bas pour ouvrir le panneau des formes.</li>
-            <li>Choisissez une forme (cercle, carré, rectangle, losange, parallélogramme, flèche, cube, pyramide, etc.).</li>
-            <li>Configurez la couleur du contour, la couleur de remplissage et l'opacité du remplissage.</li>
-            <li>Cliquez sur <b>+ Ajouter la forme</b>. La forme apparaît sur le bureau et se redimensionne en tirant son coin inférieur droit.</li>
+            <li>Cliquez sur <b>🔲</b> pour ouvrir le panneau des formes. Double-cliquez sur une forme pour modifier ses couleurs.</li>
         </ul>
-        <h4 style="margin:10px 0 4px 0;">3. Modifier le texte</h4>
+        <h4 style="margin:10px 0 4px 0;">3. Sauvegarder et charger</h4>
         <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
-            <li>Cliquez dans un widget Texte ou Devoirs pour écrire directement.</li>
-            <li>La petite barre au-dessus du texte (ou la grande barre "Outils texte") permet de mettre en <b>gras</b>, <i>italique</i>, changer la police, la taille, la couleur et le surlignage.</li>
-        </ul>
-        <h4 style="margin:10px 0 4px 0;">4. Sauvegarder et charger un bureau</h4>
-        <ul style="margin:4px 0 10px 18px;font-size:13px;color:#333;">
-            <li>Le bouton <b>💾</b> exporte la disposition actuelle dans un fichier <code>.json</code>.</li>
-            <li>Le bouton <b>📂</b> permet de charger un bureau précédemment sauvegardé.</li>
-        </ul>
-        <h4 style="margin:10px 0 4px 0;">5. Dessin et sélection</h4>
-        <ul style="margin:4px 0 10px 0;font-size:13px;color:#333;">
-            <li>Le bouton <b>✏️</b> active le mode dessin libre.</li>
-            <li>Le bouton <b>👆</b> active la sélection multiple de widgets.</li>
+            <li><b>💾</b> exporte en fichier .json, <b>📂</b> recharge un bureau sauvegardé.</li>
         </ul>
         <div style="text-align:right;margin-top:10px;">
             <button class="btn-cancel" onclick="closeHelpModal()">Fermer</button>
@@ -469,32 +469,7 @@
     </div>
 </div>
 
-<script type="text/html" id="toolbar-html">
-<div class="editor-toolbar">
-    <button onclick="format('bold')">G</button>
-    <button onclick="format('italic')">I</button>
-    <button onclick="format('underline')">S</button>
-    <span style="font-size:10px;margin-left:5px;">Texte :</span>
-    <input type="color" onchange="format('foreColor',this.value)" title="Couleur du texte">
-    <span style="font-size:10px;margin-left:5px;">Surligner :</span>
-    <input type="color" onchange="format('backColor',this.value)" title="Surligner" value="#ffff00">
-    <span style="font-size:10px;margin-left:5px;">Fond :</span>
-    <input type="color" onchange="changeWidgetBg(this,this.value)" title="Fond du cadre" value="#ffffff">
-    <button onclick="toggleTransparency(this)" title="Fond transparent"><span class="icon-transparency"></span></button>
-    <select onchange="formatFontFamily(this.value)" style="width:140px;margin-left:5px;">
-        <option value="Arial, sans-serif">Arial</option>
-        <option value="'Segoe UI', sans-serif">Segoe UI</option>
-        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
-        <option value="Verdana, sans-serif">Verdana</option>
-        <option value="'KGPerfectPenmanship', sans-serif">KGPerfectPenmanship</option>
-        <option value="'Andika', sans-serif">Andika</option>
-        <option value="'OpenDyslexicLocal', sans-serif">🧩 OpenDyslexic</option>
-        <option value="'BelleAllureGS', cursive">📏 Belle Allure GS</option>
-    </select>
-    <input type="number" value="40" min="8" max="100" onchange="formatFontSize(this.value)" style="width:40px;">
-</div>
-</script>
-
+<!-- TEMPLATES -->
 <template id="template-text">
     <div class="editor-container">
         <div class="editor-content" contenteditable="true" oninput="saveBoard()" style="font-size:40px;"></div>
@@ -577,7 +552,7 @@
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><span class="agenda-time" contenteditable="true">10:20</span><div class="agenda-text" contenteditable="true">Récréation</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">10:45</div><div class="agenda-text" contenteditable="true">Mathématiques</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">11:45</div><div class="agenda-text" contenteditable="true">Fin de la matinée</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
-                <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">---------------------------</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
+                <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">--:--</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">13:45</div><div class="agenda-text" contenteditable="true">Rituel / Quart d'heure lecture</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">14:00</div><div class="agenda-text" contenteditable="true">Matière</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
                 <div class="agenda-item" draggable="true"><span class="agenda-row-handle">⋮⋮</span><div class="agenda-time" contenteditable="true">15:20</div><div class="agenda-text" contenteditable="true">Récréation</div><span class="agenda-delete-row" onclick="deleteAgendaLine(this)" title="Supprimer">×</span></div>
@@ -614,42 +589,22 @@
 
 <script>
 // =========================================================================
-// INIT & VARIABLES GLOBALES
+// VARIABLES GLOBALES
 // =========================================================================
 let board = document.getElementById('board');
-
-// ── UNDO / REDO ──────────────────────────────────────────────────────────
-// Principe : on empile des snapshots AVANT chaque action destructive.
-// saveBoard() écrit dans localStorage ET pousse dans undoStack (sauf pendant
-// le chargement initial ou un undo/redo).
-let undoStack   = [];   // tableau de strings JSON (états passés)
-let redoStack   = [];   // tableau de strings JSON (états futurs)
-const MAX_UNDO  = 60;
+let undoStack = [], redoStack = [];
+const MAX_UNDO = 60;
 let isInitialLoading = true;
-let isRestoringState = false;   // vrai pendant un undo/redo
+let isRestoringState = false;
 let _pendingSnapshotTimer = null;
-
-// Capture l'état courant du localStorage dans la pile undo.
-// Appelé AVANT d'appliquer une action significative (déplace, supprime, crée…).
-function takeSnapshot() {
-    if (isInitialLoading || isRestoringState) return;
-    const cur = buildBoardJSON();
-    if (!cur) return;
-    // Dédoublonnage : ne pas empiler deux fois le même état consécutif
-    if (undoStack.length > 0 && undoStack[undoStack.length - 1] === cur) return;
-    undoStack.push(cur);
-    if (undoStack.length > MAX_UNDO) undoStack.shift();
-    redoStack = [];   // toute nouvelle action efface le futur
-    updateUndoRedoBtns();
-}
-
-// ── FIN UNDO / REDO ──────────────────────────────────────────────────────
-
 let savedSelection = null;
 let currentActiveWidget = null;
 const RATIO = 16 / 9;
 let _lastW = window.innerWidth;
 
+// =========================================================================
+// INIT
+// =========================================================================
 window.onload = () => {
     const savedBg = localStorage.getItem('boardBackground');
     if (savedBg) applyBackground(savedBg);
@@ -668,7 +623,6 @@ window.onload = () => {
                 if (sel.rangeCount > 0) savedSelection = sel.getRangeAt(0).cloneRange();
             });
         }
-        // Premier snapshot après chargement (état initial)
         const cur = buildBoardJSON();
         if (cur) undoStack.push(cur);
         updateUndoRedoBtns();
@@ -745,9 +699,77 @@ function handleWindowResize() {
 }
 
 // =========================================================================
+// UNDO / REDO
+// =========================================================================
+function snapshotNow() {
+    if (isInitialLoading || isRestoringState) return;
+    clearTimeout(_pendingSnapshotTimer);
+    const cur = buildBoardJSON();
+    if (!cur) return;
+    if (undoStack.length > 0 && undoStack[undoStack.length - 1] === cur) return;
+    undoStack.push(cur);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+    redoStack = [];
+    updateUndoRedoBtns();
+}
+
+function scheduleSaveSnapshot() {
+    clearTimeout(_pendingSnapshotTimer);
+    _pendingSnapshotTimer = setTimeout(() => {
+        const cur = buildBoardJSON();
+        if (!cur) return;
+        if (undoStack.length > 0 && undoStack[undoStack.length - 1] === cur) return;
+        undoStack.push(cur);
+        if (undoStack.length > MAX_UNDO) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoBtns();
+    }, 800);
+}
+
+function undoAction() {
+    if (undoStack.length <= 1) return;
+    isRestoringState = true;
+    clearTimeout(_pendingSnapshotTimer);
+    redoStack.push(undoStack.pop());
+    const snap = undoStack[undoStack.length - 1];
+    document.querySelectorAll('.widget').forEach(w => w.remove());
+    document.querySelectorAll('.shape-widget').forEach(w => w.remove());
+    if (drawCanvas) { strokes = []; redrawStrokes(); }
+    try { const p = JSON.parse(snap); if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); } } catch(e) {}
+    localStorage.setItem('profBoardConfig', snap);
+    _lastW = window.innerWidth;
+    restoreBoardFromJSON(snap);
+    isRestoringState = false;
+    updateUndoRedoBtns();
+}
+
+function redoAction() {
+    if (redoStack.length === 0) return;
+    isRestoringState = true;
+    clearTimeout(_pendingSnapshotTimer);
+    const snap = redoStack.pop();
+    undoStack.push(snap);
+    document.querySelectorAll('.widget').forEach(w => w.remove());
+    document.querySelectorAll('.shape-widget').forEach(w => w.remove());
+    if (drawCanvas) { strokes = []; redrawStrokes(); }
+    try { const p = JSON.parse(snap); if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); } } catch(e) {}
+    localStorage.setItem('profBoardConfig', snap);
+    _lastW = window.innerWidth;
+    restoreBoardFromJSON(snap);
+    isRestoringState = false;
+    updateUndoRedoBtns();
+}
+
+function updateUndoRedoBtns() {
+    const ub = document.getElementById('undo-btn'), rb = document.getElementById('redo-btn');
+    const canU = undoStack.length > 1, canR = redoStack.length > 0;
+    if (ub) { ub.style.opacity = canU ? '1' : '0.4'; ub.style.cursor = canU ? 'pointer' : 'not-allowed'; }
+    if (rb) { rb.style.opacity = canR ? '1' : '0.4'; rb.style.cursor = canR ? 'pointer' : 'not-allowed'; }
+}
+
+// =========================================================================
 // SAUVEGARDE / CHARGEMENT
 // =========================================================================
-
 function getInnerHTMLNormalized(widget) {
     const factor = 1920 / window.innerWidth;
     const clone = widget.cloneNode(true);
@@ -788,13 +810,12 @@ function applyEditorStyleFromConfig(widget, style) {
     if (style.fontSizePx) editor.style.fontSize = style.fontSizePx + 'px';
 }
 
-// Construit l'objet JSON représentant l'état courant du bureau (sans sauvegarder)
 function buildBoardState() {
     const curW = window.innerWidth, curVH = virtualH(curW);
     const widgets = [];
     document.querySelectorAll('.widget').forEach(w => {
-        const iframe     = w.querySelector('iframe');
-        const c          = w.querySelector('.editor-container');
+        const iframe = w.querySelector('iframe');
+        const c = w.querySelector('.editor-container');
         const html = getInnerHTMLNormalized(w);
         const isTextLike = w.dataset.type === 'text' || w.dataset.type === 'homework';
         let wP = 0, hP = 0;
@@ -802,12 +823,15 @@ function buildBoardState() {
         const lP = (w.offsetLeft / curW) * 100;
         const tP = (w.offsetTop  / curVH) * 100;
         Object.assign(w.dataset, { widthPercent: wP, contentHPercent: hP, leftPercent: lP, topPercent: tP });
-        widgets.push({ type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
+        widgets.push({
+            type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
             html, content: html, iframeSrc: iframe?.src || null,
             transparent: w.dataset.transparent === "true",
             bgColor: w.dataset.bgColor || "#ffffff",
             editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
-            pinned: w.dataset.pinned === "true" });
+            pinned: w.dataset.pinned === "true",
+            background: w.dataset.background === "true"
+        });
     });
     const shapes = [];
     document.querySelectorAll('.shape-widget').forEach(w => {
@@ -820,14 +844,12 @@ function buildBoardState() {
         w.dataset.leftPercent = lP; w.dataset.topPercent = tP;
         w.dataset.wPercent = wP; w.dataset.hPercent = hP;
         shapes.push({
-            shapeType: w.dataset.shapeType,
-            strokeColor: w.dataset.strokeColor,
-            fillColor: w.dataset.fillColor,
-            fillOpacity: w.dataset.fillOpacity,
+            shapeType: w.dataset.shapeType, strokeColor: w.dataset.strokeColor,
+            fillColor: w.dataset.fillColor, fillOpacity: w.dataset.fillOpacity,
             strokeWidth: parseInt(w.dataset.strokeWidth || 4),
             leftPercent: lP, topPercent: tP, wPercent: wP, hPercent: hP,
-            transform: w.style.transform || '',
-            pinned: w.dataset.pinned === "true"
+            transform: w.style.transform || '', pinned: w.dataset.pinned === "true",
+            background: w.dataset.background === "true"
         });
     });
     return { widgets, shapes, refWidth: 1920, background: localStorage.getItem('boardBackground') || 'none' };
@@ -839,38 +861,8 @@ function buildBoardJSON() {
 
 function saveBoard() {
     if (isInitialLoading || isRestoringState) return;
-    const state = buildBoardState();
-    localStorage.setItem('profBoardConfig', JSON.stringify(state));
-    // Déclenche un snapshot différé (évite de polluer la pile lors de la frappe continue)
+    localStorage.setItem('profBoardConfig', JSON.stringify(buildBoardState()));
     scheduleSaveSnapshot();
-}
-
-// Snapshot différé : on attend 800ms d'inactivité avant d'enregistrer
-// (évite de créer un snapshot par touche lors de la saisie de texte)
-function scheduleSaveSnapshot() {
-    clearTimeout(_pendingSnapshotTimer);
-    _pendingSnapshotTimer = setTimeout(() => {
-        const cur = buildBoardJSON();
-        if (!cur) return;
-        if (undoStack.length > 0 && undoStack[undoStack.length - 1] === cur) return;
-        undoStack.push(cur);
-        if (undoStack.length > MAX_UNDO) undoStack.shift();
-        redoStack = [];
-        updateUndoRedoBtns();
-    }, 800);
-}
-
-// Snapshot immédiat pour les actions structurelles (déplace, supprime, crée…)
-function snapshotNow() {
-    if (isInitialLoading || isRestoringState) return;
-    clearTimeout(_pendingSnapshotTimer);
-    const cur = buildBoardJSON();
-    if (!cur) return;
-    if (undoStack.length > 0 && undoStack[undoStack.length - 1] === cur) return;
-    undoStack.push(cur);
-    if (undoStack.length > MAX_UNDO) undoStack.shift();
-    redoStack = [];
-    updateUndoRedoBtns();
 }
 
 function loadBoard() {
@@ -888,8 +880,7 @@ function restoreBoardFromJSON(json) {
         const widget = createWidget(w.type, '100px', '100px', false);
         const c = widget.querySelector('.editor-container');
         const hP = w.contentHPercent !== undefined ? w.contentHPercent : w.heightPercent;
-        Object.assign(widget.dataset, { widthPercent: w.widthPercent || 0, contentHPercent: hP || 0,
-            leftPercent: w.leftPercent ?? 0, topPercent: w.topPercent ?? 0 });
+        Object.assign(widget.dataset, { widthPercent: w.widthPercent || 0, contentHPercent: hP || 0, leftPercent: w.leftPercent ?? 0, topPercent: w.topPercent ?? 0 });
         if (c) {
             if (w.widthPercent > 0) c.style.width = (w.widthPercent / 100) * curW + 'px';
             if (hP > 0) c.style.height = ((hP / 100) * curVH) + getToolbarHeight(c) + 'px';
@@ -901,41 +892,30 @@ function restoreBoardFromJSON(json) {
             const agenda = widget.querySelector('.agenda-list');
             const htmlContent = w.html ?? w.content ?? null;
             if (htmlContent) {
-                if (agenda) {
-                    agenda.innerHTML = htmlContent;
-                    agenda.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents);
-                } else if (editor) {
-                    editor.innerHTML = htmlContent;
-                }
+                if (agenda) { agenda.innerHTML = htmlContent; agenda.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents); }
+                else if (editor) { editor.innerHTML = htmlContent; }
             }
             const iframe = widget.querySelector('iframe');
             if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
             applyEditorStyleFromConfig(widget, w.editorStyle);
             if (w.transparent) applyTransparency(widget, true);
-            else if (w.bgColor) {
-                widget.style.background = w.bgColor;
-                widget.dataset.bgColor = w.bgColor;
-                const container = widget.querySelector('.editor-container');
-                if (container) container.style.background = w.bgColor;
-            }
-            if (w.pinned) bringToFront(widget, true);
+            else if (w.bgColor) { widget.style.background = w.bgColor; widget.dataset.bgColor = w.bgColor; const container = widget.querySelector('.editor-container'); if (container) container.style.background = w.bgColor; }
+            if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
+            else if (w.pinned) bringToFront(widget, true);
             scaleFontSizesFromRef(widget, refW);
         }, 50);
     });
     if (parsed.shapes) {
         parsed.shapes.forEach(s => {
             const curW2 = window.innerWidth, curVH2 = virtualH(curW2);
-            const sw = (s.wPercent / 100) * curW2;
-            const sh = (s.hPercent / 100) * curVH2;
-            const lx = (s.leftPercent / 100) * curW2;
-            const ty = (s.topPercent  / 100) * curVH2;
+            const sw = (s.wPercent / 100) * curW2, sh = (s.hPercent / 100) * curVH2;
+            const lx = (s.leftPercent / 100) * curW2, ty = (s.topPercent / 100) * curVH2;
             const w2 = createShapeWidget(s.shapeType, s.strokeColor, s.fillColor, s.fillOpacity, sw, sh, lx + 'px', ty + 'px', false, s.strokeWidth || 4);
             if (s.transform) w2.style.transform = s.transform;
-            if (s.pinned) bringToFront(w2, true);
-            w2.dataset.leftPercent = s.leftPercent;
-            w2.dataset.topPercent  = s.topPercent;
-            w2.dataset.wPercent    = s.wPercent;
-            w2.dataset.hPercent    = s.hPercent;
+            if (s.background) { w2.style.zIndex = 1; w2.dataset.background = "true"; }
+            else if (s.pinned) bringToFront(w2, true);
+            w2.dataset.leftPercent = s.leftPercent; w2.dataset.topPercent = s.topPercent;
+            w2.dataset.wPercent = s.wPercent; w2.dataset.hPercent = s.hPercent;
         });
     }
 }
@@ -974,7 +954,6 @@ function confirmClearBoard() {
     document.querySelectorAll('.shape-widget').forEach(w => w.remove());
     saveBoard(); closeModal();
 }
-
 function openHelpModal() { document.getElementById('help-modal-overlay').style.display = 'flex'; }
 function closeHelpModal() { document.getElementById('help-modal-overlay').style.display = 'none'; }
 
@@ -1005,7 +984,7 @@ function updateDateTime() {
 // WIDGETS
 // =========================================================================
 let widgetZCounter = 1000;
-let pinnedZCounter  = 10000;
+let pinnedZCounter = 10000;
 
 function bringToFront(widget, pin = false) {
     if (pin) {
@@ -1015,6 +994,7 @@ function bringToFront(widget, pin = false) {
         widget.classList.add('pinned');
     } else {
         if (widget.dataset.pinned === "true") return;
+        if (widget.dataset.background === "true") return;
         widgetZCounter++;
         widget.style.zIndex = widgetZCounter;
     }
@@ -1028,23 +1008,35 @@ function togglePin(widget) {
         widgetZCounter++;
         widget.style.zIndex = widgetZCounter;
     } else {
+        widget.dataset.background = "false";
         bringToFront(widget, true);
     }
     saveBoard();
 }
 
-// =========================================================================
-// MENU CONTEXTUEL (☰) + PRESSE-PAPIER
-// =========================================================================
-let _clipboard = null;   // stocke le widget ou la forme copiée/coupée
+function sendToBack(widget) {
+    snapshotNow();
+    widget.style.zIndex = 1;
+    widget.dataset.pinned = "false";
+    widget.classList.remove('pinned');
+    widget.dataset.background = "true";
+    saveBoard();
+}
 
+// =========================================================================
+// MENU CONTEXTUEL
+// =========================================================================
 function closeCtxMenuAll() {
     document.querySelectorAll('.widget-ctx-menu.open').forEach(m => m.classList.remove('open'));
 }
 
-// Fermer le menu si clic ailleurs
 document.addEventListener('mousedown', (e) => {
     if (!e.target.closest('.widget-ctx-menu') && !e.target.closest('.widget-menu-handle')) closeCtxMenuAll();
+    if (!e.target.closest('#shape-edit-panel') && !e.target.closest('.shape-widget')) closeShapeEditPanel();
+    if (!e.target.closest('#sc-ctx-menu') && !e.target.closest('#sc-menu-btn')) {
+        const m = document.getElementById('sc-ctx-menu');
+        if (m) m.classList.remove('open');
+    }
 });
 
 function toggleCtxMenu(btn) {
@@ -1062,45 +1054,16 @@ function buildCtxMenu(menu, widget) {
     const isShape = widget.classList.contains('shape-widget');
     menu.innerHTML = '';
 
-    // Premier plan / Arrière-plan
-    addCtxBtn(menu, '⬆️ Premier plan', () => {
-        snapshotNow();
-        pinnedZCounter++;
-        widget.style.zIndex = pinnedZCounter;
-        saveBoard(); closeCtxMenuAll();
-    });
-    addCtxBtn(menu, '⬇️ Arrière-plan', () => {
-        snapshotNow();
-        widget.style.zIndex = 1;
-        saveBoard(); closeCtxMenuAll();
-    });
-
-    menu.appendChild(makeSep());
-
-    // Dupliquer
     addCtxBtn(menu, '⧉ Dupliquer', () => {
         closeCtxMenuAll();
         if (isShape) cloneShapeWidget(widget);
         else cloneWidget(widget);
     });
 
-    // Copier
-    addCtxBtn(menu, '📋 Copier', () => {
-        _clipboard = { action: 'copy', widget };
-        closeCtxMenuAll();
-    });
-
-    // Couper
-    addCtxBtn(menu, '✂️ Couper', () => {
-        _clipboard = { action: 'cut', widget };
-        closeCtxMenuAll();
-    });
-
-    // Coller (uniquement si presse-papier non vide)
-    if (_clipboard) {
-        addCtxBtn(menu, '📌 Coller', () => {
+    if (isShape) {
+        addCtxBtn(menu, '🎨 Modifier', () => {
             closeCtxMenuAll();
-            pasteWidget();
+            openShapeEditPanel(widget);
         });
     }
 }
@@ -1113,32 +1076,7 @@ function addCtxBtn(menu, label, fn) {
     menu.appendChild(btn);
 }
 
-function makeSep() {
-    const hr = document.createElement('hr');
-    return hr;
-}
-
-// Coller depuis le menu d'un widget individuel
-function pasteWidget() {
-    if (!_clipboard) return;
-    snapshotNow();
-    // Normaliser : _clipboard peut avoir .widget (ancien) ou .widgets (nouveau)
-    const srcs = _clipboard.widgets || (_clipboard.widget ? [_clipboard.widget] : []);
-    srcs.forEach(src => {
-        if (!src.isConnected) return;   // déjà supprimé (couper)
-        src.style.opacity = '';
-        if (src.classList.contains('shape-widget')) cloneShapeWidget(src);
-        else cloneWidget(src);
-        if (_clipboard.action === 'cut') src.remove();
-    });
-    if (_clipboard.action === 'cut') _clipboard = null;
-    saveBoard();
-}
-
-// Coller depuis le menu de l'overlay de sélection
-function pasteClipboard() {
-    pasteWidget();
-}
+function makeSep() { return document.createElement('hr'); }
 
 function findFreePosition() {
     const curW = window.innerWidth, curVH = virtualH(curW);
@@ -1163,11 +1101,14 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
     widget.dataset.type = type;
     widget.style.left = x; widget.style.top = y;
     widget.tabIndex = 0;
-    widget.addEventListener('mousedown', () => { if (!isSelectMode) bringToFront(widget); });
+    widget.addEventListener('mousedown', () => {
+        if (!isSelectMode && widget.dataset.background !== "true") bringToFront(widget);
+    });
     widget.innerHTML = `
         <div class="drag-handle" title="Déplacer">✥</div>
         <div class="widget-rotate-handle" title="Faire pivoter">↻</div>
-        <div class="widget-pin-handle" onclick="togglePin(this.closest('.widget'))" title="Épingler au premier plan">📌</div>
+        <div class="widget-pin-handle" onclick="togglePin(this.closest('.widget, .shape-widget'))" title="Épingler">📌</div>
+        <div class="widget-back-handle" onclick="sendToBack(this.closest('.widget, .shape-widget'))" title="Envoyer derrière">🔽</div>
         <div class="widget-menu-handle" onclick="toggleCtxMenu(this)" title="Menu">☰</div>
         <div class="widget-close-handle" onclick="snapshotNow();closeCtxMenuAll();this.closest('.widget').remove();saveBoard();" title="Fermer">×</div>
         <div class="widget-ctx-menu"></div>
@@ -1213,6 +1154,7 @@ function attachAgendaItemEvents(item) {
 function syncFontSize(widget) {
     const toolbar = widget.querySelector('.editor-toolbar'); if (!toolbar) return;
     const sizeInput = toolbar.querySelector('input[type="number"]');
+    if (!sizeInput) return;
     const sel = window.getSelection();
     if (sel.rangeCount > 0) {
         const size = window.getComputedStyle(sel.anchorNode.parentElement).fontSize;
@@ -1225,8 +1167,9 @@ function makeDraggable(elmnt) {
     if (!handle) return;
     handle.onmousedown = (e) => {
         e.preventDefault();
+        elmnt.dataset.background = "false";
         bringToFront(elmnt);
-        snapshotNow();   // ← snapshot avant le déplacement
+        snapshotNow();
         let px = e.clientX, py = e.clientY;
         document.onmousemove = (e) => {
             elmnt.style.top  = (elmnt.offsetTop  + e.clientY - py) + "px";
@@ -1248,7 +1191,7 @@ function makeDraggableRotate(elmnt) {
     handle.onmousedown = (e) => {
         e.preventDefault(); e.stopPropagation();
         bringToFront(elmnt);
-        snapshotNow();   // ← snapshot avant la rotation
+        snapshotNow();
         const rect = elmnt.getBoundingClientRect();
         const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
         const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx);
@@ -1287,14 +1230,14 @@ function getCurrentRotation(widget) {
 // FORMES GÉOMÉTRIQUES
 // =========================================================================
 const SHAPES = [
-    { id: 'circle',         label: 'Cercle',         svg: (w,h,sw,f,o) => `<ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-sw/2}" ry="${h/2-sw/2}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'square',         label: 'Carré',           svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${sw/2}" width="${w-sw}" height="${h-sw}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'rectangle',      label: 'Rectangle',       svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${h*0.2}" width="${w-sw}" height="${h*0.6}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'diamond',        label: 'Losange',         svg: (w,h,sw,f,o) => `<polygon points="${w/2},${sw} ${w-sw},${h/2} ${w/2},${h-sw} ${sw},${h/2}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'parallelogram',  label: 'Parallélogramme', svg: (w,h,sw,f,o) => `<polygon points="${w*0.25},${sw} ${w-sw},${sw} ${w*0.75},${h-sw} ${sw},${h-sw}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'line',           label: 'Ligne',           svg: (w,h,sw,f,o) => `<line x1="${sw}" y1="${h/2}" x2="${w-sw}" y2="${h/2}" stroke="STROKECOLOR" stroke-width="${sw}" stroke-linecap="round"/>` },
-    { id: 'arrow',          label: 'Flèche',          svg: (w,h,sw,f,o) => `<polygon points="${sw},${h*0.35} ${w*0.6},${h*0.35} ${w*0.6},${sw} ${w-sw},${h/2} ${w*0.6},${h-sw} ${w*0.6},${h*0.65} ${sw},${h*0.65}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'triangle',       label: 'Triangle',        svg: (w,h,sw,f,o) => `<polygon points="${w/2},${sw} ${w-sw},${h-sw} ${sw},${h-sw}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'circle',        label: 'Cercle',         svg: (w,h,sw,f,o) => `<ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-sw/2}" ry="${h/2-sw/2}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'square',        label: 'Carré',           svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${sw/2}" width="${w-sw}" height="${h-sw}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'rectangle',     label: 'Rectangle',       svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${h*0.2}" width="${w-sw}" height="${h*0.6}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'diamond',       label: 'Losange',         svg: (w,h,sw,f,o) => `<polygon points="${w/2},${sw} ${w-sw},${h/2} ${w/2},${h-sw} ${sw},${h/2}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'parallelogram', label: 'Parallélogramme', svg: (w,h,sw,f,o) => `<polygon points="${w*0.25},${sw} ${w-sw},${sw} ${w*0.75},${h-sw} ${sw},${h-sw}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'line',          label: 'Ligne',           svg: (w,h,sw,f,o) => `<line x1="${sw}" y1="${h/2}" x2="${w-sw}" y2="${h/2}" stroke="STROKECOLOR" stroke-width="${sw}" stroke-linecap="round"/>` },
+    { id: 'arrow',         label: 'Flèche',          svg: (w,h,sw,f,o) => `<polygon points="${sw},${h*0.35} ${w*0.6},${h*0.35} ${w*0.6},${sw} ${w-sw},${h/2} ${w*0.6},${h-sw} ${w*0.6},${h*0.65} ${sw},${h*0.65}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'triangle',      label: 'Triangle',        svg: (w,h,sw,f,o) => `<polygon points="${w/2},${sw} ${w-sw},${h-sw} ${sw},${h-sw}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
 ];
 
 let selectedShapeId = 'circle';
@@ -1339,13 +1282,13 @@ let editingShapeWidget = null;
 function openShapeEditPanel(widget) {
     editingShapeWidget = widget;
     const panel = document.getElementById('shape-edit-panel');
-    document.getElementById('edit-stroke-color').value  = widget.dataset.strokeColor || '#2c3e50';
-    document.getElementById('edit-fill-color').value    = widget.dataset.fillColor   || '#4a90e2';
+    document.getElementById('edit-stroke-color').value = widget.dataset.strokeColor || '#2c3e50';
+    document.getElementById('edit-fill-color').value   = widget.dataset.fillColor   || '#4a90e2';
     const opPct = Math.round(parseFloat(widget.dataset.fillOpacity || 0.6) * 100);
-    document.getElementById('edit-fill-opacity').value  = opPct;
+    document.getElementById('edit-fill-opacity').value = opPct;
     document.getElementById('edit-fill-opacity-val').textContent = opPct + '%';
     const sw = parseInt(widget.dataset.strokeWidth || 4);
-    document.getElementById('edit-stroke-width').value  = sw;
+    document.getElementById('edit-stroke-width').value = sw;
     document.getElementById('edit-stroke-width-val').textContent = sw + 'px';
     const br = widget.getBoundingClientRect();
     panel.style.left = Math.min(br.right + 10, window.innerWidth - 320) + 'px';
@@ -1354,25 +1297,25 @@ function openShapeEditPanel(widget) {
 }
 
 function closeShapeEditPanel() {
-    document.getElementById('shape-edit-panel').style.display = 'none';
+    const panel = document.getElementById('shape-edit-panel');
+    if (panel) panel.style.display = 'none';
     editingShapeWidget = null;
 }
 
 function applyShapeEdit() {
     if (!editingShapeWidget) return;
-    snapshotNow();
-    const sc  = document.getElementById('edit-stroke-color').value;
-    const fc  = document.getElementById('edit-fill-color').value;
-    const fo  = parseFloat(document.getElementById('edit-fill-opacity').value) / 100;
-    const sw  = parseInt(document.getElementById('edit-stroke-width').value);
+    const sc = document.getElementById('edit-stroke-color').value;
+    const fc = document.getElementById('edit-fill-color').value;
+    const fo = parseFloat(document.getElementById('edit-fill-opacity').value) / 100;
+    const sw = parseInt(document.getElementById('edit-stroke-width').value);
     const svg = editingShapeWidget.querySelector('svg');
     if (!svg) return;
     const w = parseFloat(svg.getAttribute('width'));
     const h = parseFloat(svg.getAttribute('height'));
-    editingShapeWidget.dataset.strokeColor  = sc;
-    editingShapeWidget.dataset.fillColor    = fc;
-    editingShapeWidget.dataset.fillOpacity  = fo;
-    editingShapeWidget.dataset.strokeWidth  = sw;
+    editingShapeWidget.dataset.strokeColor = sc;
+    editingShapeWidget.dataset.fillColor   = fc;
+    editingShapeWidget.dataset.fillOpacity = fo;
+    editingShapeWidget.dataset.strokeWidth = sw;
     svg.innerHTML = buildShapeSVG(editingShapeWidget.dataset.shapeType, w, h, sc, fc, fo, sw);
     saveBoard();
 }
@@ -1383,14 +1326,9 @@ function cloneShapeWidget(widget) {
     const sw = parseFloat(svg.getAttribute('width') || 150);
     const sh = parseFloat(svg.getAttribute('height') || 150);
     const newW = createShapeWidget(
-        widget.dataset.shapeType,
-        widget.dataset.strokeColor,
-        widget.dataset.fillColor,
-        parseFloat(widget.dataset.fillOpacity),
-        sw, sh,
-        (widget.offsetLeft + 30) + 'px',
-        (widget.offsetTop  + 30) + 'px',
-        true,
+        widget.dataset.shapeType, widget.dataset.strokeColor, widget.dataset.fillColor,
+        parseFloat(widget.dataset.fillOpacity), sw, sh,
+        (widget.offsetLeft + 30) + 'px', (widget.offsetTop + 30) + 'px', true,
         parseInt(widget.dataset.strokeWidth || 4)
     );
     const rot = getCurrentRotation(widget);
@@ -1442,7 +1380,8 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
     widget.innerHTML = `
         <div class="drag-handle" title="Déplacer">✥</div>
         <div class="widget-rotate-handle" title="Faire pivoter">↻</div>
-        <div class="widget-pin-handle" onclick="togglePin(this.closest('.shape-widget'))" title="Épingler au premier plan">📌</div>
+        <div class="widget-pin-handle" onclick="togglePin(this.closest('.widget, .shape-widget'))" title="Épingler">📌</div>
+        <div class="widget-back-handle" onclick="sendToBack(this.closest('.widget, .shape-widget'))" title="Envoyer derrière">🔽</div>
         <div class="widget-menu-handle" onclick="toggleCtxMenu(this)" title="Menu">☰</div>
         <div class="widget-close-handle" onclick="snapshotNow();closeCtxMenuAll();this.closest('.shape-widget').remove();saveBoard();" title="Fermer">×</div>
         <div class="widget-ctx-menu"></div>
@@ -1458,10 +1397,10 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
     makeShapeResizable(widget);
 
     widget.addEventListener('mousedown', (e) => {
-        if (!isSelectMode) bringToFront(widget);
+        if (!isSelectMode && widget.dataset.background !== "true") bringToFront(widget);
     });
     widget.addEventListener('dblclick', (e) => {
-        const ignore = '.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu,.shape-resize-handle';
+        const ignore = '.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-back-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu,.shape-resize-handle';
         if (!e.target.closest(ignore)) openShapeEditPanel(widget);
     });
 
@@ -1480,22 +1419,18 @@ function makeShapeResizable(widget) {
     if (!handle) return;
     handle.addEventListener('mousedown', (e) => {
         e.preventDefault(); e.stopPropagation();
-        snapshotNow();   // ← snapshot avant le redimensionnement
+        snapshotNow();
         const svg = widget.querySelector('svg');
         let startX = e.clientX, startY = e.clientY;
         let startW = parseFloat(svg.getAttribute('width'));
         let startH = parseFloat(svg.getAttribute('height'));
         const shapeId = widget.dataset.shapeType;
-        const sc = widget.dataset.strokeColor;
-        const fc = widget.dataset.fillColor;
-        const fo = widget.dataset.fillOpacity;
-        const sw = parseInt(widget.dataset.strokeWidth || 4);
-
+        const sc = widget.dataset.strokeColor, fc = widget.dataset.fillColor;
+        const fo = widget.dataset.fillOpacity, sw = parseInt(widget.dataset.strokeWidth || 4);
         document.onmousemove = (ev) => {
             const newW = Math.max(40, startW + ev.clientX - startX);
             const newH = Math.max(40, startH + ev.clientY - startY);
-            svg.setAttribute('width', newW);
-            svg.setAttribute('height', newH);
+            svg.setAttribute('width', newW); svg.setAttribute('height', newH);
             svg.setAttribute('viewBox', `0 0 ${newW} ${newH}`);
             svg.innerHTML = buildShapeSVG(shapeId, newW, newH, sc, fc, fo, sw);
             const curW = window.innerWidth, curVH = virtualH(curW);
@@ -1549,30 +1484,9 @@ function resizeCanvas() {
 
 function getPos(e) {
     const rect = drawCanvas.getBoundingClientRect();
-    let clientX, clientY;
-
-    if (e.touches && e.touches[0]) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-
-    // Si on est en mode gomme, on ajuste les coordonnées pour viser 
-    // le centre du curseur (12, 12) au lieu du coin supérieur gauche.
-    if (isEraserMode) {
-        return {
-            x: clientX - rect.left + 12,
-            y: clientY - rect.top + 12
-        };
-    }
-
-    // Mode dessin normal ou autre
-    return {
-        x: clientX - rect.left,
-        y: clientY - rect.top
-    };
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
 function startPaint(e) {
@@ -1581,13 +1495,11 @@ function startPaint(e) {
     isPainting = true;
     currentStroke = { points:[getPos(e)], color:document.getElementById('draw-color').value, size:parseInt(document.getElementById('draw-size').value) };
 }
-
 function paint(e) {
     if (!isPainting || !isDrawMode || isEraserMode || !currentStroke) return;
     currentStroke.points.push(getPos(e));
     redrawStrokes(currentStroke);
 }
-
 function endPaint() {
     if (!isPainting || !currentStroke) return;
     isPainting = false;
@@ -1624,20 +1536,17 @@ function drawStroke(stroke, highlight = false) {
 function toggleDrawToolbar() {
     const tb = document.getElementById('draw-toolbar');
     if (tb.style.display === 'flex') { stopDrawing(); return; }
-    stopSelectMode();
-    stopEraserMode();
+    stopSelectMode(); stopEraserMode();
     document.getElementById('shape-toolbar').classList.remove('active');
     document.getElementById('shape-btn').style.background = '#eeeeee';
     tb.style.display = 'flex';
     initCanvas(); enableDrawing();
 }
-
 function enableDrawing() {
     isDrawMode = true; drawCanvas.classList.remove('inactive');
     document.getElementById('draw-btn').style.background = '#e6b8de';
     document.getElementById('draw-btn').textContent = '✏️ en cours…';
 }
-
 function stopDrawing() {
     isDrawMode = false;
     if (drawCanvas) drawCanvas.classList.add('inactive');
@@ -1645,7 +1554,6 @@ function stopDrawing() {
     document.getElementById('draw-btn').style.background = '#eeeeee';
     document.getElementById('draw-btn').textContent = '✏️';
 }
-
 function clearCanvas() {
     snapshotNow();
     strokes = []; selectedStrokes = []; redrawStrokes();
@@ -1654,17 +1562,14 @@ function clearCanvas() {
 // =========================================================================
 // GOMME
 // =========================================================================
-let isEraserMode = false;
-let isErasing    = false;
+let isEraserMode = false, isErasing = false;
 
 function toggleEraserMode() {
     if (isEraserMode) { stopEraserMode(); return; }
-    stopDrawing();
-    stopSelectMode();
+    stopDrawing(); stopSelectMode();
     document.getElementById('shape-toolbar').classList.remove('active');
     document.getElementById('shape-btn').style.background = '#eeeeee';
     document.getElementById('global-toolbar').style.display = 'none';
-
     isEraserMode = true;
     initCanvas();
     drawCanvas.classList.remove('inactive');
@@ -1672,9 +1577,8 @@ function toggleEraserMode() {
     document.getElementById('eraser-btn').style.background = '#ffe0b2';
     document.getElementById('eraser-btn').textContent = '🧹 en cours…';
     document.getElementById('eraser-toolbar').style.display = 'flex';
-
     drawCanvas.addEventListener('mousedown',  startErase);
-    drawCanvas.addEventListener('mousemove',  onEraserMouseMove); // toujours actif
+    drawCanvas.addEventListener('mousemove',  onEraserMouseMove);
     drawCanvas.addEventListener('mouseup',    endErase);
     drawCanvas.addEventListener('mouseleave', onEraserLeave);
     drawCanvas.addEventListener('touchstart', eTouchStart, { passive: false });
@@ -1695,7 +1599,6 @@ function stopEraserMode() {
         drawCanvas.removeEventListener('touchstart', eTouchStart);
         drawCanvas.removeEventListener('touchmove',  eTouchMove);
         drawCanvas.removeEventListener('touchend',   endErase);
-        // Effacer la prévisualisation résiduelle
         redrawStrokes();
     }
     document.getElementById('eraser-btn').style.background = '#eeeeee';
@@ -1706,41 +1609,21 @@ function stopEraserMode() {
 function eTouchStart(e) { e.preventDefault(); snapshotNow(); isErasing = true; eraseAt(getPos(e.touches[0])); }
 function eTouchMove(e)  { e.preventDefault(); if (isErasing) eraseAt(getPos(e.touches[0])); }
 
-// Survol simple (sans clic) → juste la prévisualisation du cercle
 function onEraserMouseMove(e) {
     const pos = getPos(e);
-    const r   = parseInt(document.getElementById('eraser-size').value);
-    if (isErasing) {
-        eraseAt(pos);       // efface + dessine le cercle
-    } else {
-        drawEraserPreview(pos, r);  // cercle seul, rien n'est effacé
-    }
+    const r = parseInt(document.getElementById('eraser-size').value);
+    if (isErasing) eraseAt(pos);
+    else drawEraserPreview(pos, r);
 }
+function onEraserLeave() { endErase(); redrawStrokes(); }
+function startErase(e) { if (!isEraserMode) return; snapshotNow(); isErasing = true; eraseAt(getPos(e)); }
+function endErase() { if (!isErasing) return; isErasing = false; saveBoard(); }
 
-function onEraserLeave() {
-    endErase();
-    redrawStrokes(); // efface le cercle résiduel quand la souris quitte le canvas
-}
-
-function startErase(e) {
-    if (!isEraserMode) return;
-    snapshotNow();
-    isErasing = true;
-    eraseAt(getPos(e));
-}
-
-function endErase() {
-    if (!isErasing) return;
-    isErasing = false;
-    saveBoard();
-}
-
-// Efface les traits canvas ET les formes SVG au passage de la gomme
 function eraseAt(pos) {
     const r = parseInt(document.getElementById('eraser-size').value);
     const NS = 'http://www.w3.org/2000/svg';
 
-    // ── 1. Traits canvas ──────────────────────────────────────────────────
+    // Traits canvas
     const newStrokes = [];
     strokes.forEach(stroke => {
         const pts = stroke.points;
@@ -1749,81 +1632,57 @@ function eraseAt(pos) {
             if (Math.hypot(pts[i].x - pos.x, pts[i].y - pos.y) <= r) {
                 if (current.length >= 2) newStrokes.push({ ...stroke, points: current });
                 current = [];
-            } else {
-                current.push(pts[i]);
-            }
+            } else { current.push(pts[i]); }
         }
         if (current.length >= 2) newStrokes.push({ ...stroke, points: current });
     });
     strokes = newStrokes;
 
-    // ── 2. Formes SVG ─────────────────────────────────────────────────────
-    // Le masque SVG (fond blanc = visible, cercles noirs = trou) découpe la forme.
-    // Le SVG lui-même a pointer-events:none donc le canvas peut recevoir les clics
-    // même quand il chevauche une forme.
+    // Formes SVG
     document.querySelectorAll('.shape-widget').forEach(widget => {
         const svg = widget.querySelector('svg');
         if (!svg) return;
-
-        const wRect = widget.getBoundingClientRect();
         const bRect = board.getBoundingClientRect();
-        // Coordonnées du curseur dans le repère local du SVG (le padding .shape-svg-wrap = 16px)
-        const wrap  = widget.querySelector('.shape-svg-wrap');
-        const wrapR = wrap ? wrap.getBoundingClientRect() : wRect;
-        const svgX  = pos.x - (wrapR.left - bRect.left);
-        const svgY  = pos.y - (wrapR.top  - bRect.top);
+        const svg2R = svg.getBoundingClientRect();
+        const svgX = pos.x - (svg2R.left - bRect.left);
+        const svgY = pos.y - (svg2R.top  - bRect.top);
+        if (svgX < -r || svgY < -r || svgX > svg2R.width + r || svgY > svg2R.height + r) return;
 
-        // Ignorer si la gomme ne touche pas du tout ce widget
-        if (svgX < -r || svgY < -r || svgX > wrapR.width + r || svgY > wrapR.height + r) return;
-
-        // Créer le masque la première fois
         let mask = svg.querySelector('mask.eraser-mask');
         if (!mask) {
             const defs = document.createElementNS(NS, 'defs');
             mask = document.createElementNS(NS, 'mask');
             mask.setAttribute('class', 'eraser-mask');
             mask.setAttribute('id', 'em-' + Math.random().toString(36).slice(2));
-            // Fond blanc = tout le SVG est visible par défaut
             const bg = document.createElementNS(NS, 'rect');
             bg.setAttribute('x', '-500'); bg.setAttribute('y', '-500');
             bg.setAttribute('width', '9999'); bg.setAttribute('height', '9999');
             bg.setAttribute('fill', 'white');
-            mask.appendChild(bg);
-            defs.appendChild(mask);
+            mask.appendChild(bg); defs.appendChild(mask);
             svg.insertBefore(defs, svg.firstChild);
-            // Envelopper tout le contenu SVG existant dans un <g mask="url(#id)">
             const g = document.createElementNS(NS, 'g');
             g.setAttribute('mask', 'url(#' + mask.id + ')');
-            // Déplacer tous les enfants sauf le <defs> qu'on vient d'ajouter
             const toMove = [...svg.childNodes].filter(n => n !== defs);
             toMove.forEach(n => g.appendChild(n));
             svg.appendChild(g);
         }
-
-        // Cercle noir = zone effacée (trou dans le masque)
         const circle = document.createElementNS(NS, 'circle');
-        circle.setAttribute('cx',   svgX);
-        circle.setAttribute('cy',   svgY);
-        circle.setAttribute('r',    r);
-        circle.setAttribute('fill', 'black');
+        circle.setAttribute('cx', svgX); circle.setAttribute('cy', svgY);
+        circle.setAttribute('r', r); circle.setAttribute('fill', 'black');
         mask.appendChild(circle);
     });
 
-    // ── 3. Prévisualisation ───────────────────────────────────────────────
-    // drawEraserPreview appelle redrawStrokes() puis dessine le cercle proprement
     drawEraserPreview(pos, r);
 }
 
-// Cercle en pointillés : prévisualisation de la taille de la gomme
 function drawEraserPreview(pos, r) {
     if (!drawCtx) return;
-    // Toujours repartir d'un canvas propre (traits redissinés) avant d'ajouter le cercle
     redrawStrokes();
     drawCtx.save();
     drawCtx.beginPath();
     drawCtx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
     drawCtx.strokeStyle = 'rgba(60,60,60,0.7)';
-    drawCtx.lineWidth   = 1.5;
+    drawCtx.lineWidth = 1.5;
     drawCtx.setLineDash([4, 3]);
     drawCtx.stroke();
     drawCtx.beginPath();
@@ -1836,9 +1695,9 @@ function drawEraserPreview(pos, r) {
 // =========================================================================
 // MODE SÉLECTION
 // =========================================================================
-let isSelectMode    = false;
+let isSelectMode = false;
 let selectedWidgets = [], selectedStrokes = [];
-let selectionRect   = null;
+let selectionRect = null;
 let isSelectingRect = false, selectStartX = 0, selectStartY = 0;
 let mouseDownPos = null;
 let moveStartX = 0, moveStartY = 0;
@@ -1859,14 +1718,11 @@ function toggleSelectMode() {
     isSelectMode = true;
     initCanvas();
     initSelectionRect();
-    // En mode sélection, le canvas ne doit PAS intercepter les événements souris
-    // (les poignées de sélection doivent être cliquables librement)
-    drawCanvas.classList.add('inactive');   // pointer-events: none sur le canvas
+    drawCanvas.classList.add('inactive');
     drawCanvas.style.cursor = 'default';
     document.getElementById('select-btn').style.background = '#e6b8de';
     document.getElementById('select-btn').textContent = '👆 en cours...';
     document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'none');
-    // On écoute les events sur le board (pas le canvas)
     board.addEventListener('mousedown', onSelectMouseDown);
 }
 
@@ -1877,7 +1733,6 @@ function stopSelectMode() {
     document.getElementById('select-btn').textContent = '👆';
     clearSelection();
     document.querySelectorAll('.drag-handle').forEach(h => h.style.pointerEvents = 'auto');
-    // Le canvas reste inactif (il n'est actif qu'en mode dessin)
     if (drawCanvas) { drawCanvas.classList.add('inactive'); drawCanvas.style.cursor = ''; }
 }
 
@@ -1904,18 +1759,14 @@ function onSelectMouseDown(e) {
         return;
     }
     clearSelection();
-    // Lasso uniquement si on commence à glisser ; sinon on quitte le mode sélection
     isSelectingRect = true;
     selectStartX = pos.x; selectStartY = pos.y;
     selectionRect.style.cssText = `display:block;left:${pos.x}px;top:${pos.y}px;width:0;height:0;`;
     document.addEventListener('mousemove', onZoneMouseMove);
     document.addEventListener('mouseup',   onZoneMouseUp);
-
-    // Si l'utilisateur relâche sans avoir bougé → simple clic sur zone vide → quitter le mode
     function onEmptyClick(ev) {
         document.removeEventListener('mouseup', onEmptyClick);
         if (Math.abs(ev.clientX - e.clientX) < 5 && Math.abs(ev.clientY - e.clientY) < 5) {
-            // Pas de glissement → on arrête le mode sélection
             isSelectingRect = false;
             document.removeEventListener('mousemove', onZoneMouseMove);
             document.removeEventListener('mouseup',   onZoneMouseUp);
@@ -1984,9 +1835,7 @@ function initSelectionControls() {
         rotateCenterX = center.x; rotateCenterY = center.y;
         const br = board.getBoundingClientRect();
         rotateStartAngle = Math.atan2(e.clientY - br.top - rotateCenterY, e.clientX - br.left - rotateCenterX);
-        rotateOrigWidgetTransforms = selectedWidgets.map(w => ({
-            widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop, origRot: getCurrentRotation(w)
-        }));
+        rotateOrigWidgetTransforms = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop, origRot: getCurrentRotation(w) }));
         rotateOrigStrokePoints = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({...p})) }));
         document.addEventListener('mousemove', onRotateMoveOverlay);
         document.addEventListener('mouseup',   onRotateEndOverlay);
@@ -1994,7 +1843,6 @@ function initSelectionControls() {
     document.getElementById('sc-pin-btn').onclick = (e) => {
         e.stopPropagation();
         snapshotNow();
-        // Toggle : si tous épinglés → désépingler, sinon épingler tout
         const allPinned = selectedWidgets.every(w => w.dataset.pinned === "true");
         selectedWidgets.forEach(w => {
             if (allPinned) {
@@ -2024,12 +1872,6 @@ function initSelectionControls() {
         menu.classList.toggle('open', !isOpen);
         if (!isOpen) buildScCtxMenu(menu);
     };
-    // Fermer le menu si clic ailleurs
-    document.addEventListener('mousedown', (e) => {
-        if (!e.target.closest('#sc-ctx-menu') && !e.target.closest('#sc-menu-btn')) {
-            document.getElementById('sc-ctx-menu')?.classList.remove('open');
-        }
-    });
 }
 
 function buildScCtxMenu(menu) {
@@ -2041,17 +1883,16 @@ function buildScCtxMenu(menu) {
         b.onclick = () => { menu.classList.remove('open'); fn(); };
         menu.appendChild(b);
     };
-    const addSep = () => { const hr = document.createElement('hr'); menu.appendChild(hr); };
+    const addSep = () => menu.appendChild(document.createElement('hr'));
 
     addBtn('⬆️ Premier plan', () => {
         snapshotNow();
         selectedWidgets.forEach(w => { pinnedZCounter++; w.style.zIndex = pinnedZCounter; });
-        // Les traits n'ont pas de z-index mais sont toujours sous les widgets — on redessine
         saveBoard();
     });
-    addBtn('⬇️ Arrière-plan', () => {
+    addBtn('⬇️ Envoyer derrière', () => {
         snapshotNow();
-        selectedWidgets.forEach(w => { w.style.zIndex = 1; });
+        selectedWidgets.forEach(w => { w.style.zIndex = 1; w.dataset.background = "true"; w.dataset.pinned = "false"; w.classList.remove('pinned'); });
         saveBoard();
     });
     addSep();
@@ -2064,19 +1905,6 @@ function buildScCtxMenu(menu) {
             else cloneWidget(w);
         });
     });
-    addBtn('📋 Copier', () => {
-        _clipboard = { action: 'copy', widgets: [...selectedWidgets] };
-    });
-    addBtn('✂️ Couper', () => {
-        snapshotNow();
-        _clipboard = { action: 'cut', widgets: [...selectedWidgets] };
-        // On les cache visuellement (sera retiré au coller)
-        selectedWidgets.forEach(w => w.style.opacity = '0.4');
-    });
-    if (_clipboard) {
-        addSep();
-        addBtn('📌 Coller', () => { pasteClipboard(); });
-    }
 }
 
 function onMoveMove(e) {
@@ -2159,19 +1987,14 @@ function updateSelectionOverlay() {
         minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y);
     }));
     ctrl.style.display = 'block';
-    ctrl.style.left    = minX + 'px'; ctrl.style.top  = minY + 'px';
-    ctrl.style.width   = (maxX - minX) + 'px'; ctrl.style.height = (maxY - minY) + 'px';
+    ctrl.style.left   = minX + 'px'; ctrl.style.top    = minY + 'px';
+    ctrl.style.width  = (maxX - minX) + 'px'; ctrl.style.height = (maxY - minY) + 'px';
     if (selectedWidgets.length > 0) {
         const allPinned = selectedWidgets.every(w => w.dataset.pinned === "true");
         document.getElementById('sc-pin-btn').classList.toggle('pinned', allPinned);
     }
 }
 
-function getCanvasPos(e) {
-    const r = board.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-}
-// Alias — coordonnées relatives au board (utilisé en mode sélection, canvas inactif)
 function getBoardPos(e) {
     const r = board.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -2241,14 +2064,12 @@ function toggleFullScreen(el) {
     if (!document.fullscreenElement) el.requestFullscreen().catch(err => console.log(err));
     else document.exitFullscreen();
 }
-
 function loadIframe(input) {
     const iframe = input.closest('.editor-container').querySelector('iframe');
     let url = input.value.trim();
     if (url && !url.startsWith('http')) url = 'https://' + url;
     iframe.src = url; saveBoard();
 }
-
 function loadYoutube(input) {
     const iframe = input.closest('.editor-container').querySelector('iframe');
     let url = input.value.trim();
@@ -2256,7 +2077,6 @@ function loadYoutube(input) {
     iframe.src = match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : url;
     saveBoard();
 }
-
 function toggleYoutubeView(btn, display) {
     const c = btn.closest('.editor-container');
     c.querySelector('iframe').style.display = display;
@@ -2275,7 +2095,6 @@ function handleRowDragOver(e) {
     list.insertBefore(dragSrcRow, items.indexOf(dragSrcRow) < items.indexOf(this) ? this.nextSibling : this);
 }
 function handleRowDragEnd() { this.classList.remove('dragging'); dragSrcRow=null; saveBoard(); }
-
 function addAgendaLine(btn) {
     snapshotNow();
     const list = btn.closest('.agenda-container').querySelector('.agenda-list');
@@ -2294,10 +2113,7 @@ function applyBackground(value) {
     else if (value.startsWith('#') || value.startsWith('rgb')) { board.style.background=''; board.style.backgroundColor=value; }
     else board.style.background = value;
 }
-function saveBg(value) {
-    snapshotNow();
-    localStorage.setItem('boardBackground', value);
-}
+function saveBg(value) { snapshotNow(); localStorage.setItem('boardBackground', value); }
 function handleBgUpload(input) {
     const file = input.files[0]; if (!file) return;
     const reader = new FileReader();
@@ -2354,11 +2170,9 @@ function closeGlobalToolbar() {
 document.getElementById('board').addEventListener('click', function(e) {
     if (isTextPlacementMode && e.target.id === 'board') {
         const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
         const widget = createWidget('text');
-        widget.style.left = x + 'px';
-        widget.style.top = y + 'px';
+        widget.style.left = x + 'px'; widget.style.top = y + 'px';
         const editableArea = widget.querySelector('.editor-content');
         if (editableArea) setTimeout(() => editableArea.focus(), 10);
         isTextPlacementMode = false;
@@ -2437,7 +2251,7 @@ function syncFontSizeGlobal() {
     const editor = currentActiveWidget.querySelector('.editor-content'); if (!editor) return;
     const sel = window.getSelection();
     let size = 40;
-    if (sel.rangeCount>0) { const node=sel.anchorNode.parentElement; if (node?.style.fontSize) size=parseInt(node.style.fontSize)||40; }
+    if (sel.rangeCount>0) { const node=sel.anchorNode?.parentElement; if (node?.style.fontSize) size=parseInt(node.style.fontSize)||40; }
     else size = parseInt(window.getComputedStyle(editor).fontSize)||40;
     const inp = document.querySelector('#global-toolbar input[type="number"]');
     if (inp) inp.value = size;
@@ -2459,81 +2273,6 @@ document.addEventListener('click', (e) => {
         if (currentActiveWidget) { currentActiveWidget=null; document.getElementById('global-toolbar').style.display='none'; }
     }
 });
-
-// =========================================================================
-// ANNULER / REFAIRE  —  VERSION CORRIGÉE
-// =========================================================================
-
-function undoAction() {
-    if (undoStack.length <= 1) return;   // on garde toujours l'état initial
-    isRestoringState = true;
-    clearTimeout(_pendingSnapshotTimer);
-
-    // L'état courant part dans redoStack
-    redoStack.push(undoStack.pop());
-
-    // On restaure l'état précédent (dernier de undoStack)
-    const snap = undoStack[undoStack.length - 1];
-
-    // Vider le bureau
-    document.querySelectorAll('.widget').forEach(w => w.remove());
-    document.querySelectorAll('.shape-widget').forEach(w => w.remove());
-    if (drawCanvas) { strokes = []; redrawStrokes(); }
-
-    // Restaurer le fond
-    try {
-        const parsed = JSON.parse(snap);
-        if (parsed.background) {
-            localStorage.setItem('boardBackground', parsed.background);
-            applyBackground(parsed.background);
-        }
-    } catch(e) {}
-
-    // Écrire dans localStorage et recharger
-    localStorage.setItem('profBoardConfig', snap);
-    _lastW = window.innerWidth;
-    restoreBoardFromJSON(snap);
-
-    isRestoringState = false;
-    updateUndoRedoBtns();
-}
-
-function redoAction() {
-    if (redoStack.length === 0) return;
-    isRestoringState = true;
-    clearTimeout(_pendingSnapshotTimer);
-
-    const snap = redoStack.pop();
-    undoStack.push(snap);
-
-    document.querySelectorAll('.widget').forEach(w => w.remove());
-    document.querySelectorAll('.shape-widget').forEach(w => w.remove());
-    if (drawCanvas) { strokes = []; redrawStrokes(); }
-
-    try {
-        const parsed = JSON.parse(snap);
-        if (parsed.background) {
-            localStorage.setItem('boardBackground', parsed.background);
-            applyBackground(parsed.background);
-        }
-    } catch(e) {}
-
-    localStorage.setItem('profBoardConfig', snap);
-    _lastW = window.innerWidth;
-    restoreBoardFromJSON(snap);
-
-    isRestoringState = false;
-    updateUndoRedoBtns();
-}
-
-function updateUndoRedoBtns() {
-    const undoBtn = document.getElementById('undo-btn');
-    const redoBtn = document.getElementById('redo-btn');
-    const canUndo = undoStack.length > 1;
-    const canRedo = redoStack.length > 0;
-    if (undoBtn) { undoBtn.style.opacity = canUndo ? '1' : '0.4'; undoBtn.style.cursor = canUndo ? 'pointer' : 'not-allowed'; }
-    if (redoBtn) { redoBtn.style.opacity = canRedo ? '1' : '0.4'; redoBtn.style.cursor = canRedo ? 'pointer' : 'not-allowed'; }
-}
 </script>
 </body>
 </html>
