@@ -140,6 +140,54 @@
             border-radius: 0 0 4px 0;
         }
         .shape-widget:focus-within .shape-resize-handle { opacity: 1; }
+        .shape-widget[data-group-id]:focus-within .shape-resize-handle { opacity: 0 !important; pointer-events: none !important; }
+        /* Bouton verrou proportions sur forme individuelle */
+        .resize-lock-btn {
+            position: absolute; right: 20px; bottom: 0;
+            width: 20px; height: 18px; background: white; border: 1px solid #ccc;
+            border-radius: 4px 0 0 0; cursor: pointer; opacity: 0; transition: opacity 0.2s;
+            display: flex; align-items: center; justify-content: center; font-size: 11px;
+            z-index: 101; user-select: none; pointer-events: none;
+            box-shadow: -1px 0 3px rgba(0,0,0,0.1);
+        }
+        .shape-widget:focus-within .resize-lock-btn { opacity: 1; pointer-events: auto; }
+        .shape-widget[data-group-id]:focus-within .resize-lock-btn { opacity: 0 !important; pointer-events: none !important; }
+        .resize-lock-btn.locked { background: #4a90e2; color: white; border-color: #357abd; }
+        /* Boutons symétrie sur forme individuelle */
+        .flip-h-btn, .flip-v-btn {
+            position: absolute; width: 20px; height: 18px; background: white; border: 1px solid #ccc;
+            cursor: pointer; opacity: 0; transition: opacity 0.2s;
+            display: flex; align-items: center; justify-content: center; font-size: 11px;
+            z-index: 101; user-select: none; pointer-events: none;
+            box-shadow: -1px 0 3px rgba(0,0,0,0.1);
+        }
+        .flip-h-btn { right: 60px; bottom: 0; border-radius: 4px 0 0 0; }
+        .flip-v-btn { right: 40px; bottom: 0; border-radius: 0; }
+        .shape-widget:focus-within .flip-h-btn,
+        .shape-widget:focus-within .flip-v-btn { opacity: 1; pointer-events: auto; }
+        .shape-widget[data-group-id]:focus-within .flip-h-btn,
+        .shape-widget[data-group-id]:focus-within .flip-v-btn { opacity: 0 !important; pointer-events: none !important; }
+        .flip-h-btn:hover, .flip-v-btn:hover, .resize-lock-btn:hover { background: #eef2f5; }
+        /* Boutons symétrie dans l'overlay groupe */
+        #sc-flip-h-btn, #sc-flip-v-btn {
+            position: absolute; bottom: 14px;
+            width: 24px; height: 24px; background: white; border: 1px solid #ccc;
+            border-radius: 5px; cursor: pointer; pointer-events: auto;
+            display: none; align-items: center; justify-content: center; font-size: 13px;
+            z-index: 9992; user-select: none; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        #sc-flip-h-btn { right: 44px; }
+        #sc-flip-v-btn { right: 44px; bottom: 44px; }
+        #sc-flip-h-btn:hover, #sc-flip-v-btn:hover, #sc-lock-btn:hover { background: #eef2f5; }
+        /* Bouton verrou pour l'overlay groupe */
+        #sc-lock-btn {
+            position: absolute; right: 14px; bottom: 14px;
+            width: 24px; height: 24px; background: white; border: 1px solid #ccc;
+            border-radius: 5px; cursor: pointer; pointer-events: auto;
+            display: none; align-items: center; justify-content: center; font-size: 13px;
+            z-index: 9992; user-select: none; box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        }
+        #sc-lock-btn.locked { background: #4a90e2; color: white; border-color: #357abd; }
 
         /* --- SÉLECTION --- */
         .widget.selected, .widget.selected:focus-within {
@@ -204,8 +252,8 @@
         /* --- OVERLAY DE SÉLECTION --- */
         #selection-controls {
             position: absolute; pointer-events: none; z-index: 9990; display: none;
-            border: 2px dashed rgba(243,156,18,0.7); border-radius: 4px;
-            box-shadow: 0 0 0 1px rgba(243,156,18,0.15);
+            border: 2px dashed rgba(74,144,226,0.8); border-radius: 4px;
+            box-shadow: 0 0 0 1px rgba(74,144,226,0.15);
         }
         #selection-controls .sc-btn {
             position: absolute; width: 32px; height: 32px; background: #f8f9fa; border-radius: 6px;
@@ -226,13 +274,12 @@
         #selection-controls .sc-rotate:hover { transform: translateY(-50%) scale(1.1); }
         #selection-controls .sc-merge:hover   { background: #e0faf8; transform: translateX(-50%) scale(1.05); }
         #selection-controls .sc-ungroup:hover { background: #fff8e6; transform: translateX(-50%) scale(1.05); }
-        /* Membres d'un groupe au repos : bordure ambrée discrète */
+        /* Membres d'un groupe au repos : bordure ambrée discrète sur les widgets texte uniquement */
         .widget[data-group-id]              { border-color: rgba(243,156,18,0.35) !important; box-shadow: none !important; }
         .widget[data-group-id]:focus-within { border-color: rgba(243,156,18,0.5)  !important; box-shadow: none !important; }
-        .shape-widget[data-group-id]        { outline: 1px dashed rgba(243,156,18,0.35) !important; box-shadow: none !important; }
-        /* Membres sélectionnés (groupe actif) : bordure ambrée nette */
-        .widget.selected[data-group-id]        { outline: 2px solid rgba(243,156,18,0.6) !important; outline-offset: 4px; box-shadow: none !important; }
-        .shape-widget.selected[data-group-id]  { outline: 2px solid rgba(243,156,18,0.6) !important; outline-offset: 4px; box-shadow: none !important; }
+        /* Membres sélectionnés (groupe actif) : bordure bleue nette */
+        .widget.selected[data-group-id]        { outline: 3px solid #4a90e2 !important; outline-offset: 6px; box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important; }
+        .shape-widget.selected[data-group-id]  { outline: 3px solid #4a90e2 !important; outline-offset: 6px; box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important; }
         #sc-ctx-menu {
             position: absolute; top: 38px; left: 5px; background: #1F1F21;
             border: 1px solid #444; border-radius: 10px; padding: 5px 0;
@@ -289,7 +336,7 @@
         /* --- CANVAS --- */
         #draw-canvas { position: absolute; top: 0; left: 0; z-index: 12000; cursor: crosshair; touch-action: none; }
         #draw-canvas.inactive { pointer-events: none; cursor: default; z-index: 500; }
-        #selection-rect { position: absolute; border: 2px dashed #f39c12; background: rgba(243,156,18,0.08); pointer-events: none; z-index: 600; display: none; }
+        #selection-rect { position: absolute; border: 2px dashed #4a90e2; background: rgba(74,144,226,0.08); pointer-events: none; z-index: 600; display: none; }
 
         /* --- CALENDRIER & HORLOGE --- */
         .calendar-page { width: 100%; height: 100%; display: flex; flex-direction: column; border: 1px solid #ced4da; border-radius: 8px; overflow: hidden; background: white; text-align: center; position: relative; padding-top: 15px; box-sizing: border-box; }
@@ -340,6 +387,9 @@
         <div class="sc-btn sc-delete" id="sc-delete-btn" title="Supprimer">×</div>
         <div class="sc-btn sc-menu"   id="sc-menu-btn"   title="Menu">☰</div>
         <div class="sc-btn sc-resize"  id="sc-resize-btn"  title="Redimensionner le groupe">↘</div>
+        <div id="sc-lock-btn" title="Verrouiller les proportions (ou Shift)">🔓</div>
+        <div id="sc-flip-h-btn" title="Symétrie horizontale">↔</div>
+        <div id="sc-flip-v-btn" title="Symétrie verticale">↕</div>
         <div class="sc-btn sc-merge"   id="sc-merge-btn"   title="Grouper les widgets sélectionnés">⊞ Grouper</div>
         <div class="sc-btn sc-ungroup" id="sc-ungroup-btn" title="Dissocier le groupe">⛓️ Dissocier</div>
         <div id="sc-ctx-menu"></div>
@@ -415,16 +465,40 @@
         </div>
     </div>
 
-    <div id="draw-toolbar" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:12px;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3);z-index:9998;border:1px solid #444;">
+    <div id="draw-toolbar" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:12px;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3);z-index:9998;border:1px solid #444;min-width:420px;">
+        <!-- Sélection du mode dessin -->
+        <div id="draw-mode-selector" style="display:flex;gap:6px;margin-bottom:10px;border-bottom:1px solid #333;padding-bottom:10px;">
+            <button id="draw-mode-free-btn" onclick="setDrawMode('free')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #4a90e2;background:#1a3550;color:#fff;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;">
+                ✏️ Dessin libre
+            </button>
+            <button id="draw-mode-shape-btn" onclick="setDrawMode('shape')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #444;background:#2a2a2e;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;">
+                🔵 Formes
+            </button>
+            <button id="draw-mode-text-btn" onclick="setDrawMode('text')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #444;background:#2a2a2e;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;" title="Bientôt disponible">
+                ✍️ Écriture
+            </button>
+        </div>
+        <!-- Contrôles communs -->
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-            <span style="color:#ccc;font-size:12px;font-weight:600;">✏️ Dessin</span>
             <span style="color:#ccc;font-size:11px;">Couleur :</span>
             <input type="color" id="draw-color" value="#e84393" style="width:32px;height:28px;border:none;cursor:pointer;background:none;">
             <span style="color:#ccc;font-size:11px;">Épaisseur :</span>
             <input type="range" id="draw-size" min="1" max="40" value="4" style="width:90px;cursor:pointer;">
             <span id="draw-size-label" style="color:#fff;font-size:12px;min-width:20px;">4</span>
+            <!-- Options spécifiques à la reconnaissance de formes -->
+            <div id="shape-recog-options" style="display:none;align-items:center;gap:8px;">
+                <span style="color:#aaa;font-size:11px;">Remplissage :</span>
+                <input type="color" id="shape-recog-fill" value="#4a90e2" style="width:28px;height:24px;border:none;cursor:pointer;background:none;">
+                <span style="color:#aaa;font-size:11px;">Opacité :</span>
+                <input type="range" id="shape-recog-opacity" min="0" max="100" value="30" style="width:70px;cursor:pointer;">
+                <span id="shape-recog-opacity-val" style="color:#fff;font-size:11px;min-width:24px;">30%</span>
+            </div>
             <button onclick="clearCanvas()" style="background:#ff4757;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;">🗑️ Effacer</button>
             <button onclick="stopDrawing()" style="background:#6c757d;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:12px;">✖ Fermer</button>
+        </div>
+        <!-- Indicateur de mode formes -->
+        <div id="shape-recog-hint" style="display:none;margin-top:8px;padding:5px 8px;background:#1a2e1a;border-radius:6px;border:1px solid #2d5a2d;">
+            <span style="color:#7dba7d;font-size:11px;">💡 Dessinez un cercle, carré, rectangle ou triangle — la forme sera reconnue à la fin du tracé</span>
         </div>
     </div>
 
@@ -677,7 +751,7 @@ window.onload = () => {
         isInitialLoading = false;
         _lastW = window.innerWidth;
         initSelectionControls();
-        initBoardSelection(); // ← sélection toujours active
+        initBoardSelection();
         const fontSizeInput = document.getElementById('font-size-input');
         if (fontSizeInput) {
             fontSizeInput.addEventListener('focus', () => {
@@ -797,8 +871,11 @@ function undoAction() {
     const snap = undoStack[undoStack.length - 1];
     document.querySelectorAll('.widget').forEach(w => w.remove());
     document.querySelectorAll('.shape-widget').forEach(w => w.remove());
-    if (drawCanvas) { strokes = []; redrawStrokes(); }
-    try { const p = JSON.parse(snap); if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); } } catch(e) {}
+    try {
+        const p = JSON.parse(snap);
+        strokes = p.strokes || [];
+        if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); }
+    } catch(e) { strokes = []; }
     localStorage.setItem('profBoardConfig', snap);
     _lastW = window.innerWidth;
     restoreBoardFromJSON(snap);
@@ -814,8 +891,11 @@ function redoAction() {
     undoStack.push(snap);
     document.querySelectorAll('.widget').forEach(w => w.remove());
     document.querySelectorAll('.shape-widget').forEach(w => w.remove());
-    if (drawCanvas) { strokes = []; redrawStrokes(); }
-    try { const p = JSON.parse(snap); if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); } } catch(e) {}
+    try {
+        const p = JSON.parse(snap);
+        strokes = p.strokes || [];
+        if (p.background) { localStorage.setItem('boardBackground', p.background); applyBackground(p.background); }
+    } catch(e) { strokes = []; }
     localStorage.setItem('profBoardConfig', snap);
     _lastW = window.innerWidth;
     restoreBoardFromJSON(snap);
@@ -914,10 +994,12 @@ function buildBoardState() {
             leftPercent: lP, topPercent: tP, wPercent: wP, hPercent: hP,
             transform: w.style.transform || '', pinned: w.dataset.pinned === "true",
             background: w.dataset.background === "true",
-            groupId: w.dataset.groupId || null
+            groupId: w.dataset.groupId || null,
+            flipX: parseFloat(w.dataset.flipX || 1),
+            flipY: parseFloat(w.dataset.flipY || 1)
         });
     });
-    return { widgets, shapes, refWidth: 1920, background: localStorage.getItem('boardBackground') || 'none' };
+    return { widgets, shapes, refWidth: 1920, background: localStorage.getItem('boardBackground') || 'none', strokes: strokes || [] };
 }
 
 function buildBoardJSON() {
@@ -940,6 +1022,18 @@ function restoreBoardFromJSON(json) {
     const parsed = JSON.parse(json);
     const data = Array.isArray(parsed) ? parsed : (parsed.widgets || []);
     const refW = parsed.refWidth || 1920;
+    // Restaurer les traits canvas si présents dans le snapshot
+    if (parsed.strokes && parsed.strokes.length > 0) {
+        strokes = parsed.strokes;
+        // Initialiser le canvas silencieusement si pas encore créé
+        if (!drawCanvas) {
+            initCanvas();
+            // Garder le canvas inactif (pas en mode dessin)
+            drawCanvas.classList.add('inactive');
+        }
+        // Laisser le DOM se stabiliser avant de dessiner
+        setTimeout(() => redrawStrokes(), 100);
+    }
     const curW = window.innerWidth, curVH = virtualH(curW);
     data.forEach(w => {
         const widget = createWidget(w.type, '100px', '100px', false);
@@ -952,6 +1046,12 @@ function restoreBoardFromJSON(json) {
         }
         widget.style.left = (w.leftPercent / 100) * curW + 'px';
         widget.style.top  = (w.topPercent  / 100) * curVH + 'px';
+        // Appliquer transparence et fond immédiatement pour éviter le flash
+        if (w.transparent) applyTransparency(widget, true);
+        else if (w.bgColor) { widget.style.background = w.bgColor; widget.dataset.bgColor = w.bgColor; const c2 = widget.querySelector('.editor-container'); if (c2) c2.style.background = w.bgColor; }
+        if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
+        else if (w.pinned) bringToFront(widget, true);
+        if (w.groupId) widget.dataset.groupId = w.groupId;
         setTimeout(() => {
             const editor = widget.querySelector('.editor-content');
             const agenda = widget.querySelector('.agenda-list');
@@ -963,11 +1063,6 @@ function restoreBoardFromJSON(json) {
             const iframe = widget.querySelector('iframe');
             if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
             applyEditorStyleFromConfig(widget, w.editorStyle);
-            if (w.transparent) applyTransparency(widget, true);
-            else if (w.bgColor) { widget.style.background = w.bgColor; widget.dataset.bgColor = w.bgColor; const container = widget.querySelector('.editor-container'); if (container) container.style.background = w.bgColor; }
-            if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
-            else if (w.pinned) bringToFront(widget, true);
-            if (w.groupId) widget.dataset.groupId = w.groupId;
             scaleFontSizesFromRef(widget, refW);
         }, 50);
     });
@@ -978,6 +1073,20 @@ function restoreBoardFromJSON(json) {
             const lx = (s.leftPercent / 100) * curW2, ty = (s.topPercent / 100) * curVH2;
             const w2 = createShapeWidget(s.shapeType, s.strokeColor, s.fillColor, s.fillOpacity, sw, sh, lx + 'px', ty + 'px', false, s.strokeWidth || 4);
             if (s.transform) w2.style.transform = s.transform;
+            if (s.flipX !== undefined) w2.dataset.flipX = s.flipX;
+            if (s.flipY !== undefined) w2.dataset.flipY = s.flipY;
+            // Ré-appliquer le flip sur le SVG (pas sur le widget entier)
+            const fsx = parseFloat(s.flipX || 1), fsy = parseFloat(s.flipY || 1);
+            if (fsx !== 1 || fsy !== 1) {
+                const svg2 = w2.querySelector('svg');
+                if (svg2) {
+                    const sw2 = parseFloat(svg2.getAttribute('width'))  || 0;
+                    const sh2 = parseFloat(svg2.getAttribute('height')) || 0;
+                    svg2.style.transformBox    = 'fill-box';
+                    svg2.style.transformOrigin = 'center center';
+                    svg2.style.transform       = `scale(${fsx}, ${fsy})`;
+                }
+            }
             if (s.background) { w2.style.zIndex = 1; w2.dataset.background = "true"; }
             else if (s.pinned) bringToFront(w2, true);
             if (s.groupId) w2.dataset.groupId = s.groupId;
@@ -1236,7 +1345,6 @@ function makeDraggable(elmnt) {
         elmnt.dataset.background = "false";
         bringToFront(elmnt);
         snapshotNow();
-        // Désélectionner tout lors d'un drag
         clearSelection();
         let px = e.clientX, py = e.clientY;
         document.onmousemove = (e) => {
@@ -1257,7 +1365,6 @@ function makeDraggable(elmnt) {
 function makeDraggableRotate(elmnt) {
     const handle = elmnt.querySelector('.widget-rotate-handle'); if (!handle) return;
 
-    // Double-clic sur la poignée → retour à 0°
     handle.ondblclick = (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
@@ -1279,14 +1386,12 @@ function makeDraggableRotate(elmnt) {
             const newRot = startRot + (Math.atan2(ev.clientY - cy, ev.clientX - cx) - startAngle) * 180 / Math.PI;
             const snapped = snapRotation(newRot);
             elmnt.style.transform = `rotate(${snapped}deg)`;
-            // Afficher l'indicateur près du curseur
             if (indicator) {
                 const deg = Math.round(((snapped % 360) + 360) % 360);
                 document.getElementById('rot-deg').textContent = deg + '°';
                 indicator.style.display = 'block';
                 indicator.style.left = ev.clientX + 'px';
                 indicator.style.top  = ev.clientY + 'px';
-                // Masquer le hint "double-clic" si on est à 0
                 indicator.querySelector('.rot-reset-hint').style.display = (deg === 0) ? 'none' : 'inline';
             }
         };
@@ -1299,8 +1404,6 @@ function makeDraggableRotate(elmnt) {
 }
 
 function snapRotation(deg) {
-    // Aimantation douce : snap uniquement dans un couloir étroit de ±2°
-    // pour ne pas bloquer le mouvement en dehors de ces angles
     const snaps = [0, 45, 90, 135, 180, 225, 270, 315, 360];
     const norm = ((deg % 360) + 360) % 360;
     for (const s of snaps) {
@@ -1344,7 +1447,7 @@ function getCurrentRotation(widget) {
 const SHAPES = [
     { id: 'circle',        label: 'Cercle',         svg: (w,h,sw,f,o) => `<ellipse cx="${w/2}" cy="${h/2}" rx="${w/2-sw/2}" ry="${h/2-sw/2}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
     { id: 'square',        label: 'Carré',           svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${sw/2}" width="${w-sw}" height="${h-sw}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
-    { id: 'rectangle',     label: 'Rectangle',       svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${h*0.2}" width="${w-sw}" height="${h*0.6}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
+    { id: 'rectangle',     label: 'Rectangle',       svg: (w,h,sw,f,o) => `<rect x="${sw/2}" y="${sw/2}" width="${w-sw}" height="${h-sw}" stroke="${sw}" stroke-width="${sw}" fill="${f}" fill-opacity="${o}"/>` },
     { id: 'diamond',       label: 'Losange',         svg: (w,h,sw,f,o) => `<polygon points="${w/2},${sw} ${w-sw},${h/2} ${w/2},${h-sw} ${sw},${h/2}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
     { id: 'parallelogram', label: 'Parallélogramme', svg: (w,h,sw,f,o) => `<polygon points="${w*0.25},${sw} ${w-sw},${sw} ${w*0.75},${h-sw} ${sw},${h-sw}" stroke="${sw}" stroke-width="${sw}" stroke-linejoin="round" fill="${f}" fill-opacity="${o}"/>` },
     { id: 'line',          label: 'Ligne',           svg: (w,h,sw,f,o) => `<line x1="${sw}" y1="${h/2}" x2="${w-sw}" y2="${h/2}" stroke="STROKECOLOR" stroke-width="${sw}" stroke-linecap="round"/>` },
@@ -1500,6 +1603,9 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
         <div class="shape-svg-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible;">${svgContent}</svg>
         </div>
+        <div class="flip-h-btn" title="Symétrie horizontale">↔</div>
+        <div class="flip-v-btn" title="Symétrie verticale">↕</div>
+        <div class="resize-lock-btn" title="Verrouiller les proportions (ou Shift)">🔓</div>
         <div class="shape-resize-handle" title="Redimensionner"></div>
     `;
 
@@ -1528,21 +1634,51 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
 }
 
 function makeShapeResizable(widget) {
-    const handle = widget.querySelector('.shape-resize-handle');
+    const handle  = widget.querySelector('.shape-resize-handle');
+    const lockBtn = widget.querySelector('.resize-lock-btn');
+    const flipH   = widget.querySelector('.flip-h-btn');
+    const flipV   = widget.querySelector('.flip-v-btn');
     if (!handle) return;
+
+    if (lockBtn) {
+        lockBtn.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); });
+        lockBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const locked = lockBtn.classList.toggle('locked');
+            lockBtn.textContent = locked ? '🔒' : '🔓';
+        });
+    }
+    if (flipH) {
+        flipH.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        flipH.addEventListener('click', e => { e.stopPropagation(); snapshotNow(); flipWidget(widget, 'h'); });
+    }
+    if (flipV) {
+        flipV.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        flipV.addEventListener('click', e => { e.stopPropagation(); snapshotNow(); flipWidget(widget, 'v'); });
+    }
+
     handle.addEventListener('mousedown', (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
         const svg = widget.querySelector('svg');
-        let startX = e.clientX, startY = e.clientY;
-        let startW = parseFloat(svg.getAttribute('width'));
-        let startH = parseFloat(svg.getAttribute('height'));
+        const startX = e.clientX, startY = e.clientY;
+        const startW = parseFloat(svg.getAttribute('width'));
+        const startH = parseFloat(svg.getAttribute('height'));
+        const ratio = startH / startW;
         const shapeId = widget.dataset.shapeType;
         const sc = widget.dataset.strokeColor, fc = widget.dataset.fillColor;
         const fo = widget.dataset.fillOpacity, sw = parseInt(widget.dataset.strokeWidth || 4);
         document.onmousemove = (ev) => {
-            const newW = Math.max(40, startW + ev.clientX - startX);
-            const newH = Math.max(40, startH + ev.clientY - startY);
+            const proportional = ev.shiftKey || (lockBtn && lockBtn.classList.contains('locked'));
+            const rawW = Math.max(40, startW + ev.clientX - startX);
+            const rawH = Math.max(40, startH + ev.clientY - startY);
+            let newW, newH;
+            if (proportional) {
+                newW = rawW;
+                newH = Math.max(40, newW * ratio);
+            } else {
+                newW = rawW; newH = rawH;
+            }
             svg.setAttribute('width', newW); svg.setAttribute('height', newH);
             svg.setAttribute('viewBox', `0 0 ${newW} ${newH}`);
             svg.innerHTML = buildShapeSVG(shapeId, newW, newH, sc, fc, fo, sw);
@@ -1552,6 +1688,62 @@ function makeShapeResizable(widget) {
         };
         document.onmouseup = () => { document.onmousemove = null; saveBoard(); };
     });
+}
+
+// Applique une symétrie à un widget forme ou texte
+// axis : 'h' (retournement gauche/droite) ou 'v' (retournement haut/bas)
+function flipWidget(widget, axis) {
+    // Extraire la rotation existante (rotation seule sur le widget)
+    const rotMatch = (widget.style.transform || '').match(/rotate\(([-\d.]+)deg\)/);
+    const rot = rotMatch ? parseFloat(rotMatch[1]) : 0;
+
+    // Mettre à jour les données de flip
+    let sx = parseFloat(widget.dataset.flipX || 1);
+    let sy = parseFloat(widget.dataset.flipY || 1);
+    if (axis === 'h') sx = -sx;
+    if (axis === 'v') sy = -sy;
+    widget.dataset.flipX = sx;
+    widget.dataset.flipY = sy;
+
+    // Le widget ne porte QUE la rotation — les boutons restent à leur place
+    widget.style.transform = rot !== 0 ? `rotate(${rot}deg)` : '';
+
+    // Le flip est appliqué sur le SVG uniquement via CSS (transform-origin: center)
+    const svg = widget.querySelector('svg');
+    if (svg) {
+        svg.style.transformBox    = 'fill-box';
+        svg.style.transformOrigin = 'center center';
+        svg.style.transform       = (sx !== 1 || sy !== 1) ? `scale(${sx}, ${sy})` : '';
+        svg.removeAttribute('transform'); // nettoyer l'ancien attribut SVG si présent
+    } else {
+        // Widget texte : flip sur le container interne
+        const container = widget.querySelector('.editor-container');
+        if (container) {
+            container.style.transformBox    = 'border-box';
+            container.style.transformOrigin = 'center center';
+            container.style.transform       = (sx !== 1 || sy !== 1) ? `scale(${sx}, ${sy})` : '';
+        }
+    }
+    saveBoard();
+}
+
+// Applique une symétrie aux traits canvas sélectionnés
+// axis : 'h' ou 'v' — miroir autour du centre de leur bounding box
+function flipStrokes(strokesList, axis) {
+    if (!strokesList.length) return;
+    let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+    strokesList.forEach(s => s.points.forEach(p => {
+        if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+    }));
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+    strokesList.forEach(s => {
+        s.points = s.points.map(p => ({
+            x: axis === 'h' ? 2 * cx - p.x : p.x,
+            y: axis === 'v' ? 2 * cy - p.y : p.y
+        }));
+    });
+    if (drawCtx) redrawStrokes();
 }
 
 // =========================================================================
@@ -1587,6 +1779,10 @@ function initCanvas() {
     document.getElementById('draw-size').addEventListener('input', function() {
         document.getElementById('draw-size-label').textContent = this.value;
     });
+    const opSlider = document.getElementById('shape-recog-opacity');
+    if (opSlider) opSlider.addEventListener('input', function() {
+        document.getElementById('shape-recog-opacity-val').textContent = this.value + '%';
+    });
 }
 
 function resizeCanvas() {
@@ -1604,26 +1800,48 @@ function getPos(e) {
 
 function startPaint(e) {
     if (!isDrawMode || isEraserMode) return;
-    snapshotNow();
     isPainting = true;
     currentStroke = { points:[getPos(e)], color:document.getElementById('draw-color').value, size:parseInt(document.getElementById('draw-size').value) };
+    if (currentDrawMode === 'shape') _lastStrokePoints = [...currentStroke.points];
 }
 function paint(e) {
     if (!isPainting || !isDrawMode || isEraserMode || !currentStroke) return;
     currentStroke.points.push(getPos(e));
+    if (currentDrawMode === 'shape') _lastStrokePoints = [...currentStroke.points];
     redrawStrokes(currentStroke);
 }
 function endPaint() {
     if (!isPainting || !currentStroke) return;
     isPainting = false;
-    if (currentStroke.points.length > 1) strokes.push(currentStroke);
+    if (currentStroke.points.length > 1) {
+        if (currentDrawMode === 'shape') {
+            // Try shape recognition — it handles saving itself
+            currentStroke = null;
+            redrawStrokes();
+            recognizeAndReplaceShape({ points: _lastStrokePoints, color: document.getElementById('draw-color').value, size: parseInt(document.getElementById('draw-size').value) });
+            _lastStrokePoints = null;
+            return;
+        }
+        strokes.push(currentStroke);
+        // Pousser directement dans la pile — 1 undo par trait dessiné
+        const cur = buildBoardJSON();
+        if (cur) {
+            undoStack.push(cur);
+            if (undoStack.length > MAX_UNDO) undoStack.shift();
+            redoStack = [];
+            updateUndoRedoBtns();
+        }
+        saveBoard();
+    }
     currentStroke = null; redrawStrokes();
 }
+let _lastStrokePoints = null;
 
 function redrawStrokes(extra = null) {
     if (!drawCtx) return;
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    [...strokes, ...(extra ? [extra] : [])].forEach(s => drawStroke(s));
+    strokes.forEach(s => drawStroke(s));
+    if (extra) drawStroke(extra);
     selectedStrokes.forEach(s => drawStroke(s, true));
 }
 
@@ -1631,7 +1849,7 @@ function drawStroke(stroke, highlight = false) {
     if (!stroke.points || stroke.points.length < 2) return;
     drawCtx.save();
     drawCtx.beginPath(); drawCtx.lineCap = 'round'; drawCtx.lineJoin = 'round';
-    drawCtx.strokeStyle = highlight ? '#f39c12' : stroke.color;
+    drawCtx.strokeStyle = highlight ? '#4a90e2' : stroke.color;
     drawCtx.lineWidth   = highlight ? stroke.size + 6 : stroke.size;
     if (highlight) drawCtx.globalAlpha = 0.5;
     drawCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
@@ -1646,6 +1864,38 @@ function drawStroke(stroke, highlight = false) {
     }
 }
 
+// =========================================================================
+// MODES DESSIN
+// =========================================================================
+let currentDrawMode = 'free'; // 'free' | 'shape' | 'text'
+
+function setDrawMode(mode) {
+    currentDrawMode = mode;
+    // Update buttons style
+    ['free','shape','text'].forEach(m => {
+        const btn = document.getElementById('draw-mode-'+m+'-btn');
+        if (!btn) return;
+        if (m === mode) {
+            btn.style.borderColor = '#4a90e2'; btn.style.background = '#1a3550'; btn.style.color = '#fff';
+        } else {
+            btn.style.borderColor = '#444'; btn.style.background = '#2a2a2e'; btn.style.color = '#aaa';
+        }
+    });
+    // Show/hide shape-specific options
+    const shapeOpts = document.getElementById('shape-recog-options');
+    const shapeHint = document.getElementById('shape-recog-hint');
+    if (mode === 'shape') {
+        shapeOpts.style.display = 'flex'; shapeHint.style.display = 'block';
+    } else {
+        shapeOpts.style.display = 'none'; shapeHint.style.display = 'none';
+    }
+    if (mode === 'text') {
+        // Future : écriture manuscrite
+        alert('✍️ La reconnaissance d\'écriture manuscrite sera disponible prochainement !');
+        setDrawMode('free'); return;
+    }
+}
+
 function toggleDrawToolbar() {
     const tb = document.getElementById('draw-toolbar');
     if (tb.style.display === 'flex') { stopDrawing(); return; }
@@ -1654,11 +1904,12 @@ function toggleDrawToolbar() {
     document.getElementById('shape-btn').style.background = '#eeeeee';
     tb.style.display = 'flex';
     initCanvas(); enableDrawing();
+    setDrawMode('free'); // always start in free mode
 }
 function enableDrawing() {
     isDrawMode = true; drawCanvas.classList.remove('inactive');
     document.getElementById('draw-btn').style.background = '#e6b8de';
-    document.getElementById('draw-btn').textContent = '✏️ en cours…';
+    document.getElementById('draw-btn').textContent = '✏️';
     clearSelection();
 }
 function stopDrawing() {
@@ -1672,6 +1923,134 @@ function clearCanvas() {
     snapshotNow();
     strokes = []; selectedStrokes = []; redrawStrokes();
 }
+
+// =========================================================================
+// RECONNAISSANCE DE FORMES
+// =========================================================================
+
+function recognizeAndReplaceShape(stroke) {
+    if (!stroke || stroke.points.length < 4) return false;
+    const pts = stroke.points;
+
+    // Bounding box
+    let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+    pts.forEach(p => {
+        if(p.x<minX)minX=p.x; if(p.y<minY)minY=p.y;
+        if(p.x>maxX)maxX=p.x; if(p.y>maxY)maxY=p.y;
+    });
+    const w = maxX - minX, h = maxY - minY;
+    if (w < 10 && h < 10) return false;
+
+    const strokeColor = document.getElementById('draw-color').value;
+    const strokeWidth = parseInt(document.getElementById('draw-size').value);
+    const fillColor   = document.getElementById('shape-recog-fill').value;
+    const fillOpacity = parseInt(document.getElementById('shape-recog-opacity').value) / 100;
+
+    // Detect if closed (start ≈ end)
+    const firstPt = pts[0], lastPt = pts[pts.length-1];
+    const closeDist = Math.hypot(firstPt.x-lastPt.x, firstPt.y-lastPt.y);
+    const diagLen   = Math.hypot(w, h);
+    const isClosed  = closeDist < diagLen * 0.35;
+
+    let shapeId = null;
+
+    if (isClosed) {
+        const cx = (minX+maxX)/2, cy = (minY+maxY)/2;
+        // Circle: variance of radii from centroid
+        const radii  = pts.map(p => Math.hypot(p.x-cx, p.y-cy));
+        const avgR   = radii.reduce((a,b)=>a+b,0)/radii.length;
+        const cv     = Math.sqrt(radii.reduce((a,v)=>a+(v-avgR)**2,0)/radii.length) / avgR;
+        const aspect = Math.min(w,h) / Math.max(w,h);
+
+        if (cv < 0.20 && aspect > 0.65) {
+            shapeId = 'circle';
+        } else if (isLikelyTriangle(pts)) {
+            shapeId = 'triangle';
+        } else {
+            // Rectangle vs carré : simplifier le tracé pour compter les coins
+            const epsilon = Math.min(w, h) * 0.08;
+            const simplified = rdpSimplify(pts, epsilon);
+            shapeId = (simplified.length >= 3 && simplified.length <= 7)
+                ? (aspect > 0.80 ? 'square' : 'rectangle')
+                : (aspect > 0.80 ? 'square' : 'rectangle');
+        }
+    } else {
+        // Tracé ouvert → dessin libre classique
+        strokes.push({ ...stroke, recognized: false });
+        const cur = buildBoardJSON();
+        if (cur) { undoStack.push(cur); if (undoStack.length > MAX_UNDO) undoStack.shift(); redoStack=[]; updateUndoRedoBtns(); }
+        saveBoard();
+        redrawStrokes();
+        return false;
+    }
+
+    // --- Créer un vrai widget SVG comme addShapeWidget() ---
+    // Les coords canvas = coords board (canvas couvre exactement le board)
+    const bx = minX;
+    const by = minY;
+
+    // Pour le cercle, forcer un carré englobant centré
+    let svgW = w, svgH = h;
+    if (shapeId === 'circle') {
+        const side = Math.max(w, h);
+        svgW = side; svgH = side;
+    }
+
+    // Créer sans doSave pour contrôler manuellement le snapshot
+    createShapeWidget(
+        shapeId, strokeColor, fillColor, fillOpacity,
+        svgW, svgH,
+        bx + 'px', by + 'px',
+        false, strokeWidth
+    );
+
+    // Snapshot immédiat APRÈS création (évite le bug undo avec scheduleSaveSnapshot)
+    const snapCur = buildBoardJSON();
+    if (snapCur) {
+        undoStack.push(snapCur);
+        if (undoStack.length > MAX_UNDO) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoBtns();
+        localStorage.setItem('profBoardConfig', snapCur);
+    }
+    redrawStrokes();
+    return true;
+}
+
+function isLikelyTriangle(pts) {
+    // Simplify and count corners — triangle = 3 corners
+    const epsilon = Math.hypot(
+        Math.max(...pts.map(p=>p.x)) - Math.min(...pts.map(p=>p.x)),
+        Math.max(...pts.map(p=>p.y)) - Math.min(...pts.map(p=>p.y))
+    ) * 0.10;
+    const simplified = rdpSimplify(pts, epsilon);
+    return simplified.length >= 3 && simplified.length <= 5;
+}
+
+function rdpSimplify(pts, epsilon) {
+    if (pts.length < 3) return pts;
+    let maxDist = 0, maxIdx = 0;
+    const first = pts[0], last = pts[pts.length-1];
+    for (let i=1; i<pts.length-1; i++) {
+        const d = perpendicularDist(pts[i], first, last);
+        if (d > maxDist) { maxDist = d; maxIdx = i; }
+    }
+    if (maxDist > epsilon) {
+        const left = rdpSimplify(pts.slice(0, maxIdx+1), epsilon);
+        const right = rdpSimplify(pts.slice(maxIdx), epsilon);
+        return [...left.slice(0,-1), ...right];
+    }
+    return [first, last];
+}
+
+function perpendicularDist(pt, lineA, lineB) {
+    const dx = lineB.x - lineA.x, dy = lineB.y - lineA.y;
+    const len = Math.hypot(dx, dy);
+    if (len === 0) return Math.hypot(pt.x - lineA.x, pt.y - lineA.y);
+    return Math.abs(dy*pt.x - dx*pt.y + lineB.x*lineA.y - lineB.y*lineA.x) / len;
+}
+
+
 
 // =========================================================================
 // GOMME
@@ -1734,11 +2113,60 @@ function onEraserLeave() { endErase(); redrawStrokes(); }
 function startErase(e) { if (!isEraserMode) return; snapshotNow(); isErasing = true; eraseAt(getPos(e)); }
 function endErase() { if (!isErasing) return; isErasing = false; saveBoard(); }
 
+// =========================================================================
+// DÉTECTION FORME SVG ENTIÈREMENT GOMMÉE
+// =========================================================================
+function isShapeFullyErased(widget) {
+    const svg = widget.querySelector('svg');
+    if (!svg) return false;
+    if (!svg.querySelector('mask.eraser-mask')) return false;
+    const svgW = parseFloat(svg.getAttribute('width')) || 100;
+    const svgH = parseFloat(svg.getAttribute('height')) || 100;
+    const tmpCanvas = document.createElement('canvas');
+    const scale = Math.min(1, 200 / Math.max(svgW, svgH));
+    tmpCanvas.width  = Math.ceil(svgW * scale);
+    tmpCanvas.height = Math.ceil(svgH * scale);
+    const tmpCtx = tmpCanvas.getContext('2d');
+    const svgClone = svg.cloneNode(true);
+    svgClone.setAttribute('width',  tmpCanvas.width);
+    svgClone.setAttribute('height', tmpCanvas.height);
+    svgClone.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+    const svgStr = new XMLSerializer().serializeToString(svgClone);
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url  = URL.createObjectURL(blob);
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            tmpCtx.clearRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+            tmpCtx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            const data = tmpCtx.getImageData(0, 0, tmpCanvas.width, tmpCanvas.height).data;
+            for (let i = 3; i < data.length; i += 4) {
+                if (data[i] > 5) { resolve(false); return; }
+            }
+            resolve(true);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+        img.src = url;
+    });
+}
+
+async function removeFullyErasedShapes() {
+    const shapeWidgets = [...document.querySelectorAll('.shape-widget')];
+    const toRemove = [];
+    for (const widget of shapeWidgets) {
+        const erased = await isShapeFullyErased(widget);
+        if (erased) toRemove.push(widget);
+    }
+    if (toRemove.length > 0) {
+        toRemove.forEach(w => w.remove());
+        saveBoard();
+    }
+}
+
 function eraseAt(pos) {
     const r = parseInt(document.getElementById('eraser-size').value);
     const NS = 'http://www.w3.org/2000/svg';
-
-    // Traits canvas
     const newStrokes = [];
     strokes.forEach(stroke => {
         const pts = stroke.points;
@@ -1752,8 +2180,7 @@ function eraseAt(pos) {
         if (current.length >= 2) newStrokes.push({ ...stroke, points: current });
     });
     strokes = newStrokes;
-
-    // Formes SVG
+    let shapesModified = false;
     document.querySelectorAll('.shape-widget').forEach(widget => {
         const svg = widget.querySelector('svg');
         if (!svg) return;
@@ -1762,7 +2189,6 @@ function eraseAt(pos) {
         const svgX = pos.x - (svg2R.left - bRect.left);
         const svgY = pos.y - (svg2R.top  - bRect.top);
         if (svgX < -r || svgY < -r || svgX > svg2R.width + r || svgY > svg2R.height + r) return;
-
         let mask = svg.querySelector('mask.eraser-mask');
         if (!mask) {
             const defs = document.createElementNS(NS, 'defs');
@@ -1785,9 +2211,15 @@ function eraseAt(pos) {
         circle.setAttribute('cx', svgX); circle.setAttribute('cy', svgY);
         circle.setAttribute('r', r); circle.setAttribute('fill', 'black');
         mask.appendChild(circle);
+        shapesModified = true;
     });
-
     drawEraserPreview(pos, r);
+    if (shapesModified) {
+        clearTimeout(eraseAt._checkTimer);
+        eraseAt._checkTimer = setTimeout(() => {
+            removeFullyErasedShapes();
+        }, 150);
+    }
 }
 
 function drawEraserPreview(pos, r) {
@@ -1808,7 +2240,7 @@ function drawEraserPreview(pos, r) {
 }
 
 // =========================================================================
-// SÉLECTION — toujours active avec le curseur normal
+// SÉLECTION
 // =========================================================================
 let selectedWidgets = [], selectedStrokes = [];
 let selectionRect = null;
@@ -1826,21 +2258,14 @@ function initSelectionRect() {
     board.appendChild(selectionRect);
 }
 
-/**
- * Initialise la sélection permanente sur le board.
- * Pas besoin d'un mode dédié — le curseur flèche gère tout.
- */
 function initBoardSelection() {
     initSelectionRect();
     board.addEventListener('mousedown', onBoardMouseDown);
 }
 
 function onBoardMouseDown(e) {
-    // Ignorer si mode dessin ou gomme actif
     if (isDrawMode || isEraserMode) return;
-    // Ignorer si clic sur les contrôles de sélection overlay
     if (e.target.closest('#selection-controls')) return;
-    // Ignorer si clic sur la toolbar ou menus
     if (e.target.closest('#toolbar-container')) return;
     if (e.target.closest('.widget-ctx-menu')) return;
     if (e.target.closest('#shape-edit-panel')) return;
@@ -1851,38 +2276,78 @@ function onBoardMouseDown(e) {
     const widget = e.target.closest('.widget, .shape-widget');
 
     if (widget) {
+        const gid = widget.dataset.groupId;
+        // Membres DOM du groupe (widgets + shape-widgets)
+        const domMembers = gid
+            ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
+            : [widget];
+        // Membres traits canvas du groupe
+        const strokeMembers = gid ? strokes.filter(s => s.groupId === gid) : [];
+
         if (e.ctrlKey || e.metaKey) {
-            // Ctrl+clic : ajouter/retirer de la sélection (+ groupe si applicable)
-            const gid = widget.dataset.groupId;
-            const members = gid
-                ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
-                : [widget];
-            const allAlreadySelected = members.every(m => selectedWidgets.includes(m));
+            const allDomSelected    = domMembers.every(m => selectedWidgets.includes(m));
+            const allStrokeSel      = strokeMembers.every(s => selectedStrokes.includes(s));
+            const allAlreadySelected = allDomSelected && allStrokeSel;
             if (allAlreadySelected) {
-                members.forEach(m => { selectedWidgets = selectedWidgets.filter(w => w !== m); m.classList.remove('selected'); });
+                domMembers.forEach(m => { selectedWidgets = selectedWidgets.filter(w => w !== m); m.classList.remove('selected'); });
+                selectedStrokes = selectedStrokes.filter(s => !strokeMembers.includes(s));
             } else {
-                members.forEach(m => { if (!selectedWidgets.includes(m)) { selectedWidgets.push(m); m.classList.add('selected'); } });
+                domMembers.forEach(m => { if (!selectedWidgets.includes(m)) { selectedWidgets.push(m); m.classList.add('selected'); } });
+                strokeMembers.forEach(s => { if (!selectedStrokes.includes(s)) selectedStrokes.push(s); });
             }
-            updateSelectionOverlay();
         } else {
-            // Clic simple : sélectionner ce widget (et son groupe si applicable)
-            const gid = widget.dataset.groupId;
-            const members = gid
-                ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
-                : [widget];
-            const allAlreadySelected = members.every(m => selectedWidgets.includes(m));
+            const allDomSelected    = domMembers.every(m => selectedWidgets.includes(m));
+            const allStrokeSel      = strokeMembers.every(s => selectedStrokes.includes(s));
+            const allAlreadySelected = allDomSelected && allStrokeSel
+                && selectedWidgets.length === domMembers.length
+                && selectedStrokes.length === strokeMembers.length;
             if (!allAlreadySelected) {
                 clearSelection();
-                members.forEach(m => { selectedWidgets.push(m); m.classList.add('selected'); });
-                updateSelectionOverlay();
+                domMembers.forEach(m => { selectedWidgets.push(m); m.classList.add('selected'); });
+                strokeMembers.forEach(s => selectedStrokes.push(s));
             }
         }
-        // Pas de rubber-band
+        if (drawCtx) redrawStrokes();
+        updateSelectionOverlay();
         return;
     }
 
-    // Clic sur le fond : démarrer rubber-band
     const pos = getBoardPos(e);
+
+    const hitStroke = findStrokeAt(pos.x, pos.y);
+    if (hitStroke) {
+        const gid = hitStroke.groupId;
+        const groupStrokes  = gid ? strokes.filter(s => s.groupId === gid) : [hitStroke];
+        const groupWidgets  = gid
+            ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
+            : [];
+
+        if (e.ctrlKey || e.metaKey) {
+            const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
+                          && groupWidgets.every(w => selectedWidgets.includes(w));
+            if (allInSel) {
+                selectedStrokes = selectedStrokes.filter(s => !groupStrokes.includes(s));
+                groupWidgets.forEach(w => { selectedWidgets = selectedWidgets.filter(x => x !== w); w.classList.remove('selected'); });
+            } else {
+                groupStrokes.forEach(s => { if (!selectedStrokes.includes(s)) selectedStrokes.push(s); });
+                groupWidgets.forEach(w => { if (!selectedWidgets.includes(w)) { selectedWidgets.push(w); w.classList.add('selected'); } });
+            }
+        } else {
+            const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
+                          && groupWidgets.every(w => selectedWidgets.includes(w))
+                          && selectedStrokes.length === groupStrokes.length
+                          && selectedWidgets.length === groupWidgets.length;
+            if (!allInSel) {
+                clearSelection();
+                groupStrokes.forEach(s => selectedStrokes.push(s));
+                groupWidgets.forEach(w => { selectedWidgets.push(w); w.classList.add('selected'); });
+            }
+        }
+        if (drawCtx) redrawStrokes();
+        updateSelectionOverlay();
+        return;
+    }
+
     clearSelection();
     isSelectingRect = true;
     selectStartX = pos.x;
@@ -1910,12 +2375,10 @@ function onBoardMouseDown(e) {
         const dy = Math.abs(ev.clientY - mouseDownClientY);
 
         if (dx < 5 && dy < 5) {
-            // Simple clic sur le fond → désélectionner
             clearSelection();
             return;
         }
 
-        // Sélectionner les éléments dans le rectangle
         const pos2 = getBoardPos(ev);
         const rx = Math.min(pos2.x, selectStartX), ry = Math.min(pos2.y, selectStartY);
         const rw = Math.abs(pos2.x - selectStartX), rh = Math.abs(pos2.y - selectStartY);
@@ -1930,7 +2393,6 @@ function onBoardMouseDown(e) {
             }
         });
 
-        // Sélectionner traits canvas dans le rectangle
         if (strokes) {
             strokes.forEach(s => {
                 if (s.points.some(p => p.x >= rx && p.x <= rx+rw && p.y >= ry && p.y <= ry+rh))
@@ -1957,52 +2419,54 @@ function clearSelection() {
     board.classList.remove('multi-select');
 }
 
-
 // =========================================================================
 // GROUPEMENT DE WIDGETS
 // =========================================================================
 let groupCounter = 0;
 
 function mergeWidgets() {
-    if (selectedWidgets.length < 2) return;
+    const totalItems = selectedWidgets.length + selectedStrokes.length;
+    if (totalItems < 2) return;
     snapshotNow();
-
-    // Générer un identifiant de groupe unique
     groupCounter++;
     const groupId = 'grp-' + Date.now() + '-' + groupCounter;
-
-    // Affecter le groupe à chaque widget sélectionné
     selectedWidgets.forEach(w => {
-        // Si déjà dans un autre groupe, on fusionne les deux groupes
         const existingGroup = w.dataset.groupId;
         if (existingGroup && existingGroup !== groupId) {
-            // Étendre le groupe à tous les membres de l'ancien groupe
             document.querySelectorAll(`.widget[data-group-id="${existingGroup}"], .shape-widget[data-group-id="${existingGroup}"]`).forEach(m => {
                 m.dataset.groupId = groupId;
             });
+            strokes.filter(s => s.groupId === existingGroup).forEach(s => { s.groupId = groupId; });
         }
         w.dataset.groupId = groupId;
     });
-
-    // Garder la sélection visible
+    selectedStrokes.forEach(s => {
+        const existingGroup = s.groupId;
+        if (existingGroup && existingGroup !== groupId) {
+            document.querySelectorAll(`.widget[data-group-id="${existingGroup}"], .shape-widget[data-group-id="${existingGroup}"]`).forEach(m => {
+                m.dataset.groupId = groupId;
+            });
+            strokes.filter(st => st.groupId === existingGroup).forEach(st => { st.groupId = groupId; });
+        }
+        s.groupId = groupId;
+    });
     updateSelectionOverlay();
     saveBoard();
 }
 
 function ungroupWidgets() {
-    if (selectedWidgets.length === 0) return;
+    if (selectedWidgets.length === 0 && selectedStrokes.length === 0) return;
     snapshotNow();
-
-    // Collecter tous les groupIds concernés
-    const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
-
-    // Retirer le groupId de tous les membres de ces groupes
+    const groupIds = new Set([
+        ...selectedWidgets.map(w => w.dataset.groupId),
+        ...selectedStrokes.map(s => s.groupId)
+    ].filter(Boolean));
     groupIds.forEach(gid => {
         document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`).forEach(w => {
             delete w.dataset.groupId;
         });
+        strokes.filter(s => s.groupId === gid).forEach(s => { delete s.groupId; });
     });
-
     clearSelection();
     saveBoard();
 }
@@ -2018,12 +2482,10 @@ function initSelectionControls() {
         document.addEventListener('mousemove', onMoveMove);
         document.addEventListener('mouseup',   onMoveEnd);
     };
-    // Double-clic sur ↻ de l'overlay → reset rotation à 0° pour tous
     document.getElementById('sc-rotate-btn').ondblclick = (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
         selectedWidgets.forEach(w => {
-            // Restaurer la position et rotation d'avant toute rotation de groupe
             if (w.dataset.preRotLeft !== undefined) {
                 w.style.left      = w.dataset.preRotLeft;
                 w.style.top       = w.dataset.preRotTop;
@@ -2041,7 +2503,6 @@ function initSelectionControls() {
     document.getElementById('sc-rotate-btn').onmousedown = (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
-        // Sauvegarder l'état initial (avant toute rotation de groupe) — 1 seule fois
         selectedWidgets.forEach(w => {
             if (w.dataset.preRotLeft === undefined) {
                 w.dataset.preRotLeft      = w.style.left;
@@ -2075,7 +2536,6 @@ function initSelectionControls() {
                     y: rotateCenterY + (p.x-rotateCenterX)*Math.sin(rad) + (p.y-rotateCenterY)*Math.cos(rad)
                 }));
             });
-            // Indicateur degrés
             if (indicator && rotateOrigWidgetTransforms.length > 0) {
                 const deg = Math.round(((snapRotation(rotateOrigWidgetTransforms[0].origRot + delta) % 360) + 360) % 360);
                 document.getElementById('rot-deg').textContent = deg + '°';
@@ -2095,7 +2555,6 @@ function initSelectionControls() {
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
     };
-    // Pas de bouton pin dans l'overlay de sélection
     document.getElementById('sc-delete-btn').onclick = (e) => {
         e.stopPropagation();
         snapshotNow();
@@ -2114,11 +2573,43 @@ function initSelectionControls() {
         menu.classList.toggle('open', !isOpen);
         if (!isOpen) buildScCtxMenu(menu);
     };
+    // Bouton verrou de l'overlay groupe
+    const scLockBtn = document.getElementById('sc-lock-btn');
+    if (scLockBtn) {
+        scLockBtn.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        scLockBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const locked = scLockBtn.classList.toggle('locked');
+            scLockBtn.textContent = locked ? '🔒' : '🔓';
+        });
+    }
+    // Boutons symétrie de l'overlay groupe
+    const scFlipH = document.getElementById('sc-flip-h-btn');
+    const scFlipV = document.getElementById('sc-flip-v-btn');
+    if (scFlipH) {
+        scFlipH.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        scFlipH.addEventListener('click', e => {
+            e.stopPropagation(); snapshotNow();
+            selectedWidgets.forEach(w => flipWidget(w, 'h'));
+            flipStrokes(selectedStrokes, 'h');
+            saveBoard();
+        });
+    }
+    if (scFlipV) {
+        scFlipV.addEventListener('mousedown', e => { e.preventDefault(); e.stopPropagation(); });
+        scFlipV.addEventListener('click', e => {
+            e.stopPropagation(); snapshotNow();
+            selectedWidgets.forEach(w => flipWidget(w, 'v'));
+            flipStrokes(selectedStrokes, 'v');
+            saveBoard();
+        });
+    }
+
     document.getElementById('sc-resize-btn').onmousedown = (e) => {
         e.preventDefault(); e.stopPropagation();
-        if (selectedWidgets.length < 2) return;
+        const totalSel = selectedWidgets.length + selectedStrokes.length;
+        if (totalSel < 1) return;
         snapshotNow();
-        // Boîte englobante en coordonnées board via getBoundingClientRect
         const br = board.getBoundingClientRect();
         let bMinX=Infinity, bMinY=Infinity, bMaxX=-Infinity, bMaxY=-Infinity;
         selectedWidgets.forEach(w => {
@@ -2128,22 +2619,23 @@ function initSelectionControls() {
             if (l  < bMinX) bMinX = l;  if (t  < bMinY) bMinY = t;
             if (rr > bMaxX) bMaxX = rr; if (rb > bMaxY) bMaxY = rb;
         });
+        selectedStrokes.forEach(s => s.points.forEach(p => {
+            if (p.x < bMinX) bMinX = p.x; if (p.y < bMinY) bMinY = p.y;
+            if (p.x > bMaxX) bMaxX = p.x; if (p.y > bMaxY) bMaxY = p.y;
+        }));
         const origBoxW = bMaxX - bMinX, origBoxH = bMaxY - bMinY;
         if (origBoxW < 1 || origBoxH < 1) return;
+        const boxRatio = origBoxH / origBoxW;
         const startClientX = e.clientX, startClientY = e.clientY;
-        // Pour chaque widget : position et taille initiales en coordonnées board
-        const origins = selectedWidgets.map(w => {
+        const widgetOrigins = selectedWidgets.map(w => {
             const r = w.getBoundingClientRect();
             const wL = r.left  - br.left, wT = r.top    - br.top;
-            const wW = r.width,           wH = r.height;
             const c = w.querySelector('.editor-container');
             const svg = w.querySelector('svg');
             return {
-                widget:  w,
-                relL: (wL - bMinX) / origBoxW,   // position relative dans la boîte [0..1]
+                widget: w,
+                relL: (wL - bMinX) / origBoxW,
                 relT: (wT - bMinY) / origBoxH,
-                relW: wW / origBoxW,              // taille relative
-                relH: wH / origBoxH,
                 container: c,
                 origCW: c   ? c.offsetWidth  : 0,
                 origCH: c   ? c.offsetHeight : 0,
@@ -2152,35 +2644,41 @@ function initSelectionControls() {
                 origSH: svg ? parseFloat(svg.getAttribute('height') || svg.getBoundingClientRect().height) : 0,
             };
         });
+        const strokeOrigins = selectedStrokes.map(s => ({
+            stroke: s,
+            origPoints: s.points.map(p => ({ x: p.x, y: p.y }))
+        }));
         const onMove = (ev) => {
-            const dx = ev.clientX - startClientX, dy = ev.clientY - startClientY;
-            const newBoxW = Math.max(80, origBoxW + dx);
-            const newBoxH = Math.max(80, origBoxH + dy);
+            const proportional = ev.shiftKey || (scLockBtn && scLockBtn.classList.contains('locked'));
+            const newBoxW = Math.max(20, origBoxW + ev.clientX - startClientX);
+            const newBoxH = proportional ? Math.max(20, newBoxW * boxRatio)
+                                         : Math.max(20, origBoxH + ev.clientY - startClientY);
             const scaleX = newBoxW / origBoxW, scaleY = newBoxH / origBoxH;
-            origins.forEach(({ widget, relL, relT, relW, relH, container, origCW, origCH, svg, origSW, origSH }) => {
-                // Repositionner en coordonnées board
+            widgetOrigins.forEach(({ widget, relL, relT, container, origCW, origCH, svg, origSW, origSH }) => {
                 widget.style.left = (bMinX + relL * newBoxW) + 'px';
                 widget.style.top  = (bMinY + relT * newBoxH) + 'px';
-                // Redimensionner le contenu
                 if (container && origCW > 0) {
                     container.style.width  = (origCW * scaleX) + 'px';
                     container.style.height = (origCH * scaleY) + 'px';
                 }
                 if (svg && origSW > 0) {
                     const newSW = origSW * scaleX, newSH = origSH * scaleY;
-                    svg.setAttribute('width', newSW);
-                    svg.setAttribute('height', newSH);
-                    // Redimensionner le widget shape lui-même
-                    widget.style.width  = newSW + 'px';
-                    widget.style.height = newSH + 'px';
+                    svg.setAttribute('width', newSW); svg.setAttribute('height', newSH);
+                    widget.style.width = newSW + 'px'; widget.style.height = newSH + 'px';
                 }
             });
+            strokeOrigins.forEach(({ stroke, origPoints }) => {
+                stroke.points = origPoints.map(p => ({
+                    x: bMinX + (p.x - bMinX) * scaleX,
+                    y: bMinY + (p.y - bMinY) * scaleY
+                }));
+            });
+            if (drawCtx) redrawStrokes();
             updateSelectionOverlay();
         };
         const onUp = () => {
             document.removeEventListener('mousemove', onMove);
             document.removeEventListener('mouseup', onUp);
-            // Mettre à jour les pourcentages
             const curW = window.innerWidth, curVH = virtualH(curW);
             selectedWidgets.forEach(w => {
                 w.dataset.leftPercent = (w.offsetLeft / curW) * 100;
@@ -2202,14 +2700,17 @@ function initSelectionControls() {
     };
     document.getElementById('sc-ungroup-btn').onclick = (e) => {
         e.stopPropagation();
-        // Inline pour être sûr que selectedWidgets est encore valide
-        const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
+        const groupIds = new Set([
+            ...selectedWidgets.map(w => w.dataset.groupId),
+            ...selectedStrokes.map(s => s.groupId)
+        ].filter(Boolean));
         if (groupIds.size === 0) return;
         snapshotNow();
         groupIds.forEach(gid => {
             document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`).forEach(w => {
                 delete w.dataset.groupId;
             });
+            strokes.filter(s => s.groupId === gid).forEach(s => { delete s.groupId; });
         });
         clearSelection();
         saveBoard();
@@ -2247,10 +2748,8 @@ function buildScCtxMenu(menu) {
             else cloneWidget(w);
         });
     });
-    // Afficher "Dissocier" si au moins un widget est dans un groupe
     const hasGroup = selectedWidgets.some(w => w.dataset.groupId);
     if (hasGroup) {
-        // Capturer les groupIds maintenant (avant fermeture du menu)
         const groupIds = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
         addSep();
         addBtn('⛓️‍💥 Dissocier le groupe', () => {
@@ -2303,34 +2802,6 @@ function getSelectionCenter() {
     return { x:(minX+maxX)/2, y:(minY+maxY)/2 };
 }
 
-function onRotateMoveOverlay(e) {
-    const br = board.getBoundingClientRect();
-    const angle = Math.atan2(e.clientY - br.top - rotateCenterY, e.clientX - br.left - rotateCenterX);
-    const delta = (angle - rotateStartAngle) * 180 / Math.PI;
-    rotateOrigWidgetTransforms.forEach(({ widget, origLeft, origTop, origRot }) => {
-        const cx = origLeft + widget.offsetWidth/2  - rotateCenterX;
-        const cy = origTop  + widget.offsetHeight/2 - rotateCenterY;
-        const rad = delta * Math.PI / 180;
-        widget.style.left      = (rotateCenterX + cx*Math.cos(rad) - cy*Math.sin(rad) - widget.offsetWidth/2)  + 'px';
-        widget.style.top       = (rotateCenterY + cx*Math.sin(rad) + cy*Math.cos(rad) - widget.offsetHeight/2) + 'px';
-        widget.style.transform = `rotate(${origRot + delta}deg)`;
-    });
-    rotateOrigStrokePoints.forEach(({ stroke, origPoints }) => {
-        const rad = delta * Math.PI / 180;
-        stroke.points = origPoints.map(p => ({
-            x: rotateCenterX + (p.x-rotateCenterX)*Math.cos(rad) - (p.y-rotateCenterY)*Math.sin(rad),
-            y: rotateCenterY + (p.x-rotateCenterX)*Math.sin(rad) + (p.y-rotateCenterY)*Math.cos(rad)
-        }));
-    });
-    if (drawCtx) redrawStrokes(); updateSelectionOverlay();
-}
-
-function onRotateEndOverlay() {
-    document.removeEventListener('mousemove', onRotateMoveOverlay);
-    document.removeEventListener('mouseup',   onRotateEndOverlay);
-    saveBoard(); updateSelectionOverlay();
-}
-
 function updateSelectionOverlay() {
     const has = selectedWidgets.length > 0 || selectedStrokes.length > 0;
     const ctrl = document.getElementById('selection-controls');
@@ -2339,15 +2810,17 @@ function updateSelectionOverlay() {
         board.classList.remove('single-select');
         return;
     }
-    // Sélection unique : pas d'overlay, les poignées natives suffisent
-    if (selectedWidgets.length === 1 && selectedStrokes.length === 0) {
+    // Widget seul SANS groupe → poignées natives bleues, pas d'overlay
+    if (selectedWidgets.length === 1 && selectedStrokes.length === 0 && !selectedWidgets[0].dataset.groupId) {
         board.classList.add('single-select');
         board.classList.remove('multi-select');
         ctrl.style.display = 'none';
         return;
     }
+
     board.classList.remove('single-select');
     board.classList.add('multi-select');
+
     let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
     const br = board.getBoundingClientRect();
     selectedWidgets.forEach(w => {
@@ -2355,27 +2828,42 @@ function updateSelectionOverlay() {
         minX=Math.min(minX,r.left-br.left); minY=Math.min(minY,r.top-br.top);
         maxX=Math.max(maxX,r.right-br.left); maxY=Math.max(maxY,r.bottom-br.top);
     });
-    selectedStrokes.forEach(s => s.points.forEach(p => {
-        minX=Math.min(minX,p.x); minY=Math.min(minY,p.y); maxX=Math.max(maxX,p.x); maxY=Math.max(maxY,p.y);
-    }));
+    selectedStrokes.forEach(s => {
+        const pad = (s.size||4)/2;
+        s.points.forEach(p => {
+            minX=Math.min(minX,p.x-pad); minY=Math.min(minY,p.y-pad);
+            maxX=Math.max(maxX,p.x+pad); maxY=Math.max(maxY,p.y+pad);
+        });
+    });
     ctrl.style.display = 'block';
     ctrl.style.left   = minX + 'px'; ctrl.style.top    = minY + 'px';
     ctrl.style.width  = (maxX - minX) + 'px'; ctrl.style.height = (maxY - minY) + 'px';
-    // Bouton Grouper / Dissocier
-    const mergeBtn   = document.getElementById('sc-merge-btn');
-    const ungroupBtn = document.getElementById('sc-ungroup-btn');
+
+    const resizeBtnO  = document.getElementById('sc-resize-btn');
+    const scLockBtnO  = document.getElementById('sc-lock-btn');
+    const scFlipHO    = document.getElementById('sc-flip-h-btn');
+    const scFlipVO    = document.getElementById('sc-flip-v-btn');
+    const mergeBtn    = document.getElementById('sc-merge-btn');
+    const ungroupBtn  = document.getElementById('sc-ungroup-btn');
+    if (resizeBtnO)  resizeBtnO.style.display  = '';
+    if (scLockBtnO)  scLockBtnO.style.display  = 'flex';
+    if (scFlipHO)    scFlipHO.style.display    = 'flex';
+    if (scFlipVO)    scFlipVO.style.display    = 'flex';
+
     if (mergeBtn && ungroupBtn) {
-        const noStrokes = selectedStrokes.length === 0;
-        const multi     = selectedWidgets.length >= 2;
-        // "Tous dans le même groupe" = tous ont un groupId ET c'est le même pour tous
-        const groupIds  = new Set(selectedWidgets.map(w => w.dataset.groupId).filter(Boolean));
-        const allSameGroup = groupIds.size === 1 && selectedWidgets.every(w => w.dataset.groupId);
-        if (noStrokes && allSameGroup) {
-            // Sélection = un groupe existant → montrer Dissocier
+        const totalSel  = selectedWidgets.length + selectedStrokes.length;
+        const multi     = totalSel >= 2;
+        const allGroupIds = [
+            ...selectedWidgets.map(w => w.dataset.groupId),
+            ...selectedStrokes.map(s => s.groupId)
+        ].filter(Boolean);
+        const groupIdSet   = new Set(allGroupIds);
+        const allSameGroup = groupIdSet.size === 1 && allGroupIds.length === totalSel;
+
+        if (allSameGroup) {
             mergeBtn.style.display   = 'none';
             ungroupBtn.style.display = 'flex';
-        } else if (noStrokes && multi) {
-            // Sélection multiple sans groupe commun → montrer Grouper
+        } else if (multi) {
             mergeBtn.style.display   = 'flex';
             ungroupBtn.style.display = 'none';
         } else {
