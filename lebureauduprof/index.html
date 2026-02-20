@@ -201,16 +201,36 @@
             box-shadow: 0 0 0 6px rgba(74,144,226,0.25) !important;
         }
         /* Poignées visibles quand sélection UNIQUE uniquement */
-        #board.single-select .widget.selected .drag-handle,
-        #board.single-select .widget.selected .widget-close-handle,
-        #board.single-select .widget.selected .widget-back-handle,
-        #board.single-select .widget.selected .widget-rotate-handle,
-        #board.single-select .widget.selected .widget-menu-handle,
-        #board.single-select .shape-widget.selected .drag-handle,
-        #board.single-select .shape-widget.selected .widget-close-handle,
-        #board.single-select .shape-widget.selected .widget-back-handle,
-        #board.single-select .shape-widget.selected .widget-rotate-handle,
-        #board.single-select .shape-widget.selected .widget-menu-handle { opacity: 1; pointer-events: auto; }
+		#board.single-select .widget.selected .drag-handle,
+		#board.single-select .widget.selected .widget-close-handle,
+		#board.single-select .widget.selected .widget-pin-handle,
+		#board.single-select .widget.selected .widget-back-handle,
+		#board.single-select .widget.selected .widget-rotate-handle,
+		#board.single-select .widget.selected .widget-menu-handle,
+		#board.single-select .shape-widget.selected .drag-handle,
+		#board.single-select .shape-widget.selected .widget-close-handle,
+		#board.single-select .shape-widget.selected .widget-pin-handle,
+		#board.single-select .shape-widget.selected .widget-back-handle,
+		#board.single-select .shape-widget.selected .widget-rotate-handle,
+		#board.single-select .shape-widget.selected .widget-menu-handle { opacity: 1; pointer-events: auto; }
+
+        /* Poignée resize + boutons symétrie/verrou visibles dès la sélection simple */
+        .shape-widget.selected .shape-resize-handle { opacity: 1; }
+        .shape-widget.selected .resize-lock-btn { opacity: 1; pointer-events: auto; }
+        .shape-widget.selected .flip-h-btn      { opacity: 1; pointer-events: auto; }
+        .shape-widget.selected .flip-v-btn      { opacity: 1; pointer-events: auto; }
+
+        /* Masquer ces boutons en multi-sélection */
+        #board.multi-select .shape-widget.selected .shape-resize-handle,
+        #board.multi-select .shape-widget.selected .resize-lock-btn,
+        #board.multi-select .shape-widget.selected .flip-h-btn,
+        #board.multi-select .shape-widget.selected .flip-v-btn { opacity: 0 !important; pointer-events: none !important; }
+
+        /* Masquer aussi pour les formes membres d'un groupe */
+        .shape-widget[data-group-id].selected .shape-resize-handle,
+        .shape-widget[data-group-id].selected .resize-lock-btn,
+        .shape-widget[data-group-id].selected .flip-h-btn,
+        .shape-widget[data-group-id].selected .flip-v-btn { opacity: 0 !important; pointer-events: none !important; }
 
         /* --- Sous-menu formes --- */
         #shape-toolbar {
@@ -351,7 +371,7 @@
 		}
 		.undo-btn.enabled, .redo-btn.enabled { color: #ccc; cursor: pointer; }
 		.undo-btn.enabled:hover, .redo-btn.enabled:hover { background: #2e2e3a; color: #e8e8f0; }
-		.menu-btn { display: none; } /* remplacé par style inline */
+		.menu-btn { display: none; }
 		#tools-menu { display: none; background: #1F1F21; border-radius: 14px; padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; gap: 8px; min-width: 220px; border: 1px solid #333; position: relative; max-height: 80vh; overflow-y: auto; overflow-x: hidden; grid-template-columns: repeat(3, 1fr); }
 		#tools-menu.active { display: grid; }
 		.widget-btn { background: #28282f; color: #ddd; border: none; padding: 14px 8px 10px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; transition: background .15s; line-height: 1.2; text-align: center; white-space: nowrap; }
@@ -374,7 +394,6 @@
 
         /* --- CALENDRIER & HORLOGE --- */
         .calendar-page { width: 100%; height: 100%; display: flex; flex-direction: column; border: 1px solid #ced4da; border-radius: 8px; overflow: hidden; background: white; text-align: center; position: relative; padding-top: 15px; box-sizing: border-box; }
-       
         .calendar-header { background: #D17B6B; height: 20%; min-height: 30px; border-bottom: 2px solid #D17B6B; margin-bottom: 5px; }
         .calendar-body { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; padding: 5px; }
         .calendar-day-name   { font-size: 0.95em; font-weight: 700; color: #333; text-transform: lowercase; }
@@ -410,7 +429,7 @@
         .modal-content button { padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
         .modal-content .btn-cancel { border: 1px solid #ddd; background: #f8f9fa; color: var(--text-color); }
         .modal-content .btn-confirm { border: none; background: #ff4757; color: white; }
-		
+
 		/* Aide — items de navigation */
 		.help-nav {
 		  display: flex; align-items: center; gap: 8px;
@@ -419,7 +438,7 @@
 		  transition: all 0.15s; user-select: none;
 		}
 		.help-nav:hover { background: #e8edf5; color: #2B7FFF; }
-		
+
 		/* --- MODE PRÉSENTATION --- */
 		body.presentation-mode #board {
 			position: fixed !important;
@@ -491,7 +510,7 @@
 			transition: none;
 		}
 		#laser-pointer.active { display: block; }
-		
+
 		/* ═══ SCÈNES ═══ */
 		#scenes-bar {
 			display: flex; align-items: center; gap: 4px;
@@ -499,7 +518,6 @@
 			max-width: 55vw; scrollbar-width: none;
 		}
 		#scenes-bar::-webkit-scrollbar { display: none; }
-
 		.scene-tab {
 			display: flex; align-items: center; gap: 5px;
 			background: #cccccc; color: #333; border: 2px solid rgba(0,0,0,0.2);
@@ -528,7 +546,6 @@
 		}
 		.scene-tab-close:hover { opacity: 1; }
 		.scene-tab.active .scene-tab-close { color: white; }
-
 		#scene-add-btn {
 			background: #eeeeee; color: #555; border: 2px solid rgba(0,0,0,0.3);
 			border-radius: 20px; width: 34px; height: 34px;
@@ -539,7 +556,7 @@
 		}
 		#scene-add-btn:hover { background: #ddd; }
 		#scene-add-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-		
+
 </style>
 </head>
 <body>
@@ -765,425 +782,7 @@
     </div>
 </div>
 
-<div id="help-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:20010;justify-content:center;align-items:center;padding:20px;">
-<div style="background:#fff;border-radius:18px;width:100%;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.5);overflow:hidden;">
-
-  <!-- EN-TÊTE -->
-  <div style="background:linear-gradient(135deg,#2B7FFF 0%,#8E51FF 100%);color:white;padding:22px 28px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-shrink:0;">
-    <div>
-      <div style="font-size:1.4em;font-weight:800;">📋 Aide complète — Le Bureau du Prof</div>
-      <div style="font-size:0.85em;opacity:0.85;margin-top:4px;">Cliquez sur une section dans le menu à gauche pour naviguer.</div>
-    </div>
-    <button onclick="closeHelpModal()" style="background:rgba(255,255,255,0.2);border:none;border-radius:50%;width:36px;height:36px;color:white;font-size:20px;cursor:pointer;flex-shrink:0;">×</button>
-  </div>
-
-  <!-- CORPS -->
-  <div style="display:flex;flex:1;overflow:hidden;">
-
-    <!-- SIDEBAR -->
-    <nav id="help-sidebar" style="width:200px;flex-shrink:0;background:#f4f6f9;border-right:1px solid #e5e8ee;overflow-y:auto;padding:14px 0;">
-      <div class="help-nav" data-s="h-intro"      onclick="helpShow(this)" style="border-left-color:#2B7FFF;background:#e8edf5;color:#2B7FFF;font-weight:700;">🏠 Introduction</div>
-      <div class="help-nav" data-s="h-widgets"    onclick="helpShow(this)">📦 Widgets</div>
-      <div class="help-nav" data-s="h-selection"  onclick="helpShow(this)">🖱️ Sélection</div>
-      <div class="help-nav" data-s="h-deplacement"onclick="helpShow(this)">✥ Déplacement</div>
-      <div class="help-nav" data-s="h-rotation"   onclick="helpShow(this)">↻ Rotation</div>
-      <div class="help-nav" data-s="h-groupes"    onclick="helpShow(this)">⛓️ Groupes</div>
-      <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
-      <div class="help-nav" data-s="h-texte"      onclick="helpShow(this)">🖊️ Texte &amp; Format</div>
-      <div class="help-nav" data-s="h-formes"     onclick="helpShow(this)">🔲 Formes</div>
-      <div class="help-nav" data-s="h-dessin"     onclick="helpShow(this)">✏️ Dessin libre</div>
-      <div class="help-nav" data-s="h-gomme"      onclick="helpShow(this)">🧽 Gomme</div>
-      <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
-      <div class="help-nav" data-s="h-fond"       onclick="helpShow(this)">🖼️ Fond d'écran</div>
-      <div class="help-nav" data-s="h-sauvegarde" onclick="helpShow(this)">💾 Sauvegarde</div>
-      <div class="help-nav" data-s="h-undoredo"   onclick="helpShow(this)">↩ Annuler / Refaire</div>
-      <div class="help-nav" data-s="h-avance"     onclick="helpShow(this)">⚙️ Options avancées</div>
-      <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
-      <div class="help-nav" data-s="h-scenes"     onclick="helpShow(this)">🗂️ Scènes</div>
-      <div class="help-nav" data-s="h-laser"      onclick="helpShow(this)">🔴 Pointeur laser</div>
-    </nav>
-
-    <!-- CONTENU -->
-    <div style="flex:1;overflow-y:auto;padding:28px 32px;font-family:'Segoe UI',system-ui,sans-serif;">
-
-      <!-- INTRODUCTION -->
-      <div id="h-intro" class="help-section">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🏠 Bienvenue sur Le Bureau du Prof</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le Bureau du Prof est un <strong>tableau de bord interactif</strong> conçu pour les enseignants. Il permet d'afficher simultanément des widgets (heure, date, devoirs, agenda, vidéos…), de dessiner librement, d'ajouter des formes géométriques et de tout sauvegarder.</p>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le tableau respecte un <strong>format 16:9</strong> et s'adapte automatiquement à la taille de votre écran ou vidéoprojecteur.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">🗺️ Organisation de l'interface</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">⬇️ Barre du bas</div><p style="font-size:12.5px;color:#444;margin:0;">Accès aux boutons <strong>WIDGETS</strong>, scènes 🗂️, dessin ✏️, formes 🔲, gomme 🧽, sauvegarde 💾/📂, effacement ❌ et aide ❓.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">📦 Menu WIDGETS</div><p style="font-size:12.5px;color:#444;margin:0;">S'ouvre au clic sur <strong>WIDGETS</strong>. Liste tous les types de widgets à créer + choix du fond.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">🖊️ Barre de texte</div><p style="font-size:12.5px;color:#444;margin:0;">Apparaît automatiquement en cliquant dans un widget Texte ou Devoirs. Police, taille, couleur, gras, italique…</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">💾 Sauvegarde auto</div><p style="font-size:12.5px;color:#444;margin:0;">Tout est sauvegardé dans le navigateur après chaque modification. Utilisez 💾 pour exporter en .json.</p></div>
-        </div>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 <strong>Démarrage :</strong> Cliquez sur <strong>WIDGETS</strong>, choisissez un type, puis glissez le widget en cliquant sur la poignée <strong>✥</strong> qui apparaît sur sa gauche.</div>
-        <div style="background:#1a1a2e;border-left:4px solid #8E51FF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#ccc;margin:10px 0;">📽️ <strong>Mode présentation :</strong> Cliquez sur le bouton <strong>📽️</strong> en bas à droite pour basculer en plein écran propre (sans interface). Le tableau est projeté tel quel. Appuyez sur <strong>Échap</strong> ou cliquez sur « Quitter la présentation » pour revenir.</div>
-      </div>
-
-      <!-- WIDGETS -->
-      <div id="h-widgets" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">📦 Les widgets disponibles</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Chaque widget est une fenêtre flottante redimensionnable et déplaçable. Cliquez sur <strong>WIDGETS</strong> puis sur le type souhaité pour l'ajouter au bureau.</p>
-        <table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:13px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;color:#333;border-bottom:2px solid #dde2ea;">Widget</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;color:#333;border-bottom:2px solid #dde2ea;">Description</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;color:#333;border-bottom:2px solid #dde2ea;">Particularité</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#2B7FFF;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🖊️ Texte</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Zone de saisie libre avec mise en forme riche.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Barre de formatage globale automatique</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#3BB8DB;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📝 Devoirs</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Widget pré-rempli pour noter les devoirs par classe.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Contenu de départ modifiable</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#679638;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📅 Date</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Affiche le jour, numéro et mois en temps réel.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Police auto-adaptative à la taille du widget</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#7CCF35;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🕒 Heure</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Horloge numérique temps réel (h:min sec).</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Taille de police auto + fond transparent</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#8E51FF;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📌 Planning</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Agenda journalier avec lignes horaires.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Glisser-déposer des lignes, ajout/suppression</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#E7180B;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🎬 YouTube</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Lecteur YouTube intégré.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Mode audio seul, plein écran</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FFD230;color:#222;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">💻 Fenêtre Web</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Navigateur intégré pour tout site web.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FF692A;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🎒 OutilsProfs</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Ouvre directement ecolebernardet.github.io/outilsprofs.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Micro, caméra autorisés</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#480eb3;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🧘 Défi Calme</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Outil de gestion du calme en classe.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#E74C3C;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📄 PDF</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Affiche un fichier PDF local.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Fichier non sauvegardé (ré-ouvrir à chaque session)</td></tr>
-          <tr><td style="padding:8px 12px;"><span style="background:#00AACC;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">⛅ Météo</span></td><td style="padding:8px 12px;color:#444;">Affiche la météo réelle de la ville de l'école.</td><td style="padding:8px 12px;color:#444;">Via Open-Meteo (gratuit, sans clé). Clic sur le nom de la ville pour changer. Rafraîchi toutes les 10 min.</td></tr>
-        </table>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⚙️ Contrôles communs à tous les widgets</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Poignée</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Position</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">✥</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Gauche (milieu)</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Déplacer par glisser-déposer</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">↻</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Droite (milieu)</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Faire pivoter (magnétisme 0°/45°/90°…)</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">📌</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Haut (centre)</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Épingler au premier plan (fond doré = épinglé)</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🔽</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Haut (droite du centre)</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Envoyer derrière tous les autres widgets</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">☰</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Bas (centre)</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Menu contextuel (dupliquer, modifier…)</td></tr>
-          <tr><td style="padding:8px 12px;font-weight:700;color:#ff5f56;">×</td><td style="padding:8px 12px;color:#444;">Haut droite</td><td style="padding:8px 12px;color:#444;">Supprimer le widget</td></tr>
-        </table>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:14px 0;">💡 <strong>Redimensionner :</strong> Survolez un widget pour faire apparaître la poignée de redimensionnement (triangle gris, bas-droite de la zone de contenu).</div>
-      </div>
-
-      <!-- SÉLECTION -->
-      <div id="h-selection" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🖱️ Sélectionner des widgets</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Clic simple</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquer sur un widget le sélectionne (bordure bleue). Si le widget n'appartient à aucun groupe, ses poignées natives apparaissent directement dessus.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Sélection multiple — Ctrl + clic</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Maintenez <strong>Ctrl</strong> (ou ⌘ sur Mac) et cliquez sur plusieurs widgets. Recliquer sur un widget sélectionné le désélectionne.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Rectangle de sélection</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez-glissez sur le <strong>fond du tableau</strong> (pas sur un widget) pour tracer un rectangle. Tous les widgets et traits à l'intérieur sont sélectionnés.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Overlay de sélection multiple</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Quand plusieurs éléments sont sélectionnés, un cadre bleu pointillé entoure l'ensemble :</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Bouton</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">✥</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Déplacer tout le groupe simultanément</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">↻</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Faire pivoter autour du centre de la sélection</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">↘</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Redimensionner l'ensemble (+ Shift = proportionnel)</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;color:#ff5f56;">×</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Supprimer tous les éléments sélectionnés</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">☰</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Menu contextuel (dupliquer, premier plan…)</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">⊞ Grouper</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Créer un groupe permanent (visible si ≥ 2 éléments)</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">⛓️ Dissocier</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Dissoudre un groupe existant</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">↔ / ↕</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Symétrie horizontale / verticale</td></tr>
-          <tr><td style="padding:8px 12px;font-weight:700;">🔓/🔒</td><td style="padding:8px 12px;color:#444;">Verrouiller/déverrouiller les proportions au redimensionnement</td></tr>
-        </table>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 Double-clic sur ↻ (overlay multi-sélection) remet tous les éléments à leur angle d'origine avant la rotation groupée.</div>
-      </div>
-
-      <!-- DÉPLACEMENT -->
-      <div id="h-deplacement" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">✥ Déplacer des widgets</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Déplacer un widget seul</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez sur la poignée <strong>✥</strong> à gauche du widget (apparaît au survol ou à la sélection), puis glissez. Relâchez pour valider la position.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Déplacer plusieurs widgets</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Sélectionnez plusieurs éléments (Ctrl+clic ou rectangle), puis utilisez la poignée ✥ de l'overlay bleu pour déplacer tout le groupe d'un seul mouvement.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ordre d'empilement (z-index)</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>📌 Épingler</strong> — place le widget en premier plan permanent. Son cadre devient doré.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>🔽 Envoyer derrière</strong> — place le widget tout derrière (utile pour les images de fond).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Tout clic sur un widget non épinglé le remonte automatiquement au-dessus des autres.</li>
-        </ul>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 <strong>Image de fond :</strong> Ajoutez une forme large ou un widget image, puis utilisez 🔽 pour l'envoyer derrière tous les autres éléments.</div>
-      </div>
-
-      <!-- ROTATION -->
-      <div id="h-rotation" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">↻ Rotation des éléments</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Rotation d'un widget seul</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez-glissez la poignée <strong>↻</strong> à droite du widget. L'angle s'affiche en temps réel dans une bulle flottante.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Magnétisme automatique</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">La rotation se "snap" automatiquement sur : <strong>0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°</strong>. Dès que vous approchez l'un de ces angles à moins de 2°, le widget s'y colle.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Remettre à 0°</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Double-cliquez sur la poignée <strong>↻</strong> pour réinitialiser instantanément l'angle à 0°.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Rotation d'une sélection multiple</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">La rotation s'effectue autour du centre géométrique de la sélection. Tous les éléments (widgets + traits) pivotent ensemble.</p>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Avec une sélection multiple, double-clic sur ↻ remet chaque widget à son angle individuel d'avant la rotation groupée (pas nécessairement 0°).</div>
-      </div>
-
-      <!-- GROUPES -->
-      <div id="h-groupes" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">⛓️ Groupes de widgets</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le groupement lie plusieurs éléments pour les déplacer, redimensionner et faire pivoter ensemble comme un seul objet.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Créer un groupe</div>
-        <ol style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Sélectionnez au moins 2 éléments (Ctrl+clic ou rectangle).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Cliquez sur <strong>⊞ Grouper</strong> dans l'overlay bleu (ou via ☰).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Les membres du groupe sont liés (bordure ambrée sur les widgets texte).</li>
-        </ol>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Interagir avec un groupe</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquer sur n'importe quel membre sélectionne <strong>tout le groupe</strong> d'un coup, affichant l'overlay multi-sélection complet.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Dissocier un groupe</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Sélectionnez un membre du groupe, puis cliquez sur <strong>⛓️ Dissocier</strong> dans l'overlay ou dans ☰. Chaque élément redevient indépendant.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Groupes mixtes</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Un groupe peut contenir des widgets texte, des formes SVG <em>et</em> des traits de dessin libre. Tout se déplace, pivote et redimensionne ensemble.</p>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 Pour ajouter un élément à un groupe existant, sélectionnez les membres du groupe + le nouvel élément avec Ctrl+clic, puis regroupez. L'ancien groupe est absorbé dans le nouveau.</div>
-      </div>
-
-      <!-- TEXTE -->
-      <div id="h-texte" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🖊️ Texte &amp; Mise en forme</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Les widgets <strong>Texte</strong> et <strong>Devoirs</strong> sont des éditeurs de texte enrichi. La <strong>barre de mise en forme globale</strong> s'affiche automatiquement en bas de l'écran dès qu'un de ces widgets est actif.</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin:10px 0 16px 0;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Outil</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Description</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">G / I / S</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Gras, Italique, Souligné sur le texte sélectionné</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🎨 Couleur texte</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur du texte sélectionné</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🖊️ Surligner</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur de fond (surlignage) du texte sélectionné</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">⬜ Fond widget</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur de fond de tout le widget</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">☑ Transparence</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Rend le fond du widget entièrement transparent</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🔆 Opacité fond</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Slider 0–100% pour atténuer progressivement la couleur de fond</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Police</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Arial, Segoe UI, Comic Sans, Verdana, KGPerfectPenmanship, Andika, 🧩 OpenDyslexic, 📏 Belle Allure GS</td></tr>
-          <tr><td style="padding:8px 12px;font-weight:700;">− taille +</td><td style="padding:8px 12px;color:#444;">Diminue/augmente la taille de police de 2px. Saisie directe possible (Entrée pour valider).</td></tr>
-        </table>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Polices spéciales incluses</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">🧩 OpenDyslexic</div><p style="font-size:12.5px;color:#444;margin:0;">Conçue pour faciliter la lecture des personnes dyslexiques.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">📏 Belle Allure GS</div><p style="font-size:12.5px;color:#444;margin:0;">Cursive adaptée à l'école primaire (écriture liée).</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">✒️ KGPerfectPenmanship</div><p style="font-size:12.5px;color:#444;margin:0;">Style écriture manuscrite soignée.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">🔡 Andika</div><p style="font-size:12.5px;color:#444;margin:0;">Lisible, adaptée aux lecteurs débutants.</p></div>
-        </div>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 <strong>Sélectionnez avant de formater :</strong> Sélectionnez le texte à modifier AVANT de cliquer sur un bouton de la barre.</div>
-      </div>
-
-      <!-- FORMES -->
-      <div id="h-formes" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🔲 Formes géométriques</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Cliquez sur le bouton <strong>🔲</strong> en bas pour ouvrir le panneau des formes.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">⭕ Cercle / Ellipse</div><p style="font-size:12.5px;color:#444;margin:0;">Ellipse ronde ou ovale selon les dimensions.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">⬛ Carré / ▬ Rectangle</div><p style="font-size:12.5px;color:#444;margin:0;">Formes rectangulaires à dimensions libres.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">◇ Losange / ▱ Parallélogramme</div><p style="font-size:12.5px;color:#444;margin:0;">Quadrilatères obliques.</p></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;margin-bottom:4px;">— Ligne / ➡️ Flèche / ▲ Triangle</div><p style="font-size:12.5px;color:#444;margin:0;">Trait, flèche directionnelle, triangle isocèle.</p></div>
-        </div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Options de création</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>Contour :</strong> couleur et épaisseur (1 à 20 px)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;"><strong>Remplissage :</strong> couleur + opacité (0 à 100%)</li>
-        </ul>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Modifier une forme existante</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;"><strong>Double-cliquez</strong> sur une forme pour ouvrir le panneau d'édition flottant. Changez contour, remplissage et opacité en temps réel.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Redimensionner</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Poignée bas-droite de la forme. Maintenez <strong>Shift</strong> ou activez 🔒 pour conserver le ratio largeur/hauteur.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Symétrie &amp; Duplication</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>↔</strong> Symétrie horizontale (miroir gauche/droite)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>↕</strong> Symétrie verticale (miroir haut/bas)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;"><strong>☰ → ⧉ Dupliquer</strong> pour cloner la forme</li>
-        </ul>
-      </div>
-
-      <!-- DESSIN -->
-      <div id="h-dessin" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">✏️ Dessin libre &amp; Reconnaissance de formes</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez sur <strong>✏️</strong> en bas pour activer le mode dessin. Une barre d'options apparaît.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Mode Dessin libre</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:8px;">Tracez à main levée avec la souris ou le stylet. Choisissez la <strong>couleur</strong> et l'<strong>épaisseur</strong> (1 à 40 px). Chaque tracé est stocké séparément et peut être sélectionné/déplacé/supprimé indépendamment.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Mode Reconnaissance de formes 🔵</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:8px;">Basculez sur <strong>Formes</strong> dans la barre. Dessinez approximativement un cercle, carré, rectangle ou triangle : l'app détecte automatiquement la forme et la remplace par une <strong>forme vectorielle nette</strong>.</p>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Options supplémentaires : couleur et opacité du remplissage reconnu.</p>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 <strong>Conseil :</strong> Fermez votre tracé (rejoignez le point de départ) pour déclencher la reconnaissance. Les formes non fermées sont conservées comme tracé libre.</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Effacer / Quitter</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;"><strong>🗑️ Effacer</strong> — supprime tous les traits du canvas</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;"><strong>✖ Fermer</strong> (ou recliquer ✏️) — quitte le mode dessin</li>
-        </ul>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ En mode dessin, les widgets ne sont plus cliquables. Quittez le mode dessin pour interagir avec eux.</div>
-      </div>
-
-      <!-- GOMME -->
-      <div id="h-gomme" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🧽 Gomme</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez sur <strong>🧽</strong> en bas pour activer la gomme.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Effacer des traits</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Passez la gomme sur les traits de dessin pour les effacer segment par segment. Les traits partiellement effacés sont découpés proprement.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Effacer des formes SVG</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">La gomme s'applique aussi aux formes géométriques via un masque vectoriel. Si une forme est entièrement recouverte, elle est automatiquement supprimée.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Régler la taille</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Curseur <strong>Taille</strong> (5 à 80 px) dans la barre. Un aperçu circulaire s'affiche sous le curseur de la souris.</p>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 Utilisez <strong>↩ Annuler</strong> pour rétablir des traits effacés par erreur.</div>
-      </div>
-
-      <!-- FOND -->
-      <div id="h-fond" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🖼️ Fond d'écran</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Menu <strong>WIDGETS</strong> → bouton <strong>🖼️ Choisir fond ❯</strong>.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Couleurs prédéfinies</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#eef2f5;border:1px solid #ddd;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Défaut</div><p style="font-size:12px;color:#666;margin:0;">Gris clair neutre</p></div></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#2f3542;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Ardoise</div><p style="font-size:12px;color:#666;margin:0;">Gris foncé</p></div></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#104626;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Tableau vert</div><p style="font-size:12px;color:#666;margin:0;">Vert tableau classique</p></div></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#BAA09B;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Vieux rose</div><p style="font-size:12px;color:#666;margin:0;">Tons chauds doux</p></div></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#EDD9D5;border:1px solid #ddd;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Beige</div><p style="font-size:12px;color:#666;margin:0;">Chaleureux et reposant</p></div></div>
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;"><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:#000;flex-shrink:0;"></span><div><div style="font-weight:700;font-size:13px;">Noir</div><p style="font-size:12px;color:#666;margin:0;">Fond entièrement noir</p></div></div>
-        </div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Image personnalisée</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Bouton <strong>📷 Importer image</strong> → sélectionnez une image depuis votre ordinateur. Elle est stockée en base64 dans le navigateur et rechargée automatiquement.</p>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les images très lourdes peuvent ralentir la sauvegarde locale. Privilégiez des fichiers compressés (JPEG, WebP) de moins de 2 Mo.</div>
-      </div>
-
-      <!-- SAUVEGARDE -->
-      <div id="h-sauvegarde" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">💾 Sauvegarde &amp; Chargement</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Sauvegarde automatique</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Toute modification est enregistrée automatiquement dans le <strong>localStorage</strong> du navigateur. La prochaine ouverture restaure exactement l'état précédent.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Exporter — 💾</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Télécharge un fichier <strong>.json</strong> contenant toutes les scènes et leur contenu. Nommé automatiquement <code style="background:#f0f3f9;padding:1px 5px;border-radius:3px;font-size:12px;">lebureauduprof_export_AAAA-MM-JJ.json</code>.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Charger — 📂</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Sélectionnez un fichier .json exporté précédemment. Si le fichier contient plusieurs scènes, elles sont toutes restaurées. Si c'est un fichier d'ancienne version (mono-scène), il est chargé dans la scène active.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ce qui est sauvegardé</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Toutes les scènes (nom, widgets, formes, dessins, fond)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Tous les widgets (type, position, taille, contenu, style)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Toutes les formes géométriques (type, couleurs, taille, rotation, flip)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Tous les traits de dessin libre</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Le fond d'écran de chaque scène (couleur ou image)</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Les groupes de widgets</li>
-        </ul>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 <strong>Astuce :</strong> Exportez régulièrement un fichier .json comme sauvegarde externe en cas de suppression du cache du navigateur.</div>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les fichiers PDF ouverts via le widget PDF <em>ne sont pas</em> sauvegardés. Il faudra les ré-ouvrir à chaque session.</div>
-      </div>
-
-      <!-- ANNULER/REFAIRE -->
-      <div id="h-undoredo" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">↩ Annuler &amp; Refaire</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Un historique de jusqu'à <strong>60 états</strong> est conservé pendant la session.</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Bouton</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Condition</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">↩ Annuler</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Revient à l'état précédent</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Grisé si aucune action à annuler</td></tr>
-          <tr><td style="padding:8px 12px;font-weight:700;">↪ Refaire</td><td style="padding:8px 12px;color:#444;">Rétablit l'action annulée</td><td style="padding:8px 12px;color:#444;">Grisé si rien à refaire</td></tr>
-        </table>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ce qui est couvert</div>
-        <ul style="padding-left:20px;margin-bottom:10px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Ajout / suppression de widgets ou de formes</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Déplacement, rotation, redimensionnement</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Traits de dessin et effaçages</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Changements de fond</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Groupement / dissociation</li>
-        </ul>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 Les modifications de texte (frappe clavier) sont enregistrées dans l'historique après 800 ms d'inactivité.</div>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ L'historique est local à la scène active et est perdu si vous fermez ou rechargez la page. Exportez régulièrement avec 💾.</div>
-      </div>
-
-      <!-- OPTIONS AVANCÉES -->
-      <div id="h-avance" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">⚙️ Options &amp; Fonctionnalités avancées</div>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">🗓️ Widget Planning — détail</div>
-        <ul style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Cliquez sur une heure ou un texte pour l'éditer directement.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Glissez les lignes via la poignée <strong>⋮⋮</strong> pour les réorganiser.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Bouton <strong>+</strong> en bas pour ajouter une ligne.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Bouton <strong>×</strong> (au survol d'une ligne) pour supprimer.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">L'heure et la date courantes s'affichent en temps réel dans l'en-tête.</li>
-        </ul>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">🎬 Widget YouTube — astuces</div>
-        <ul style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Accepte les liens YouTube normaux, youtu.be et Shorts.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;"><strong>🔇 Son seul</strong> : masque la vidéo, idéal pour une musique de fond discrète.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;"><strong>📺 Vidéo</strong> : réaffiche la vidéo.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Le bouton damier rend le fond du widget transparent.</li>
-        </ul>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">📐 Redimensionnement adaptatif</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Lorsque vous redimensionnez la fenêtre du navigateur, tous les widgets et formes sont repositionnés et redimensionnés proportionnellement pour conserver le rendu 16:9.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⛶ Mode plein écran (widget)</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Disponible sur YouTube, Fenêtre Web, OutilsProfs, Défi Calme et PDF. Cliquez sur ⛶ dans la barre du widget. Appuyez sur <strong>Échap</strong> ou le bouton de sortie pour quitter.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">📽️ Mode présentation global</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Le bouton <strong>📽️</strong> en bas à droite bascule l'interface en plein écran de projection : toute l'interface (boutons, menus, poignées) disparaît et le tableau occupe tout l'écran. Idéal pour la vidéoprojection. Appuyez sur <strong>Échap</strong> ou cliquez sur « Quitter la présentation » (en bas à droite) pour revenir à l'édition.</p>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12.5px;color:#1a4d8f;margin:16px 0;">
-          💡 <strong>Conseil pédagogique — configuration type :</strong><br><br>
-          • <strong>Date + Heure</strong> en haut → affichage permanent<br>
-          • <strong>Planning</strong> à gauche → déroulé de la journée<br>
-          • <strong>Devoirs</strong> à droite → travaux à noter<br>
-          • <strong>YouTube</strong> en bas → musique de travail<br><br>
-          Sauvegardez cette configuration en .json et rechargez-la chaque matin en 2 secondes !
-        </div>
-      </div>
-
-      <!-- SCÈNES -->
-      <div id="h-scenes" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🗂️ Scènes</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Les scènes permettent d'avoir plusieurs <strong>bureaux indépendants</strong> que vous pouvez créer, nommer et switcher en un clic. Chaque scène possède ses propres widgets, formes, dessins et fond d'écran.</p>
-
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ouvrir le menu des scènes</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez sur le bouton <strong>🗂️ Scènes</strong> dans la barre du bas (à côté de WIDGETS). Le nom de la scène active est affiché directement sur le bouton.</p>
-
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Actions disponibles dans le menu</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Comment</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Changer de scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Clic sur le nom d'une scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">La scène actuelle est sauvegardée, la nouvelle est chargée</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Créer une scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Bouton <strong>＋ Nouvelle scène</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Copie de la scène actuelle, nommée "Scène N"</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Renommer</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Clic sur ✏️ à droite de la scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Boîte de dialogue pour saisir un nouveau nom</td></tr>
-          <tr><td style="padding:8px 12px;font-weight:700;color:#ff5f56;">Supprimer</td><td style="padding:8px 12px;color:#444;">Clic sur × rouge à droite de la scène</td><td style="padding:8px 12px;color:#444;">Confirmation demandée, puis scène supprimée définitivement</td></tr>
-        </table>
-
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement au changement de scène</div>
-        <ul style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">La scène en cours est <strong>automatiquement sauvegardée</strong> avant de charger la suivante.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">L'historique annuler/refaire est <strong>réinitialisé</strong> à chaque changement de scène.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le fond d'écran change avec la scène.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Le bouton 🗂️ affiche toujours le nom de la scène active.</li>
-        </ul>
-
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Limites</div>
-        <ul style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Maximum <strong>10 scènes</strong> simultanées (le bouton ＋ est grisé au-delà).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Il est impossible de supprimer la dernière scène restante.</li>
-        </ul>
-
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Export et import multi-scènes</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le bouton 💾 exporte <strong>toutes les scènes</strong> dans un seul fichier .json. Le bouton 📂 restaure toutes les scènes si le fichier en contient plusieurs.</p>
-
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12.5px;color:#1a4d8f;margin:16px 0;">
-          💡 <strong>Idées d'organisation :</strong><br><br>
-          • <strong>Scène 1 — Matin</strong> : accueil, date, planning de la journée<br>
-          • <strong>Scène 2 — Maths</strong> : leçon du jour, exercices, timer<br>
-          • <strong>Scène 3 — Lecture</strong> : texte affiché, questions, vocabulaire<br>
-          • <strong>Scène 4 — Fin de journée</strong> : devoirs, récap, YouTube<br><br>
-          Basculez d'une scène à l'autre en 1 clic sans rien perdre !
-        </div>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les scènes sont stockées dans le localStorage du navigateur. Si vous videz le cache ou changez de navigateur, exportez d'abord votre fichier .json pour ne rien perdre.</div>
-      </div>
-
-      <!-- POINTEUR LASER -->
-      <div id="h-laser" class="help-section" style="display:none;">
-        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🔴 Pointeur laser</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le pointeur laser remplace le curseur de la souris par un <strong>point rouge lumineux</strong>, idéal pour attirer l'attention des élèves sur une zone précise du tableau projeté.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Activer / Désactiver</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Clic sur <strong>🔴</strong> dans la barre du bas</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Active le pointeur — le curseur disparaît, remplacé par le point rouge lumineux</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Reclic sur <strong>🔴</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Désactive le pointeur — le curseur normal revient</td></tr>
-          <tr><td style="padding:8px 12px;">Touche <strong>Échap</strong></td><td style="padding:8px 12px;color:#444;">Désactive le pointeur en urgence</td></tr>
-        </table>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement</div>
-        <ul style="padding-left:20px;margin-bottom:14px;">
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le point rouge s'affiche <strong>au-dessus de tout</strong> (widgets, dessins, formes).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le bouton 🔴 prend un fond rosé pour indiquer que le mode est actif.</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le pointeur n'interfère pas avec les autres modes (dessin, gomme, sélection).</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;">Il fonctionne sur toute la surface de la page, y compris en dehors du tableau.</li>
-        </ul>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">
-          💡 <strong>Astuce projection :</strong> Activez le pointeur laser juste avant de projeter votre écran. Les élèves verront uniquement le point rouge lumineux, sans le curseur système qui peut être peu visible sur un vidéoprojecteur.
-        </div>
-      </div>
-
-    </div><!-- /contenu -->
-  </div><!-- /corps -->
-
-  <!-- PIED -->
-  <div style="padding:14px 28px;border-top:1px solid #e5e8ee;display:flex;justify-content:flex-end;flex-shrink:0;background:#fafbfc;">
-    <button onclick="closeHelpModal()" style="background:#2B7FFF;color:white;border:none;padding:9px 22px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Fermer</button>
-  </div>
-
-</div><!-- /modal -->
-</div><!-- /overlay -->
+<div id="help-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:20010;justify-content:center;align-items:center;padding:20px;"></div>
 
 
 <!-- TEMPLATES -->
@@ -1360,6 +959,27 @@ window.onload = () => {
     setInterval(updateClock, 1000);
     window.addEventListener('resize', handleWindowResize);
 };
+
+document.addEventListener('keydown', (e) => {
+    // Supprimer les widgets sélectionnés avec Suppr ou Backspace
+    // (sauf si on est en train de taper dans un champ de texte)
+    if ((e.key === 'Delete' || e.key === 'Backspace') &&
+        !e.target.closest('[contenteditable]') &&
+        !e.target.closest('input') &&
+        !e.target.closest('textarea') &&
+        (selectedWidgets.length > 0 || selectedStrokes.length > 0)) {
+        e.preventDefault();
+        snapshotNow();
+        selectedWidgets.forEach(w => { w.classList.remove('selected'); w.remove(); });
+        selectedWidgets = [];
+        strokes = strokes.filter(s => !selectedStrokes.includes(s));
+        selectedStrokes = [];
+        if (drawCtx) redrawStrokes();
+        document.getElementById('selection-controls').style.display = 'none';
+        saveBoard();
+    }
+});
+
 
 // =========================================================================
 // RATIO 16:9
@@ -1645,13 +1265,10 @@ function restoreBoardFromJSON(json) {
     // Restaurer les traits canvas si présents dans le snapshot
     if (parsed.strokes && parsed.strokes.length > 0) {
         strokes = parsed.strokes;
-        // Initialiser le canvas silencieusement si pas encore créé
         if (!drawCanvas) {
             initCanvas();
-            // Garder le canvas inactif (pas en mode dessin)
             drawCanvas.classList.add('inactive');
         }
-        // Laisser le DOM se stabiliser avant de dessiner
         setTimeout(() => redrawStrokes(), 100);
     }
     const curW = window.innerWidth, curVH = virtualH(curW);
@@ -1672,7 +1289,6 @@ function restoreBoardFromJSON(json) {
             applyTransparency(widget, true);
         } else if (w.bgColor) {
             widget.dataset.bgColor = w.bgColor;
-            // Appliquer l'opacité si elle est définie et différente de 1
             if (w.bgOpacity !== undefined && w.bgOpacity !== 1) {
                 const rgb = hexToRgb(w.bgColor);
                 if (rgb) {
@@ -1696,6 +1312,18 @@ function restoreBoardFromJSON(json) {
         if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
         else if (w.pinned) bringToFront(widget, true);
         if (w.groupId) widget.dataset.groupId = w.groupId;
+
+        // Widgets texte/devoirs : démarrer en mode non-éditable (drag par défaut)
+        if (w.type === 'text' || w.type === 'homework') {
+            const ed = widget.querySelector('.editor-content');
+            if (ed) {
+                ed.contentEditable = 'false';
+                ed.style.cursor = 'grab';
+                ed.style.userSelect = 'none';
+            }
+            widget.style.cursor = 'grab';
+        }
+
         setTimeout(() => {
             const editor = widget.querySelector('.editor-content');
             const agenda = widget.querySelector('.agenda-list');
@@ -1719,7 +1347,6 @@ function restoreBoardFromJSON(json) {
             if (s.transform) w2.style.transform = s.transform;
             if (s.flipX !== undefined) w2.dataset.flipX = s.flipX;
             if (s.flipY !== undefined) w2.dataset.flipY = s.flipY;
-            // Ré-appliquer le flip sur le SVG (pas sur le widget entier)
             const fsx = parseFloat(s.flipX || 1), fsy = parseFloat(s.flipY || 1);
             if (fsx !== 1 || fsy !== 1) {
                 const svg2 = w2.querySelector('svg');
@@ -1794,10 +1421,27 @@ function confirmClearBoard() {
 }
 
 function openHelpModal() {
-  const o = document.getElementById('help-modal-overlay');
-  o.style.display = 'flex';
-  // S'assurer que l'intro est affichée à l'ouverture
-  helpShow(document.querySelector('.help-nav[data-s="h-intro"]'));
+    const overlay = document.getElementById('help-modal-overlay');
+    if (overlay.children.length === 0) {
+        fetch('aide-modale.html')
+            .then(r => r.text())
+            .then(html => {
+                overlay.innerHTML = html;
+                overlay.style.display = 'flex';
+                helpShow(overlay.querySelector('.help-nav[data-s="h-intro"]'));
+            })
+            .catch(() => {
+                overlay.innerHTML = '<div style="background:white;padding:30px;border-radius:18px;">Impossible de charger l\'aide.</div>';
+                overlay.style.display = 'flex';
+            });
+    } else {
+        overlay.style.display = 'flex';
+        helpShow(overlay.querySelector('.help-nav[data-s="h-intro"]'));
+    }
+}
+
+function closeHelpModal() {
+    document.getElementById('help-modal-overlay').style.display = 'none';
 }
 
 // =========================================================================
@@ -1875,8 +1519,6 @@ function helpShow(item) {
   item.style.fontWeight = '700';
   document.getElementById(item.dataset.s).style.display = 'block';
 }
-
-function closeHelpModal() { document.getElementById('help-modal-overlay').style.display = 'none'; }
 
 // =========================================================================
 // HORLOGE / DATE
@@ -2070,10 +1712,38 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
         contentZone.innerHTML = `<div style="padding:10px;color:#b00;font-size:12px;">Type inconnu : <code>${type}</code></div>`;
     }
     board.appendChild(widget);
+		widget.addEventListener('contextmenu', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		snapshotNow();
+		widget.remove();
+		saveBoard();
+	});
     makeDraggable(widget);
     makeDraggableRotate(widget);
     if (type === 'agenda') { updateClock(); widget.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents); }
     const editor = widget.querySelector('.editor-content');
+	if (type === 'text' || type === 'homework') {
+		const editor = widget.querySelector('.editor-content');
+		if (editor) {
+			editor.contentEditable = 'false';
+			editor.style.cursor = 'grab';
+			editor.style.userSelect = 'none';
+		}
+		widget.style.cursor = 'grab';
+		// Remettre grab quand on quitte l'édition (clic ailleurs)
+		document.addEventListener('mousedown', function onOutsideClick(ev) {
+			if (!widget.contains(ev.target)) {
+				const ed = widget.querySelector('.editor-content');
+				if (ed) {
+					ed.contentEditable = 'false';
+					ed.style.cursor = 'grab';
+					ed.style.userSelect = 'none';
+				}
+				widget.style.cursor = 'grab';
+			}
+		});
+	}
 	if (type === 'time') {
 		const container = widget.querySelector('.editor-container');
 		const clockTime = widget.querySelector('.clock-time');
@@ -2489,26 +2159,111 @@ function syncFontSize(widget) {
 
 function makeDraggable(elmnt) {
     const handle = elmnt.querySelector('.drag-handle');
-    if (!handle) return;
-    handle.onmousedown = (e) => {
-        e.preventDefault();
-        elmnt.dataset.background = "false";
-        bringToFront(elmnt);
-        snapshotNow();
-        clearSelection();
-        let px = e.clientX, py = e.clientY;
-        document.onmousemove = (e) => {
-            elmnt.style.top  = (elmnt.offsetTop  + e.clientY - py) + "px";
-            elmnt.style.left = (elmnt.offsetLeft + e.clientX - px) + "px";
-            px = e.clientX; py = e.clientY;
-        };
-        document.onmouseup = () => {
-            document.onmousemove = null;
-            const curW = window.innerWidth, curVH = virtualH(curW);
-            elmnt.dataset.leftPercent = (elmnt.offsetLeft / curW) * 100;
-            elmnt.dataset.topPercent  = (elmnt.offsetTop  / curVH) * 100;
-            saveBoard();
-        };
+    if (handle) handle.onmousedown = (e) => {
+        e.stopPropagation();
+        startWidgetDrag(e, elmnt);
+    };
+
+    const isTextLike = elmnt.dataset.type === 'text' || elmnt.dataset.type === 'homework';
+
+    if (isTextLike) {
+        elmnt.addEventListener('mousedown', (e) => {
+            if (isDrawMode || isEraserMode) return;
+            if (e.target.closest('.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-back-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu')) return;
+            if (e.ctrlKey || e.metaKey) return;
+            const container = elmnt.querySelector('.editor-container');
+            if (container) {
+                const rect = container.getBoundingClientRect();
+                if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20) return;
+            }
+            elmnt._dragPending = { x: e.clientX, y: e.clientY, e };
+        });
+
+        elmnt.addEventListener('dblclick', (e) => {
+            if (e.target.closest('.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-back-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu')) return;
+            elmnt._dragPending = null;
+            const editor = elmnt.querySelector('.editor-content');
+            if (editor) {
+                editor.contentEditable = 'true';
+                editor.style.cursor = 'text';
+                editor.style.userSelect = 'auto';
+                elmnt.style.cursor = 'text';
+                editor.focus();
+                const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                if (range) {
+                    const sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        });
+
+        elmnt.addEventListener('mousemove', (e) => {
+            if (!elmnt._dragPending) return;
+            const dx = Math.abs(e.clientX - elmnt._dragPending.x);
+            const dy = Math.abs(e.clientY - elmnt._dragPending.y);
+            if (dx > 4 || dy > 4) {
+                const editor = elmnt.querySelector('.editor-content');
+                if (editor) {
+                    editor.contentEditable = 'false';
+                    editor.style.cursor = 'grab';
+                    editor.style.userSelect = 'none';
+                }
+                startWidgetDrag(elmnt._dragPending.e, elmnt);
+                elmnt._dragPending = null;
+            }
+        });
+
+        elmnt.addEventListener('mouseup', () => {
+            elmnt._dragPending = null;
+        });
+
+    } else {
+        elmnt.addEventListener('mousedown', (e) => {
+            if (isDrawMode || isEraserMode) return;
+            if (e.target.closest('.drag-handle,.widget-close-handle,.widget-pin-handle,.widget-back-handle,.widget-rotate-handle,.widget-menu-handle,.widget-ctx-menu,.editor-toolbar,.agenda-time,.agenda-text,.agenda-add-btn,.agenda-row-handle,.agenda-delete-row,.meteo-city')) return;
+            if (e.target.tagName === 'IFRAME' || e.target.tagName === 'EMBED') return;
+            const container = elmnt.querySelector('.editor-container');
+            if (container) {
+                const rect = container.getBoundingClientRect();
+                if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20) return;
+            }
+            if (e.ctrlKey || e.metaKey) return;
+            startWidgetDrag(e, elmnt);
+        });
+    }
+}
+
+function startWidgetDrag(e, elmnt) {
+    e.preventDefault();
+    elmnt.dataset.background = "false";
+    bringToFront(elmnt);
+    snapshotNow();
+    clearSelection();
+
+    // Bloquer les iframes pendant le drag
+    const overlays = [];
+    document.querySelectorAll('.widget iframe, .widget embed').forEach(el => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:absolute;inset:0;z-index:9999;background:transparent;';
+        el.parentElement.style.position = 'relative';
+        el.parentElement.appendChild(overlay);
+        overlays.push(overlay);
+    });
+
+    let px = e.clientX, py = e.clientY;
+    document.onmousemove = (ev) => {
+        elmnt.style.top  = (elmnt.offsetTop  + ev.clientY - py) + "px";
+        elmnt.style.left = (elmnt.offsetLeft + ev.clientX - px) + "px";
+        px = ev.clientX; py = ev.clientY;
+    };
+    document.onmouseup = () => {
+        document.onmousemove = null;
+        overlays.forEach(o => o.remove());
+        const curW = window.innerWidth, curVH = virtualH(curW);
+        elmnt.dataset.leftPercent = (elmnt.offsetLeft / curW) * 100;
+        elmnt.dataset.topPercent  = (elmnt.offsetTop  / curVH) * 100;
+        saveBoard();
     };
 }
 
@@ -2760,6 +2515,13 @@ function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, s
     `;
 
     board.appendChild(widget);
+		widget.addEventListener('contextmenu', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		snapshotNow();
+		widget.remove();
+		saveBoard();
+	});
     makeDraggable(widget);
     makeDraggableRotate(widget);
     makeShapeResizable(widget);
@@ -3720,38 +3482,84 @@ function onBoardMouseDown(e) {
     const pos = getBoardPos(e);
 
     const hitStroke = findStrokeAt(pos.x, pos.y);
-    if (hitStroke) {
-        const gid = hitStroke.groupId;
-        const groupStrokes  = gid ? strokes.filter(s => s.groupId === gid) : [hitStroke];
-        const groupWidgets  = gid
-            ? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
-            : [];
+	if (hitStroke) {
+		const gid = hitStroke.groupId;
+		const groupStrokes  = gid ? strokes.filter(s => s.groupId === gid) : [hitStroke];
+		const groupWidgets  = gid
+			? [...document.querySelectorAll(`.widget[data-group-id="${gid}"], .shape-widget[data-group-id="${gid}"]`)]
+			: [];
 
-        if (e.ctrlKey || e.metaKey) {
-            const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
-                          && groupWidgets.every(w => selectedWidgets.includes(w));
-            if (allInSel) {
-                selectedStrokes = selectedStrokes.filter(s => !groupStrokes.includes(s));
-                groupWidgets.forEach(w => { selectedWidgets = selectedWidgets.filter(x => x !== w); w.classList.remove('selected'); });
-            } else {
-                groupStrokes.forEach(s => { if (!selectedStrokes.includes(s)) selectedStrokes.push(s); });
-                groupWidgets.forEach(w => { if (!selectedWidgets.includes(w)) { selectedWidgets.push(w); w.classList.add('selected'); } });
-            }
-        } else {
-            const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
-                          && groupWidgets.every(w => selectedWidgets.includes(w))
-                          && selectedStrokes.length === groupStrokes.length
-                          && selectedWidgets.length === groupWidgets.length;
-            if (!allInSel) {
-                clearSelection();
-                groupStrokes.forEach(s => selectedStrokes.push(s));
-                groupWidgets.forEach(w => { selectedWidgets.push(w); w.classList.add('selected'); });
-            }
-        }
-        if (drawCtx) redrawStrokes();
-        updateSelectionOverlay();
-        return;
-    }
+		if (e.ctrlKey || e.metaKey) {
+			const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
+						  && groupWidgets.every(w => selectedWidgets.includes(w));
+			if (allInSel) {
+				selectedStrokes = selectedStrokes.filter(s => !groupStrokes.includes(s));
+				groupWidgets.forEach(w => { selectedWidgets = selectedWidgets.filter(x => x !== w); w.classList.remove('selected'); });
+			} else {
+				groupStrokes.forEach(s => { if (!selectedStrokes.includes(s)) selectedStrokes.push(s); });
+				groupWidgets.forEach(w => { if (!selectedWidgets.includes(w)) { selectedWidgets.push(w); w.classList.add('selected'); } });
+			}
+			if (drawCtx) redrawStrokes();
+			updateSelectionOverlay();
+			return;
+		}
+
+		// Sélection exclusive
+		const allInSel = groupStrokes.every(s => selectedStrokes.includes(s))
+					  && groupWidgets.every(w => selectedWidgets.includes(w))
+					  && selectedStrokes.length === groupStrokes.length
+					  && selectedWidgets.length === groupWidgets.length;
+		if (!allInSel) {
+			clearSelection();
+			groupStrokes.forEach(s => selectedStrokes.push(s));
+			groupWidgets.forEach(w => { selectedWidgets.push(w); w.classList.add('selected'); });
+		}
+		if (drawCtx) redrawStrokes();
+		updateSelectionOverlay();
+
+		// --- DRAG DIRECT sur le trait (sans poignée) ---
+		snapshotNow();
+		const dragStart = { x: pos.x, y: pos.y };
+		widgetMoveOrigins = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop }));
+		strokeMoveOrigins = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({...p})) }));
+		let hasMoved = false;
+
+		const onStrokeDragMove = (ev) => {
+			const p = getBoardPos(ev);
+			const dx = p.x - dragStart.x, dy = p.y - dragStart.y;
+			if (!hasMoved && Math.hypot(dx, dy) < 4) return;
+			hasMoved = true;
+			if (drawCanvas) drawCanvas.style.zIndex = 13000;
+			widgetMoveOrigins.forEach(({ widget, origLeft, origTop }) => {
+				widget.style.left = (origLeft + dx) + 'px';
+				widget.style.top  = (origTop  + dy) + 'px';
+			});
+			strokeMoveOrigins.forEach(({ stroke, origPoints }) => {
+				stroke.points = origPoints.map(p2 => ({ x: p2.x + dx, y: p2.y + dy }));
+			});
+			if (drawCtx) redrawStrokes();
+			updateSelectionOverlay();
+		};
+
+		const onStrokeDragEnd = () => {
+			document.removeEventListener('mousemove', onStrokeDragMove);
+			document.removeEventListener('mouseup', onStrokeDragEnd);
+			if (drawCanvas) drawCanvas.style.zIndex = '';
+			if (hasMoved) {
+				const curW = window.innerWidth, curVH = virtualH(curW);
+				selectedWidgets.forEach(w => {
+					w.dataset.leftPercent = (w.offsetLeft / curW) * 100;
+					w.dataset.topPercent  = (w.offsetTop  / curVH) * 100;
+				});
+				saveBoard();
+			}
+			updateSelectionOverlay();
+		};
+
+		document.addEventListener('mousemove', onStrokeDragMove);
+		document.addEventListener('mouseup', onStrokeDragEnd);
+		return;
+	}
 
     clearSelection();
     isSelectingRect = true;
@@ -3878,15 +3686,38 @@ function ungroupWidgets() {
 
 function initSelectionControls() {
     document.getElementById('sc-move-btn').onmousedown = (e) => {
-        e.preventDefault(); e.stopPropagation();
-        snapshotNow();
-        const pos = getBoardPos(e);
-        moveStartX = pos.x; moveStartY = pos.y;
-        widgetMoveOrigins = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop }));
-        strokeMoveOrigins = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({...p})) }));
-        document.addEventListener('mousemove', onMoveMove);
-        document.addEventListener('mouseup',   onMoveEnd);
-    };
+		e.preventDefault(); e.stopPropagation();
+		snapshotNow();
+		const pos = getBoardPos(e);
+		moveStartX = pos.x; moveStartY = pos.y;
+		widgetMoveOrigins = selectedWidgets.map(w => ({ widget: w, origLeft: w.offsetLeft, origTop: w.offsetTop }));
+		strokeMoveOrigins = selectedStrokes.map(s => ({ stroke: s, origPoints: s.points.map(p => ({...p})) }));
+
+		// Bloquer les iframes pendant le drag
+		const overlays = [];
+		document.querySelectorAll('.widget iframe, .widget embed').forEach(el => {
+			const overlay = document.createElement('div');
+			overlay.style.cssText = 'position:absolute;inset:0;z-index:9999;background:transparent;';
+			el.parentElement.style.position = 'relative';
+			el.parentElement.appendChild(overlay);
+			overlays.push(overlay);
+		});
+
+		const onMoveEnd_patched = () => {
+			document.removeEventListener('mousemove', onMoveMove);
+			document.removeEventListener('mouseup', onMoveEnd_patched);
+			overlays.forEach(o => o.remove());
+			const curW = window.innerWidth, curVH = virtualH(curW);
+			selectedWidgets.forEach(w => {
+				w.dataset.leftPercent = (w.offsetLeft / curW) * 100;
+				w.dataset.topPercent  = (w.offsetTop  / curVH) * 100;
+			});
+			saveBoard(); updateSelectionOverlay();
+		};
+
+		document.addEventListener('mousemove', onMoveMove);
+		document.addEventListener('mouseup', onMoveEnd_patched);
+	};
     document.getElementById('sc-rotate-btn').ondblclick = (e) => {
         e.preventDefault(); e.stopPropagation();
         snapshotNow();
@@ -4672,10 +4503,20 @@ document.addEventListener('click', (e) => {
 			btn.classList.add('active-tool');
 			document.body.style.cursor = 'none';
 			laserDot.classList.add('active');
+			// Couvrir toutes les iframes avec un overlay transparent
+			document.querySelectorAll('.widget iframe, .widget embed').forEach(el => {
+				const overlay = document.createElement('div');
+				overlay.className = 'laser-iframe-overlay';
+				overlay.style.cssText = 'position:absolute;inset:0;z-index:9999;cursor:none;background:transparent;';
+				el.parentElement.style.position = 'relative';
+				el.parentElement.appendChild(overlay);
+			});
 		} else {
 			btn.classList.remove('active-tool');
 			document.body.style.cursor = '';
 			laserDot.classList.remove('active');
+			// Retirer tous les overlays
+			document.querySelectorAll('.laser-iframe-overlay').forEach(el => el.remove());
 		}
 	}
 
