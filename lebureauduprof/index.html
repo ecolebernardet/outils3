@@ -393,6 +393,18 @@
 		}
 		.help-nav:hover { background: #e8edf5; color: #2B7FFF; }
 		
+		/* POINTEUR LASER */
+		#laser-pointer {
+			position: fixed; pointer-events: none; z-index: 99999;
+			width: 24px; height: 24px; border-radius: 50%;
+			background: radial-gradient(circle, #fff 0%, #ff0000 35%, rgba(255,0,0,0.4) 65%, transparent 100%);
+			box-shadow: 0 0 8px 4px rgba(255,0,0,0.5);
+			transform: translate(-50%, -50%);
+			display: none;
+			transition: none;
+		}
+		#laser-pointer.active { display: block; }
+		
 </style>
 </head>
 <body>
@@ -570,6 +582,7 @@
             <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Dessiner">✏️</button>
             <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
 			<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gommer">🧽</button>
+			<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Pointeur laser">🔴</button>
         </div>
         <div style="flex:1;"></div>
         <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
@@ -626,6 +639,8 @@
       <div class="help-nav" data-s="h-sauvegarde" onclick="helpShow(this)">💾 Sauvegarde</div>
       <div class="help-nav" data-s="h-undoredo"   onclick="helpShow(this)">↩ Annuler / Refaire</div>
       <div class="help-nav" data-s="h-avance"     onclick="helpShow(this)">⚙️ Options avancées</div>
+	  <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
+	<div class="help-nav" data-s="h-laser" onclick="helpShow(this)">🔴 Pointeur laser</div>
     </nav>
 
     <!-- CONTENU -->
@@ -924,6 +939,32 @@
           Sauvegardez cette configuration en .json et rechargez-la chaque matin en 2 secondes !
         </div>
       </div>
+	  
+	  <!-- POINTEUR LASER -->
+		<div id="h-laser" class="help-section" style="display:none;">
+		  <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🔴 Pointeur laser</div>
+		  <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le pointeur laser remplace le curseur de la souris par un <strong>point rouge lumineux</strong>, idéal pour attirer l'attention des élèves sur une zone précise du tableau projeté.</p>
+
+		  <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Activer / Désactiver</div>
+		  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+			<tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
+			<tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Clic sur <strong>🔴</strong> dans la barre du bas</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Active le pointeur — le curseur disparaît, remplacé par le point rouge lumineux</td></tr>
+			<tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Reclic sur <strong>🔴</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Désactive le pointeur — le curseur normal revient</td></tr>
+			<tr><td style="padding:8px 12px;">Touche <strong>Échap</strong></td><td style="padding:8px 12px;color:#444;">Désactive le pointeur en urgence</td></tr>
+		  </table>
+
+		  <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement</div>
+		  <ul style="padding-left:20px;margin-bottom:14px;">
+			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le point rouge s'affiche <strong>au-dessus de tout</strong> (widgets, dessins, formes).</li>
+			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le bouton 🔴 prend un fond rosé pour indiquer que le mode est actif.</li>
+			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le pointeur n'interfère pas avec les autres modes (dessin, gomme, sélection).</li>
+			<li style="font-size:13.5px;color:#444;line-height:1.65;">Il fonctionne sur toute la surface de la page, y compris en dehors du tableau.</li>
+		  </ul>
+
+		  <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">
+			💡 <strong>Astuce projection :</strong> Activez le pointeur laser juste avant de projeter votre écran. Les élèves verront uniquement le point rouge lumineux, sans le curseur système qui peut être peu visible sur un vidéoprojecteur.
+		  </div>
+		</div>
 
     </div><!-- /contenu -->
   </div><!-- /corps -->
@@ -3956,6 +3997,46 @@ document.addEventListener('click', (e) => {
         if (currentActiveWidget) { currentActiveWidget=null; document.getElementById('global-toolbar').style.display='none'; }
     }
 });
+
+	// =========================================================================
+	// POINTEUR LASER
+	// =========================================================================
+	let isLaserMode = false;
+	const laserDot = document.getElementById('laser-pointer') || (() => {
+		const d = document.createElement('div');
+		d.id = 'laser-pointer';
+		document.body.appendChild(d);
+		return d;
+	})();
+
+	function toggleLaser() {
+		isLaserMode = !isLaserMode;
+		const btn = document.getElementById('laser-btn');
+		if (isLaserMode) {
+			btn.style.background = '#ffe0e0';
+			btn.style.borderColor = 'rgba(255,0,0,0.5)';
+			document.body.style.cursor = 'none';
+			laserDot.classList.add('active');
+		} else {
+			btn.style.background = '#eeeeee';
+			btn.style.borderColor = 'rgba(0,0,0,0.5)';
+			document.body.style.cursor = '';
+			laserDot.classList.remove('active');
+		}
+	}
+
+	document.addEventListener('mousemove', (e) => {
+		if (!isLaserMode) return;
+		laserDot.style.left = e.clientX + 'px';
+		laserDot.style.top  = e.clientY + 'px';
+	});
+
+	// Désactiver avec Échap
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape' && isLaserMode) toggleLaser();
+	});
+
 </script>
+<div id="laser-pointer"></div>
 </body>
 </html>
