@@ -296,6 +296,7 @@
         #sc-ctx-menu hr { border: none; border-top: 1px solid #444; margin: 4px 0; }
 
         /* --- CONTENU --- */
+		.widget[data-type="text"] .editor-container, .widget[data-type="homework"] .editor-container { border: none; }
         .widget[data-type="date"], .widget[data-type="time"] { min-width: unset; width: auto; }
         .widget[data-type="date"] .editor-container, .widget[data-type="time"] .editor-container { resize: none; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
         .widget[data-type="date"]:hover .editor-container, .widget[data-type="time"]:hover .editor-container { resize: both; }
@@ -332,6 +333,16 @@
         :fullscreen .exit-fs-btn { display: block; }
         .bg-thumb { width: 70px; height: 50px; border-radius: 6px; border: 2px solid #eee; cursor: pointer; background-size: cover; background-position: center; transition: 0.2s; }
         .bg-thumb:hover { transform: scale(1.05); border-color: var(--primary-color); }
+
+		#font-size-input::-webkit-outer-spin-button,
+		#font-size-input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+		#font-size-input {
+			-moz-appearance: textfield;
+			appearance: textfield;
+		}
 
         /* --- CANVAS --- */
         #draw-canvas { position: absolute; top: 0; left: 0; z-index: 12000; cursor: crosshair; touch-action: none; }
@@ -474,7 +485,7 @@
             <button id="draw-mode-shape-btn" onclick="setDrawMode('shape')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #444;background:#2a2a2e;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;">
                 🔵 Formes
             </button>
-            <button id="draw-mode-text-btn" onclick="setDrawMode('text')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #444;background:#2a2a2e;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;" title="Bientôt disponible">
+            <button id="draw-mode-text-btn" onclick="setDrawMode('text')" style="flex:1;padding:7px 8px;border-radius:8px;border:2px solid #444;background:#2a2a2e;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;">
                 ✍️ Écriture
             </button>
         </div>
@@ -500,6 +511,39 @@
         <div id="shape-recog-hint" style="display:none;margin-top:8px;padding:5px 8px;background:#1a2e1a;border-radius:6px;border:1px solid #2d5a2d;">
             <span style="color:#7dba7d;font-size:11px;">💡 Dessinez un cercle, carré, rectangle ou triangle — la forme sera reconnue à la fin du tracé</span>
         </div>
+        <!-- Indicateur de mode écriture -->
+        <div id="text-recog-hint" style="display:none;margin-top:8px;padding:8px 10px;background:#1a2040;border-radius:8px;border:1px solid #2d4080;flex-direction:column;gap:6px;">
+            <span style="color:#8ab4f8;font-size:11px;">✍️ Écrivez — pause de 2s = reconnaissance automatique (MyScript)</span>
+            <div id="ms-keys-row" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <input id="hw-appkey-input" type="text" placeholder="Application Key MyScript"
+                    style="flex:1;min-width:130px;background:#0d1a2e;border:1px solid #2d4080;border-radius:5px;padding:4px 7px;color:#fff;font-size:11px;outline:none;"
+                    oninput="saveMyScriptKeys()">
+                <input id="hw-hmackey-input" type="text" placeholder="HMAC Key"
+                    style="flex:1;min-width:100px;background:#0d1a2e;border:1px solid #2d4080;border-radius:5px;padding:4px 7px;color:#fff;font-size:11px;outline:none;"
+                    oninput="saveMyScriptKeys()">
+                <span id="hw-apikey-status" style="font-size:13px;color:#666;" title="Statut clés">●</span>
+                <a href="https://developer.myscript.com" target="_blank"
+                    style="color:#4a90e2;font-size:10px;white-space:nowrap;text-decoration:none;">Clé gratuite →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau de prévisualisation OCR manuscrit -->
+    <div id="handwriting-preview" style="display:none;position:fixed;z-index:10005;background:#1F1F21;border:2px solid #4a90e2;border-radius:14px;padding:0;box-shadow:0 8px 30px rgba(0,0,0,0.5);min-width:280px;max-width:520px;user-select:none;">
+        <div id="handwriting-preview-header" style="cursor:move;padding:8px 14px 6px;border-bottom:1px solid #333;display:flex;align-items:center;justify-content:space-between;">
+            <span style="color:#aaa;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;">✍️ Texte reconnu</span>
+            <span style="color:#555;font-size:10px;">⋮⋮ déplacer</span>
+        </div>
+
+        <div style="padding:10px 14px 12px;">
+            <div id="handwriting-recognized-text" contenteditable="true" style="font-family:'BelleAllureGS',cursive;font-size:42px;color:#fff;min-height:52px;padding:4px 0;word-break:break-word;line-height:1.2;outline:none;border-bottom:1px dashed #444;"></div>
+            <div id="handwriting-loading" style="display:none;color:#aaa;font-size:12px;padding:8px 0;">⏳ Reconnaissance en cours…</div>
+            <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap;">
+                <button id="handwriting-convert-btn" onclick="convertHandwritingToWidget()" style="background:#4a90e2;color:white;border:none;padding:6px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;">✓ Convertir en texte</button>
+                <button onclick="discardHandwriting()" style="background:#555;color:white;border:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:13px;">✗ Ignorer</button>
+                <span style="color:#666;font-size:10px;margin-left:4px;">Police Belle Allure • Modifiable</span>
+            </div>
+        </div>
     </div>
 
     <div id="eraser-toolbar" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:12px;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3);z-index:9998;border:1px solid #444;">
@@ -513,34 +557,37 @@
     </div>
 
     <div id="global-toolbar" style="position:fixed;bottom:80px;left:30px;right:30px;background:#1F1F21;border-radius:12px;display:none;padding:10px 15px;box-shadow:0 -4px 20px rgba(0,0,0,0.3);z-index:9998;border:1px solid #444;">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('bold')" title="Gras"><b>G</b></button>
-            <button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('italic')" title="Italique"><i>I</i></button>
-            <button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('underline')" title="Souligné"><u>S</u></button>
-            <span style="font-size:10px;color:#ccc;">Texte :</span>
-            <input type="color" onmousedown="savedSelection=saveCurrentSelection()" onchange="applyTextColor(this.value)" title="Couleur du texte">
-            <span style="font-size:10px;color:#ccc;">Surligner :</span>
-            <input type="color" onmousedown="savedSelection=saveCurrentSelection()" onchange="applyHighlightColor(this.value)" title="Surligner" value="#ffff00">
-            <span style="font-size:10px;color:#ccc;">Fond widget :</span>
-            <input type="color" onchange="changeWidgetBgGlobal(this,this.value)" title="Fond du cadre" value="#ffffff">
-            <button onmousedown="savedSelection=saveCurrentSelection()" onclick="toggleTransparencyGlobal()" title="Fond transparent"><span class="icon-transparency"></span></button>
-            <select onmousedown="savedSelection=saveCurrentSelection()" onchange="formatFontFamilyGlobal(this.value)" style="width:140px;">
-                <option value="Arial, sans-serif">Arial</option>
-                <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
-                <option value="Verdana, sans-serif">Verdana</option>
-                <option value="'KGPerfectPenmanship', sans-serif">KGPerfectPenmanship</option>
-                <option value="'Andika', sans-serif">Andika</option>
-                <option value="'OpenDyslexicLocal', sans-serif">🧩 OpenDyslexic</option>
-                <option value="'BelleAllureGS', cursive">📏 Belle Allure GS</option>
-            </select>
-            <input type="number" id="font-size-input" value="40" min="8" max="100"
-              onmousedown="savedSelection=saveCurrentSelection()"
-              onkeydown="if(event.key==='Enter'){applyFontSizeOnBlur(this);this.blur();}"
-              onblur="applyFontSizeOnBlur(this)" style="width:40px;">
-            <button onclick="closeGlobalToolbar()" style="margin-left:auto;background:#6c757d;color:white;padding:4px 8px;border-radius:4px;">✖</button>
-        </div>
-    </div>
+		<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('bold')" title="Gras"><b>G</b></button>
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('italic')" title="Italique"><i>I</i></button>
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="formatGlobal('underline')" title="Souligné"><u>S</u></button>
+			<span style="font-size:10px;color:#ccc;">Texte :</span>
+			<input type="color" onmousedown="savedSelection=saveCurrentSelection()" onchange="applyTextColor(this.value)" title="Couleur du texte">
+			<span style="font-size:10px;color:#ccc;">Surligner :</span>
+			<input type="color" onmousedown="savedSelection=saveCurrentSelection()" onchange="applyHighlightColor(this.value)" title="Surligner" value="#ffff00">
+			<span style="font-size:10px;color:#ccc;">Fond widget :</span>
+			<input type="color" onchange="changeWidgetBgGlobal(this,this.value)" title="Fond du cadre" value="#ffffff">
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="toggleTransparencyGlobal()" title="Fond transparent"><span class="icon-transparency"></span></button>
+			<select onmousedown="savedSelection=saveCurrentSelection()" onchange="formatFontFamilyGlobal(this.value)" style="width:140px;">
+				<option value="Arial, sans-serif">Arial</option>
+				<option value="'Segoe UI', sans-serif">Segoe UI</option>
+				<option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+				<option value="Verdana, sans-serif">Verdana</option>
+				<option value="'KGPerfectPenmanship', sans-serif">KGPerfectPenmanship</option>
+				<option value="'Andika', sans-serif">Andika</option>
+				<option value="'OpenDyslexicLocal', sans-serif">🧩 OpenDyslexic</option>
+				<option value="'BelleAllureGS', cursive">📏 Belle Allure GS</option>
+			</select>
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="adjustFontSize(-2)" style="padding:2px 6px;font-size:14px;font-weight:bold;border:1px solid #555;background:#333;color:white;border-radius:4px;cursor:pointer;">−</button>
+			<input type="number" id="font-size-input" value="40" min="8" max="100"
+				onmousedown="savedSelection=saveCurrentSelection()"
+				onkeydown="if(event.key==='Enter'){applyFontSizeOnBlur(this);this.blur();}"
+				onblur="applyFontSizeOnBlur(this)"
+				style="width:40px;text-align:center;">
+			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="adjustFontSize(+2)" style="padding:2px 6px;font-size:14px;font-weight:bold;border:1px solid #555;background:#333;color:white;border-radius:4px;cursor:pointer;">+</button>
+			<button onclick="closeGlobalToolbar()" style="margin-left:auto;background:#6c757d;color:white;padding:4px 8px;border-radius:4px;">✖</button>
+		</div>
+	</div>
 
     <!-- Barre du bas -->
     <div style="position:fixed;bottom:30px;left:0;right:0;display:flex;align-items:center;padding:0 30px;gap:10px;z-index:9999;pointer-events:none;">
@@ -548,9 +595,9 @@
             <button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="border:2px solid rgba(0,0,0,0.5);box-sizing:border-box; font-size:15px;">WIDGETS</button>
             <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Annuler">↩</button>
             <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Refaire">↪</button>
-            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Outil dessin">✏️</button>
-            <button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gomme">🧹</button>
+            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Dessiner">✏️</button>
             <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
+			<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gommer">🧽</button>
             <button id="toolbar-toggle-btn" class="tool-btn" onclick="toggleGlobalToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Outils texte">🖊️</button>
         </div>
         <div style="flex:1;"></div>
@@ -1301,8 +1348,8 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
     if (type === 'agenda') { updateClock(); widget.querySelectorAll('.agenda-item').forEach(attachAgendaItemEvents); }
     const editor = widget.querySelector('.editor-content');
     if (editor) {
-        editor.addEventListener('mouseup', () => syncFontSize(widget));
-        editor.addEventListener('keyup',   () => syncFontSize(widget));
+        editor.addEventListener('mouseup', () => { syncFontSize(widget); syncFontSizeGlobal(); });
+		editor.addEventListener('keyup',   () => { syncFontSize(widget); syncFontSizeGlobal(); });
     }
     const REF_W = 1920, factor = window.innerWidth / REF_W;
     if (Math.abs(factor - 1) > 0.01) {
@@ -1311,8 +1358,26 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
         if (c?.style.width)  c.style.width  = (parseFloat(c.style.width)  * factor) + 'px';
         if (c?.style.height) c.style.height = (parseFloat(c.style.height) * factor) + 'px';
     }
-    if (!isInitialLoading && !isRestoringState) saveBoard();
-    return widget;
+	if (!isInitialLoading && !isRestoringState) saveBoard();
+
+	// Focus automatique sur l'éditeur à la création
+	if (!isInitialLoading && !isRestoringState) {
+		const editor = widget.querySelector('.editor-content');
+		if (editor) {
+			setTimeout(() => {
+				editor.focus();
+				// Placer le curseur à la fin du contenu existant
+				const range = document.createRange();
+				const sel = window.getSelection();
+				range.selectNodeContents(editor);
+				range.collapse(false);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}, 50);
+		}
+	}
+
+return widget;
 }
 
 function attachAgendaItemEvents(item) {
@@ -1803,6 +1868,10 @@ function startPaint(e) {
     isPainting = true;
     currentStroke = { points:[getPos(e)], color:document.getElementById('draw-color').value, size:parseInt(document.getElementById('draw-size').value) };
     if (currentDrawMode === 'shape') _lastStrokePoints = [...currentStroke.points];
+    if (currentDrawMode === 'text') {
+        // Annuler le timer de reconnaissance en cours
+        clearTimeout(_hwRecogTimer);
+    }
 }
 function paint(e) {
     if (!isPainting || !isDrawMode || isEraserMode || !currentStroke) return;
@@ -1822,6 +1891,16 @@ function endPaint() {
             _lastStrokePoints = null;
             return;
         }
+        if (currentDrawMode === 'text') {
+            // Stocker le trait avec flag textMode
+            currentStroke.textMode = true;
+            strokes.push(currentStroke);
+            redrawStrokes();
+            currentStroke = null;
+            // Déclencher la reconnaissance après 2s de pause
+            scheduleHandwritingRecognition();
+            return;
+        }
         strokes.push(currentStroke);
         // Pousser directement dans la pile — 1 undo par trait dessiné
         const cur = buildBoardJSON();
@@ -1836,6 +1915,262 @@ function endPaint() {
     currentStroke = null; redrawStrokes();
 }
 let _lastStrokePoints = null;
+
+// =========================================================================
+// RECONNAISSANCE D'ÉCRITURE MANUSCRITE
+// =========================================================================
+let _hwRecogTimer = null;
+let _hwPendingStrokes = []; // traits en attente de reconnaissance
+let _hwRecognizedText = '';
+let _hwBBox = null; // bounding box des traits manuscrits en cours
+
+function scheduleHandwritingRecognition() {
+    clearTimeout(_hwRecogTimer);
+    _hwRecogTimer = setTimeout(() => {
+        triggerHandwritingRecognition();
+    }, 2000);
+}
+
+function cancelHandwritingRecognition() {
+    clearTimeout(_hwRecogTimer);
+    // Nettoyer le panneau preview si visible
+    const preview = document.getElementById('handwriting-preview');
+    if (preview) { preview.style.display = 'none'; preview._positioned = false; }
+}
+
+function triggerHandwritingRecognition() {
+    // Collecter tous les traits textMode
+    const hwStrokes = strokes.filter(s => s.textMode);
+    if (hwStrokes.length === 0) return;
+
+    // Calculer la bounding box globale
+    let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+    hwStrokes.forEach(s => s.points.forEach(p => {
+        if(p.x<minX)minX=p.x; if(p.y<minY)minY=p.y;
+        if(p.x>maxX)maxX=p.x; if(p.y>maxY)maxY=p.y;
+    }));
+    const pad = 20;
+    minX = Math.max(0, minX-pad); minY = Math.max(0, minY-pad);
+    maxX = Math.min(drawCanvas.width,  maxX+pad);
+    maxY = Math.min(drawCanvas.height, maxY+pad);
+    _hwBBox = { x: minX, y: minY, w: maxX-minX, h: maxY-minY };
+
+    // Afficher le panneau avec état de chargement
+    showHandwritingPreview('', true, minX, minY, maxX-minX, maxY-minY);
+
+    // OCR avec Tesseract.js (traitement local, pas d'API externe)
+    callAnthropicOCR(null).then(text => {
+        _hwRecognizedText = text && text.trim() ? text : '?';
+        showHandwritingPreview(_hwRecognizedText, false, minX, minY, maxX-minX, maxY-minY);
+    }).catch(err => {
+        console.error('OCR error:', err);
+        showHandwritingPreview('⚠️ ' + (err.message || 'Erreur'), false, minX, minY, maxX-minX, maxY-minY);
+    });
+}
+
+// =========================================================================
+// MYSCRIPT iink — Reconnaissance d'écriture manuscrite
+// =========================================================================
+
+function saveMyScriptKeys() {
+    const appKey  = (document.getElementById('hw-appkey-input')?.value  || '').trim();
+    const hmacKey = (document.getElementById('hw-hmackey-input')?.value || '').trim();
+    localStorage.setItem('ms_app_key',  appKey);
+    localStorage.setItem('ms_hmac_key', hmacKey);
+    const status = document.getElementById('hw-apikey-status');
+    if (status) {
+        const ok = appKey.length > 8 && hmacKey.length > 8;
+        status.textContent = ok ? '✓' : '●';
+        status.style.color  = ok ? '#4caf50' : '#888';
+    }
+}
+
+function getMyScriptKeys() {
+    return {
+        appKey:  localStorage.getItem('ms_app_key')  || '',
+        hmacKey: localStorage.getItem('ms_hmac_key') || ''
+    };
+}
+
+// Remplir les champs au chargement
+window.addEventListener('load', () => {
+    const { appKey, hmacKey } = getMyScriptKeys();
+    const ai = document.getElementById('hw-appkey-input');
+    const hi = document.getElementById('hw-hmackey-input');
+    if (ai && appKey)  { ai.value  = appKey; }
+    if (hi && hmacKey) { hi.value = hmacKey; }
+    if (appKey || hmacKey) saveMyScriptKeys();
+});
+
+// Calcul HMAC-SHA512 pour l'authentification MyScript
+async function computeHmac(appKey, hmacKey, body) {
+    const enc = new TextEncoder();
+    const keyData = enc.encode(appKey + hmacKey);
+    const msgData = enc.encode(body);
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw', keyData, { name: 'HMAC', hash: 'SHA-512' }, false, ['sign']
+    );
+    const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgData);
+    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Convertir nos strokes en format MyScript iink (JIIX)
+function buildMyScriptStrokePayload() {
+    const hwStrokes = strokes.filter(s => s.textMode);
+    const minX = _hwBBox ? _hwBBox.x : 0;
+    const minY = _hwBBox ? _hwBBox.y : 0;
+
+    const strokeList = hwStrokes.map((s, idx) => {
+        const xs = s.points.map(p => Math.round(p.x - minX));
+        const ys = s.points.map(p => Math.round(p.y - minY));
+        // Timestamps artificiels espacés de 20ms par point
+        const ts = s.points.map((_, i) => idx * 1000 + i * 20);
+        return { x: xs, y: ys, t: ts };
+    });
+
+    const w = _hwBBox ? Math.ceil(_hwBBox.w) : 800;
+    const h = _hwBBox ? Math.ceil(_hwBBox.h) : 400;
+
+    return {
+        configuration: {
+            lang: 'fr_FR',
+            export: { 'image-resolution': 96 }
+        },
+        contentType: 'Text',
+        conversionState: 'DIGITAL_EDIT',
+        height: h,
+        width: w,
+        strokeGroups: [{ strokes: strokeList }]
+    };
+}
+
+async function callAnthropicOCR(_unused) {
+    const { appKey, hmacKey } = getMyScriptKeys();
+    if (!appKey || !hmacKey) {
+        throw new Error('Clés MyScript manquantes — saisissez-les dans le panneau');
+    }
+
+    const payload = buildMyScriptStrokePayload();
+    const bodyStr = JSON.stringify(payload);
+    const hmac = await computeHmac(appKey, hmacKey, bodyStr);
+
+    const resp = await fetch('https://cloud.myscript.com/api/v4.0/iink/batch', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json,application/vnd.myscript.jiix',
+            'applicationKey': appKey,
+            'hmac': hmac
+        },
+        body: bodyStr
+    });
+
+    if (!resp.ok) {
+        const txt = await resp.text().catch(() => resp.status);
+        throw new Error('MyScript API: ' + txt);
+    }
+
+    const result = await resp.json();
+    // Extraire le texte depuis la réponse JIIX
+    const text = result?.label || result?.exports?.['text/plain'] || '';
+    return text.trim() || '?';
+}
+
+function showHandwritingPreview(text, loading, bx, by, bw, bh) {
+    const preview = document.getElementById('handwriting-preview');
+    const textEl  = document.getElementById('handwriting-recognized-text');
+    const loadEl  = document.getElementById('handwriting-loading');
+    const convertBtn = document.getElementById('handwriting-convert-btn');
+
+    if (loading) {
+        textEl.textContent = '';
+        loadEl.style.display = 'block';
+        if (convertBtn) convertBtn.style.display = 'none';
+    } else {
+        textEl.textContent = text;
+        loadEl.style.display = 'none';
+        if (convertBtn) convertBtn.style.display = 'inline-block';
+    }
+
+    // Positionner le panneau au-dessus de la zone dessinée (seulement à la 1ère fois)
+    if (preview.style.display === 'none' || !preview._positioned) {
+        const boardRect = board.getBoundingClientRect();
+        const panelX = boardRect.left + bx;
+        const panelY = boardRect.top  + by;
+        const maxLeft = window.innerWidth - 540;
+        const maxTop  = window.innerHeight - 220;
+        preview.style.left = Math.max(10, Math.min(panelX, maxLeft)) + 'px';
+        preview.style.top  = Math.max(10, Math.min(panelY - 150, maxTop)) + 'px';
+        preview._positioned = true;
+    }
+    preview.style.display = 'block';
+
+    // Init drag si pas encore fait
+    if (!preview._dragInited) {
+        preview._dragInited = true;
+        const header = document.getElementById('handwriting-preview-header');
+        header.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            let ox = e.clientX - preview.offsetLeft;
+            let oy = e.clientY - preview.offsetTop;
+            const onMove = (ev) => {
+                preview.style.left = Math.max(0, ev.clientX - ox) + 'px';
+                preview.style.top  = Math.max(0, ev.clientY - oy) + 'px';
+            };
+            const onUp = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+    }
+}
+
+function convertHandwritingToWidget() {
+    // Lire le texte potentiellement édité par l'utilisateur dans le panneau
+    const editedEl = document.getElementById('handwriting-recognized-text');
+    if (editedEl) _hwRecognizedText = editedEl.textContent.trim();
+    if (!_hwRecognizedText || !_hwBBox) return;
+
+    const preview = document.getElementById('handwriting-preview');
+    if (preview) { preview.style.display = 'none'; preview._positioned = false; }
+
+    // Créer un widget texte à l'emplacement du dessin
+    snapshotNow();
+    const widget = createWidget('text', _hwBBox.x + 'px', _hwBBox.y + 'px', false);
+    const editor = widget.querySelector('.editor-content');
+    if (editor) {
+        editor.style.fontFamily = "'BelleAllureGS', cursive";
+        editor.style.fontSize   = '52px';
+        editor.innerHTML = `<span style="font-family:'BelleAllureGS', cursive;font-size:52px;">${_hwRecognizedText.replace(/\n/g, '<br>')}</span>`;
+    }
+
+    // Supprimer les traits manuscrits du canvas
+    strokes = strokes.filter(s => !s.textMode);
+    redrawStrokes();
+
+    // Snapshot final avec le widget texte
+    const cur = buildBoardJSON();
+    if (cur) {
+        undoStack.push(cur);
+        if (undoStack.length > MAX_UNDO) undoStack.shift();
+        redoStack = [];
+        updateUndoRedoBtns();
+        localStorage.setItem('profBoardConfig', cur);
+    }
+
+    _hwRecognizedText = '';
+    _hwBBox = null;
+}
+
+function discardHandwriting() {
+    const preview = document.getElementById('handwriting-preview');
+    if (preview) { preview.style.display = 'none'; preview._positioned = false; }
+    _hwRecognizedText = '';
+    _hwBBox = null;
+    // Garder les traits tels quels
+}
 
 function redrawStrokes(extra = null) {
     if (!drawCtx) return;
@@ -1871,7 +2206,6 @@ let currentDrawMode = 'free'; // 'free' | 'shape' | 'text'
 
 function setDrawMode(mode) {
     currentDrawMode = mode;
-    // Update buttons style
     ['free','shape','text'].forEach(m => {
         const btn = document.getElementById('draw-mode-'+m+'-btn');
         if (!btn) return;
@@ -1881,18 +2215,30 @@ function setDrawMode(mode) {
             btn.style.borderColor = '#444'; btn.style.background = '#2a2a2e'; btn.style.color = '#aaa';
         }
     });
-    // Show/hide shape-specific options
     const shapeOpts = document.getElementById('shape-recog-options');
     const shapeHint = document.getElementById('shape-recog-hint');
+    const textHint  = document.getElementById('text-recog-hint');
     if (mode === 'shape') {
-        shapeOpts.style.display = 'flex'; shapeHint.style.display = 'block';
+        if (shapeOpts) shapeOpts.style.display = 'flex';
+        if (shapeHint) shapeHint.style.display = 'block';
+        if (textHint)  textHint.style.display  = 'none';
+    } else if (mode === 'text') {
+        if (shapeOpts) shapeOpts.style.display = 'none';
+        if (shapeHint) shapeHint.style.display = 'none';
+        if (textHint)  textHint.style.display  = 'flex';
+        // Remplir les champs avec les clés sauvegardées
+        const _ak = localStorage.getItem('ms_app_key') || '';
+        const _hk = localStorage.getItem('ms_hmac_key') || '';
+        const _ai = document.getElementById('hw-appkey-input');
+        const _hi = document.getElementById('hw-hmackey-input');
+        if (_ai && !_ai.value && _ak) _ai.value = _ak;
+        if (_hi && !_hi.value && _hk) _hi.value = _hk;
+        if (_ak || _hk) saveMyScriptKeys();
     } else {
-        shapeOpts.style.display = 'none'; shapeHint.style.display = 'none';
-    }
-    if (mode === 'text') {
-        // Future : écriture manuscrite
-        alert('✍️ La reconnaissance d\'écriture manuscrite sera disponible prochainement !');
-        setDrawMode('free'); return;
+        if (shapeOpts) shapeOpts.style.display = 'none';
+        if (shapeHint) shapeHint.style.display = 'none';
+        if (textHint)  textHint.style.display  = 'none';
+        cancelHandwritingRecognition();
     }
 }
 
@@ -1918,6 +2264,7 @@ function stopDrawing() {
     document.getElementById('draw-toolbar').style.display = 'none';
     document.getElementById('draw-btn').style.background = '#eeeeee';
     document.getElementById('draw-btn').textContent = '✏️';
+    cancelHandwritingRecognition();
 }
 function clearCanvas() {
     snapshotNow();
@@ -3069,20 +3416,83 @@ function formatGlobal(cmd, val=null) {
 
 function formatFontSizeGlobal(size) {
     if (!currentActiveWidget) return;
-    const editor = currentActiveWidget.querySelector('.editor-content'); if (!editor) return;
-    if (savedSelection) { const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(savedSelection); }
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount>0 && !sel.isCollapsed) {
-        const range=sel.getRangeAt(0), span=document.createElement('span');
-        span.style.fontSize = size+'px';
-        try { range.surroundContents(span); } catch(e) { const f=range.extractContents(); span.appendChild(f); range.insertNode(span); }
-        const nr=document.createRange(); nr.setStartAfter(span); nr.collapse(true);
-        sel.removeAllRanges(); sel.addRange(nr);
-    } else {
-        editor.style.fontSize = size+'px';
-        editor.querySelectorAll('*').forEach(el => { if (el.style.fontSize) el.style.fontSize=size+'px'; });
+    const editor = currentActiveWidget.querySelector('.editor-content');
+    if (!editor) return;
+
+    if (savedSelection) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedSelection);
     }
-    savedSelection=null; saveBoard();
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+
+    // ── Approche : appliquer fontSize sur TOUS les éléments de l'éditeur
+    // qui sont (au moins partiellement) dans la sélection
+    const range = sel.getRangeAt(0);
+
+    // Cas simple : toute la sélection est dans un seul nœud texte
+    // → on le wrappe dans un span
+    if (range.commonAncestorContainer.nodeType === 3) {
+        const span = document.createElement('span');
+        span.style.fontSize = size + 'px';
+        range.surroundContents(span);
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        savedSelection = newRange.cloneRange();
+        saveBoard();
+        return;
+    }
+
+    // Cas général : sélection multi-éléments
+    // On applique directement fontSize sur tous les descendants de l'ancêtre commun
+    // qui intersectent la sélection
+    const ancestor = range.commonAncestorContainer;
+    const allElements = ancestor.querySelectorAll ? 
+        [...ancestor.querySelectorAll('*')] : [];
+    
+    // Aussi traiter l'ancêtre lui-même si c'est un élément
+    if (ancestor.nodeType === 1) allElements.unshift(ancestor);
+
+    allElements.forEach(el => {
+        if (range.intersectsNode(el)) {
+            el.style.fontSize = size + 'px';
+        }
+    });
+
+    // Traiter les nœuds texte nus directement dans l'ancêtre
+    [...ancestor.childNodes].forEach(node => {
+        if (node.nodeType === 3 && node.textContent.trim() && range.intersectsNode(node)) {
+            const span = document.createElement('span');
+            span.style.fontSize = size + 'px';
+            node.parentNode.insertBefore(span, node);
+            span.appendChild(node);
+        }
+    });
+
+    // Maintenir la sélection
+    try {
+        const newRange = document.createRange();
+        newRange.setStart(range.startContainer, range.startOffset);
+        newRange.setEnd(range.endContainer, range.endOffset);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        savedSelection = newRange.cloneRange();
+    } catch(e) {}
+
+    saveBoard();
+}
+
+function adjustFontSize(delta) {
+    if (!currentActiveWidget) return;
+    const inp = document.getElementById('font-size-input');
+    const currentSize = parseInt(inp.value) || 40;
+    const newSize = Math.max(8, Math.min(100, currentSize + delta));
+    inp.value = newSize;
+    formatFontSizeGlobal(newSize);
 }
 
 function saveCurrentSelection() {
@@ -3124,22 +3534,24 @@ function applyHighlightColor(color) {
 }
 
 function syncFontSizeGlobal() {
-    if (!currentActiveWidget) return;
-    const editor = currentActiveWidget.querySelector('.editor-content'); if (!editor) return;
+    const inp = document.getElementById('font-size-input');
+    if (!inp) return;
     const sel = window.getSelection();
-    let size = 40;
-    if (sel.rangeCount>0) { const node=sel.anchorNode?.parentElement; if (node?.style.fontSize) size=parseInt(node.style.fontSize)||40; }
-    else size = parseInt(window.getComputedStyle(editor).fontSize)||40;
-    const inp = document.querySelector('#global-toolbar input[type="number"]');
-    if (inp) inp.value = size;
+    if (!sel || sel.rangeCount === 0) return;
+    const node = sel.anchorNode;
+    if (!node) return;
+    const el = node.nodeType === 3 ? node.parentElement : node;
+    if (!el) return;
+    const size = parseInt(window.getComputedStyle(el).fontSize);
+    if (!isNaN(size)) inp.value = size;
 }
 
 function applyFontSizeOnBlur(input) {
     const size = parseInt(input.value);
-    if (isNaN(size)||size<8) { input.value=8; return; }
-    if (size>100) { input.value=100; return; }
+    if (isNaN(size) || size < 8) { input.value = 8; return; }
+    if (size > 100) { input.value = 100; return; }
+    // savedSelection est déjà restauré dans formatFontSizeGlobal
     formatFontSizeGlobal(size);
-    if (savedSelection) { const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(savedSelection); savedSelection=null; }
 }
 
 document.addEventListener('click', (e) => {
