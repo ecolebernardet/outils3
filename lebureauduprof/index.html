@@ -393,6 +393,54 @@
 		}
 		.help-nav:hover { background: #e8edf5; color: #2B7FFF; }
 		
+		/* --- MODE PRÉSENTATION --- */
+		body.presentation-mode #board {
+			position: fixed !important;
+			top: 0 !important; left: 0 !important;
+			width: 100vw !important; height: 100vh !important;
+			z-index: 1 !important;
+		}
+		body.presentation-mode #draw-canvas {
+			position: fixed !important;
+			top: 0 !important; left: 0 !important;
+		}
+		body.presentation-mode .widget .drag-handle,
+		body.presentation-mode .widget .widget-close-handle,
+		body.presentation-mode .widget .widget-pin-handle,
+		body.presentation-mode .widget .widget-back-handle,
+		body.presentation-mode .widget .widget-rotate-handle,
+		body.presentation-mode .widget .widget-menu-handle,
+		body.presentation-mode .widget .editor-toolbar,
+		body.presentation-mode .widget .widget-ctx-menu,
+		body.presentation-mode .shape-widget .drag-handle,
+		body.presentation-mode .shape-widget .widget-close-handle,
+		body.presentation-mode .shape-widget .widget-pin-handle,
+		body.presentation-mode .shape-widget .widget-back-handle,
+		body.presentation-mode .shape-widget .widget-rotate-handle,
+		body.presentation-mode .shape-widget .widget-menu-handle,
+		body.presentation-mode .shape-widget .shape-resize-handle,
+		body.presentation-mode .shape-widget .resize-lock-btn,
+		body.presentation-mode .shape-widget .flip-h-btn,
+		body.presentation-mode .shape-widget .flip-v-btn { opacity: 0 !important; pointer-events: none !important; }
+		body.presentation-mode .widget:focus-within,
+		body.presentation-mode .shape-widget:focus-within {
+			border-color: transparent !important;
+			box-shadow: var(--shadow) !important;
+			outline: none !important;
+		}
+		/* Bouton présentation en mode présentation : style "Quitter" discret */
+		body.presentation-mode #presentation-btn {
+			background: rgba(20,20,20,0.75) !important;
+			border-color: rgba(255,255,255,0.2) !important;
+			font-size: 13px !important;
+			padding: 10px 16px !important;
+			border-radius: 12px !important;
+			opacity: 1 !important;
+		}
+		body.presentation-mode #presentation-btn:hover {
+			background: rgba(50,50,50,0.95) !important;
+		}
+
 		/* POINTEUR LASER */
 		#laser-pointer {
 			position: fixed; pointer-events: none; z-index: 99999;
@@ -404,6 +452,54 @@
 			transition: none;
 		}
 		#laser-pointer.active { display: block; }
+		
+		/* ═══ SCÈNES ═══ */
+		#scenes-bar {
+			display: flex; align-items: center; gap: 4px;
+			pointer-events: auto; flex-wrap: nowrap; overflow-x: auto;
+			max-width: 55vw; scrollbar-width: none;
+		}
+		#scenes-bar::-webkit-scrollbar { display: none; }
+
+		.scene-tab {
+			display: flex; align-items: center; gap: 5px;
+			background: #cccccc; color: #333; border: 2px solid rgba(0,0,0,0.2);
+			border-radius: 20px; padding: 5px 12px; font-size: 13px; font-weight: 600;
+			cursor: pointer; white-space: nowrap; user-select: none;
+			box-sizing: border-box; transition: background 0.15s, color 0.15s;
+			max-width: 160px;
+		}
+		.scene-tab:hover { background: #bbbbbb; }
+		.scene-tab.active {
+			background: #2B7FFF; color: white;
+			border-color: rgba(0,0,255,0.2);
+		}
+		.scene-tab-name {
+			outline: none; cursor: pointer;
+			max-width: 100px; overflow: hidden;
+			text-overflow: ellipsis; white-space: nowrap;
+		}
+		.scene-tab-name:focus {
+			border-bottom: 1px solid rgba(255,255,255,0.6);
+			cursor: text;
+		}
+		.scene-tab-close {
+			font-size: 14px; line-height: 1; opacity: 0.6;
+			transition: opacity 0.15s; flex-shrink: 0;
+		}
+		.scene-tab-close:hover { opacity: 1; }
+		.scene-tab.active .scene-tab-close { color: white; }
+
+		#scene-add-btn {
+			background: #eeeeee; color: #555; border: 2px solid rgba(0,0,0,0.3);
+			border-radius: 20px; width: 34px; height: 34px;
+			font-size: 20px; font-weight: 700; cursor: pointer;
+			display: flex; align-items: center; justify-content: center;
+			flex-shrink: 0; transition: background 0.15s;
+			box-sizing: border-box; line-height: 1;
+		}
+		#scene-add-btn:hover { background: #ddd; }
+		#scene-add-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 		
 </style>
 </head>
@@ -449,7 +545,11 @@
             <button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background:#8e44ad;padding:5px;font-size:10px;grid-column:span 3;border-radius:8px;"><span>📷</span> Importer image</button>
         </div>
     </div>
-
+	<div id="scenes-menu" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:9998;border:1px solid #3a3a3f;min-width:220px;">
+        <div style="color:#aaa;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🗂️ Mes scènes</div>
+        <div id="scenes-menu-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+        <button id="scene-add-btn" onclick="addScene()" style="width:100%;padding:8px;background:#4a90e2;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;" onmouseover="this.style.background='#357abd'" onmouseout="this.style.background='#4a90e2'">＋ Nouvelle scène (copie)</button>
+    </div>
     <!-- Sous-menu Formes -->
     <div id="shape-toolbar" style="position:relative;">
         <button class="shape-toolbar-close" onclick="toggleShapeToolbar()" title="Fermer">✖</button>
@@ -552,6 +652,12 @@
 			<span style="font-size:10px;color:#ccc;">Fond widget :</span>
 			<input type="color" onchange="changeWidgetBgGlobal(this,this.value)" style="cursor:pointer;" title="Fond du cadre" value="#ffffff">
 			<button onmousedown="savedSelection=saveCurrentSelection()" onclick="toggleTransparencyGlobal()" style="cursor:pointer;" title="Fond transparent"><span class="icon-transparency"></span></button>
+				<span style="font-size:10px;color:#ccc;">Opacité fond :</span>
+				<input type="range" id="widget-bg-opacity" min="0" max="100" value="100"
+					onmousedown="savedSelection=saveCurrentSelection()"
+					oninput="applyWidgetBgOpacity(this.value)"
+					style="width:70px;cursor:pointer;">
+				<span id="widget-bg-opacity-val" style="color:#fff;font-size:11px;min-width:28px;">100%</span>
 			<select onmousedown="savedSelection=saveCurrentSelection()" onchange="formatFontFamilyGlobal(this.value)" style="width:140px; cursor:pointer;" ">
 				<option value="Arial, sans-serif">Arial</option>
 				<option value="'Segoe UI', sans-serif">Segoe UI</option>
@@ -574,26 +680,36 @@
 	</div>
 
     <!-- Barre du bas -->
-    <div style="position:fixed;bottom:30px;left:0;right:0;display:flex;align-items:center;padding:0 30px;gap:10px;z-index:9999;pointer-events:none;">
-        <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-            <button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="border:2px solid rgba(0,0,0,0.5);box-sizing:border-box; font-size:15px;">WIDGETS</button>
-            <button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Annuler">↩</button>
-            <button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Refaire">↪</button>
-            <button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Dessiner">✏️</button>
-            <button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
-			<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gommer">🧽</button>
-			<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Pointeur laser">🔴</button>
-        </div>
-        <div style="flex:1;"></div>
-        <div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-            <button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sauvegarder">💾</button>
-            <button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Charger">📂</button>
-            <input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
-            <button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee; border:2px solid rgba(255,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Effacer tout">❌</button>
-            <button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee; border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Aide">❓</button>
-        </div>
-    </div>
-</div>
+	<div id="bottom-bar" style="position:fixed;bottom:30px;left:0;right:0;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;padding:0 30px;">
+
+		<!-- Ligne des scènes -->
+		<div style="display:flex;align-items:center;gap:6px;pointer-events:auto;align-self:flex-start;">
+
+		</div>
+
+		<!-- Ligne des outils -->
+		<div style="display:flex;align-items:center;gap:10px;">
+			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
+				<button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:15px;">WIDGETS</button>
+				<button id="scenes-btn" class="tool-btn" onclick="toggleScenesMenu()" style="padding: 7px; background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:15px;font-weight:700;" title="Scènes">🗂️ Scènes</button>
+				<button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Annuler">↩</button>
+				<button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Refaire">↪</button>
+				<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Dessiner">✏️</button>
+				<button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
+				<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gommer">🧽</button>
+				<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Pointeur laser">🔴</button>
+			</div>
+			<div style="flex:1;"></div>
+			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
+				<button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sauvegarder">💾</button>
+				<button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Charger">📂</button>
+				<input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
+				<button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee;border:2px solid rgba(255,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Effacer tout">❌</button>
+				<button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Aide">❓</button>
+			</div>
+		</div>
+
+	</div>
 
 <div id="modal-overlay">
     <div class="modal-content">
@@ -639,8 +755,9 @@
       <div class="help-nav" data-s="h-sauvegarde" onclick="helpShow(this)">💾 Sauvegarde</div>
       <div class="help-nav" data-s="h-undoredo"   onclick="helpShow(this)">↩ Annuler / Refaire</div>
       <div class="help-nav" data-s="h-avance"     onclick="helpShow(this)">⚙️ Options avancées</div>
-	  <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
-	<div class="help-nav" data-s="h-laser" onclick="helpShow(this)">🔴 Pointeur laser</div>
+      <div style="height:1px;background:#e0e4ea;margin:8px 18px;"></div>
+      <div class="help-nav" data-s="h-scenes"     onclick="helpShow(this)">🗂️ Scènes</div>
+      <div class="help-nav" data-s="h-laser"      onclick="helpShow(this)">🔴 Pointeur laser</div>
     </nav>
 
     <!-- CONTENU -->
@@ -653,12 +770,13 @@
         <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le tableau respecte un <strong>format 16:9</strong> et s'adapte automatiquement à la taille de votre écran ou vidéoprojecteur.</p>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">🗺️ Organisation de l'interface</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">⬇️ Barre du bas</div><p style="font-size:12.5px;color:#444;margin:0;">Accès aux boutons <strong>WIDGETS</strong>, dessin ✏️, formes 🔲, gomme 🧽, sauvegarde 💾/📂, effacement ❌ et aide ❓.</p></div>
+          <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">⬇️ Barre du bas</div><p style="font-size:12.5px;color:#444;margin:0;">Accès aux boutons <strong>WIDGETS</strong>, scènes 🗂️, dessin ✏️, formes 🔲, gomme 🧽, sauvegarde 💾/📂, effacement ❌ et aide ❓.</p></div>
           <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">📦 Menu WIDGETS</div><p style="font-size:12.5px;color:#444;margin:0;">S'ouvre au clic sur <strong>WIDGETS</strong>. Liste tous les types de widgets à créer + choix du fond.</p></div>
           <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">🖊️ Barre de texte</div><p style="font-size:12.5px;color:#444;margin:0;">Apparaît automatiquement en cliquant dans un widget Texte ou Devoirs. Police, taille, couleur, gras, italique…</p></div>
           <div style="background:#f8f9fb;border:1px solid #e5e8ee;border-radius:10px;padding:14px 16px;"><div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px;">💾 Sauvegarde auto</div><p style="font-size:12.5px;color:#444;margin:0;">Tout est sauvegardé dans le navigateur après chaque modification. Utilisez 💾 pour exporter en .json.</p></div>
         </div>
         <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">💡 <strong>Démarrage :</strong> Cliquez sur <strong>WIDGETS</strong>, choisissez un type, puis glissez le widget en cliquant sur la poignée <strong>✥</strong> qui apparaît sur sa gauche.</div>
+        <div style="background:#1a1a2e;border-left:4px solid #8E51FF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#ccc;margin:10px 0;">📽️ <strong>Mode présentation :</strong> Cliquez sur le bouton <strong>📽️</strong> en bas à droite pour basculer en plein écran propre (sans interface). Le tableau est projeté tel quel. Appuyez sur <strong>Échap</strong> ou cliquez sur « Quitter la présentation » pour revenir.</div>
       </div>
 
       <!-- WIDGETS -->
@@ -776,7 +894,8 @@
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🎨 Couleur texte</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur du texte sélectionné</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🖊️ Surligner</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur de fond (surlignage) du texte sélectionné</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">⬜ Fond widget</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Couleur de fond de tout le widget</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">☑ Transparence</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Rend le fond du widget transparent</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">☑ Transparence</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Rend le fond du widget entièrement transparent</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">🔆 Opacité fond</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Slider 0–100% pour atténuer progressivement la couleur de fond</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Police</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Arial, Segoe UI, Comic Sans, Verdana, KGPerfectPenmanship, Andika, 🧩 OpenDyslexic, 📏 Belle Allure GS</td></tr>
           <tr><td style="padding:8px 12px;font-weight:700;">− taille +</td><td style="padding:8px 12px;color:#444;">Diminue/augmente la taille de police de 2px. Saisie directe possible (Entrée pour valider).</td></tr>
         </table>
@@ -872,18 +991,19 @@
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:0 0 8px 0;">Sauvegarde automatique</div>
         <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Toute modification est enregistrée automatiquement dans le <strong>localStorage</strong> du navigateur. La prochaine ouverture restaure exactement l'état précédent.</p>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Exporter — 💾</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Télécharge un fichier <strong>.json</strong> contenant tout l'état du bureau. Nommé automatiquement <code style="background:#f0f3f9;padding:1px 5px;border-radius:3px;font-size:12px;">lebureauduprof_export_AAAA-MM-JJ.json</code>.</p>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Télécharge un fichier <strong>.json</strong> contenant toutes les scènes et leur contenu. Nommé automatiquement <code style="background:#f0f3f9;padding:1px 5px;border-radius:3px;font-size:12px;">lebureauduprof_export_AAAA-MM-JJ.json</code>.</p>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Charger — 📂</div>
-        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Sélectionnez un fichier .json exporté précédemment. Le bureau est entièrement remplacé par ce contenu.</p>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Sélectionnez un fichier .json exporté précédemment. Si le fichier contient plusieurs scènes, elles sont toutes restaurées. Si c'est un fichier d'ancienne version (mono-scène), il est chargé dans la scène active.</p>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ce qui est sauvegardé</div>
         <ul style="padding-left:20px;margin-bottom:10px;">
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Toutes les scènes (nom, widgets, formes, dessins, fond)</li>
           <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Tous les widgets (type, position, taille, contenu, style)</li>
           <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Toutes les formes géométriques (type, couleurs, taille, rotation, flip)</li>
           <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Tous les traits de dessin libre</li>
-          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Le fond d'écran (couleur ou image)</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:3px;">Le fond d'écran de chaque scène (couleur ou image)</li>
           <li style="font-size:13.5px;color:#444;line-height:1.65;">Les groupes de widgets</li>
         </ul>
-        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 <strong>Astuce :</strong> Créez plusieurs fichiers thématiques (lundi.json, mardi.json…) pour basculer rapidement entre configurations.</div>
+        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 <strong>Astuce :</strong> Exportez régulièrement un fichier .json comme sauvegarde externe en cas de suppression du cache du navigateur.</div>
         <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les fichiers PDF ouverts via le widget PDF <em>ne sont pas</em> sauvegardés. Il faudra les ré-ouvrir à chaque session.</div>
       </div>
 
@@ -905,7 +1025,7 @@
           <li style="font-size:13.5px;color:#444;line-height:1.65;">Groupement / dissociation</li>
         </ul>
         <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 Les modifications de texte (frappe clavier) sont enregistrées dans l'historique après 800 ms d'inactivité.</div>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ L'historique est perdu si vous fermez ou rechargez la page. Exportez régulièrement avec 💾.</div>
+        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ L'historique est local à la scène active et est perdu si vous fermez ou rechargez la page. Exportez régulièrement avec 💾.</div>
       </div>
 
       <!-- OPTIONS AVANCÉES -->
@@ -928,8 +1048,10 @@
         </ul>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">📐 Redimensionnement adaptatif</div>
         <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Lorsque vous redimensionnez la fenêtre du navigateur, tous les widgets et formes sont repositionnés et redimensionnés proportionnellement pour conserver le rendu 16:9.</p>
-        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⛶ Mode plein écran</div>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⛶ Mode plein écran (widget)</div>
         <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Disponible sur YouTube, Fenêtre Web, OutilsProfs, Défi Calme et PDF. Cliquez sur ⛶ dans la barre du widget. Appuyez sur <strong>Échap</strong> ou le bouton de sortie pour quitter.</p>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">📽️ Mode présentation global</div>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:14px;">Le bouton <strong>📽️</strong> en bas à droite bascule l'interface en plein écran de projection : toute l'interface (boutons, menus, poignées) disparaît et le tableau occupe tout l'écran. Idéal pour la vidéoprojection. Appuyez sur <strong>Échap</strong> ou cliquez sur « Quitter la présentation » (en bas à droite) pour revenir à l'édition.</p>
         <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12.5px;color:#1a4d8f;margin:16px 0;">
           💡 <strong>Conseil pédagogique — configuration type :</strong><br><br>
           • <strong>Date + Heure</strong> en haut → affichage permanent<br>
@@ -939,32 +1061,74 @@
           Sauvegardez cette configuration en .json et rechargez-la chaque matin en 2 secondes !
         </div>
       </div>
-	  
-	  <!-- POINTEUR LASER -->
-		<div id="h-laser" class="help-section" style="display:none;">
-		  <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🔴 Pointeur laser</div>
-		  <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le pointeur laser remplace le curseur de la souris par un <strong>point rouge lumineux</strong>, idéal pour attirer l'attention des élèves sur une zone précise du tableau projeté.</p>
 
-		  <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Activer / Désactiver</div>
-		  <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
-			<tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
-			<tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Clic sur <strong>🔴</strong> dans la barre du bas</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Active le pointeur — le curseur disparaît, remplacé par le point rouge lumineux</td></tr>
-			<tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Reclic sur <strong>🔴</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Désactive le pointeur — le curseur normal revient</td></tr>
-			<tr><td style="padding:8px 12px;">Touche <strong>Échap</strong></td><td style="padding:8px 12px;color:#444;">Désactive le pointeur en urgence</td></tr>
-		  </table>
+      <!-- SCÈNES -->
+      <div id="h-scenes" class="help-section" style="display:none;">
+        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🗂️ Scènes</div>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Les scènes permettent d'avoir plusieurs <strong>bureaux indépendants</strong> que vous pouvez créer, nommer et switcher en un clic. Chaque scène possède ses propres widgets, formes, dessins et fond d'écran.</p>
 
-		  <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement</div>
-		  <ul style="padding-left:20px;margin-bottom:14px;">
-			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le point rouge s'affiche <strong>au-dessus de tout</strong> (widgets, dessins, formes).</li>
-			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le bouton 🔴 prend un fond rosé pour indiquer que le mode est actif.</li>
-			<li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le pointeur n'interfère pas avec les autres modes (dessin, gomme, sélection).</li>
-			<li style="font-size:13.5px;color:#444;line-height:1.65;">Il fonctionne sur toute la surface de la page, y compris en dehors du tableau.</li>
-		  </ul>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Ouvrir le menu des scènes</div>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Cliquez sur le bouton <strong>🗂️ Scènes</strong> dans la barre du bas (à côté de WIDGETS). Le nom de la scène active est affiché directement sur le bouton.</p>
 
-		  <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">
-			💡 <strong>Astuce projection :</strong> Activez le pointeur laser juste avant de projeter votre écran. Les élèves verront uniquement le point rouge lumineux, sans le curseur système qui peut être peu visible sur un vidéoprojecteur.
-		  </div>
-		</div>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Actions disponibles dans le menu</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Comment</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Changer de scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Clic sur le nom d'une scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">La scène actuelle est sauvegardée, la nouvelle est chargée</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Créer une scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Bouton <strong>＋ Nouvelle scène</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Copie de la scène actuelle, nommée "Scène N"</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;font-weight:700;">Renommer</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Clic sur ✏️ à droite de la scène</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Boîte de dialogue pour saisir un nouveau nom</td></tr>
+          <tr><td style="padding:8px 12px;font-weight:700;color:#ff5f56;">Supprimer</td><td style="padding:8px 12px;color:#444;">Clic sur × rouge à droite de la scène</td><td style="padding:8px 12px;color:#444;">Confirmation demandée, puis scène supprimée définitivement</td></tr>
+        </table>
+
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement au changement de scène</div>
+        <ul style="padding-left:20px;margin-bottom:14px;">
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">La scène en cours est <strong>automatiquement sauvegardée</strong> avant de charger la suivante.</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">L'historique annuler/refaire est <strong>réinitialisé</strong> à chaque changement de scène.</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le fond d'écran change avec la scène.</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;">Le bouton 🗂️ affiche toujours le nom de la scène active.</li>
+        </ul>
+
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Limites</div>
+        <ul style="padding-left:20px;margin-bottom:14px;">
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Maximum <strong>10 scènes</strong> simultanées (le bouton ＋ est grisé au-delà).</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;">Il est impossible de supprimer la dernière scène restante.</li>
+        </ul>
+
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Export et import multi-scènes</div>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le bouton 💾 exporte <strong>toutes les scènes</strong> dans un seul fichier .json. Le bouton 📂 restaure toutes les scènes si le fichier en contient plusieurs.</p>
+
+        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:12px 16px;font-size:12.5px;color:#1a4d8f;margin:16px 0;">
+          💡 <strong>Idées d'organisation :</strong><br><br>
+          • <strong>Scène 1 — Matin</strong> : accueil, date, planning de la journée<br>
+          • <strong>Scène 2 — Maths</strong> : leçon du jour, exercices, timer<br>
+          • <strong>Scène 3 — Lecture</strong> : texte affiché, questions, vocabulaire<br>
+          • <strong>Scène 4 — Fin de journée</strong> : devoirs, récap, YouTube<br><br>
+          Basculez d'une scène à l'autre en 1 clic sans rien perdre !
+        </div>
+        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les scènes sont stockées dans le localStorage du navigateur. Si vous videz le cache ou changez de navigateur, exportez d'abord votre fichier .json pour ne rien perdre.</div>
+      </div>
+
+      <!-- POINTEUR LASER -->
+      <div id="h-laser" class="help-section" style="display:none;">
+        <div style="font-size:1.15em;font-weight:800;color:#1a1a2e;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e5e8ee;">🔴 Pointeur laser</div>
+        <p style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:10px;">Le pointeur laser remplace le curseur de la souris par un <strong>point rouge lumineux</strong>, idéal pour attirer l'attention des élèves sur une zone précise du tableau projeté.</p>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Activer / Désactiver</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
+          <tr><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Action</th><th style="background:#f0f3f9;text-align:left;padding:8px 12px;font-weight:700;border-bottom:2px solid #dde2ea;">Résultat</th></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Clic sur <strong>🔴</strong> dans la barre du bas</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Active le pointeur — le curseur disparaît, remplacé par le point rouge lumineux</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;">Reclic sur <strong>🔴</strong></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Désactive le pointeur — le curseur normal revient</td></tr>
+          <tr><td style="padding:8px 12px;">Touche <strong>Échap</strong></td><td style="padding:8px 12px;color:#444;">Désactive le pointeur en urgence</td></tr>
+        </table>
+        <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">Comportement</div>
+        <ul style="padding-left:20px;margin-bottom:14px;">
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le point rouge s'affiche <strong>au-dessus de tout</strong> (widgets, dessins, formes).</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le bouton 🔴 prend un fond rosé pour indiquer que le mode est actif.</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;margin-bottom:4px;">Le pointeur n'interfère pas avec les autres modes (dessin, gomme, sélection).</li>
+          <li style="font-size:13.5px;color:#444;line-height:1.65;">Il fonctionne sur toute la surface de la page, y compris en dehors du tableau.</li>
+        </ul>
+        <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0;">
+          💡 <strong>Astuce projection :</strong> Activez le pointeur laser juste avant de projeter votre écran. Les élèves verront uniquement le point rouge lumineux, sans le curseur système qui peut être peu visible sur un vidéoprojecteur.
+        </div>
+      </div>
 
     </div><!-- /contenu -->
   </div><!-- /corps -->
@@ -976,6 +1140,7 @@
 
 </div><!-- /modal -->
 </div><!-- /overlay -->
+
 
 <!-- TEMPLATES -->
 <template id="template-text">
@@ -1133,6 +1298,7 @@ window.onload = () => {
         const cur = buildBoardJSON();
         if (cur) undoStack.push(cur);
         updateUndoRedoBtns();
+        scenesInit(); // ← ajout
     }, 1000);
     setInterval(updateClock, 1000);
     window.addEventListener('resize', handleWindowResize);
@@ -1337,15 +1503,16 @@ function buildBoardState() {
         const tP = (w.offsetTop  / curVH) * 100;
         Object.assign(w.dataset, { widthPercent: wP, contentHPercent: hP, leftPercent: lP, topPercent: tP });
         widgets.push({
-            type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
-            html, content: html, iframeSrc: iframe?.src || null,
-            transparent: w.dataset.transparent === "true",
-            bgColor: w.dataset.bgColor || "#ffffff",
-            editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
-            pinned: w.dataset.pinned === "true",
-            background: w.dataset.background === "true",
-            groupId: w.dataset.groupId || null
-        });
+			type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
+			html, content: html, iframeSrc: iframe?.src || null,
+			transparent: w.dataset.transparent === "true",
+			bgColor: w.dataset.bgColor || "#ffffff",
+			bgOpacity: parseFloat(w.dataset.bgOpacity ?? 1),  // ← ajout
+			editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
+			pinned: w.dataset.pinned === "true",
+			background: w.dataset.background === "true",
+			groupId: w.dataset.groupId || null
+		});
     });
     const shapes = [];
     document.querySelectorAll('.shape-widget').forEach(w => {
@@ -1378,7 +1545,14 @@ function buildBoardJSON() {
 
 function saveBoard() {
     if (isInitialLoading || isRestoringState) return;
-    localStorage.setItem('profBoardConfig', JSON.stringify(buildBoardState()));
+    const json = JSON.stringify(buildBoardState());
+    localStorage.setItem('profBoardConfig', json);
+    // Mettre à jour la scène courante
+    if (scenes && scenes.length > 0) {
+        scenes[currentScene].config     = json;
+        scenes[currentScene].background = localStorage.getItem('boardBackground') || 'none';
+        saveScenesMeta();
+    }
     scheduleSaveSnapshot();
 }
 
@@ -1435,8 +1609,31 @@ function restoreBoardFromJSON(json) {
         widget.style.left = (w.leftPercent / 100) * curW + 'px';
         widget.style.top  = (w.topPercent  / 100) * curVH + 'px';
         // Appliquer transparence et fond immédiatement pour éviter le flash
-        if (w.transparent) applyTransparency(widget, true);
-        else if (w.bgColor) { widget.style.background = w.bgColor; widget.dataset.bgColor = w.bgColor; const c2 = widget.querySelector('.editor-container'); if (c2) c2.style.background = w.bgColor; }
+        if (w.transparent) {
+            applyTransparency(widget, true);
+        } else if (w.bgColor) {
+            widget.dataset.bgColor = w.bgColor;
+            // Appliquer l'opacité si elle est définie et différente de 1
+            if (w.bgOpacity !== undefined && w.bgOpacity !== 1) {
+                const rgb = hexToRgb(w.bgColor);
+                if (rgb) {
+                    const newBg = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${w.bgOpacity})`;
+                    widget.style.background = newBg;
+                    const c2 = widget.querySelector('.editor-container');
+                    if (c2) c2.style.background = newBg;
+                    widget.dataset.bgOpacity = w.bgOpacity;
+                } else {
+                    widget.style.background = w.bgColor;
+                    const c2 = widget.querySelector('.editor-container');
+                    if (c2) c2.style.background = w.bgColor;
+                }
+            } else {
+                widget.style.background = w.bgColor;
+                const c2 = widget.querySelector('.editor-container');
+                if (c2) c2.style.background = w.bgColor;
+                widget.dataset.bgOpacity = 1;
+            }
+        }
         if (w.background) { widget.style.zIndex = 1; widget.dataset.background = "true"; }
         else if (w.pinned) bringToFront(widget, true);
         if (w.groupId) widget.dataset.groupId = w.groupId;
@@ -1468,8 +1665,6 @@ function restoreBoardFromJSON(json) {
             if (fsx !== 1 || fsy !== 1) {
                 const svg2 = w2.querySelector('svg');
                 if (svg2) {
-                    const sw2 = parseFloat(svg2.getAttribute('width'))  || 0;
-                    const sh2 = parseFloat(svg2.getAttribute('height')) || 0;
                     svg2.style.transformBox    = 'fill-box';
                     svg2.style.transformOrigin = 'center center';
                     svg2.style.transform       = `scale(${fsx}, ${fsy})`;
@@ -1485,9 +1680,15 @@ function restoreBoardFromJSON(json) {
 }
 
 function exportConfig() {
-    const state = buildBoardState();
+    saveCurrentSceneData();
+    const exportData = {
+        scenes:       scenes,
+        currentScene: currentScene,
+        // Compatibilité avec l'ancien format (scène active)
+        ...JSON.parse(scenes[currentScene].config || '{}')
+    };
     const a = document.createElement('a');
-    a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+    a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
     a.download = `lebureauduprof_export_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a); a.click(); a.remove();
 }
@@ -1498,12 +1699,26 @@ function importConfig(event) {
     reader.onload = (e) => {
         try {
             const data = JSON.parse(e.target.result);
-            snapshotNow();
-            document.querySelectorAll('.widget').forEach(w => w.remove());
-            document.querySelectorAll('.shape-widget').forEach(w => w.remove());
-            applyBackground(data.background || 'none'); saveBg(data.background || 'none');
-            localStorage.setItem('profBoardConfig', JSON.stringify(data));
-            restoreBoardFromJSON(JSON.stringify(data));
+            // Format multi-scènes
+            if (data.scenes && Array.isArray(data.scenes)) {
+                scenes       = data.scenes;
+                currentScene = data.currentScene || 0;
+                saveScenesMeta();
+                loadScene(currentScene);
+                renderScenesBar();
+            } else {
+                // Format ancienne version (mono-scène)
+                snapshotNow();
+                document.querySelectorAll('.widget').forEach(w => w.remove());
+                document.querySelectorAll('.shape-widget').forEach(w => w.remove());
+                applyBackground(data.background || 'none');
+                saveBg(data.background || 'none');
+                const json = JSON.stringify(data);
+                localStorage.setItem('profBoardConfig', json);
+                scenes[currentScene].config = json;
+                saveScenesMeta();
+                restoreBoardFromJSON(json);
+            }
             event.target.value = '';
         } catch(err) { alert("Erreur : " + err.message); }
     };
@@ -1525,6 +1740,67 @@ function openHelpModal() {
   // S'assurer que l'intro est affichée à l'ouverture
   helpShow(document.querySelector('.help-nav[data-s="h-intro"]'));
 }
+
+// =========================================================================
+// MODE PRÉSENTATION
+// =========================================================================
+let _presentationActive = false;
+
+function togglePresentationMode() {
+    const btn = document.getElementById('presentation-btn');
+    const UI_IDS = ['bottom-bar','toolbar-container','draw-toolbar','eraser-toolbar','global-toolbar','shape-toolbar','bg-submenu','scenes-menu','modal-overlay','help-modal-overlay','rotation-indicator'];
+
+    _presentationActive = !_presentationActive;
+    if (_presentationActive) {
+        document.getElementById('tools-menu')?.classList.remove('active');
+        document.getElementById('bg-submenu')?.classList.remove('active');
+        document.getElementById('shape-toolbar')?.classList.remove('active');
+        document.querySelectorAll('.widget.selected, .shape-widget.selected').forEach(w => w.classList.remove('selected'));
+        document.getElementById('selection-controls') && (document.getElementById('selection-controls').style.display = 'none');
+        document.activeElement?.blur();
+        UI_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.dataset.ph = el.style.display || ''; el.style.display = 'none'; }
+        });
+        document.body.classList.add('presentation-mode');
+        board.style.position = 'fixed';
+        board.style.top = '0'; board.style.left = '0';
+        board.style.width = '100vw'; board.style.height = '100vh';
+        // Mettre le bouton DANS le board (qui couvre tout) pour qu'il soit visible
+        if (btn) {
+            board.appendChild(btn);
+            btn.innerHTML = '⛶ Quitter <span style="font-size:11px;opacity:0.65;margin-left:4px;">[Échap]</span>';
+            btn.style.cssText = 'position:absolute;bottom:20px;right:20px;z-index:99999;background:rgba(20,20,20,0.85);color:white;border:2px solid rgba(255,255,255,0.3);font-size:13px;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,0.6);';
+        }
+        // Plein écran navigateur
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+    } else {
+        document.body.classList.remove('presentation-mode');
+        UI_IDS.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.dataset.ph !== undefined) { el.style.display = el.dataset.ph || ''; delete el.dataset.ph; }
+        });
+        if (btn) {
+            // Remettre le bouton dans le body
+            document.body.appendChild(btn);
+            btn.innerHTML = '📽️';
+            btn.style.cssText = 'position:fixed;bottom:80px;right:24px;z-index:100000;background:#1a1a2e;color:white;border:2px solid rgba(255,255,255,0.25);font-size:20px;padding:7px 12px;border-radius:20px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.5);';
+        }
+        applyBoardRatio(window.innerWidth);
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _presentationActive) togglePresentationMode();
+});
+
+// Sortie fullscreen via Échap navigateur
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && _presentationActive) togglePresentationMode();
+});
 
 function helpShow(item) {
   document.querySelectorAll('.help-nav').forEach(i => {
@@ -1607,6 +1883,35 @@ function sendToBack(widget) {
     widget.classList.remove('pinned');
     widget.dataset.background = "true";
     saveBoard();
+}
+
+function applyWidgetBgOpacity(value) {
+    if (!currentActiveWidget) return;
+    const c = currentActiveWidget.querySelector('.editor-container');
+    if (!c) return;
+    const opacity = parseInt(value) / 100;
+    document.getElementById('widget-bg-opacity-val').textContent = value + '%';
+    // Récupérer la couleur de fond actuelle et lui appliquer l'opacité
+    const currentBg = currentActiveWidget.dataset.bgColor || '#ffffff';
+    const rgb = hexToRgb(currentBg);
+    if (!rgb) return;
+    const newBg = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+    currentActiveWidget.style.background = newBg;
+    c.style.background = newBg;
+    currentActiveWidget.dataset.bgOpacity = opacity;
+    saveBoard();
+}
+
+function hexToRgb(hex) {
+    // Gérer aussi les couleurs rgb() déjà existantes
+    const rgbMatch = hex.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbMatch) return { r: parseInt(rgbMatch[1]), g: parseInt(rgbMatch[2]), b: parseInt(rgbMatch[3]) };
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
 }
 
 // =========================================================================
@@ -3713,8 +4018,29 @@ function toggleTransparency(btn) {
 function applyTransparency(widget, isT) {
     const c = widget.querySelector('.editor-container');
     widget.dataset.transparent = isT;
-    if (isT) { widget.style.background='transparent'; widget.style.boxShadow='none'; widget.style.border='none'; if(c) c.style.background='transparent'; }
-    else { const bg = widget.dataset.bgColor||'#ffffff'; widget.style.background=''; widget.style.boxShadow=''; widget.style.border=''; if(c) c.style.background=bg; }
+    if (isT) {
+        widget.style.background = 'transparent';
+        widget.style.boxShadow  = 'none';
+        widget.style.border     = 'none';
+        if (c) c.style.background = 'transparent';
+        widget.dataset.bgOpacity = 0;
+        // Mettre le slider à 0
+        const slider = document.getElementById('widget-bg-opacity');
+        const label  = document.getElementById('widget-bg-opacity-val');
+        if (slider) slider.value = 0;
+        if (label)  label.textContent = '0%';
+    } else {
+        const bg = widget.dataset.bgColor || '#ffffff';
+        widget.style.background = '';
+        widget.style.boxShadow  = '';
+        widget.style.border     = '';
+        if (c) c.style.background = bg;
+        widget.dataset.bgOpacity = 1;
+        const slider = document.getElementById('widget-bg-opacity');
+        const label  = document.getElementById('widget-bg-opacity-val');
+        if (slider) slider.value = 100;
+        if (label)  label.textContent = '100%';
+    }
 }
 
 // =========================================================================
@@ -3792,12 +4118,24 @@ function toggleMenu() {
     document.getElementById('shape-btn').style.background = '#eeeeee';
 }
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('#toolbar-container')) {
-        document.getElementById('tools-menu').classList.remove('active');
-        document.getElementById('bg-submenu').classList.remove('active');
-        if (!e.target.closest('#shape-toolbar') && !e.target.closest('#shape-btn')) {
-            document.getElementById('shape-toolbar').classList.remove('active');
-            document.getElementById('shape-btn').style.background = '#eeeeee';
+    const widget = e.target.closest('.widget');
+    const isTextLike = widget && (widget.dataset.type === 'text' || widget.dataset.type === 'homework');
+    if (isTextLike) {
+        currentActiveWidget = widget;
+        document.getElementById('global-toolbar').style.display = 'flex';
+        syncFontSizeGlobal();
+        // Synchroniser le slider d'opacité
+        const opacity = parseFloat(widget.dataset.bgOpacity ?? 1);
+        const slider = document.getElementById('widget-bg-opacity');
+        const label  = document.getElementById('widget-bg-opacity-val');
+        if (slider) { slider.value = Math.round(opacity * 100); }
+        if (label)  { label.textContent = Math.round(opacity * 100) + '%'; }
+        return;
+    }
+    if (!e.target.closest('#global-toolbar') && !e.target.closest('#toolbar-toggle-btn') && !isTextLike) {
+        if (currentActiveWidget) {
+            currentActiveWidget = null;
+            document.getElementById('global-toolbar').style.display = 'none';
         }
     }
 });
@@ -4036,7 +4374,216 @@ document.addEventListener('click', (e) => {
 		if (e.key === 'Escape' && isLaserMode) toggleLaser();
 	});
 
+	// =========================================================================
+	// SCÈNES
+	// =========================================================================
+	const MAX_SCENES = 10;
+	let scenes        = [];   // [{ id, name, config, background }]
+	let currentScene  = 0;    // index de la scène active
+
+	function scenesInit() {
+		const saved = localStorage.getItem('profScenes');
+		if (saved) {
+			try {
+				const parsed = JSON.parse(saved);
+				scenes       = parsed.scenes       || [];
+				currentScene = parsed.currentScene || 0;
+				if (currentScene >= scenes.length) currentScene = 0;
+			} catch(e) { scenes = []; }
+		}
+		// Migration : si pas de scènes mais un bureau existant → scène 1 = bureau actuel
+		if (scenes.length === 0) {
+			const existing = localStorage.getItem('profBoardConfig');
+			const bg       = localStorage.getItem('boardBackground') || 'none';
+			scenes.push({ id: Date.now(), name: 'Scène 1', config: existing || null, background: bg });
+			currentScene = 0;
+			saveScenesMeta();
+		}
+		renderScenesBar();
+	}
+
+	function saveScenesMeta() {
+		localStorage.setItem('profScenes', JSON.stringify({ scenes, currentScene }));
+	}
+
+	function saveCurrentSceneData() {
+		if (scenes.length === 0) return;
+		scenes[currentScene].config     = buildBoardJSON();
+		scenes[currentScene].background = localStorage.getItem('boardBackground') || 'none';
+		saveScenesMeta();
+	}
+
+	function switchScene(index) {
+		if (index === currentScene) return;
+		saveCurrentSceneData();
+		currentScene = index;
+		loadScene(index);
+		renderScenesBar();
+		saveScenesMeta();
+	}
+
+	function loadScene(index) {
+		const scene = scenes[index];
+		// Vider le bureau
+		document.querySelectorAll('.widget').forEach(w => w.remove());
+		document.querySelectorAll('.shape-widget').forEach(w => w.remove());
+		strokes = []; if (drawCtx) redrawStrokes();
+		clearSelection();
+		undoStack = []; redoStack = []; updateUndoRedoBtns();
+		// Appliquer le fond
+		const bg = scene.background || 'none';
+		applyBackground(bg);
+		localStorage.setItem('boardBackground', bg);
+		// Charger le contenu
+		if (scene.config) {
+			localStorage.setItem('profBoardConfig', scene.config);
+			_lastW = window.innerWidth;
+			restoreBoardFromJSON(scene.config);
+			// Réinitialiser l'historique avec cet état
+			setTimeout(() => {
+				const cur = buildBoardJSON();
+				if (cur) { undoStack = [cur]; updateUndoRedoBtns(); }
+			}, 600);
+		} else {
+			localStorage.removeItem('profBoardConfig');
+		}
+	}
+
+	function addScene() {
+		if (scenes.length >= MAX_SCENES) return;
+		saveCurrentSceneData();
+		const newName   = 'Scène ' + (scenes.length + 1);
+		// Copie de la scène actuelle
+		const newConfig = scenes[currentScene]?.config || null;
+		const newBg     = scenes[currentScene]?.background || 'none';
+		scenes.push({ id: Date.now(), name: newName, config: newConfig, background: newBg });
+		currentScene = scenes.length - 1;
+		loadScene(currentScene);
+		renderScenesBar();
+		saveScenesMeta();
+		// Focus sur le nom pour le renommer tout de suite
+		setTimeout(() => {
+			const tabs = document.querySelectorAll('.scene-tab');
+			const lastTab = tabs[tabs.length - 1];
+			if (lastTab) {
+				const nameEl = lastTab.querySelector('.scene-tab-name');
+				if (nameEl) { nameEl.focus(); selectAllText(nameEl); }
+			}
+		}, 100);
+	}
+
+	function deleteScene(index, e) {
+		e.stopPropagation();
+		if (scenes.length <= 1) return; // Toujours au moins 1 scène
+		if (!confirm(`Supprimer la scène "${scenes[index].name}" ?`)) return;
+		scenes.splice(index, 1);
+		if (currentScene >= scenes.length) currentScene = scenes.length - 1;
+		else if (currentScene > index) currentScene--;
+		loadScene(currentScene);
+		renderScenesBar();
+		saveScenesMeta();
+	}
+
+	function renameScene(index, newName) {
+		const name = newName.trim() || ('Scène ' + (index + 1));
+		scenes[index].name = name;
+		saveScenesMeta();
+	}
+
+	function renderScenesBar() {
+		const list   = document.getElementById('scenes-menu-list');
+		const addBtn = document.getElementById('scene-add-btn');
+		if (!list) return;
+		list.innerHTML = '';
+
+		scenes.forEach((scene, i) => {
+			const row = document.createElement('div');
+			row.style.cssText = 'display:flex;align-items:center;gap:6px;';
+
+			// Bouton principal
+			const btn = document.createElement('button');
+			btn.style.cssText = `
+				flex:1;text-align:left;padding:8px 12px;border-radius:8px;border:none;
+				cursor:pointer;font-size:13px;font-weight:600;transition:background 0.15s;
+				background:${i === currentScene ? '#4a90e2' : '#2a2a2e'};
+				color:${i === currentScene ? 'white' : '#ccc'};
+				overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+			`;
+			btn.textContent = scene.name;
+			btn.title = scene.name;
+			btn.addEventListener('click', () => {
+				switchScene(i);
+				toggleScenesMenu();
+			});
+			row.appendChild(btn);
+
+			// Bouton renommer ✏️
+			const editBtn = document.createElement('button');
+			editBtn.textContent = '✏️';
+			editBtn.title = 'Renommer';
+			editBtn.style.cssText = 'background:#2a2a2e;color:white;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+			editBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				const newName = prompt('Nouveau nom de la scène :', scene.name);
+				if (newName !== null) {
+					renameScene(i, newName);
+					renderScenesBar();
+				}
+			});
+			row.appendChild(editBtn);
+
+			// Bouton supprimer ×
+			if (scenes.length > 1) {
+				const del = document.createElement('button');
+				del.textContent = '×';
+				del.title = 'Supprimer';
+				del.style.cssText = 'background:#ff4757;color:white;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:15px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+				del.addEventListener('click', (e) => deleteScene(i, e));
+				row.appendChild(del);
+			}
+
+			list.appendChild(row);
+		});
+
+		if (addBtn) {
+			addBtn.disabled = scenes.length >= MAX_SCENES;
+			addBtn.style.opacity = scenes.length >= MAX_SCENES ? '0.4' : '1';
+			addBtn.style.cursor  = scenes.length >= MAX_SCENES ? 'not-allowed' : 'pointer';
+		}
+
+		const scenesBtn = document.getElementById('scenes-btn');
+		if (scenesBtn) {
+			scenesBtn.textContent = `🗂️ ${scenes[currentScene]?.name || 'Scènes'}`;
+		}
+	}
+	
+	function toggleScenesMenu() {
+		const menu = document.getElementById('scenes-menu');
+		const isOpen = menu.style.display === 'block';
+		// Fermer les autres menus ouverts
+		document.getElementById('tools-menu').classList.remove('active');
+		document.getElementById('bg-submenu').classList.remove('active');
+		document.getElementById('shape-toolbar').classList.remove('active');
+		menu.style.display = isOpen ? 'none' : 'block';
+	}
+
+	// Fermer le menu scènes au clic extérieur
+	document.addEventListener('click', (e) => {
+		if (!e.target.closest('#scenes-menu') && !e.target.closest('#scenes-btn')) {
+			const menu = document.getElementById('scenes-menu');
+			if (menu) menu.style.display = 'none';
+		}
+	});
+
+	function selectAllText(el) {
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		const sel = window.getSelection();
+		sel.removeAllRanges(); sel.addRange(range);
+	}
+
 </script>
 <div id="laser-pointer"></div>
+<button id="presentation-btn" onclick="togglePresentationMode()" title="Mode présentation" style="position:fixed;bottom:80px;right:24px;z-index:100000;background:#1a1a2e;color:white;border:2px solid rgba(255,255,255,0.25);font-size:20px;padding:7px 12px;border-radius:20px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.5);">📽️</button>
 </body>
 </html>
