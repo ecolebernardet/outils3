@@ -565,13 +565,13 @@
 
 		@keyframes zoom-pulse-icon {
 			0% { 
-				transform: scale(1);
+				transform: scale(0.8);
 			}
 			50% { 
-				transform: scale(1.25); /* Zoom avant (25% plus grand) */
+				transform: scale(1); /* Zoom avant (25% plus grand) */
 			}
 			100% { 
-				transform: scale(1); /* Retour à la taille normale */
+				transform: scale(0.8); /* Retour à la taille normale */
 			}
 		}
 
@@ -695,7 +695,7 @@
 <div class="tabs-container" id="tabsContainer"></div>
 
 <!-- ============ MAIN CONTENT ============ -->
-<div class="mb-4">
+<div class="mb-0">
     <h3 class="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mb-3 ml-5">Du même auteur :</h3>
     
     <div class="flex flex-row flex-wrap gap-3 items-center ml-5">
@@ -708,7 +708,7 @@
                 <span class="math-particle p2">➖</span>
                 <span class="math-particle p3">✖</span>
                 <span class="math-particle p4">➗</span>
-                <span class="animate-math-icon">🧮</span>
+                <img src="https://outilsprofs.fr/mathmaster/icon-512.png" alt="Icon" class="w-full h-full object-contain animate-math-icon">
             </div>
 
             <div class="link-info ml-3 mr-4">
@@ -724,14 +724,14 @@
         </a>
 
         <a href="https://outilsprofs.fr/lebureauduprof/" target="_blank" 
-           class="link-item !w-fit !p-2 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-500/60 group transition-all relative overflow-visible !mb-0">
+           class="link-item !w-fit !p-1 border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 hover:border-indigo-500/60 group transition-all relative overflow-visible !mb-0">
             
             <div class="link-favicon !w-10 !h-10 shadow-none relative flex items-center justify-center overflow-visible rounded-lg">
                 <span class="math-particle p1">✏️</span>
                 <span class="math-particle p2">🔲</span>
                 <span class="math-particle p3">🤓</span>
                 <span class="math-particle p4">💻</span>
-                <img src="https://outilsprofs.fr/lebureauduprof/favicon.png" alt="Icon" class="w-full h-full object-contain animate-math-icon">
+                <img src="https://outilsprofs.fr/lebureauduprof/favicon2.png" alt="Icon" class="w-full h-full object-contain animate-math-icon">
             </div>
 
             <div class="link-info ml-3 mr-4">
@@ -748,7 +748,7 @@
     </div>
 </div>
 
-    <div class="h-[1px] bg-white/10 dark:bg-black/5 w-full mb-8"></div>
+    <div class="h-[1px] bg-white/10 dark:bg-black/5 w-full mb-5"></div>
 
     <div id="categoriesContainer"></div>
 
