@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aide – Le Bureau du Prof</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+
+  /* OVERLAY */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20010; padding: 20px;
+  }
+
+  /* FENÊTRE */
+  .modal {
+    background: #fff; border-radius: 18px;
+    width: 100%; max-width: 820px; max-height: 90vh;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  /* EN-TÊTE */
+  .modal-head {
+    background: linear-gradient(135deg, #2B7FFF 0%, #8E51FF 100%);
+    color: white; padding: 22px 28px; display: flex;
+    justify-content: space-between; align-items: flex-start; gap: 16px;
+    flex-shrink: 0;
+  }
+  .modal-head h2 { font-size: 1.4em; font-weight: 800; letter-spacing: -0.3px; }
+  .modal-head p { font-size: 0.85em; opacity: 0.85; margin-top: 4px; }
+  .close-btn {
+    background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
+    width: 36px; height: 36px; color: white; font-size: 20px; line-height: 1;
+    cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+  }
+  .close-btn:hover { background: rgba(255,255,255,0.35); }
+
+  /* CORPS */
+  .modal-body {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  /* MENU LATÉRAL */
+  .sidebar {
+    width: 210px; flex-shrink: 0; background: #f4f6f9;
+    border-right: 1px solid #e5e8ee; overflow-y: auto; padding: 14px 0;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px; cursor: pointer; font-size: 13px;
+    color: #444; font-weight: 500; border-left: 3px solid transparent;
+    transition: all 0.15s; user-select: none;
+  }
+  .sidebar-item:hover { background: #e8edf5; color: #2B7FFF; }
+  .sidebar-item.active {
+    background: #e8edf5; color: #2B7FFF;
+    border-left-color: #2B7FFF; font-weight: 700;
+  }
+  .sidebar-item .ico { font-size: 16px; width: 20px; text-align: center; }
+  .sidebar-sep { height: 1px; background: #e0e4ea; margin: 8px 18px; }
+
+  /* CONTENU */
+  .content {
+    flex: 1; overflow-y: auto; padding: 28px 32px;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  h3 {
+    font-size: 1.15em; font-weight: 800; color: #1a1a2e;
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid #e5e8ee;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h4 {
+    font-size: 0.97em; font-weight: 700; color: #2B7FFF;
+    margin: 18px 0 8px 0;
+  }
+  p { font-size: 13.5px; color: #444; line-height: 1.65; margin-bottom: 10px; }
+
+  /* CARTES */
+  .card-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .card-grid { grid-template-columns: 1fr; } }
+  .card {
+    background: #f8f9fb; border: 1px solid #e5e8ee; border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .card-title { font-size: 13px; font-weight: 700; color: #222; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .card p { font-size: 12.5px; margin: 0; }
+
+  /* BADGE RACCOURCI */
+  .kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #2B7FFF; color: white; border-radius: 5px;
+    font-size: 11px; font-weight: 700; padding: 2px 7px; white-space: nowrap;
+  }
+  .kbd-gray {
+    background: #e8edf5; color: #333; border-radius: 5px;
+    font-size: 11px; font-weight: 600; padding: 2px 7px; white-space: nowrap;
+    display: inline-flex;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px 0; font-size: 13px; }
+  th { background: #f0f3f9; text-align: left; padding: 8px 12px; font-weight: 700; color: #333; border-bottom: 2px solid #dde2ea; }
+  td { padding: 8px 12px; border-bottom: 1px solid #eef0f3; color: #444; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafbfd; }
+
+  /* ASTUCE */
+  .tip {
+    background: #eef7ff; border-left: 4px solid #2B7FFF;
+    border-radius: 0 8px 8px 0; padding: 10px 14px;
+    font-size: 12.5px; color: #1a4d8f; margin: 10px 0 14px 0;
+    line-height: 1.55;
+  }
+  .tip strong { color: #1a3870; }
+
+  .warn {
+    background: #fff8e6; border-left: 4px solid #f39c12;
+    border-radius: 0 8px 8px 0; padding: 10px 14px;
+    font-size: 12.5px; color: #7a5000; margin: 10px 0 14px 0;
+    line-height: 1.55;
+  }
+
+  /* BADGE COULEUR WIDGET */
+  .wbadge {
+    display: inline-block; border-radius: 5px; padding: 2px 8px;
+    font-size: 11.5px; font-weight: 700; color: white; white-space: nowrap;
+  }
+
+  ul { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: 13.5px; color: #444; line-height: 1.65; margin-bottom: 4px; }
+  li strong { color: #222; }
+
+  /* PIED */
+  .modal-foot {
+    padding: 14px 28px; border-top: 1px solid #e5e8ee;
+    display: flex; justify-content: flex-end; flex-shrink: 0;
+    background: #fafbfc;
+  }
+  .btn-close-foot {
+    background: #2B7FFF; color: white; border: none;
+    padding: 9px 22px; border-radius: 10px; font-size: 13px;
+    font-weight: 700; cursor: pointer; transition: background 0.15s;
+  }
+  .btn-close-foot:hover { background: #1a6de0; }
+
+  /* Preview démo */
+  .demo-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 8px 0 14px 0;
+  }
+  .icon-demo {
+    width: 38px; height: 38px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Pour prévisualisation autonome — la vraie modale s'intègre dans l'app -->
+<div class="modal-overlay">
+<div class="modal">
+
+  <!-- EN-TÊTE -->
+  <div class="modal-head">
+    <div>
+      <h2>📋 Aide complète — Le Bureau du Prof</h2>
+      <p>Toutes les fonctionnalités expliquées. Cliquez sur une section dans le menu à gauche.</p>
+    </div>
+    <button class="close-btn" onclick="this.closest('.modal-overlay').style.display='none'">×</button>
+  </div>
+
+  <!-- CORPS -->
+  <div class="modal-body">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-item active" data-target="s-intro"   onclick="show(this)"><span class="ico">🏠</span> Introduction</div>
+      <div class="sidebar-item" data-target="s-widgets"        onclick="show(this)"><span class="ico">📦</span> Widgets</div>
+      <div class="sidebar-item" data-target="s-selection"      onclick="show(this)"><span class="ico">🖱️</span> Sélection</div>
+      <div class="sidebar-item" data-target="s-deplacement"    onclick="show(this)"><span class="ico">✥</span> Déplacement</div>
+      <div class="sidebar-item" data-target="s-rotation"       onclick="show(this)"><span class="ico">↻</span> Rotation</div>
+      <div class="sidebar-item" data-target="s-groupes"        onclick="show(this)"><span class="ico">⛓️</span> Groupes</div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-item" data-target="s-texte"          onclick="show(this)"><span class="ico">🖊️</span> Texte &amp; Format</div>
+      <div class="sidebar-item" data-target="s-formes"         onclick="show(this)"><span class="ico">🔲</span> Formes</div>
+      <div class="sidebar-item" data-target="s-dessin"         onclick="show(this)"><span class="ico">✏️</span> Dessin libre</div>
+      <div class="sidebar-item" data-target="s-gomme"          onclick="show(this)"><span class="ico">🧽</span> Gomme</div>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-item" data-target="s-fond"           onclick="show(this)"><span class="ico">🖼️</span> Fond d'écran</div>
+      <div class="sidebar-item" data-target="s-sauvegarde"     onclick="show(this)"><span class="ico">💾</span> Sauvegarde</div>
+      <div class="sidebar-item" data-target="s-undoredo"       onclick="show(this)"><span class="ico">↩</span> Annuler / Refaire</div>
+      <div class="sidebar-item" data-target="s-avance"         onclick="show(this)"><span class="ico">⚙️</span> Options avancées</div>
+    </nav>
+
+    <!-- CONTENU -->
+    <div class="content">
+
+      <!-- ───── INTRODUCTION ───── -->
+      <div id="s-intro" class="section active">
+        <h3>🏠 Bienvenue sur Le Bureau du Prof</h3>
+        <p>Le Bureau du Prof est un <strong>tableau de bord interactif</strong> conçu pour les enseignants. Il permet d'afficher simultanément des widgets (heure, date, devoirs, agenda, vidéos…), de dessiner librement, d'ajouter des formes géométriques et de tout sauvegarder pour le retrouver à la prochaine session.</p>
+        <p>Le tableau respecte un <strong>format 16:9</strong> et s'adapte automatiquement à la taille de votre écran, que vous soyez sur ordinateur ou vidéoprojecteur.</p>
+
+        <h4>🗺️ Organisation de l'interface</h4>
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-title">⬇️ Barre du bas</div>
+            <p>Accès principal aux boutons <strong>WIDGETS</strong>, dessin (✏️), formes (🔲), gomme (🧽), sauvegarde (💾 / 📂), effacement (❌) et aide (❓).</p>
+          </div>
+          <div class="card">
+            <div class="card-title">📦 Menu WIDGETS</div>
+            <p>S'ouvre au clic sur <strong>WIDGETS</strong>. Liste tous les types de widgets à créer ainsi que l'option de changement de fond.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">🖊️ Barre de texte</div>
+            <p>Apparaît automatiquement au clic dans un widget Texte ou Devoirs. Permet de formater police, taille, couleur, gras, italique…</p>
+          </div>
+          <div class="card">
+            <div class="card-title">💾 Sauvegarde auto</div>
+            <p>Tout est sauvegardé dans le navigateur (localStorage) après chaque modification. Utilisez 💾 pour exporter en fichier .json.</p>
+          </div>
+        </div>
+
+        <div class="tip"><strong>💡 Astuce démarrage :</strong> Cliquez sur <strong>WIDGETS</strong> pour ajouter votre premier widget, puis glissez-le en cliquant sur la poignée <strong>✥</strong> qui apparaît sur sa gauche.</div>
+      </div>
+
+      <!-- ───── WIDGETS ───── -->
+      <div id="s-widgets" class="section">
+        <h3>📦 Les widgets disponibles</h3>
+        <p>Chaque widget est une fenêtre flottante redimensionnable et déplaçable. Cliquez sur <strong>WIDGETS</strong> pour ouvrir le menu, puis cliquez sur le type souhaité.</p>
+
+        <table>
+          <tr>
+            <th>Widget</th>
+            <th>Description</th>
+            <th>Particularité</th>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#2B7FFF">🖊️ Texte</span></td>
+            <td>Zone de saisie libre avec mise en forme riche.</td>
+            <td>Barre de mise en forme globale automatique</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#3BB8DB">📝 Devoirs</span></td>
+            <td>Widget pré-rempli pour noter les devoirs par classe.</td>
+            <td>Identique au Texte mais avec contenu de départ</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#679638">📅 Date</span></td>
+            <td>Affiche le jour, le numéro et le mois en temps réel.</td>
+            <td>Police et taille s'adaptent à la taille du widget</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#7CCF35">🕒 Heure</span></td>
+            <td>Horloge numérique en temps réel (heures:minutes secondes).</td>
+            <td>Taille de police auto-adaptative + fond transparent</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#8E51FF">📌 Planning</span></td>
+            <td>Agenda journalier avec lignes horaires réorganisables.</td>
+            <td>Glisser-déposer des lignes, ajout/suppression dynamique</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#E7180B">🎬 Vidéo YouTube</span></td>
+            <td>Lecteur YouTube intégré. Coller l'URL dans la barre.</td>
+            <td>Mode audio seul, mode plein écran</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#FFD230;color:#222">💻 Fenêtre Web</span></td>
+            <td>Navigateur intégré pour afficher n'importe quel site.</td>
+            <td>Plein écran disponible</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#FF692A">🎒 OutilsProfs</span></td>
+            <td>Ouvre directement le site OutilsProfs en iframe.</td>
+            <td>Accès micro, caméra autorisé</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#480eb3">🧘 Défi Calme</span></td>
+            <td>Outil de gestion du calme en classe.</td>
+            <td>Iframe interne, plein écran disponible</td>
+          </tr>
+          <tr>
+            <td><span class="wbadge" style="background:#E74C3C">📄 PDF</span></td>
+            <td>Ouvrir et afficher un fichier PDF local.</td>
+            <td>Plein écran disponible, fichier non sauvegardé</td>
+          </tr>
+        </table>
+
+        <h4>⚙️ Contrôles communs à tous les widgets</h4>
+        <p>Au clic ou au survol d'un widget, plusieurs poignées apparaissent :</p>
+        <table>
+          <tr><th>Poignée</th><th>Position</th><th>Action</th></tr>
+          <tr><td><span class="kbd-gray">✥</span></td><td>Gauche (milieu)</td><td>Déplacer le widget par glisser-déposer</td></tr>
+          <tr><td><span class="kbd-gray">↻</span></td><td>Droite (milieu)</td><td>Faire pivoter librement (avec magnétisme à 0°/45°/90°…)</td></tr>
+          <tr><td><span class="kbd-gray">📌</span></td><td>Haut (centre)</td><td>Épingler au premier plan (fond doré = épinglé)</td></tr>
+          <tr><td><span class="kbd-gray">🔽</span></td><td>Haut (droite centre)</td><td>Envoyer derrière tous les autres widgets</td></tr>
+          <tr><td><span class="kbd-gray">☰</span></td><td>Bas (centre)</td><td>Menu contextuel (dupliquer, modifier…)</td></tr>
+          <tr><td><span class="kbd-gray">×</span></td><td>Haut droite</td><td>Supprimer le widget</td></tr>
+        </table>
+
+        <h4>📐 Redimensionner un widget</h4>
+        <p>Survolez le widget pour faire apparaître la poignée de redimensionnement en bas à droite de la zone de contenu (triangle gris). Glissez-la pour ajuster largeur et hauteur.</p>
+
+        <div class="tip"><strong>💡 Fond transparent :</strong> Les widgets Texte, Heure et Date peuvent être rendus transparents. Utilisez le bouton <span class="kbd-gray">⬜</span> (damier) dans la barre globale ou la poignée qui apparaît au survol du widget Heure/Date.</div>
+      </div>
+
+      <!-- ───── SÉLECTION ───── -->
+      <div id="s-selection" class="section">
+        <h3>🖱️ Sélectionner des widgets</h3>
+
+        <h4>Clic simple</h4>
+        <p>Cliquer sur un widget le sélectionne (bordure bleue). Si le widget n'appartient à aucun groupe, ses poignées natives apparaissent directement dessus.</p>
+
+        <h4>Sélection multiple — Ctrl + clic</h4>
+        <p>Maintenez <span class="kbd">Ctrl</span> (ou <span class="kbd">⌘</span> sur Mac) et cliquez sur plusieurs widgets pour les ajouter à la sélection. Recliquer sur un widget sélectionné le désélectionne.</p>
+
+        <h4>Rectangle de sélection</h4>
+        <p>Cliquez-glissez sur le <strong>fond du tableau</strong> (pas sur un widget) pour dessiner un rectangle de sélection. Tous les widgets et traits de dessin qui se trouvent dans cette zone sont sélectionnés.</p>
+
+        <h4>Overlay de sélection multiple</h4>
+        <p>Quand plusieurs éléments sont sélectionnés, un cadre bleu pointillé entoure l'ensemble. Il expose les contrôles :</p>
+        <table>
+          <tr><th>Bouton</th><th>Action</th></tr>
+          <tr><td><span class="kbd-gray">✥</span></td><td>Déplacer tout le groupe simultanément</td></tr>
+          <tr><td><span class="kbd-gray">↻</span></td><td>Faire pivoter autour du centre de la sélection</td></tr>
+          <tr><td><span class="kbd-gray">↘</span></td><td>Redimensionner l'ensemble (+ Shift = proportionnel)</td></tr>
+          <tr><td><span class="kbd-gray">×</span></td><td>Supprimer tous les éléments sélectionnés</td></tr>
+          <tr><td><span class="kbd-gray">☰</span></td><td>Menu contextuel (dupliquer, premier plan, derrière…)</td></tr>
+          <tr><td><span class="kbd-gray">⊞ Grouper</span></td><td>Créer un groupe permanent (visible si ≥ 2 éléments)</td></tr>
+          <tr><td><span class="kbd-gray">⛓️ Dissocier</span></td><td>Dissoudre un groupe existant</td></tr>
+          <tr><td><span class="kbd-gray">↔</span></td><td>Symétrie horizontale (miroir gauche/droite)</td></tr>
+          <tr><td><span class="kbd-gray">↕</span></td><td>Symétrie verticale (miroir haut/bas)</td></tr>
+          <tr><td><span class="kbd-gray">🔓 / 🔒</span></td><td>Verrouiller/déverrouiller les proportions au redimensionnement</td></tr>
+        </table>
+
+        <div class="tip"><strong>💡 Astuce :</strong> Un double-clic sur le bouton ↻ de rotation (overlay multi-sélection) remet tous les éléments à leur angle d'origine avant la rotation.</div>
+      </div>
+
+      <!-- ───── DÉPLACEMENT ───── -->
+      <div id="s-deplacement" class="section">
+        <h3>✥ Déplacer des widgets</h3>
+
+        <h4>Déplacer un widget seul</h4>
+        <p>Cliquez sur la poignée <span class="kbd-gray">✥</span> qui apparaît à gauche du widget lorsqu'il est sélectionné ou survolé, puis glissez. Relâchez pour valider la position.</p>
+
+        <h4>Déplacer plusieurs widgets ensemble</h4>
+        <p>Sélectionnez plusieurs éléments (Ctrl+clic ou rectangle), puis utilisez la poignée <span class="kbd-gray">✥</span> de l'overlay bleu pour déplacer tout le groupe d'un seul mouvement.</p>
+
+        <h4>Ordre d'empilement (z-index)</h4>
+        <ul>
+          <li><strong>📌 Épingler</strong> — place le widget en premier plan permanent. Son cadre passe au doré.</li>
+          <li><strong>🔽 Envoyer derrière</strong> — place le widget tout derrière (utile pour les images de fond).</li>
+          <li>Tout clic sur un widget non épinglé le remonte automatiquement au-dessus des autres.</li>
+        </ul>
+
+        <div class="tip"><strong>💡 Image de fond :</strong> Importez une image dans un widget Fenêtre Web ou ajoutez une forme large, puis utilisez 🔽 pour l'envoyer derrière tous les autres éléments. Elle devient un fond permanent.</div>
+      </div>
+
+      <!-- ───── ROTATION ───── -->
+      <div id="s-rotation" class="section">
+        <h3>↻ Rotation des éléments</h3>
+
+        <h4>Rotation d'un widget seul</h4>
+        <p>Cliquez-glissez la poignée <span class="kbd-gray">↻</span> à droite du widget. L'angle actuel s'affiche en temps réel dans une bulle flottante.</p>
+
+        <h4>Magnétisme automatique</h4>
+        <p>La rotation se "snap" automatiquement sur les angles courants : <strong>0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°</strong>. Lorsque vous approchez l'un de ces angles à moins de 2°, le widget s'y colle.</p>
+
+        <h4>Remettre à 0°</h4>
+        <p>Double-cliquez sur la poignée <span class="kbd-gray">↻</span> pour réinitialiser instantanément l'angle à 0°.</p>
+
+        <h4>Rotation d'une sélection multiple</h4>
+        <p>Quand plusieurs éléments sont sélectionnés, utilisez la poignée ↻ de l'overlay bleu. La rotation s'effectue autour du centre géométrique de la sélection. Tous les éléments (widgets + traits de dessin) pivotent ensemble.</p>
+
+        <div class="warn"><strong>⚠️ Note :</strong> Avec une sélection multiple, un double-clic sur ↻ remet chaque widget à son angle individuel <em>d'avant</em> la rotation groupée (pas nécessairement 0°).</div>
+      </div>
+
+      <!-- ───── GROUPES ───── -->
+      <div id="s-groupes" class="section">
+        <h3>⛓️ Groupes de widgets</h3>
+        <p>Le groupement permet de lier plusieurs éléments (widgets, formes, traits de dessin) pour les déplacer, redimensionner et faire pivoter ensemble comme un seul objet.</p>
+
+        <h4>Créer un groupe</h4>
+        <ol style="padding-left:20px;margin-bottom:10px;">
+          <li style="font-size:13.5px;color:#444;margin-bottom:4px;">Sélectionnez au moins 2 éléments (Ctrl+clic ou rectangle de sélection).</li>
+          <li style="font-size:13.5px;color:#444;margin-bottom:4px;">Cliquez sur <span class="kbd-gray">⊞ Grouper</span> dans l'overlay bleu (ou via le menu ☰).</li>
+          <li style="font-size:13.5px;color:#444;margin-bottom:4px;">Les membres du groupe sont désormais liés (bordure ambrée discrète sur les widgets texte).</li>
+        </ol>
+
+        <h4>Interagir avec un groupe</h4>
+        <p>Cliquer sur n'importe quel membre du groupe sélectionne <strong>tout le groupe</strong> d'un coup, ce qui affiche l'overlay multi-sélection avec toutes ses poignées.</p>
+
+        <h4>Dissocier un groupe</h4>
+        <p>Sélectionnez un ou plusieurs membres du groupe, puis cliquez sur <span class="kbd-gray">⛓️ Dissocier</span> dans l'overlay ou dans le menu ☰. Chaque élément redevient indépendant.</p>
+
+        <h4>Groupes mixtes</h4>
+        <p>Un groupe peut contenir des widgets texte, des formes SVG <em>et</em> des traits de dessin libre. Tout se déplace, pivote et se redimensionne ensemble.</p>
+
+        <div class="tip"><strong>💡 Astuce :</strong> Pour ajouter un élément à un groupe existant, sélectionnez les membres du groupe + le nouvel élément avec Ctrl+clic, puis regroupez. L'ancien groupe est absorbé dans le nouveau.</div>
+      </div>
+
+      <!-- ───── TEXTE ───── -->
+      <div id="s-texte" class="section">
+        <h3>🖊️ Texte &amp; Mise en forme</h3>
+        <p>Les widgets <strong>Texte</strong> et <strong>Devoirs</strong> sont des éditeurs de texte enrichi. La <strong>barre de mise en forme globale</strong> s'affiche automatiquement en bas de l'écran dès que vous cliquez dans l'un de ces widgets.</p>
+
+        <h4>Barre de mise en forme — outils disponibles</h4>
+        <table>
+          <tr><th>Outil</th><th>Description</th></tr>
+          <tr><td><span class="kbd-gray"><b>G</b></span> / <span class="kbd-gray"><i>I</i></span> / <span class="kbd-gray"><u>S</u></span></td><td>Gras, Italique, Souligné sur le texte sélectionné</td></tr>
+          <tr><td>🎨 Couleur texte</td><td>Ouvre un sélecteur de couleur pour la couleur du texte</td></tr>
+          <tr><td>🖊️ Surligner</td><td>Applique une couleur de fond (surlignage) au texte sélectionné</td></tr>
+          <tr><td>⬜ Fond widget</td><td>Change la couleur de fond de tout le widget</td></tr>
+          <tr><td>☑ Transparence</td><td>Rend le fond du widget transparent (damier)</td></tr>
+          <tr><td>Police</td><td>Sélecteur parmi Arial, Segoe UI, Comic Sans, Verdana, KGPerfectPenmanship, Andika, OpenDyslexic, Belle Allure GS</td></tr>
+          <tr><td><span class="kbd-gray">−</span> taille <span class="kbd-gray">+</span></td><td>Diminue/augmente la taille de police par pas de 2px. Saisie directe possible.</td></tr>
+        </table>
+
+        <h4>Polices spéciales incluses</h4>
+        <div class="card-grid">
+          <div class="card">
+            <div class="card-title">🧩 OpenDyslexic</div>
+            <p>Police conçue pour faciliter la lecture des personnes dyslexiques.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">📏 Belle Allure GS</div>
+            <p>Police cursive adaptée aux besoins de l'école primaire (écriture liée).</p>
+          </div>
+          <div class="card">
+            <div class="card-title">✒️ KGPerfectPenmanship</div>
+            <p>Style écriture manuscrite soignée.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">🔡 Andika</div>
+            <p>Police lisible adaptée aux lecteurs débutants.</p>
+          </div>
+        </div>
+
+        <div class="tip"><strong>💡 Sélectionner avant de formater :</strong> Sélectionnez le texte à modifier AVANT de cliquer sur un bouton de la barre. Pour la taille, vous pouvez cliquer dans la zone de saisie de taille et appuyer sur Entrée.</div>
+      </div>
+
+      <!-- ───── FORMES ───── -->
+      <div id="s-formes" class="section">
+        <h3>🔲 Formes géométriques</h3>
+        <p>Cliquez sur le bouton <span class="kbd-gray">🔲</span> en bas de l'écran pour ouvrir le panneau des formes.</p>
+
+        <h4>Formes disponibles</h4>
+        <div class="card-grid">
+          <div class="card"><div class="card-title">⭕ Cercle / Ellipse</div><p>Ellipse parfaitement ronde ou ovale selon les dimensions.</p></div>
+          <div class="card"><div class="card-title">⬛ Carré</div><p>Rectangle à côtés égaux.</p></div>
+          <div class="card"><div class="card-title">▬ Rectangle</div><p>Rectangle aux dimensions libres.</p></div>
+          <div class="card"><div class="card-title">◇ Losange</div><p>Quadrilatère en forme de diamant.</p></div>
+          <div class="card"><div class="card-title">▱ Parallélogramme</div><p>Quadrilatère penché.</p></div>
+          <div class="card"><div class="card-title">— Ligne</div><p>Trait horizontal. Redimensionnable en longueur.</p></div>
+          <div class="card"><div class="card-title">➡️ Flèche</div><p>Flèche directionnelle avec corps et pointe.</p></div>
+          <div class="card"><div class="card-title">▲ Triangle</div><p>Triangle isocèle pointé vers le haut.</p></div>
+        </div>
+
+        <h4>Options de création</h4>
+        <ul>
+          <li><strong>Contour :</strong> couleur et épaisseur (1 à 20 px)</li>
+          <li><strong>Remplissage :</strong> couleur + opacité (0 à 100%)</li>
+        </ul>
+
+        <h4>Modifier une forme existante</h4>
+        <p>Double-cliquez sur une forme déjà placée sur le tableau pour ouvrir le <strong>panneau d'édition</strong> (flottant, repositionnable). Vous pouvez changer contour, remplissage et opacité en temps réel.</p>
+
+        <h4>Redimensionner une forme</h4>
+        <p>Sélectionnez la forme (clic) : une poignée apparaît en bas à droite. Glissez-la pour ajuster. Maintenez <span class="kbd">Shift</span> ou verrouillez les proportions via le bouton <span class="kbd-gray">🔒</span> pour conserver le ratio largeur/hauteur.</p>
+
+        <h4>Symétrie</h4>
+        <p>Les boutons <span class="kbd-gray">↔</span> (horizontal) et <span class="kbd-gray">↕</span> (vertical) apparaissent sur les formes sélectionnées pour les retourner en miroir.</p>
+
+        <h4>Dupliquer une forme</h4>
+        <p>Cliquez sur ☰ (menu) en bas de la forme sélectionnée → <strong>⧉ Dupliquer</strong>. La copie est créée avec un léger décalage.</p>
+      </div>
+
+      <!-- ───── DESSIN ───── -->
+      <div id="s-dessin" class="section">
+        <h3>✏️ Dessin libre &amp; Reconnaissance de formes</h3>
+        <p>Cliquez sur <span class="kbd-gray">✏️</span> en bas de l'écran pour activer le mode dessin. Une barre d'options apparaît.</p>
+
+        <h4>Mode Dessin libre</h4>
+        <p>Tracez à main levée avec la souris ou le stylet. Choisissez :</p>
+        <ul>
+          <li><strong>Couleur</strong> via le sélecteur de couleur</li>
+          <li><strong>Épaisseur</strong> via le curseur (1 à 40 px)</li>
+        </ul>
+        <p>Chaque tracé est stocké séparément et peut être sélectionné/déplacé/supprimé indépendamment.</p>
+
+        <h4>Mode Reconnaissance de formes 🔵</h4>
+        <p>Basculez sur le mode <strong>Formes</strong> dans la barre de dessin. Dessinez approximativement un cercle, un carré, un rectangle ou un triangle : l'application détecte automatiquement la forme et la remplace par une <strong>forme vectorielle nette</strong>.</p>
+
+        <div class="tip"><strong>💡 Conseil :</strong> Fermez votre tracé (rejoignez le point de départ) pour déclencher la reconnaissance. Les formes non fermées (lignes) sont conservées comme tracé libre.</div>
+
+        <h4>Options du mode Formes</h4>
+        <ul>
+          <li><strong>Couleur de remplissage</strong> et <strong>Opacité</strong> spécifiques au remplissage reconnu</li>
+          <li>La couleur du contour reprend celle choisie dans le sélecteur principal</li>
+        </ul>
+
+        <h4>Effacer tous les traits</h4>
+        <p>Bouton <span class="kbd-gray">🗑️ Effacer</span> dans la barre de dessin → supprime tous les traits du canvas.</p>
+
+        <h4>Quitter le mode dessin</h4>
+        <p>Cliquez sur <span class="kbd-gray">✖ Fermer</span> dans la barre, ou recliquez sur le bouton ✏️ en bas.</p>
+
+        <div class="warn"><strong>⚠️ Important :</strong> En mode dessin, les widgets ne sont plus cliquables. Quittez le mode dessin pour interagir de nouveau avec les widgets.</div>
+      </div>
+
+      <!-- ───── GOMME ───── -->
+      <div id="s-gomme" class="section">
+        <h3>🧽 Gomme</h3>
+        <p>Cliquez sur <span class="kbd-gray">🧽</span> en bas de l'écran pour activer la gomme.</p>
+
+        <h4>Effacer des traits</h4>
+        <p>Passez la gomme sur les traits de dessin pour les effacer segment par segment. Les traits partiellement effacés sont découpés.</p>
+
+        <h4>Effacer des formes</h4>
+        <p>La gomme s'applique également aux formes SVG via un masque vectoriel. Si une forme est entièrement recouverte par la gomme, elle est automatiquement supprimée.</p>
+
+        <h4>Régler la taille</h4>
+        <p>Un curseur <strong>Taille</strong> (5 à 80 px) dans la barre permet d'ajuster le rayon de la gomme. Un aperçu circulaire s'affiche sous le curseur.</p>
+
+        <h4>Quitter la gomme</h4>
+        <p>Cliquez sur <span class="kbd-gray">✖ Fermer</span> ou recliquez sur le bouton 🧽.</p>
+
+        <div class="tip"><strong>💡 Annuler une erreur de gomme :</strong> Utilisez le bouton Annuler <span class="kbd-gray">↩</span> pour rétablir les traits effacés.</div>
+      </div>
+
+      <!-- ───── FOND ───── -->
+      <div id="s-fond" class="section">
+        <h3>🖼️ Fond d'écran</h3>
+        <p>Ouvrez le menu <strong>WIDGETS</strong> → bouton <strong>🖼️ Choisir fond</strong>.</p>
+
+        <h4>Couleurs prédéfinies</h4>
+        <div class="card-grid">
+          <div class="card"><div class="card-title" style="gap:8px;"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#eef2f5;border:1px solid #ddd;"></span> Défaut</div><p>Gris clair neutre (#eef2f5)</p></div>
+          <div class="card"><div class="card-title"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#2f3542;"></span> Ardoise</div><p>Gris foncé (#2f3542)</p></div>
+          <div class="card"><div class="card-title"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#104626;"></span> Tableau vert</div><p>Vert tableau classique (#104626)</p></div>
+          <div class="card"><div class="card-title"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#BAA09B;"></span> Vieux rose</div><p>Tons chauds doux (#BAA09B)</p></div>
+          <div class="card"><div class="card-title"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#EDD9D5;border:1px solid #ddd;"></span> Beige</div><p>Beige chaleureux (#EDD9D5)</p></div>
+          <div class="card"><div class="card-title"><span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:#000;"></span> Noir</div><p>Fond entièrement noir</p></div>
+        </div>
+
+        <h4>Image personnalisée</h4>
+        <p>Bouton <strong>📷 Importer image</strong> → sélectionnez une image depuis votre ordinateur. Elle est stockée en base64 dans le navigateur et rechargée automatiquement à chaque session.</p>
+
+        <div class="warn"><strong>⚠️ Images volumineuses :</strong> Les images très lourdes peuvent ralentir la sauvegarde locale. Privilégiez des images compressées (JPEG, WebP) de moins de 2 Mo.</div>
+      </div>
+
+      <!-- ───── SAUVEGARDE ───── -->
+      <div id="s-sauvegarde" class="section">
+        <h3>💾 Sauvegarde &amp; Chargement</h3>
+
+        <h4>Sauvegarde automatique</h4>
+        <p>Toute modification (ajout de widget, déplacement, texte saisi…) est enregistrée automatiquement dans le <strong>localStorage</strong> du navigateur. La prochaine ouverture de la page restaure exactement l'état précédent.</p>
+
+        <h4>Exporter un fichier .json — 💾</h4>
+        <p>Cliquez sur <span class="kbd-gray">💾</span> en bas de l'écran pour télécharger un fichier <strong>.json</strong> contenant tout l'état du bureau : positions, contenus, couleurs, traits de dessin, fond…</p>
+        <p>Le fichier est nommé automatiquement <code>lebureauduprof_export_AAAA-MM-JJ.json</code>.</p>
+
+        <h4>Charger un fichier .json — 📂</h4>
+        <p>Cliquez sur <span class="kbd-gray">📂</span> et sélectionnez un fichier exporté précédemment. Le bureau est entièrement remplacé par le contenu du fichier.</p>
+
+        <div class="tip"><strong>💡 Bonnes pratiques :</strong>
+          <br>• Exportez régulièrement un .json en fin de journée comme sauvegarde de secours.
+          <br>• Créez plusieurs fichiers thématiques (lundi.json, mardi.json…) pour basculer rapidement entre différentes configurations.
+        </div>
+
+        <h4>Tout effacer — ❌</h4>
+        <p>Cliquez sur <span class="kbd-gray">❌</span> pour vider entièrement le bureau. Une confirmation est demandée. Cette action est <strong>irréversible</strong> (sauf via Annuler ↩ juste après).</p>
+
+        <h4>Ce qui est sauvegardé</h4>
+        <ul>
+          <li>Tous les widgets (type, position, taille, contenu, style)</li>
+          <li>Toutes les formes géométriques (type, couleurs, taille, rotation)</li>
+          <li>Tous les traits de dessin libre</li>
+          <li>Le fond d'écran (couleur ou image)</li>
+          <li>Les groupes de widgets</li>
+        </ul>
+
+        <div class="warn"><strong>⚠️ Limites :</strong> Les fichiers PDF ouverts via le widget PDF <em>ne sont pas</em> sauvegardés (pour des raisons de confidentialité et de taille). Il faudra les ré-ouvrir à chaque session.</div>
+      </div>
+
+      <!-- ───── ANNULER/REFAIRE ───── -->
+      <div id="s-undoredo" class="section">
+        <h3>↩ Annuler &amp; Refaire</h3>
+
+        <p>Un historique de jusqu'à <strong>60 états</strong> est conservé pendant la session.</p>
+
+        <table>
+          <tr><th>Bouton</th><th>Action</th><th>Condition</th></tr>
+          <tr><td><span class="kbd-gray">↩ Annuler</span></td><td>Revient à l'état précédent</td><td>Gris si aucune action à annuler</td></tr>
+          <tr><td><span class="kbd-gray">↪ Refaire</span></td><td>Rétablit l'action annulée</td><td>Gris si rien à refaire</td></tr>
+        </table>
+
+        <h4>Ce qui est couvert par l'historique</h4>
+        <ul>
+          <li>Ajout / suppression de widgets ou de formes</li>
+          <li>Déplacement, rotation, redimensionnement</li>
+          <li>Traits de dessin et effaçages</li>
+          <li>Changements de fond</li>
+          <li>Groupement / dissociation</li>
+        </ul>
+
+        <div class="tip"><strong>💡 Astuce :</strong> Les modificiations de <em>texte</em> (frappe au clavier dans un widget) sont enregistrées dans l'historique après un délai de 800 ms d'inactivité.</div>
+
+        <div class="warn"><strong>⚠️ Limite session :</strong> L'historique est perdu si vous fermez ou rechargez la page. Exportez votre travail régulièrement avec 💾.</div>
+      </div>
+
+      <!-- ───── OPTIONS AVANCÉES ───── -->
+      <div id="s-avance" class="section">
+        <h3>⚙️ Options &amp; Fonctionnalités avancées</h3>
+
+        <h4>🗓️ Widget Planning — détail</h4>
+        <p>Le widget Planning (agenda journalier) est entièrement éditable :</p>
+        <ul>
+          <li>Cliquez sur une heure ou un texte pour l'éditer directement.</li>
+          <li>Glissez-déposez les lignes via la poignée <span class="kbd-gray">⋮⋮</span> pour les réorganiser.</li>
+          <li>Bouton <span class="kbd-gray">+</span> en bas pour ajouter une ligne.</li>
+          <li>Bouton <span class="kbd-gray">×</span> (survol d'une ligne) pour supprimer.</li>
+          <li>L'heure et la date courantes sont affichées en temps réel dans l'en-tête.</li>
+        </ul>
+
+        <h4>🎬 Widget YouTube — astuces</h4>
+        <ul>
+          <li>Collez n'importe quel lien YouTube (normal, court youtu.be, ou Shorts).</li>
+          <li>Bouton <strong>🔇 Son seul</strong> : masque la vidéo et réduit le widget, idéal pour une musique de fond.</li>
+          <li>Bouton <strong>📺 Vidéo</strong> : réaffiche la vidéo.</li>
+          <li>Bouton ⛶ pour passer en plein écran.</li>
+          <li>Le bouton damier rend le fond du widget transparent.</li>
+        </ul>
+
+        <h4>💻 Widget Fenêtre Web</h4>
+        <ul>
+          <li>Saisissez une URL dans la barre (http:// ajouté automatiquement si absent).</li>
+          <li>Certains sites peuvent bloquer l'affichage en iframe (YouTube, Google…). Utilisez le widget YouTube dédié dans ce cas.</li>
+        </ul>
+
+        <h4>📐 Redimensionnement adaptatif</h4>
+        <p>Lorsque vous redimensionnez la fenêtre du navigateur, tous les widgets, formes et traits sont automatiquement repositionnés et redimensionnés proportionnellement pour conserver le rendu 16:9.</p>
+
+        <h4>🔒 Épingler vs Envoyer derrière</h4>
+        <ul>
+          <li><strong>📌 Épingler</strong> : le widget reste toujours visible au premier plan, quoi qu'il arrive. Utile pour l'heure ou la date.</li>
+          <li><strong>🔽 Envoyer derrière</strong> : le widget passe au z-index 1, derrière tout le reste. Idéal pour une image décorative ou un fond personnalisé.</li>
+        </ul>
+
+        <h4>🖼️ Utiliser une image comme fond de widget</h4>
+        <p>Vous pouvez coller une image dans un widget Texte (Ctrl+V) pour l'afficher comme fond décoratif. Utilisez ensuite 🔽 pour l'envoyer derrière.</p>
+
+        <h4>⛶ Mode plein écran</h4>
+        <p>Disponible sur les widgets YouTube, Fenêtre Web, OutilsProfs, Défi Calme et PDF. Cliquez sur le bouton ⛶ dans la barre du widget. Appuyez sur <span class="kbd">Échap</span> ou le bouton de sortie pour quitter.</p>
+
+        <div class="tip">
+          <strong>💡 Conseil pédagogique :</strong> Combinez plusieurs widgets sur un même bureau :
+          <br>• Date + Heure (en haut) pour l'affichage permanent
+          <br>• Planning (à gauche) pour le déroulé de la journée
+          <br>• Devoirs (à droite) pour les travaux à noter
+          <br>• Une vidéo YouTube (en dessous) pour la musique de travail
+          <br>Sauvegardez cette configuration en .json et rechargez-la chaque matin en 2 secondes !
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /modal-body -->
+
+  <!-- PIED -->
+  <div class="modal-foot">
+    <button class="btn-close-foot" onclick="this.closest('.modal-overlay').style.display='none'">Fermer</button>
+  </div>
+
+</div><!-- /modal -->
+</div><!-- /overlay -->
+
+<script>
+function show(item) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  item.classList.add('active');
+  document.getElementById(item.dataset.target).classList.add('active');
+}
+</script>
+</body>
+</html>
