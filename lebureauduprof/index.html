@@ -215,39 +215,39 @@
         /* --- Sous-menu formes --- */
         #shape-toolbar {
             display: none; position: fixed; bottom: 80px; left: 30px;
-            background: #1F1F21; border-radius: 14px; padding: 14px 16px;
+            background: #1F1F21; border-radius: 14px; padding: 16px;
             box-shadow: 0 -4px 30px rgba(0,0,0,0.4); z-index: 9998; border: 1px solid #3a3a3f;
-            min-width: 320px;
+            min-width: 300px;
         }
         #shape-toolbar.active { display: block; }
-        .shape-toolbar-title { color: #aaa; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .shape-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 12px; }
+        .shape-toolbar-title { color: #666; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #2e2e2e; }
+        .shape-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 14px; }
         .shape-choice {
-            width: 54px; height: 54px; background: #2a2a2e; border: 2px solid #3a3a3f;
+            width: 52px; height: 52px; background: #28282f; border: 1px solid #2e2e38;
             border-radius: 10px; cursor: pointer; display: flex; align-items: center;
             justify-content: center; transition: 0.15s; flex-direction: column; gap: 3px;
         }
         .shape-choice:hover { border-color: #4a90e2; background: #1a3550; }
         .shape-choice.active { border-color: #4a90e2; background: #1a3550; box-shadow: 0 0 0 2px rgba(74,144,226,0.3); }
         .shape-choice svg { pointer-events: none; }
-        .shape-choice-label { color: #777; font-size: 9px; pointer-events: none; text-align: center; line-height: 1; }
-        .shape-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-top: 1px solid #333; padding-top: 10px; }
-        .shape-controls label { color: #aaa; font-size: 11px; white-space: nowrap; }
-        .shape-opacity-row { display: flex; align-items: center; gap: 8px; width: 100%; flex-wrap: wrap; }
-        .shape-opacity-row label { color: #aaa; font-size: 11px; }
+        .shape-choice-label { color: #666; font-size: 9px; pointer-events: none; text-align: center; line-height: 1; }
+        .shape-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid #2e2e2e; padding-top: 12px; }
+        .shape-controls label { color: #666; font-size: 11px; white-space: nowrap; }
+        .shape-opacity-row { display: flex; align-items: center; gap: 8px; width: 100%; flex-wrap: wrap; margin-top: 8px; }
+        .shape-opacity-row label { color: #666; font-size: 11px; }
         #shape-opacity-slider { flex: 1; min-width: 80px; cursor: pointer; }
-        #shape-opacity-val { color: #fff; font-size: 11px; min-width: 28px; }
+        #shape-opacity-val { color: #aaa; font-size: 11px; min-width: 28px; }
         .shape-add-btn {
-            margin-top: 10px; width: 100%; padding: 8px; background: #4a90e2;
-            color: white; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: 600; font-size: 13px; transition: background 0.15s;
+            margin-top: 12px; width: 100%; padding: 9px; background: #28282f;
+            color: #aaa; border: 1px dashed #3a3a4a; border-radius: 10px; cursor: pointer;
+            font-weight: 700; font-size: 12px; transition: background 0.15s;
         }
-        .shape-add-btn:hover { background: #357abd; }
+        .shape-add-btn:hover { background: #35353f; color: #e8e8f0; border-style: solid; border-color: #4a90e2; }
         .shape-toolbar-close {
-            position: absolute; top: 10px; right: 10px; background: none; border: none;
-            color: #666; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px;
+            position: absolute; top: 12px; right: 12px; background: none; border: none;
+            color: #555; cursor: pointer; font-size: 14px; padding: 3px 6px; border-radius: 6px; transition: .15s;
         }
-        .shape-toolbar-close:hover { color: #fff; background: #444; }
+        .shape-toolbar-close:hover { color: #ccc; background: #2e2e38; }
 
         /* --- OVERLAY DE SÉLECTION --- */
         #selection-controls {
@@ -318,18 +318,45 @@
 		@font-face { font-family: 'BelleAllureGS'; src: url('polices/BelleAllureGS-Gros.otf') format('opentype'); }
 		.editor-content { padding: 10px; outline: none; overflow: auto; text-align: left; flex-grow: 1; }
 
+		/* --- ANIMATIONS MODALES --- */
+		@keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
+		@keyframes slideUpModal  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+		/* --- WIDGET MÉTÉO --- */
+		.widget[data-type="meteo"] { min-width: unset; background: transparent !important; border: none !important; box-shadow: none !important; }
+		.widget[data-type="meteo"] .editor-container { border: none; border-radius: 16px; overflow: hidden; resize: both; }
+		.meteo-city-name { text-decoration: underline dotted; }
+
 		/* --- TOOLBAR & MENUS --- */
-		#toolbar-container { position: fixed; bottom: 65px; left: 30px; display: flex; flex-direction: column; align-items: flex-start; z-index: 9999; }
-		#tools-menu { display: none; background: #1F1F21; border-radius: 12px; padding: 10px; box-shadow: var(--shadow); margin-bottom: 15px; flex-direction: column; gap: 8px; min-width: 180px; border: 1px solid #eee; position: relative; max-height: 80vh; overflow-y: auto; overflow-x: hidden; }
-		#tools-menu.active { display: flex; }
-		#bg-submenu { display: none; position: fixed; left: 220px; bottom: 80px; background: white; border-radius: 12px; padding: 12px; box-shadow: var(--shadow); grid-template-columns: repeat(3, 1fr); gap: 10px; min-width: 240px; border: 1px solid #eee; z-index: 10001; }
+		#toolbar-container { position: fixed; bottom: 65px; left: 30px; display: flex; flex-direction: column; align-items: flex-start; z-index: 9999; background: transparent; }
+		#bg-submenu { display: none; position: fixed; right: 30px; bottom: 80px; background: #1F1F21; border-radius: 12px; padding: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.4); grid-template-columns: repeat(3, 1fr); gap: 10px; min-width: 200px; border: 1px solid #3a3a3f; z-index: 10001; }
 		#bg-submenu.active { display: grid; }
-		@media (max-width: 600px) { #bg-submenu { left: 30px; bottom: 120px; min-width: 200px; grid-template-columns: repeat(2, 1fr); } }
-		.tool-btn { background: var(--primary-color); color: black; border: none; padding: 5px 5px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.widget-btn { color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.menu-btn { background: #cccccc; color: white; border: none; padding: 12px 30px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.undo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
-		.redo-btn { background: #cccccc; color: white; border: none; padding: 5px 10px; border-radius: 20px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; width: 100%; white-space: nowrap; }
+		#bg-submenu-title { color:#aaa;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;grid-column:span 3; }
+		#bg-submenu-import { background:#8e44ad;color:white;padding:5px 8px;font-size:11px;width:100%;margin-top:2px;border-radius:8px;border:none;cursor:pointer;grid-column:span 3; }
+		@media (max-width: 600px) { #bg-submenu { right: 10px; bottom: 120px; min-width: 180px; grid-template-columns: repeat(2, 1fr); } }
+		/* --- BOUTONS BARRE DU BAS --- */
+		.tool-btn {
+			background: #1F1F21; color: #ccc; border: 1px solid #3a3a4a;
+			padding: 8px 10px; border-radius: 10px; cursor: pointer;
+			font-size: 18px; display: flex; align-items: center; justify-content: center;
+			transition: background .15s; box-sizing: border-box; white-space: nowrap; flex-shrink: 0;
+		}
+		.tool-btn:hover { background: #2e2e3a; color: #e8e8f0; }
+		.tool-btn.active-tool { background: #1a3550; border-color: #4a90e2; color: #7ab8f5; }
+		.undo-btn, .redo-btn {
+			background: #1F1F21; color: #555; border: 1px solid #2e2e38;
+			padding: 8px 10px; border-radius: 10px; cursor: not-allowed;
+			font-size: 18px; display: flex; align-items: center; justify-content: center;
+			box-sizing: border-box; flex-shrink: 0; transition: background .15s;
+		}
+		.undo-btn.enabled, .redo-btn.enabled { color: #ccc; cursor: pointer; }
+		.undo-btn.enabled:hover, .redo-btn.enabled:hover { background: #2e2e3a; color: #e8e8f0; }
+		.menu-btn { display: none; } /* remplacé par style inline */
+		#tools-menu { display: none; background: #1F1F21; border-radius: 14px; padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; gap: 8px; min-width: 220px; border: 1px solid #333; position: relative; max-height: 80vh; overflow-y: auto; overflow-x: hidden; grid-template-columns: repeat(3, 1fr); }
+		#tools-menu.active { display: grid; }
+		.widget-btn { background: #28282f; color: #ddd; border: none; padding: 14px 8px 10px; border-radius: 12px; cursor: pointer; font-size: 11px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; transition: background .15s; line-height: 1.2; text-align: center; white-space: nowrap; }
+		.widget-btn:hover { background: #35353f; }
+		.widget-btn .ico { font-size: 26px; line-height: 1; }
 		#main-tool-btn { background: #333; width: 100px; justify-content: center; }
 		.exit-fs-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 99999; background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 		:fullscreen .exit-fs-btn { display: block; }
@@ -428,6 +455,18 @@
 			box-shadow: var(--shadow) !important;
 			outline: none !important;
 		}
+		body.presentation-mode .widget,
+		body.presentation-mode .shape-widget {
+			pointer-events: none !important;
+			cursor: default !important;
+		}
+		/* Garder les interactions internes des widgets (clics sur iframes, vidéos, météo...) */
+		body.presentation-mode .widget .editor-container,
+		body.presentation-mode .widget iframe,
+		body.presentation-mode .widget .meteo-city {
+			pointer-events: auto !important;
+		}
+		body.presentation-mode #selection-controls { display: none !important; }
 		/* Bouton présentation en mode présentation : style "Quitter" discret */
 		body.presentation-mode #presentation-btn {
 			background: rgba(20,20,20,0.75) !important;
@@ -523,32 +562,22 @@
 
 <div id="toolbar-container">
     <div id="tools-menu">
-        <button class="widget-btn" onclick="createWidget('youtube'); toggleMenu()" style="background:#E7180B;"><span>🎬</span> Vidéo YouTube</button>
-        <button class="widget-btn" onclick="createWidget('outilsprofs'); toggleMenu()" style="background:#FF692A;"><span>🎒</span> OutilsProfs</button>
-        <button class="widget-btn" onclick="createWidget('iframe'); toggleMenu()" style="background:#FFD230;"><span>💻</span> Fenêtre Web</button>
-        <button class="widget-btn" onclick="createWidget('time'); toggleMenu()" style="background:#7CCF35;"><span>🕒</span> Heure</button>
-        <button class="widget-btn" onclick="createWidget('date'); toggleMenu()" style="background:#679638;"><span>📅</span> Date</button>
-        <button class="widget-btn" onclick="createWidget('homework'); toggleMenu()" style="background:#3BB8DB;"><span>📝</span> Devoirs</button>
-        <button class="widget-btn" onclick="createWidget('text'); toggleMenu()" style="background:#2B7FFF;"><span>🖊️</span> Texte</button>
-        <button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()" style="background:#8E51FF;">📌 Planning</button>
-        <button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()" style="background:#480eb3;"><span>🧘</span> Défi Calme</button>
-        <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()" style="background:#E74C3C;"><span>📄</span> PDF</button>
-        <hr style="width:100%;border:0;border-top:1px solid #eee;margin:5px 0;">
-        <button class="widget-btn" style="background:#71717B;" onclick="toggleSubMenu(event)"><span>🖼️</span> Choisir fond ❯</button>
-        <div id="bg-submenu">
-            <div class="bg-thumb" style="background-color:#eef2f5;" onclick="applyBackground('none');saveBg('none')" title="Défaut"></div>
-            <div class="bg-thumb" style="background-color:#2f3542;" onclick="applyBackground('#2f3542');saveBg('#2f3542')" title="Ardoise"></div>
-            <div class="bg-thumb" style="background-color:#104626;" onclick="applyBackground('#104626');saveBg('#104626')" title="Vert Tableau"></div>
-            <div class="bg-thumb" style="background-color:#BAA09B;" onclick="applyBackground('#BAA09B');saveBg('#BAA09B')" title="Vieux rose"></div>
-            <div class="bg-thumb" style="background-color:#EDD9D5;" onclick="applyBackground('#EDD9D5');saveBg('#EDD9D5')" title="Beige"></div>
-            <div class="bg-thumb" style="background-color:#000000;" onclick="applyBackground('#000000');saveBg('#000000')" title="Noir"></div>
-            <button class="tool-btn" onclick="document.getElementById('bg-upload').click()" style="background:#8e44ad;padding:5px;font-size:10px;grid-column:span 3;border-radius:8px;"><span>📷</span> Importer image</button>
-        </div>
+        <button class="widget-btn" onclick="createWidget('youtube'); toggleMenu()"><span class="ico">🎬</span>YouTube</button>
+        <button class="widget-btn" onclick="createWidget('outilsprofs'); toggleMenu()"><span class="ico">🎒</span>OutilsProfs</button>
+        <button class="widget-btn" onclick="createWidget('iframe'); toggleMenu()"><span class="ico">💻</span>Fenêtre Web</button>
+        <button class="widget-btn" onclick="createWidget('time'); toggleMenu()"><span class="ico">🕒</span>Heure</button>
+        <button class="widget-btn" onclick="createWidget('date'); toggleMenu()"><span class="ico">📅</span>Date</button>
+        <button class="widget-btn" onclick="createWidget('meteo'); toggleMenu()"><span class="ico">⛅</span>Météo</button>
+        <button class="widget-btn" onclick="createWidget('homework'); toggleMenu()"><span class="ico">📝</span>Devoirs</button>
+        <button class="widget-btn" onclick="createWidget('text'); toggleMenu()"><span class="ico">🖊️</span>Texte</button>
+        <button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()"><span class="ico">📌</span>Planning</button>
+        <button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()"><span class="ico">🧘</span>Défi Calme</button>
+        <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()"><span class="ico">📄</span>PDF</button>
     </div>
-	<div id="scenes-menu" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:9998;border:1px solid #3a3a3f;min-width:220px;">
-        <div style="color:#aaa;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🗂️ Mes scènes</div>
-        <div id="scenes-menu-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
-        <button id="scene-add-btn" onclick="addScene()" style="width:100%;padding:8px;background:#4a90e2;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;" onmouseover="this.style.background='#357abd'" onmouseout="this.style.background='#4a90e2'">＋ Nouvelle scène (copie)</button>
+	<div id="scenes-menu" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:9998;border:1px solid #3a3a3f;min-width:240px;">
+        <div style="color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2e2e2e;">🗂️ Mes scènes</div>
+        <div id="scenes-menu-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px;"></div>
+        <button id="scene-add-btn" onclick="addScene()" style="width:100%;padding:9px;background:#28282f;color:#aaa;border:1px dashed #3a3a4a;border-radius:10px;cursor:pointer;font-weight:600;font-size:12px;transition:background .15s;" onmouseover="this.style.background='#35353f';this.style.color='#e8e8f0'" onmouseout="this.style.background='#28282f';this.style.color='#aaa'">＋ Nouvelle scène (copie)</button>
     </div>
     <!-- Sous-menu Formes -->
     <div id="shape-toolbar" style="position:relative;">
@@ -630,7 +659,7 @@
 
     <div id="eraser-toolbar" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:12px;padding:12px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.3);z-index:9998;border:1px solid #444;">
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-            <span style="color:#ccc;font-size:12px;font-weight:600;">🧹 Gomme</span>
+            <span style="color:#ccc;font-size:12px;font-weight:600;">🧽 Gomme</span>
             <span style="color:#ccc;font-size:11px;">Taille :</span>
             <input type="range" id="eraser-size" min="5" max="80" value="20" style="width:90px;cursor:pointer;" oninput="document.getElementById('eraser-size-label').textContent=this.value">
             <span id="eraser-size-label" style="color:#fff;font-size:12px;min-width:20px;">20</span>
@@ -690,26 +719,40 @@
 		<!-- Ligne des outils -->
 		<div style="display:flex;align-items:center;gap:10px;">
 			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-				<button id="main-tool-btn" class="menu-btn" onclick="toggleMenu()" style="border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:15px;">WIDGETS</button>
-				<button id="scenes-btn" class="tool-btn" onclick="toggleScenesMenu()" style="padding: 7px; background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:15px;font-weight:700;" title="Scènes">🗂️ Scènes</button>
-				<button id="undo-btn" class="undo-btn" onclick="undoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Annuler">↩</button>
-				<button id="redo-btn" class="redo-btn" onclick="redoAction()" style="background:#111111;opacity:0.4;cursor:not-allowed;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Refaire">↪</button>
-				<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Dessiner">✏️</button>
-				<button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" style="background:#eeeeee;cursor:pointer;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Ajouter une forme">🔲</button>
-				<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Gommer">🧽</button>
-				<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Pointeur laser">🔴</button>
+				<button id="main-tool-btn" onclick="toggleMenu()" style="background:#1F1F21;color:#e8e8f0;border:1px solid #3a3a4a;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1;transition:background .15s;box-sizing:border-box;" onmouseover="this.style.background='#2e2e3a'" onmouseout="this.style.background='#1F1F21'"><span style="font-size:20px;line-height:1;">📦</span>Widgets</button>
+				<button id="scenes-btn" onclick="toggleScenesMenu()" style="background:#1F1F21;color:#e8e8f0;border:1px solid #3a3a4a;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1;transition:background .15s;box-sizing:border-box;" title="Scènes" onmouseover="this.style.background='#2e2e3a'" onmouseout="this.style.background='#1F1F21'"><span style="font-size:20px;line-height:1;">🗂️</span>Scènes</button>
+				<button id="undo-btn" class="undo-btn" onclick="undoAction()" title="Annuler">↩</button>
+				<button id="redo-btn" class="redo-btn" onclick="redoAction()" title="Refaire">↪</button>
+				<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" title="Dessiner">✏️</button>
+				<button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" title="Ajouter une forme">🔲</button>
+				<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" title="Gommer">🧽</button>
+				<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" title="Pointeur laser">🔴</button>
 			</div>
 			<div style="flex:1;"></div>
 			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
-				<button class="tool-btn" onclick="exportConfig()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Sauvegarder">💾</button>
-				<button class="tool-btn" onclick="document.getElementById('import-input').click()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Charger">📂</button>
+				<button class="tool-btn" onclick="toggleSubMenu(event)" title="Fond d'écran">🖼️</button>
+				<button class="tool-btn" onclick="exportConfig()" title="Sauvegarder">💾</button>
+				<button class="tool-btn" onclick="document.getElementById('import-input').click()" title="Charger">📂</button>
 				<input type="file" id="import-input" style="display:none" accept=".json" onchange="importConfig(event)">
-				<button class="tool-btn" onclick="clearBoard()" style="background:#eeeeee;border:2px solid rgba(255,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Effacer tout">❌</button>
-				<button class="tool-btn" onclick="openHelpModal()" style="background:#eeeeee;border:2px solid rgba(0,0,0,0.5);box-sizing:border-box;font-size:20px;" title="Aide">❓</button>
+				<button class="tool-btn" onclick="clearBoard()" style="border-color:#3d2020;color:#ff6b6b;" title="Effacer tout">❌</button>
+				<button class="tool-btn" onclick="openHelpModal()" title="Aide">❓</button>
 			</div>
 		</div>
 
 	</div>
+
+	<div id="bg-submenu">
+		<div id="bg-submenu-title">🖼️ Fond d'écran</div>
+		<div class="bg-thumb" style="background-color:#eef2f5;" onclick="applyBackground('none');saveBg('none');document.getElementById('bg-submenu').classList.remove('active')" title="Défaut"></div>
+		<div class="bg-thumb" style="background-color:#2f3542;" onclick="applyBackground('#2f3542');saveBg('#2f3542');document.getElementById('bg-submenu').classList.remove('active')" title="Ardoise"></div>
+		<div class="bg-thumb" style="background-color:#104626;" onclick="applyBackground('#104626');saveBg('#104626');document.getElementById('bg-submenu').classList.remove('active')" title="Vert Tableau"></div>
+		<div class="bg-thumb" style="background-color:#BAA09B;" onclick="applyBackground('#BAA09B');saveBg('#BAA09B');document.getElementById('bg-submenu').classList.remove('active')" title="Vieux rose"></div>
+		<div class="bg-thumb" style="background-color:#EDD9D5;" onclick="applyBackground('#EDD9D5');saveBg('#EDD9D5');document.getElementById('bg-submenu').classList.remove('active')" title="Beige"></div>
+		<div class="bg-thumb" style="background-color:#000000;" onclick="applyBackground('#000000');saveBg('#000000');document.getElementById('bg-submenu').classList.remove('active')" title="Noir"></div>
+		<button id="bg-submenu-import" onclick="document.getElementById('bg-upload').click();document.getElementById('bg-submenu').classList.remove('active')">📷 Importer image</button>
+	</div>
+
+</div><!-- fin #toolbar-container -->
 
 <div id="modal-overlay">
     <div class="modal-content">
@@ -794,7 +837,8 @@
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FFD230;color:#222;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">💻 Fenêtre Web</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Navigateur intégré pour tout site web.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FF692A;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🎒 OutilsProfs</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Ouvre directement ecolebernardet.github.io/outilsprofs.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Micro, caméra autorisés</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#480eb3;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🧘 Défi Calme</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Outil de gestion du calme en classe.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
-          <tr><td style="padding:8px 12px;"><span style="background:#E74C3C;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📄 PDF</span></td><td style="padding:8px 12px;color:#444;">Affiche un fichier PDF local.</td><td style="padding:8px 12px;color:#444;">Fichier non sauvegardé (ré-ouvrir à chaque session)</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#E74C3C;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📄 PDF</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Affiche un fichier PDF local.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Fichier non sauvegardé (ré-ouvrir à chaque session)</td></tr>
+          <tr><td style="padding:8px 12px;"><span style="background:#00AACC;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">⛅ Météo</span></td><td style="padding:8px 12px;color:#444;">Affiche la météo réelle de la ville de l'école.</td><td style="padding:8px 12px;color:#444;">Via Open-Meteo (gratuit, sans clé). Clic sur le nom de la ville pour changer. Rafraîchi toutes les 10 min.</td></tr>
         </table>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⚙️ Contrôles communs à tous les widgets</div>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -1242,6 +1286,19 @@
         <iframe src="https://ecolebernardet.github.io/lebureauduprof/deficalme.html" style="flex-grow:1;border:none;background:white;" allow="microphone;camera;display-capture;autoplay"></iframe>
     </div>
 </template>
+<template id="template-meteo">
+    <div class="editor-container meteo-container" style="width:280px;height:200px;background:linear-gradient(135deg,#1a6fa8,#38b6e8);border-radius:16px;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;box-sizing:border-box;color:white;overflow:hidden;">
+        <div class="meteo-city" style="font-size:13px;font-weight:600;opacity:0.85;cursor:pointer;text-align:center;border-bottom:1px solid rgba(255,255,255,0.3);padding-bottom:6px;width:100%;" title="Cliquer pour changer de ville">📍 <span class="meteo-city-name">Chargement...</span></div>
+        <div class="meteo-icon" style="font-size:52px;line-height:1;margin:4px 0;">⛅</div>
+        <div class="meteo-temp" style="font-size:36px;font-weight:800;line-height:1;">--°</div>
+        <div class="meteo-desc" style="font-size:13px;opacity:0.9;text-align:center;">--</div>
+        <div class="meteo-details" style="font-size:11px;opacity:0.75;display:flex;gap:12px;margin-top:2px;">
+            <span class="meteo-wind">💨 --</span>
+            <span class="meteo-humidity">💧 --</span>
+        </div>
+        <div class="meteo-updated" style="font-size:9px;opacity:0.5;margin-top:2px;">--</div>
+    </div>
+</template>
 <template id="template-pdf">
     <div class="editor-container" style="height:500px;width:600px;">
         <div class="editor-toolbar" style="gap:8px;">
@@ -1442,8 +1499,8 @@ function redoAction() {
 function updateUndoRedoBtns() {
     const ub = document.getElementById('undo-btn'), rb = document.getElementById('redo-btn');
     const canU = undoStack.length > 1, canR = redoStack.length > 0;
-    if (ub) { ub.style.opacity = canU ? '1' : '0.4'; ub.style.cursor = canU ? 'pointer' : 'not-allowed'; }
-    if (rb) { rb.style.opacity = canR ? '1' : '0.4'; rb.style.cursor = canR ? 'pointer' : 'not-allowed'; }
+    if (ub) { ub.classList.toggle('enabled', canU); }
+    if (rb) { rb.classList.toggle('enabled', canR); }
 }
 
 // =========================================================================
@@ -1507,11 +1564,12 @@ function buildBoardState() {
 			html, content: html, iframeSrc: iframe?.src || null,
 			transparent: w.dataset.transparent === "true",
 			bgColor: w.dataset.bgColor || "#ffffff",
-			bgOpacity: parseFloat(w.dataset.bgOpacity ?? 1),  // ← ajout
+			bgOpacity: parseFloat(w.dataset.bgOpacity ?? 1),
 			editorStyle: isTextLike ? getEditorStyleNormalized(w, 1920) : null,
 			pinned: w.dataset.pinned === "true",
 			background: w.dataset.background === "true",
-			groupId: w.dataset.groupId || null
+			groupId: w.dataset.groupId || null,
+			meteoCity: w.dataset.meteoCity || null
 		});
     });
     const shapes = [];
@@ -1602,6 +1660,7 @@ function restoreBoardFromJSON(json) {
         const c = widget.querySelector('.editor-container');
         const hP = w.contentHPercent !== undefined ? w.contentHPercent : w.heightPercent;
         Object.assign(widget.dataset, { widthPercent: w.widthPercent || 0, contentHPercent: hP || 0, leftPercent: w.leftPercent ?? 0, topPercent: w.topPercent ?? 0 });
+        if (w.meteoCity) widget.dataset.meteoCity = w.meteoCity;
         if (c) {
             if (w.widthPercent > 0) c.style.width = (w.widthPercent / 100) * curW + 'px';
             if (hP > 0) c.style.height = ((hP / 100) * curVH) + getToolbarHeight(c) + 'px';
@@ -1720,7 +1779,7 @@ function importConfig(event) {
                 restoreBoardFromJSON(json);
             }
             event.target.value = '';
-        } catch(err) { alert("Erreur : " + err.message); }
+        } catch(err) { showAlert('⚠️', 'Erreur d\'importation', err.message); }
     };
     reader.readAsText(file);
 }
@@ -2118,6 +2177,9 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
 			widget.addEventListener('mouseleave', () => transpBtn.style.opacity = '0');
 		}
 	}
+	if (type === 'meteo') {
+		initMeteoWidget(widget);
+	}
     if (editor) {
         editor.addEventListener('mouseup', () => { syncFontSize(widget); syncFontSizeGlobal(); });
 		editor.addEventListener('keyup',   () => { syncFontSize(widget); syncFontSizeGlobal(); });
@@ -2149,6 +2211,258 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
 	}
 
 return widget;
+}
+
+// =========================================================================
+// WIDGET MÉTÉO
+// =========================================================================
+// =========================================================================
+// MODALES UTILITAIRES (remplaçant alert / confirm / prompt natifs)
+// =========================================================================
+function _createModalOverlay() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeInOverlay 0.15s ease;';
+    return overlay;
+}
+function _createModalBox(icon, title, subtitle) {
+    const box = document.createElement('div');
+    box.style.cssText = 'background:white;border-radius:18px;padding:28px 28px 24px;width:380px;max-width:92vw;box-shadow:0 24px 80px rgba(0,0,0,0.35);display:flex;flex-direction:column;gap:18px;font-family:inherit;animation:slideUpModal 0.18s ease;';
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;align-items:center;gap:12px;';
+    header.innerHTML = `<span style="font-size:30px;line-height:1;">${icon}</span><div><div style="font-size:16px;font-weight:700;color:#1a1a2e;">${title}</div>${subtitle ? `<div style="font-size:12px;color:#888;margin-top:3px;">${subtitle}</div>` : ''}</div>`;
+    box.appendChild(header);
+    return box;
+}
+function _modalBtn(label, primary, color) {
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.style.cssText = `padding:9px 20px;border-radius:9px;border:${primary ? 'none' : '2px solid #e0e0e0'};background:${primary ? (color || 'linear-gradient(135deg,#2B7FFF,#8E51FF)') : 'white'};color:${primary ? 'white' : '#555'};font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.15s;`;
+    btn.onmouseover = () => btn.style.opacity = '0.85';
+    btn.onmouseout  = () => btn.style.opacity = '1';
+    return btn;
+}
+
+/* showAlert(icon, title, message) → Promise */
+function showAlert(icon, title, message) {
+    return new Promise(resolve => {
+        const overlay = _createModalOverlay();
+        const box = _createModalBox(icon, title);
+        const msg = document.createElement('div');
+        msg.style.cssText = 'font-size:14px;color:#444;line-height:1.5;';
+        msg.textContent = message;
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;justify-content:flex-end;';
+        const ok = _modalBtn('OK', true);
+        row.appendChild(ok);
+        box.appendChild(msg); box.appendChild(row);
+        overlay.appendChild(box); document.body.appendChild(overlay);
+        ok.focus();
+        function close() { document.body.removeChild(overlay); resolve(); }
+        ok.addEventListener('click', close);
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        document.addEventListener('keydown', function h(e) { if (e.key === 'Enter' || e.key === 'Escape') { document.removeEventListener('keydown', h); close(); }});
+    });
+}
+
+/* showConfirm(icon, title, message, confirmLabel, danger) → Promise<boolean> */
+function showConfirm(icon, title, message, confirmLabel = 'Confirmer', danger = false) {
+    return new Promise(resolve => {
+        const overlay = _createModalOverlay();
+        const box = _createModalBox(icon, title);
+        const msg = document.createElement('div');
+        msg.style.cssText = 'font-size:14px;color:#444;line-height:1.5;';
+        msg.textContent = message;
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+        const cancel = _modalBtn('Annuler', false);
+        const ok     = _modalBtn(confirmLabel, true, danger ? '#ff4757' : null);
+        row.appendChild(cancel); row.appendChild(ok);
+        box.appendChild(msg); box.appendChild(row);
+        overlay.appendChild(box); document.body.appendChild(overlay);
+        ok.focus();
+        function close(val) { document.body.removeChild(overlay); resolve(val); }
+        ok.addEventListener('click', () => close(true));
+        cancel.addEventListener('click', () => close(false));
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(false); });
+        document.addEventListener('keydown', function h(e) {
+            if (e.key === 'Enter') { document.removeEventListener('keydown', h); close(true); }
+            if (e.key === 'Escape') { document.removeEventListener('keydown', h); close(false); }
+        });
+    });
+}
+
+/* showPromptModal(icon, title, subtitle, defaultValue, placeholder) → Promise<string|null> */
+function showPromptModal(icon, title, subtitle, defaultValue = '', placeholder = '') {
+    return new Promise(resolve => {
+        const overlay = _createModalOverlay();
+        const box = _createModalBox(icon, title, subtitle);
+        const input = document.createElement('input');
+        input.type = 'text'; input.value = defaultValue; input.placeholder = placeholder;
+        input.style.cssText = 'border:2px solid #e0e0e0;border-radius:10px;padding:10px 14px;font-size:15px;outline:none;transition:border 0.2s;width:100%;box-sizing:border-box;';
+        input.onfocus = () => input.style.borderColor = '#2B7FFF';
+        input.onblur  = () => input.style.borderColor = '#e0e0e0';
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+        const cancel = _modalBtn('Annuler', false);
+        const ok     = _modalBtn('Valider', true);
+        row.appendChild(cancel); row.appendChild(ok);
+        box.appendChild(input); box.appendChild(row);
+        overlay.appendChild(box); document.body.appendChild(overlay);
+        setTimeout(() => { input.focus(); input.select(); }, 50);
+        function close(val) { document.body.removeChild(overlay); resolve(val); }
+        ok.addEventListener('click', () => close(input.value.trim() || null));
+        cancel.addEventListener('click', () => close(null));
+        overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') close(input.value.trim() || null);
+            if (e.key === 'Escape') close(null);
+        });
+    });
+}
+
+const WMO_CODES = {
+    0:'Ciel dégagé',1:'Principalement dégagé',2:'Partiellement nuageux',3:'Couvert',
+    45:'Brouillard',48:'Brouillard givrant',
+    51:'Bruine légère',53:'Bruine modérée',55:'Bruine dense',
+    61:'Pluie légère',63:'Pluie modérée',65:'Pluie forte',
+    71:'Neige légère',73:'Neige modérée',75:'Neige forte',77:'Grains de neige',
+    80:'Averses légères',81:'Averses modérées',82:'Averses violentes',
+    85:'Averses de neige',86:'Averses de neige fortes',
+    95:'Orage',96:'Orage avec grêle',99:'Orage violent avec grêle'
+};
+const WMO_ICONS = {
+    0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+    45:'🌫️',48:'🌫️',
+    51:'🌦️',53:'🌦️',55:'🌧️',
+    61:'🌧️',63:'🌧️',65:'🌧️',
+    71:'❄️',73:'❄️',75:'❄️',77:'🌨️',
+    80:'🌦️',81:'🌧️',82:'⛈️',
+    85:'🌨️',86:'🌨️',
+    95:'⛈️',96:'⛈️',99:'⛈️'
+};
+const WMO_BG = {
+    0:'linear-gradient(135deg,#f7971e,#ffd200)',
+    1:'linear-gradient(135deg,#56ccf2,#2f80ed)',
+    2:'linear-gradient(135deg,#4facfe,#6c8ce4)',
+    3:'linear-gradient(135deg,#757f9a,#d7dde8)',
+    45:'linear-gradient(135deg,#8e9eab,#c3cfe2)',48:'linear-gradient(135deg,#8e9eab,#c3cfe2)',
+    61:'linear-gradient(135deg,#1a6fa8,#38b6e8)',63:'linear-gradient(135deg,#1a6fa8,#38b6e8)',65:'linear-gradient(135deg,#0f4c75,#1b6ca8)',
+    71:'linear-gradient(135deg,#a8c0ff,#e0eafc)',73:'linear-gradient(135deg,#a8c0ff,#e0eafc)',75:'linear-gradient(135deg,#a8c0ff,#e0eafc)',
+    80:'linear-gradient(135deg,#1a6fa8,#38b6e8)',81:'linear-gradient(135deg,#1a6fa8,#38b6e8)',82:'linear-gradient(135deg,#0f4c75,#1b6ca8)',
+    95:'linear-gradient(135deg,#373b44,#4286f4)',96:'linear-gradient(135deg,#373b44,#4286f4)',99:'linear-gradient(135deg,#373b44,#4286f4)',
+};
+
+async function fetchMeteo(city) {
+    // 1. Géocodage via Open-Meteo geocoding API
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fr&format=json`);
+    const geoData = await geoRes.json();
+    if (!geoData.results?.length) throw new Error('Ville introuvable');
+    const { latitude, longitude, name, country } = geoData.results[0];
+    // 2. Météo actuelle
+    const metRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&wind_speed_unit=kmh&timezone=auto`);
+    const metData = await metRes.json();
+    const c = metData.current;
+    return { name, country, temp: Math.round(c.temperature_2m), code: c.weathercode, wind: Math.round(c.windspeed_10m), humidity: c.relativehumidity_2m };
+}
+
+function initMeteoWidget(widget) {
+    const container = widget.querySelector('.meteo-container');
+    const cityNameEl = widget.querySelector('.meteo-city-name');
+    const iconEl     = widget.querySelector('.meteo-icon');
+    const tempEl     = widget.querySelector('.meteo-temp');
+    const descEl     = widget.querySelector('.meteo-desc');
+    const windEl     = widget.querySelector('.meteo-wind');
+    const humEl      = widget.querySelector('.meteo-humidity');
+    const updEl      = widget.querySelector('.meteo-updated');
+
+    // --- POIGNÉE DE REDIMENSIONNEMENT ---
+    const resizeHandle = document.createElement('div');
+    resizeHandle.style.cssText = 'position:absolute;right:0;bottom:0;width:20px;height:20px;cursor:se-resize;background:linear-gradient(135deg,transparent 50%,rgba(255,255,255,0.4) 50%);border-radius:0 0 14px 0;opacity:0;transition:opacity 0.2s;z-index:10;';
+    widget.appendChild(resizeHandle);
+    widget.addEventListener('mouseenter', () => resizeHandle.style.opacity = '1');
+    widget.addEventListener('mouseleave', () => resizeHandle.style.opacity = '0');
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const startX = e.clientX, startY = e.clientY;
+        const startW = container.offsetWidth, startH = container.offsetHeight;
+        document.onmousemove = (ev) => {
+            const newW = Math.max(180, startW + ev.clientX - startX);
+            const newH = Math.max(140, startH + ev.clientY - startY);
+            container.style.width  = newW + 'px';
+            container.style.height = newH + 'px';
+            adaptMeteoFontSizes(container, newW, newH);
+        };
+        document.onmouseup = () => { document.onmousemove = null; saveBoard(); };
+    });
+
+    // Adapter les tailles de police au conteneur
+    function adaptMeteoFontSizes(c, w, h) {
+        const scale = Math.min(w / 280, h / 200);
+        iconEl.style.fontSize     = Math.round(52 * scale) + 'px';
+        tempEl.style.fontSize     = Math.round(36 * scale) + 'px';
+        descEl.style.fontSize     = Math.round(13 * scale) + 'px';
+        windEl.parentElement.style.fontSize = Math.round(11 * scale) + 'px';
+        cityNameEl.style.fontSize = Math.round(13 * scale) + 'px';
+        updEl.style.fontSize      = Math.round(9  * scale) + 'px';
+    }
+
+    // Observer les changements de taille
+    new ResizeObserver(() => {
+        adaptMeteoFontSizes(container, container.offsetWidth, container.offsetHeight);
+    }).observe(container);
+
+    // --- MODALE PERSONNALISÉE ---
+
+    let city = widget.dataset.meteoCity || '';
+
+    function applyMeteo(data) {
+        const code = data.code;
+        cityNameEl.textContent = `${data.name}, ${data.country}`;
+        iconEl.textContent  = WMO_ICONS[code] || '🌡️';
+        tempEl.textContent  = `${data.temp}°`;
+        descEl.textContent  = WMO_CODES[code] || '';
+        windEl.textContent  = `💨 ${data.wind} km/h`;
+        humEl.textContent   = `💧 ${data.humidity}%`;
+        updEl.textContent   = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+        container.style.background = WMO_BG[code] || WMO_BG[2];
+        const lightBg = [71,73,75,3];
+        container.style.color = lightBg.includes(code) ? '#222' : 'white';
+    }
+
+    async function loadCity(c) {
+        cityNameEl.textContent = 'Chargement...';
+        iconEl.textContent = '⏳'; tempEl.textContent = ''; descEl.textContent = '';
+        try {
+            const data = await fetchMeteo(c);
+            widget.dataset.meteoCity = c;
+            applyMeteo(data);
+            saveBoard();
+        } catch(e) {
+            cityNameEl.textContent = 'Ville introuvable';
+            iconEl.textContent = '❓'; tempEl.textContent = ''; descEl.textContent = '';
+        }
+    }
+
+    widget.querySelector('.meteo-city').addEventListener('click', () => {
+        showPromptModal('⛅', 'Widget Météo', 'Entrez la ville de votre école', widget.dataset.meteoCity || '', 'Ex : Paris, Lyon, Grenoble...')
+            .then(newCity => { if (newCity) loadCity(newCity); });
+    });
+
+    function scheduleRefresh() {
+        setTimeout(() => {
+            if (widget.isConnected && widget.dataset.meteoCity) loadCity(widget.dataset.meteoCity).then(scheduleRefresh);
+        }, 10 * 60 * 1000);
+    }
+
+    if (city) {
+        loadCity(city).then(scheduleRefresh);
+    } else {
+        setTimeout(() => {
+            showPromptModal('⛅', 'Widget Météo', 'Entrez la ville de votre école', '', 'Ex : Paris, Lyon, Grenoble...')
+                .then(newCity => { if (newCity) loadCity(newCity).then(scheduleRefresh); });
+        }, 200);
+    }
 }
 
 function attachAgendaItemEvents(item) {
@@ -2390,7 +2704,7 @@ function toggleShapeToolbar() {
     const tb = document.getElementById('shape-toolbar');
     const btn = document.getElementById('shape-btn');
     const isActive = tb.classList.toggle('active');
-    btn.style.background = isActive ? '#e6d8ff' : '#eeeeee';
+    btn.classList.toggle('active-tool', isActive);
     if (isActive) {
         stopDrawing();
         document.getElementById('global-toolbar').style.display = 'none';
@@ -2410,7 +2724,7 @@ function addShapeWidget() {
     const defaultH = isLine ? 20 : defaultW;
     createShapeWidget(selectedShapeId, strokeColor, fillColor, fillOpacity, defaultW, defaultH, p.x + 'px', p.y + 'px', true, strokeWidth);
     document.getElementById('shape-toolbar').classList.remove('active');
-    document.getElementById('shape-btn').style.background = '#eeeeee';
+    document.getElementById('shape-btn').classList.remove('active-tool');
 }
 
 function createShapeWidget(shapeId, strokeColor, fillColor, fillOpacity, svgW, svgH, x, y, doSave = true, strokeWidth = 4) {
@@ -3001,14 +3315,14 @@ function toggleDrawToolbar() {
     if (tb.style.display === 'flex') { stopDrawing(); return; }
     stopEraserMode();
     document.getElementById('shape-toolbar').classList.remove('active');
-    document.getElementById('shape-btn').style.background = '#eeeeee';
+    document.getElementById('shape-btn').classList.remove('active-tool');
     tb.style.display = 'flex';
     initCanvas(); enableDrawing();
     setDrawMode('free'); // always start in free mode
 }
 function enableDrawing() {
     isDrawMode = true; drawCanvas.classList.remove('inactive');
-    document.getElementById('draw-btn').style.background = '#e6b8de';
+    document.getElementById('draw-btn').classList.add('active-tool');
     document.getElementById('draw-btn').textContent = '✏️';
     clearSelection();
 }
@@ -3016,7 +3330,7 @@ function stopDrawing() {
     isDrawMode = false;
     if (drawCanvas) drawCanvas.classList.add('inactive');
     document.getElementById('draw-toolbar').style.display = 'none';
-    document.getElementById('draw-btn').style.background = '#eeeeee';
+    document.getElementById('draw-btn').classList.remove('active-tool');
     document.getElementById('draw-btn').textContent = '✏️';
     cancelHandwritingRecognition();
 }
@@ -3148,14 +3462,14 @@ function toggleEraserMode() {
     if (isEraserMode) { stopEraserMode(); return; }
     stopDrawing();
     document.getElementById('shape-toolbar').classList.remove('active');
-    document.getElementById('shape-btn').style.background = '#eeeeee';
+    document.getElementById('shape-btn').classList.remove('active-tool');
     document.getElementById('global-toolbar').style.display = 'none';
     isEraserMode = true;
     initCanvas();
     drawCanvas.classList.remove('inactive');
     drawCanvas.classList.add('eraser-mode');
-    document.getElementById('eraser-btn').style.background = '#ffe0b2';
-    document.getElementById('eraser-btn').textContent = '🧹 en cours…';
+    document.getElementById('eraser-btn').classList.add('active-tool');
+    document.getElementById('eraser-btn').textContent = '🧽 en cours…';
     document.getElementById('eraser-toolbar').style.display = 'flex';
     drawCanvas.addEventListener('mousedown',  startErase);
     drawCanvas.addEventListener('mousemove',  onEraserMouseMove);
@@ -3182,8 +3496,8 @@ function stopEraserMode() {
         drawCanvas.removeEventListener('touchend',   endErase);
         redrawStrokes();
     }
-    document.getElementById('eraser-btn').style.background = '#eeeeee';
-    document.getElementById('eraser-btn').textContent = '🧹';
+    document.getElementById('eraser-btn').classList.remove('active-tool');
+    document.getElementById('eraser-btn').textContent = '🧽';
     document.getElementById('eraser-toolbar').style.display = 'none';
 }
 
@@ -3351,11 +3665,15 @@ function initBoardSelection() {
 }
 
 function onBoardMouseDown(e) {
+    if (_presentationActive) return;
     if (isDrawMode || isEraserMode) return;
     if (e.target.closest('#selection-controls')) return;
     if (e.target.closest('#toolbar-container')) return;
     if (e.target.closest('.widget-ctx-menu')) return;
     if (e.target.closest('#shape-edit-panel')) return;
+
+    // Fermer le menu widgets si ouvert
+    document.getElementById('tools-menu')?.classList.remove('active');
 
     mouseDownClientX = e.clientX;
     mouseDownClientY = e.clientY;
@@ -4115,7 +4433,7 @@ function toggleMenu() {
     document.getElementById('tools-menu').classList.toggle('active');
     document.getElementById('bg-submenu').classList.remove('active');
     document.getElementById('shape-toolbar').classList.remove('active');
-    document.getElementById('shape-btn').style.background = '#eeeeee';
+    document.getElementById('shape-btn').classList.remove('active-tool');
 }
 document.addEventListener('click', (e) => {
     const widget = e.target.closest('.widget');
@@ -4351,13 +4669,11 @@ document.addEventListener('click', (e) => {
 		isLaserMode = !isLaserMode;
 		const btn = document.getElementById('laser-btn');
 		if (isLaserMode) {
-			btn.style.background = '#ffe0e0';
-			btn.style.borderColor = 'rgba(255,0,0,0.5)';
+			btn.classList.add('active-tool');
 			document.body.style.cursor = 'none';
 			laserDot.classList.add('active');
 		} else {
-			btn.style.background = '#eeeeee';
-			btn.style.borderColor = 'rgba(0,0,0,0.5)';
+			btn.classList.remove('active-tool');
 			document.body.style.cursor = '';
 			laserDot.classList.remove('active');
 		}
@@ -4472,10 +4788,11 @@ document.addEventListener('click', (e) => {
 		}, 100);
 	}
 
-	function deleteScene(index, e) {
+	async function deleteScene(index, e) {
 		e.stopPropagation();
-		if (scenes.length <= 1) return; // Toujours au moins 1 scène
-		if (!confirm(`Supprimer la scène "${scenes[index].name}" ?`)) return;
+		if (scenes.length <= 1) return;
+		const ok = await showConfirm('🗂️', 'Supprimer la scène', `Voulez-vous vraiment supprimer "${scenes[index].name}" ?`, 'Supprimer', true);
+		if (!ok) return;
 		scenes.splice(index, 1);
 		if (currentScene >= scenes.length) currentScene = scenes.length - 1;
 		else if (currentScene > index) currentScene--;
@@ -4498,37 +4815,35 @@ document.addEventListener('click', (e) => {
 
 		scenes.forEach((scene, i) => {
 			const row = document.createElement('div');
-			row.style.cssText = 'display:flex;align-items:center;gap:6px;';
+			row.style.cssText = 'display:flex;align-items:center;gap:5px;';
 
 			// Bouton principal
 			const btn = document.createElement('button');
+			const isActive = i === currentScene;
 			btn.style.cssText = `
-				flex:1;text-align:left;padding:8px 12px;border-radius:8px;border:none;
-				cursor:pointer;font-size:13px;font-weight:600;transition:background 0.15s;
-				background:${i === currentScene ? '#4a90e2' : '#2a2a2e'};
-				color:${i === currentScene ? 'white' : '#ccc'};
+				flex:1;text-align:left;padding:8px 12px;border-radius:10px;
+				border:1px solid ${isActive ? '#4a90e2' : '#2e2e38'};
+				cursor:pointer;font-size:12px;font-weight:700;transition:background 0.15s;
+				background:${isActive ? '#1a3550' : '#28282f'};
+				color:${isActive ? '#7ab8f5' : '#aaa'};
 				overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 			`;
-			btn.textContent = scene.name;
+			btn.textContent = (isActive ? '▶ ' : '') + scene.name;
 			btn.title = scene.name;
-			btn.addEventListener('click', () => {
-				switchScene(i);
-				toggleScenesMenu();
-			});
+			btn.addEventListener('click', () => { switchScene(i); toggleScenesMenu(); });
 			row.appendChild(btn);
 
 			// Bouton renommer ✏️
 			const editBtn = document.createElement('button');
 			editBtn.textContent = '✏️';
 			editBtn.title = 'Renommer';
-			editBtn.style.cssText = 'background:#2a2a2e;color:white;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
-			editBtn.addEventListener('click', (e) => {
+			editBtn.style.cssText = 'background:#28282f;color:#aaa;border:1px solid #2e2e38;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s;';
+			editBtn.onmouseover = () => editBtn.style.background = '#35353f';
+			editBtn.onmouseout  = () => editBtn.style.background = '#28282f';
+			editBtn.addEventListener('click', async (e) => {
 				e.stopPropagation();
-				const newName = prompt('Nouveau nom de la scène :', scene.name);
-				if (newName !== null) {
-					renameScene(i, newName);
-					renderScenesBar();
-				}
+				const newName = await showPromptModal('✏️', 'Renommer la scène', null, scene.name, 'Nom de la scène...');
+				if (newName !== null) { renameScene(i, newName); renderScenesBar(); }
 			});
 			row.appendChild(editBtn);
 
@@ -4537,7 +4852,9 @@ document.addEventListener('click', (e) => {
 				const del = document.createElement('button');
 				del.textContent = '×';
 				del.title = 'Supprimer';
-				del.style.cssText = 'background:#ff4757;color:white;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:15px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+				del.style.cssText = 'background:#2a1a1a;color:#ff6b6b;border:1px solid #3d2020;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:15px;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s;';
+				del.onmouseover = () => del.style.background = '#3d1a1a';
+				del.onmouseout  = () => del.style.background = '#2a1a1a';
 				del.addEventListener('click', (e) => deleteScene(i, e));
 				row.appendChild(del);
 			}
