@@ -557,6 +557,65 @@
 		#scene-add-btn:hover { background: #ddd; }
 		#scene-add-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
+		/* === PANNEAU STICKERS === */
+		#sticker-panel {
+			display: none; position: fixed; bottom: 80px; left: 30px;
+			background: #1F1F21; border-radius: 16px; padding: 14px 14px 10px;
+			box-shadow: 0 -4px 30px rgba(0,0,0,0.5); z-index: 9998;
+			border: 1px solid #3a3a3f; width: 400px;
+		}
+		#sticker-panel.active { display: block; }
+		.sp-title { color: #888; font-size: 10px; font-weight: 700; text-transform: uppercase;
+			letter-spacing: 1.2px; margin-bottom: 10px; padding-bottom: 8px;
+			border-bottom: 1px solid #2e2e2e; display: flex; justify-content: space-between; align-items: center; }
+		.sp-close { background: none; border: none; color: #555; cursor: pointer;
+			font-size: 15px; line-height: 1; padding: 2px 5px; border-radius: 4px; }
+		.sp-close:hover { color: #aaa; }
+		.sp-tabs { display: flex; gap: 5px; margin-bottom: 9px; flex-wrap: wrap; }
+		.sp-tab { background: #28282f; color: #aaa; border: 1px solid #3a3a3f;
+			border-radius: 8px; padding: 4px 9px; font-size: 11px; cursor: pointer;
+			transition: background 0.15s; white-space: nowrap; }
+		.sp-tab:hover { background: #35353f; }
+		.sp-tab.active { background: #1a3550; border-color: #4a90e2; color: #7ab8f5; }
+		.sp-search { width: 100%; box-sizing: border-box; background: #28282f;
+			border: 1px solid #3a3a3f; border-radius: 8px; color: #eee;
+			padding: 6px 10px; font-size: 12px; margin-bottom: 9px; outline: none; }
+		.sp-search:focus { border-color: #4a90e2; }
+		.sp-grid-emoji { display: grid; grid-template-columns: repeat(8, 1fr);
+			gap: 4px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
+		.sp-grid-img  { display: grid; grid-template-columns: repeat(5, 1fr);
+			gap: 6px; max-height: 250px; overflow-y: auto; padding-right: 2px; }
+		.sp-grid-emoji::-webkit-scrollbar, .sp-grid-img::-webkit-scrollbar { width: 4px; }
+		.sp-grid-emoji::-webkit-scrollbar-thumb, .sp-grid-img::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+		.sp-emoji-btn { background: #28282f; border: 1px solid #2e2e38;
+			border-radius: 8px; font-size: 22px; width: 36px; height: 36px;
+			cursor: pointer; display: flex; align-items: center; justify-content: center;
+			transition: background 0.12s; }
+		.sp-emoji-btn:hover { background: #1a3550; border-color: #4a90e2; transform: scale(1.15); }
+		.sp-img-btn { background: #28282f; border: 1px solid #2e2e38;
+			border-radius: 10px; cursor: pointer; padding: 5px;
+			display: flex; align-items: center; justify-content: center;
+			transition: all 0.12s; height: 64px; flex-direction: column; gap: 3px; }
+		.sp-img-btn:hover { background: #1a3550; border-color: #4a90e2; transform: scale(1.05); }
+		.sp-img-btn img { max-width: 100%; max-height: 52px; object-fit: contain; pointer-events: none; }
+		.sp-img-btn .sp-img-label { font-size: 8px; color: #666; text-align: center;
+			overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+		.sp-empty { color: #555; font-size: 12px; text-align: center; padding: 20px 0; }
+		/* Stickers animés Noto */
+		.sp-grid-anim { display: grid; grid-template-columns: repeat(6, 1fr);
+			gap: 5px; max-height: 260px; overflow-y: auto; padding-right: 2px; }
+		.sp-grid-anim::-webkit-scrollbar { width: 4px; }
+		.sp-grid-anim::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+		.sp-anim-btn { background: #28282f; border: 1px solid #2e2e38;
+			border-radius: 8px; cursor: pointer; padding: 3px;
+			display: flex; align-items: center; justify-content: center;
+			transition: all 0.12s; width: 52px; height: 52px; }
+		.sp-anim-btn:hover { background: #1a3550; border-color: #4a90e2; transform: scale(1.1); }
+		.sp-anim-btn img { width: 44px; height: 44px; object-fit: contain; pointer-events: none; }
+		.sp-loading { color: #555; font-size: 11px; text-align: center; padding: 30px 0; }
+		/* Stickers : height fixe pour que le resize fonctionne */
+		.widget[data-type="sticker"] { height: var(--sticker-h, 100px) !important; }
+
 </style>
 </head>
 <body>
@@ -590,6 +649,7 @@
         <button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()"><span class="ico">📌</span>Planning</button>
         <button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()"><span class="ico">🧘</span>Défi Calme</button>
         <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()"><span class="ico">📄</span>PDF</button>
+        <button class="widget-btn" onclick="toggleMenu(); toggleStickerPanel()"><span class="ico">😀</span>Stickers</button>
     </div>
 	<div id="scenes-menu" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:9998;border:1px solid #3a3a3f;min-width:240px;">
         <div style="color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2e2e2e;">🗂️ Mes scènes</div>
@@ -744,6 +804,7 @@
 				<button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" title="Ajouter une forme">🔲</button>
 				<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" title="Gommer">🧽</button>
 				<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" title="Pointeur laser">🔴</button>
+				<button id="sticker-btn" class="tool-btn" onclick="toggleStickerPanel()" title="Stickers & Icônes 3D">😀</button>
 			</div>
 			<div style="flex:1;"></div>
 			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
@@ -770,6 +831,28 @@
 	</div>
 
 </div><!-- fin #toolbar-container -->
+
+<!-- === PANNEAU STICKERS / ICÔNES 3D === -->
+<div id="sticker-panel">
+	<div class="sp-title">
+		<span>😀 Stickers &amp; Icônes</span>
+		<button class="sp-close" onclick="toggleStickerPanel()" title="Fermer">✖</button>
+	</div>
+	<div class="sp-tabs" id="sp-tabs">
+		<button class="sp-tab active" data-tab="smileys">😄 Smileys</button>
+		<button class="sp-tab" data-tab="animaux">🐶 Animaux</button>
+		<button class="sp-tab" data-tab="objets">🎒 Objets</button>
+		<button class="sp-tab" data-tab="nourriture">🍕 Nourrit.</button>
+		<button class="sp-tab" data-tab="symboles">❤️ Symb.</button>
+		<button class="sp-tab" data-tab="3d-ecole">🏫 École 3D</button>
+		<button class="sp-tab" data-tab="3d-nature">🌿 Nature 3D</button>
+		<button class="sp-tab" data-tab="3d-tech">💻 Tech 3D</button>
+		<button class="sp-tab" data-tab="3d-fete">🎉 Fête 3D</button>
+		<button class="sp-tab" data-tab="animes">✨ Animés</button>
+	</div>
+	<input type="text" class="sp-search" id="sp-search" placeholder="🔍 Rechercher…" oninput="renderStickerPanel()">
+	<div id="sp-content"></div>
+</div>
 
 <div id="modal-overlay">
     <div class="modal-content">
@@ -4680,6 +4763,13 @@ function toggleMenu() {
     document.getElementById('bg-submenu').classList.remove('active');
     document.getElementById('shape-toolbar').classList.remove('active');
     document.getElementById('shape-btn').classList.remove('active-tool');
+    // Fermer le panneau stickers si ouvert
+    const sp = document.getElementById('sticker-panel');
+    if (sp && sp.classList.contains('active')) {
+        sp.classList.remove('active');
+        const sb = document.getElementById('sticker-btn');
+        if (sb) sb.classList.remove('active-tool');
+    }
 }
 document.addEventListener('click', (e) => {
     const widget = e.target.closest('.widget');
@@ -5154,6 +5244,409 @@ document.addEventListener('click', (e) => {
 		const sel = window.getSelection();
 		sel.removeAllRanges(); sel.addRange(range);
 	}
+
+
+// ══════════════════════════════════════════════════════
+//  PANNEAU STICKERS & ICÔNES 3D — Icons8 OMG-IMG
+//  Format URL : https://img.icons8.com/3d-fluency/96/nom
+// ══════════════════════════════════════════════════════
+
+const SP_EMOJI = {
+	smileys: [
+		{e:'😀',n:'grand sourire'},{e:'😁',n:'sourire large'},{e:'😂',n:'rire larmes'},
+		{e:'🤣',n:'rire sol'},{e:'😃',n:'sourire ouvert'},{e:'😄',n:'yeux souriants'},
+		{e:'😅',n:'sueur gêne'},{e:'😆',n:'fous rire'},{e:'😉',n:'clin d\'oeil'},
+		{e:'😊',n:'joues roses'},{e:'😋',n:'délicieux'},{e:'😎',n:'cool lunettes'},
+		{e:'😍',n:'yeux en coeur'},{e:'🥰',n:'visage amoureux'},{e:'😘',n:'bisou'},
+		{e:'🤩',n:'yeux étoiles'},{e:'🥳',n:'fête chapeau'},{e:'😏',n:'sourire en coin'},
+		{e:'😒',n:'ennui'},{e:'😞',n:'déçu'},{e:'😢',n:'larme'},
+		{e:'😭',n:'sanglots'},{e:'😤',n:'vapeur narine'},{e:'😠',n:'énervé'},
+		{e:'😡',n:'furieux'},{e:'🤬',n:'juron'},{e:'😱',n:'choc horreur'},
+		{e:'😳',n:'rougeur gêne'},{e:'🤯',n:'explosion cerveau'},{e:'😴',n:'dodo zzz'},
+		{e:'🥱',n:'bâillement'},{e:'😷',n:'masque maladie'},{e:'🤒',n:'thermomètre'},
+		{e:'🤕',n:'bandage tête'},{e:'🤮',n:'malade vomir'},{e:'😵',n:'étourdissement'},
+		{e:'🤪',n:'fou dingue'},{e:'🥴',n:'paf étourdi'},{e:'🙃',n:'tête en bas'},
+		{e:'😐',n:'expression neutre'},{e:'🫠',n:'fondu chaleur'},{e:'🥹',n:'larmes joie'},
+		{e:'🫡',n:'salut militaire'},{e:'🤐',n:'bouche fermée zip'},{e:'🤫',n:'chut silence'},
+		{e:'🤔',n:'réfléchit'},{e:'🤭',n:'surprise bouche'},{e:'😬',n:'grimace gêne'},
+	],
+	animaux: [
+		{e:'🐶',n:'chien'},{e:'🐱',n:'chat'},{e:'🐭',n:'souris'},{e:'🐹',n:'hamster'},
+		{e:'🐰',n:'lapin'},{e:'🦊',n:'renard'},{e:'🐻',n:'ours'},{e:'🐼',n:'panda'},
+		{e:'🐨',n:'koala'},{e:'🐯',n:'tigre'},{e:'🦁',n:'lion'},{e:'🐮',n:'vache'},
+		{e:'🐷',n:'cochon'},{e:'🐸',n:'grenouille'},{e:'🐵',n:'singe'},{e:'🐔',n:'poule'},
+		{e:'🐧',n:'pingouin'},{e:'🐦',n:'oiseau'},{e:'🦆',n:'canard'},{e:'🦉',n:'hibou'},
+		{e:'🦋',n:'papillon'},{e:'🐢',n:'tortue'},{e:'🐍',n:'serpent'},{e:'🦎',n:'lézard'},
+		{e:'🐳',n:'baleine'},{e:'🐬',n:'dauphin'},{e:'🦈',n:'requin'},{e:'🐙',n:'pieuvre'},
+		{e:'🐘',n:'éléphant'},{e:'🦒',n:'girafe'},{e:'🦓',n:'zèbre'},{e:'🦏',n:'rhinocéros'},
+		{e:'🦙',n:'lama'},{e:'🦘',n:'kangourou'},{e:'🐊',n:'crocodile'},{e:'🦔',n:'hérisson'},
+		{e:'🦦',n:'loutre'},{e:'🦥',n:'paresseux'},{e:'🦜',n:'perroquet'},{e:'🐓',n:'coq'},
+	],
+	objets: [
+		{e:'📚',n:'livres'},{e:'📖',n:'livre ouvert'},{e:'✏️',n:'crayon'},{e:'📝',n:'note'},
+		{e:'🖊️',n:'stylo'},{e:'📐',n:'équerre'},{e:'📏',n:'règle'},{e:'✂️',n:'ciseaux'},
+		{e:'📌',n:'punaise'},{e:'🎒',n:'sac à dos'},{e:'🏫',n:'école'},{e:'🖥️',n:'ordinateur'},
+		{e:'📱',n:'téléphone'},{e:'📷',n:'appareil photo'},{e:'🎥',n:'caméra'},{e:'🎮',n:'manette'},
+		{e:'🎵',n:'note musique'},{e:'🎶',n:'notes musique'},{e:'🎸',n:'guitare'},{e:'🎹',n:'piano'},
+		{e:'🥁',n:'batterie'},{e:'⚽',n:'football'},{e:'🏀',n:'basket'},{e:'🎾',n:'tennis'},
+		{e:'🏆',n:'trophée'},{e:'🎯',n:'cible'},{e:'🎲',n:'dé'},{e:'🎨',n:'palette peinture'},
+		{e:'🔭',n:'télescope'},{e:'🔬',n:'microscope'},{e:'💊',n:'médicament'},{e:'🩺',n:'stéthoscope'},
+		{e:'🚀',n:'fusée'},{e:'✈️',n:'avion'},{e:'🚂',n:'train'},{e:'🚲',n:'vélo'},
+		{e:'🏠',n:'maison'},{e:'🔑',n:'clé'},{e:'💡',n:'ampoule idée'},{e:'🔔',n:'cloche'},
+	],
+	nourriture: [
+		{e:'🍎',n:'pomme'},{e:'🍊',n:'orange'},{e:'🍋',n:'citron'},{e:'🍇',n:'raisin'},
+		{e:'🍓',n:'fraise'},{e:'🍒',n:'cerise'},{e:'🍑',n:'pêche'},{e:'🍌',n:'banane'},
+		{e:'🍉',n:'pastèque'},{e:'🥝',n:'kiwi'},{e:'🍍',n:'ananas'},{e:'🥭',n:'mangue'},
+		{e:'🍕',n:'pizza'},{e:'🍔',n:'burger'},{e:'🍟',n:'frites'},{e:'🌭',n:'hotdog'},
+		{e:'🍿',n:'popcorn'},{e:'🧇',n:'gaufre'},{e:'🥞',n:'crêpes'},{e:'🍜',n:'ramen'},
+		{e:'🍣',n:'sushi'},{e:'🍩',n:'donut'},{e:'🎂',n:'gâteau anniversaire'},{e:'🍰',n:'part gâteau'},
+		{e:'🧁',n:'cupcake'},{e:'🍦',n:'glace'},{e:'🍭',n:'bonbon sucette'},{e:'🍫',n:'chocolat'},
+		{e:'☕',n:'café'},{e:'🍵',n:'thé'},{e:'🧋',n:'bubble tea'},{e:'🥤',n:'soda'},
+		{e:'🍪',n:'biscuit cookie'},{e:'🥐',n:'croissant'},{e:'🥖',n:'baguette'},{e:'🧀',n:'fromage'},
+		{e:'🥚',n:'oeuf'},{e:'🍳',n:'oeufs frits'},{e:'🥗',n:'salade'},{e:'🍲',n:'pot ragoût'},
+	],
+	symboles: [
+		{e:'❤️',n:'coeur rouge'},{e:'🧡',n:'coeur orange'},{e:'💛',n:'coeur jaune'},
+		{e:'💚',n:'coeur vert'},{e:'💙',n:'coeur bleu'},{e:'💜',n:'coeur violet'},
+		{e:'🖤',n:'coeur noir'},{e:'🤍',n:'coeur blanc'},{e:'🤎',n:'coeur marron'},
+		{e:'💕',n:'deux coeurs'},{e:'💞',n:'coeurs tournants'},{e:'💖',n:'coeur brillant'},
+		{e:'⭐',n:'étoile'},{e:'🌟',n:'étoile brillante'},{e:'✨',n:'étincelles'},
+		{e:'💫',n:'étoile filante'},{e:'🎇',n:'feux artifice'},{e:'🌈',n:'arc-en-ciel'},
+		{e:'✅',n:'validé coche'},{e:'❌',n:'croix erreur'},{e:'⚠️',n:'attention danger'},
+		{e:'💯',n:'cent parfait'},{e:'🔥',n:'feu flamme'},{e:'💧',n:'goutte eau'},
+		{e:'👍',n:'pouce haut'},{e:'👎',n:'pouce bas'},{e:'👏',n:'applaudissements'},
+		{e:'🙌',n:'mains levées'},{e:'🤝',n:'poignée de mains'},{e:'🙏',n:'prière merci'},
+		{e:'💪',n:'muscle force'},{e:'✌️',n:'victoire paix'},{e:'🤞',n:'doigts croisés'},
+		{e:'👉',n:'pointage droite'},{e:'☝️',n:'un doigt haut'},{e:'🫶',n:'coeur mains'},
+		{e:'🎉',n:'confettis fête'},{e:'🎊',n:'boule fête'},{e:'🥇',n:'médaille or'},
+	],
+};
+
+// Icônes 3D via Icons8 OMG-IMG (format libre, pas de clé requise pour usage avec attribution)
+// URL : https://img.icons8.com/3d-fluency/96/[nom]
+const I8 = (n, label) => ({ url: `https://img.icons8.com/3d-fluency/96/${n}`, n: label });
+
+const SP_3D = {
+	'3d-ecole': [
+		I8('open-book','Livre ouvert'), I8('pencil','Crayon'),
+		I8('graduation-cap','Diplôme'), I8('backpack','Sac à dos'),
+		I8('school','École'), I8('microscope','Microscope'),
+		I8('abacus','Abaque'), I8('ruler','Règle'),
+		I8('paint-brush','Pinceau'), I8('art-palette','Palette'),
+		I8('easel','Chevalet'), I8('calculator','Calculatrice'),
+		I8('globe','Globe'), I8('compass','Boussole'),
+		I8('test-tube','Éprouvette'), I8('atom','Atome'),
+		I8('dna','ADN'), I8('brain','Cerveau'),
+		I8('musical-notes','Notes musique'), I8('trophy','Trophée'),
+	],
+	'3d-nature': [
+		I8('sunflower','Tournesol'), I8('cherry-blossom','Fleur cerisier'),
+		I8('four-leaf-clover','Trèfle porte-bonheur'), I8('mushroom','Champignon'),
+		I8('cactus','Cactus'), I8('tree','Arbre'),
+		I8('christmas-tree','Sapin'), I8('leaf-fluttering-in-wind','Feuille'),
+		I8('sun','Soleil'), I8('rainbow','Arc-en-ciel'),
+		I8('snowflake','Flocon'), I8('cloud','Nuage'),
+		I8('thunderstorm','Orage'), I8('water-wave','Vague'),
+		I8('fire','Feu'), I8('globe-showing-europe-africa','Terre'),
+		I8('seedling','Plante'), I8('bouquet','Bouquet'),
+		I8('butterfly','Papillon'), I8('snail','Escargot'),
+	],
+	'3d-tech': [
+		I8('laptop','Laptop'), I8('desktop-computer','Ordinateur'),
+		I8('smartphone','Téléphone'), I8('game-controller','Manette'),
+		I8('robot','Robot'), I8('satellite','Satellite'),
+		I8('rocket','Fusée'), I8('flying-saucer','Soucoupe'),
+		I8('headphone','Casque audio'), I8('television','Télévision'),
+		I8('camera','Appareil photo'), I8('video-camera','Caméra'),
+		I8('lightbulb','Ampoule'), I8('battery','Batterie'),
+		I8('usb','USB'), I8('joystick','Joystick'),
+		I8('keyboard','Clavier'), I8('computer-mouse','Souris'),
+		I8('printer','Imprimante'), I8('megaphone','Mégaphone'),
+	],
+	'3d-fete': [
+		I8('party-popper','Confettis'), I8('birthday-cake','Gâteau anniversaire'),
+		I8('balloon','Ballon'), I8('wrapped-gift','Cadeau'),
+		I8('fireworks','Feux d\'artifice'), I8('sparkler','Cierge magique'),
+		I8('sports-medal','Médaille'), I8('trophy','Trophée'),
+		I8('crown','Couronne'), I8('star','Étoile'),
+		I8('heart','Coeur'), I8('diamond','Diamant'),
+		I8('puzzle-piece','Puzzle'), I8('teddy-bear','Nounours'),
+		I8('ice-cream','Glace'), I8('lollipop','Sucette'),
+		I8('popcorn','Popcorn'), I8('pizza','Pizza'),
+		I8('musical-notes','Musique'), I8('circus-tent','Chapiteau'),
+	],
+};
+
+let spCurrentTab = 'smileys';
+
+// Init des onglets
+document.getElementById('sp-tabs').addEventListener('click', (e) => {
+	const btn = e.target.closest('.sp-tab');
+	if (!btn) return;
+	document.querySelectorAll('.sp-tab').forEach(b => b.classList.remove('active'));
+	btn.classList.add('active');
+	spCurrentTab = btn.dataset.tab;
+	document.getElementById('sp-search').value = '';
+	renderStickerPanel();
+});
+
+function toggleStickerPanel() {
+	const panel = document.getElementById('sticker-panel');
+	const btn   = document.getElementById('sticker-btn');
+	const open  = panel.classList.toggle('active');
+	if (btn) btn.classList.toggle('active-tool', open);
+	if (open) {
+		// Fermer les autres menus
+		document.getElementById('tools-menu').classList.remove('active');
+		document.getElementById('shape-toolbar').classList.remove('active');
+		document.getElementById('bg-submenu').classList.remove('active');
+		const sm = document.getElementById('scenes-menu');
+		if (sm) sm.style.display = 'none';
+		renderStickerPanel();
+	}
+}
+
+// Cache pour les émojis Noto animés
+let _notoCache = null;
+
+function renderStickerPanel() {
+	const container = document.getElementById('sp-content');
+	const filter    = document.getElementById('sp-search').value.trim().toLowerCase();
+	const tab       = spCurrentTab;
+
+	if (tab === 'animes') {
+		// ── Émojis animés Google Noto ──
+		const NOTO_API = 'https://googlefonts.github.io/noto-emoji-animation/data/api.json';
+		const NOTO_CDN = 'https://fonts.gstatic.com/s/e/notoemoji/latest';
+
+		const render = (icons) => {
+			let items = icons;
+			if (filter) items = icons.filter(i =>
+				i.name.toLowerCase().includes(filter) ||
+				(i.tags && i.tags.some(t => t.toLowerCase().includes(filter)))
+			);
+			if (!items.length) { container.innerHTML = '<div class="sp-empty">Aucun résultat</div>'; return; }
+
+			// Limiter à 120 pour les perfs, sauf si filtre actif
+			const shown = filter ? items : items.slice(0, 120);
+
+			const grid = document.createElement('div');
+			grid.className = 'sp-grid-anim';
+			shown.forEach(item => {
+			const webpUrl = `${NOTO_CDN}/${item.code}/512.webp`;
+				const btn = document.createElement('div');
+				btn.className = 'sp-anim-btn';
+				btn.title = item.name;
+				const img = document.createElement('img');
+				img.src = webpUrl;
+				img.alt = item.name;
+				img.loading = 'lazy';
+				img.onerror = () => btn.style.display = 'none';
+				btn.appendChild(img);
+				btn.addEventListener('click', () => insertStickerImage(webpUrl, item.name));
+				grid.appendChild(btn);
+			});
+
+			container.innerHTML = '';
+			if (!filter && icons.length > 120) {
+				const hint = document.createElement('div');
+				hint.style.cssText = 'color:#555;font-size:10px;text-align:center;padding:0 0 8px;font-style:italic;';
+				hint.textContent = `${icons.length} émojis disponibles — utilisez la recherche pour filtrer`;
+				container.appendChild(hint);
+			}
+			container.appendChild(grid);
+		};
+
+		if (_notoCache) {
+			render(_notoCache);
+		} else {
+			container.innerHTML = '<div class="sp-loading">⏳ Chargement des émojis animés…</div>';
+			fetch(NOTO_API)
+				.then(r => r.json())
+				.then(data => {
+					_notoCache = data.icons.map(icon => ({
+						code: icon.codepoint,
+						name: (icon.tags[0] || ':emoji:').replace(/:/g, '').replace(/-/g, ' '),
+						tags: icon.tags
+					}));
+					render(_notoCache);
+				})
+				.catch(() => {
+					container.innerHTML = '<div class="sp-empty">❌ Impossible de charger les émojis animés.<br>Vérifiez votre connexion.</div>';
+				});
+		}
+
+	} else if (SP_3D[tab]) {
+		// ── Icônes 3D ──
+		let items = SP_3D[tab];
+		if (filter) items = items.filter(i => i.n.toLowerCase().includes(filter));
+		if (!items.length) { container.innerHTML = '<div class="sp-empty">Aucun résultat</div>'; return; }
+		const grid = document.createElement('div');
+		grid.className = 'sp-grid-img';
+		items.forEach(item => {
+			const btn = document.createElement('div');
+			btn.className = 'sp-img-btn';
+			btn.title = item.n;
+			btn.innerHTML = `<img src="${item.url}" alt="${item.n}" loading="lazy" onerror="this.closest('.sp-img-btn').style.display='none'">
+				<span class="sp-img-label">${item.n}</span>`;
+			btn.addEventListener('click', () => insertStickerImage(item.url, item.n));
+			grid.appendChild(btn);
+		});
+		container.innerHTML = '';
+		container.appendChild(grid);
+
+	} else {
+		// ── Émojis ──
+		let items = SP_EMOJI[tab] || [];
+		if (filter) items = items.filter(i => i.n.toLowerCase().includes(filter) || i.e.includes(filter));
+		if (!items.length) { container.innerHTML = '<div class="sp-empty">Aucun résultat</div>'; return; }
+		const grid = document.createElement('div');
+		grid.className = 'sp-grid-emoji';
+		items.forEach(item => {
+			const btn = document.createElement('button');
+			btn.className = 'sp-emoji-btn';
+			btn.textContent = item.e;
+			btn.title = item.n;
+			btn.addEventListener('click', () => insertStickerEmoji(item.e));
+			grid.appendChild(btn);
+		});
+		container.innerHTML = '';
+		container.appendChild(grid);
+	}
+}
+
+function _addStickerResizeHandle(w, minSize) {
+	const handle = document.createElement('div');
+	handle.title = 'Redimensionner';
+	handle.style.cssText = `
+		position:absolute; right:0; bottom:0; width:18px; height:18px;
+		cursor:se-resize; z-index:200; border-radius:0 0 6px 0;
+		background:linear-gradient(135deg, transparent 50%, #4a90e2 50%);
+		opacity:0; transition:opacity 0.2s; pointer-events:auto;
+	`;
+	w.appendChild(handle);
+
+	// Afficher/masquer au survol ou focus
+	w.addEventListener('mouseenter', () => handle.style.opacity = '1');
+	w.addEventListener('mouseleave', () => { if (!w.matches(':focus-within')) handle.style.opacity = '0'; });
+	w.addEventListener('focusin',    () => handle.style.opacity = '1');
+	w.addEventListener('focusout',   () => { if (!w.matches(':hover')) handle.style.opacity = '0'; });
+
+	handle.addEventListener('mousedown', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		snapshotNow();
+		const startX = e.clientX, startY = e.clientY;
+		const startW = w.offsetWidth,  startH = w.offsetHeight;
+
+		// Maintenir les proportions carrées (Shift ou par défaut pour stickers)
+		const onMove = (ev) => {
+			const dx = ev.clientX - startX;
+			const dy = ev.clientY - startY;
+			const delta = Math.max(dx, dy);
+			const newSize = Math.max(minSize, startW + delta);
+			w.style.width  = newSize + 'px';
+			w.style.height = newSize + 'px';
+			w.style.setProperty('--sticker-h', newSize + 'px');
+			// Pour les émojis : mettre à jour font-size ET dimensions du content
+			const content = w.querySelector('[data-sticker-type="emoji"]');
+			if (content) {
+				content.style.width    = newSize + 'px';
+				content.style.height   = newSize + 'px';
+				content.style.fontSize = Math.round(newSize * 0.62) + 'px';
+			}
+		};
+		const onUp = () => {
+			document.removeEventListener('mousemove', onMove);
+			document.removeEventListener('mouseup', onUp);
+			saveBoard();
+		};
+		document.addEventListener('mousemove', onMove);
+		document.addEventListener('mouseup', onUp);
+	});
+}
+
+function insertStickerEmoji(emoji) {
+	snapshotNow();
+	const pos = findFreePosition();
+	const w = document.createElement('div');
+	w.className = 'widget';
+	w.dataset.type = 'sticker';
+	w.dataset.transparent = 'true';
+	// min-height:0 et height explicite pour contrer le height:auto du CSS global
+	w.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:100px; height:100px; min-height:0 !important; overflow:visible; flex-direction:row; flex-shrink:0;`;
+	w.style.setProperty('--sticker-h', '100px');
+	w.tabIndex = 0;
+
+	const content = document.createElement('div');
+	content.dataset.stickerType = 'emoji';
+	// position absolute, taille 100%x100% du widget, font-size proportionnelle
+	content.style.cssText = 'position:absolute; top:0; left:0; width:100px; height:100px; display:flex; align-items:center; justify-content:center; font-size:62px; line-height:1; user-select:none; pointer-events:none;';
+	content.textContent = emoji;
+
+	w.innerHTML = `
+		<div class="drag-handle" title="Déplacer">✥</div>
+		<div class="widget-rotate-handle" title="Faire pivoter">↻</div>
+		<div class="widget-pin-handle" onclick="togglePin(this.closest('.widget'))" title="Épingler">📌</div>
+		<div class="widget-back-handle" onclick="sendToBack(this.closest('.widget'))" title="Envoyer derrière">🔽</div>
+		<div class="widget-close-handle" onclick="snapshotNow();this.closest('.widget').remove();saveBoard();" title="Fermer">×</div>
+	`;
+	w.appendChild(content);
+	w.addEventListener('mousedown', () => bringToFront(w));
+	board.appendChild(w);
+	makeDraggable(w);
+	makeDraggableRotate(w);
+	_addStickerResizeHandle(w, 40);
+	saveBoard();
+}
+
+function insertStickerImage(url, name) {
+	snapshotNow();
+	const pos = findFreePosition();
+	const w = document.createElement('div');
+	w.className = 'widget';
+	w.dataset.type = 'sticker';
+	w.dataset.transparent = 'true';
+	// Forcer height explicite et overflow hidden pour que le redimensionnement fonctionne
+	w.style.cssText = `left:${pos.x}px; top:${pos.y}px; width:130px; height:130px; overflow:hidden; flex-direction:row;`;
+	w.style.setProperty('--sticker-h', '130px');
+	w.tabIndex = 0;
+
+	// L'image occupe tout l'espace du widget directement, sans widget-content qui flex-grow
+	const img = document.createElement('img');
+	img.src = url;
+	img.alt = name;
+	img.draggable = false;
+	img.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; pointer-events:none; padding:6px; box-sizing:border-box;';
+
+	w.innerHTML = `
+		<div class="drag-handle" title="Déplacer">✥</div>
+		<div class="widget-rotate-handle" title="Faire pivoter">↻</div>
+		<div class="widget-pin-handle" onclick="togglePin(this.closest('.widget'))" title="Épingler">📌</div>
+		<div class="widget-back-handle" onclick="sendToBack(this.closest('.widget'))" title="Envoyer derrière">🔽</div>
+		<div class="widget-close-handle" onclick="snapshotNow();this.closest('.widget').remove();saveBoard();" title="Fermer">×</div>
+	`;
+	w.appendChild(img);
+	w.addEventListener('mousedown', () => bringToFront(w));
+	board.appendChild(w);
+	makeDraggable(w);
+	makeDraggableRotate(w);
+	_addStickerResizeHandle(w, 40);
+	saveBoard();
+}
+
+// Fermer au clic extérieur
+document.addEventListener('click', (e) => {
+	const sp = document.getElementById('sticker-panel');
+	if (sp && sp.classList.contains('active') &&
+		!e.target.closest('#sticker-panel') &&
+		!e.target.closest('#sticker-btn')) {
+		sp.classList.remove('active');
+		const sb = document.getElementById('sticker-btn');
+		if (sb) sb.classList.remove('active-tool');
+	}
+});
 
 </script>
 <div id="laser-pointer"></div>
