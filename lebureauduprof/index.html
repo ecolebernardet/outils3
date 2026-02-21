@@ -2137,6 +2137,8 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
 		// Remettre grab quand on quitte l'édition (clic ailleurs)
 		document.addEventListener('mousedown', function onOutsideClick(ev) {
 			if (!widget.contains(ev.target)) {
+				// Ne pas sortir du mode édition si on clique sur la toolbar de formatage
+				if (ev.target.closest('#global-toolbar')) return;
 				const ed = widget.querySelector('.editor-content');
 				if (ed) {
 					ed.contentEditable = 'false';
@@ -2579,6 +2581,9 @@ function makeDraggable(elmnt) {
                 const rect = container.getBoundingClientRect();
                 if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20) return;
             }
+            // Si le widget est déjà en mode édition de texte, ne pas initier le glisser
+            const editor = elmnt.querySelector('.editor-content');
+            if (editor && editor.contentEditable === 'true') return;
             elmnt._dragPending = { x: e.clientX, y: e.clientY, e };
         });
 
@@ -2587,6 +2592,8 @@ function makeDraggable(elmnt) {
             elmnt._dragPending = null;
             const editor = elmnt.querySelector('.editor-content');
             if (editor) {
+                // Si déjà en mode édition, laisser le navigateur gérer nativement (sélection de mot, etc.)
+                if (editor.contentEditable === 'true') return;
                 editor.contentEditable = 'true';
                 editor.style.cursor = 'text';
                 editor.style.userSelect = 'auto';
@@ -2603,10 +2610,15 @@ function makeDraggable(elmnt) {
 
         elmnt.addEventListener('mousemove', (e) => {
             if (!elmnt._dragPending) return;
+            // Si le widget est en mode édition, annuler le glisser pour permettre la sélection de texte
+            const editor = elmnt.querySelector('.editor-content');
+            if (editor && editor.contentEditable === 'true') {
+                elmnt._dragPending = null;
+                return;
+            }
             const dx = Math.abs(e.clientX - elmnt._dragPending.x);
             const dy = Math.abs(e.clientY - elmnt._dragPending.y);
             if (dx > 4 || dy > 4) {
-                const editor = elmnt.querySelector('.editor-content');
                 if (editor) {
                     editor.contentEditable = 'false';
                     editor.style.cursor = 'grab';
