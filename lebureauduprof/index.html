@@ -326,6 +326,11 @@
 		.widget[data-type="time"] .editor-container::-webkit-resizer { background-color: transparent; background-image: none; }
 		.editor-toolbar { display: flex; visibility: hidden; opacity: 0; gap: 4px; padding: 0px 35px; background: #f8f9fa; border-bottom: 1px solid #eee; flex-wrap: wrap; align-items: center; min-height: 36px; }
 		.widget:focus-within .editor-toolbar { visibility: visible; opacity: 1; }
+		.widget[data-type="iframe"] .editor-toolbar,
+		.widget[data-type="youtube"] .editor-toolbar,
+		.widget[data-type="pdf"] .editor-toolbar,
+		.widget[data-type="deficalme"] .editor-toolbar,
+		.widget[data-type="outilsprofs"] .editor-toolbar { visibility: visible; opacity: 1; }
 		.widget-content { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
 		.editor-container { display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 8px; background: white; flex-grow: 1; overflow: hidden; resize: none; min-width: 180px; min-height: 70px; }
 		.widget:hover .editor-container { resize: both; }
@@ -596,6 +601,13 @@
 		/* Stickers : height fixe pour que le resize fonctionne */
 		.widget[data-type="sticker"] { height: var(--sticker-h, 100px) !important; }
 
+		/* Boutons bascule Animés/Classiques */
+		.sp-mode-btn { background:#28282f; color:#aaa; border:1px solid #3a3a3f;
+			border-radius:8px; padding:5px 11px; font-size:12px; cursor:pointer;
+			transition:background .15s; white-space:nowrap; flex-shrink:0; }
+		.sp-mode-btn:hover  { background:#35353f; color:#eee; }
+		.sp-mode-btn.active { background:#1a3550; border-color:#4a90e2; color:#7ab8f5; }
+
 </style>
 </head>
 <body>
@@ -619,17 +631,18 @@
 <div id="toolbar-container">
     <div id="tools-menu">
         <button class="widget-btn" onclick="createWidget('youtube'); toggleMenu()"><span class="ico">🎬</span>YouTube</button>
-        <button class="widget-btn" onclick="createWidget('outilsprofs'); toggleMenu()"><span class="ico">🎒</span>OutilsProfs</button>
         <button class="widget-btn" onclick="createWidget('iframe'); toggleMenu()"><span class="ico">💻</span>Fenêtre Web</button>
+		<button class="widget-btn" onclick="createWidget('outilsprofs'); toggleMenu()"><span class="ico"><img src="https://outilsprofs.fr/outilsprofs_icone.png" style="width:26px;height:26px;object-fit:contain;border-radius:6px;"></span>OutilsProfs</button>
+		<button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()"><span class="ico">📌</span>Planning</button>
+        <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()"><span class="ico">📄</span>PDF</button>
+		<button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()"><span class="ico">🧘</span>Défi Calme</button>
         <button class="widget-btn" onclick="createWidget('time'); toggleMenu()"><span class="ico">🕒</span>Heure</button>
         <button class="widget-btn" onclick="createWidget('date'); toggleMenu()"><span class="ico">📅</span>Date</button>
         <button class="widget-btn" onclick="createWidget('meteo'); toggleMenu()"><span class="ico">⛅</span>Météo</button>
         <button class="widget-btn" onclick="createWidget('homework'); toggleMenu()"><span class="ico">📝</span>Devoirs</button>
         <button class="widget-btn" onclick="createWidget('text'); toggleMenu()"><span class="ico">🖊️</span>Texte</button>
-        <button class="widget-btn" onclick="createWidget('agenda'); toggleMenu()"><span class="ico">📌</span>Planning</button>
-        <button class="widget-btn" onclick="createWidget('deficalme'); toggleMenu()"><span class="ico">🧘</span>Défi Calme</button>
-        <button class="widget-btn" onclick="createWidget('pdf'); toggleMenu()"><span class="ico">📄</span>PDF</button>
-        <button class="widget-btn" onclick="toggleMenu(); toggleStickerPanel()"><span class="ico">😀</span>Stickers</button>
+
+
     </div>
 	<div id="scenes-menu" style="display:none;position:fixed;bottom:80px;left:30px;background:#1F1F21;border-radius:14px;padding:14px 16px;box-shadow:0 -4px 30px rgba(0,0,0,0.4);z-index:9998;border:1px solid #3a3a3f;min-width:240px;">
         <div style="color:#666;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #2e2e2e;">🗂️ Mes scènes</div>
@@ -766,7 +779,7 @@
 	</div>
 
     <!-- Barre du bas -->
-	<div id="bottom-bar" style="position:fixed;bottom:30px;left:0;right:0;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;padding:0 30px;">
+	<div id="bottom-bar" style="position:fixed;bottom:16px;left:0;right:0;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;padding:0 16px;">
 
 		<!-- Ligne des scènes -->
 		<div style="display:flex;align-items:center;gap:6px;pointer-events:auto;align-self:flex-start;">
@@ -774,20 +787,19 @@
 		</div>
 
 		<!-- Ligne des outils -->
-		<div style="display:flex;align-items:center;gap:10px;">
-			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
+		<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;">
+			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;flex-wrap:wrap;">
 				<button id="main-tool-btn" onclick="toggleMenu()" style="background:#1F1F21;color:#e8e8f0;border:1px solid #3a3a4a;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1;transition:background .15s;box-sizing:border-box;" onmouseover="this.style.background='#2e2e3a'" onmouseout="this.style.background='#1F1F21'"><span style="font-size:20px;line-height:1;">📦</span>Widgets</button>
 				<button id="scenes-btn" onclick="toggleScenesMenu()" style="background:#1F1F21;color:#e8e8f0;border:1px solid #3a3a4a;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;line-height:1;transition:background .15s;box-sizing:border-box;" title="Scènes" onmouseover="this.style.background='#2e2e3a'" onmouseout="this.style.background='#1F1F21'"><span style="font-size:20px;line-height:1;">🗂️</span>Scènes</button>
 				<button id="undo-btn" class="undo-btn" onclick="undoAction()" title="Annuler">↩</button>
 				<button id="redo-btn" class="redo-btn" onclick="redoAction()" title="Refaire">↪</button>
 				<button id="draw-btn" class="tool-btn" onclick="toggleDrawToolbar()" title="Dessiner">✏️</button>
 				<button id="shape-btn" class="tool-btn" onclick="toggleShapeToolbar()" title="Ajouter une forme">🔲</button>
+				<button id="sticker-btn" class="tool-btn" onclick="toggleStickerPanel()" title="Emojis animés">😀</button>
 				<button id="eraser-btn" class="tool-btn" onclick="toggleEraserMode()" title="Gommer">🧽</button>
 				<button id="laser-btn" class="tool-btn" onclick="toggleLaser()" title="Pointeur laser">🔴</button>
-				<button id="sticker-btn" class="tool-btn" onclick="toggleStickerPanel()" title="Stickers & Icônes 3D">😀</button>
 			</div>
-			<div style="flex:1;"></div>
-			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;">
+			<div style="display:flex;gap:10px;align-items:center;pointer-events:auto;flex-wrap:wrap;">
 				<button class="tool-btn" onclick="toggleSubMenu(event)" title="Fond d'écran">🖼️</button>
 				<button class="tool-btn" onclick="exportConfig()" title="Sauvegarder">💾</button>
 				<button class="tool-btn" onclick="document.getElementById('import-input').click()" title="Charger">📂</button>
@@ -818,16 +830,39 @@
 		<span>✨ Stickers Animés</span>
 		<button class="sp-close" onclick="toggleStickerPanel()" title="Fermer">✖</button>
 	</div>
-	<div class="sp-tabs" id="sp-tabs">
-		<button class="sp-tab active" data-tab="😊 Visages & émotions">😊 Visages</button>
-		<button class="sp-tab" data-tab="🐾 Animaux & nature">🐾 Animaux</button>
-		<button class="sp-tab" data-tab="🍕 Nourriture">🍕 Nourriture</button>
-		<button class="sp-tab" data-tab="🚀 Voyages">🚀 Voyages</button>
-		<button class="sp-tab" data-tab="🎉 Activités">🎉 Activités</button>
-		<button class="sp-tab" data-tab="💡 Objets">💡 Objets</button>
-		<button class="sp-tab" data-tab="🔣 Symboles">🔣 Symboles</button>
-		<button class="sp-tab" data-tab="🏳️ Drapeaux">🏳️ Drapeaux</button>
-		<button class="sp-tab" data-tab="👥 Personnes">👥 Personnes</button>
+	<!-- Bascule Animés / Classiques -->
+	<div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;">
+		<button id="sp-mode-animated" class="sp-mode-btn active" onclick="setStickerMode('animated')" title="Émojis animés Noto — connexion internet requise">🌐 Animés</button>
+		<button id="sp-mode-classic" class="sp-mode-btn" onclick="setStickerMode('classic')" title="Émojis classiques — fonctionne hors-ligne">📴 Classiques</button>
+		<span id="sp-offline-badge" style="display:none;background:#ff4757;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;">HORS-LIGNE</span>
+	</div>
+	<!-- Section émojis animés Noto -->
+	<div id="sp-animated-section">
+		<div class="sp-tabs" id="sp-tabs">
+			<button class="sp-tab active" data-tab="😊 Visages & émotions">😊 Visages</button>
+			<button class="sp-tab" data-tab="🐾 Animaux & nature">🐾 Animaux</button>
+			<button class="sp-tab" data-tab="🍕 Nourriture">🍕 Nourriture</button>
+			<button class="sp-tab" data-tab="🚀 Voyages">🚀 Voyages</button>
+			<button class="sp-tab" data-tab="🎉 Activités">🎉 Activités</button>
+			<button class="sp-tab" data-tab="💡 Objets">💡 Objets</button>
+			<button class="sp-tab" data-tab="🔣 Symboles">🔣 Symboles</button>
+			<button class="sp-tab" data-tab="🏳️ Drapeaux">🏳️ Drapeaux</button>
+			<button class="sp-tab" data-tab="👥 Personnes">👥 Personnes</button>
+		</div>
+	</div>
+	<!-- Section émojis classiques (hors-ligne) -->
+	<div id="sp-classic-section" style="display:none;">
+		<div class="sp-tabs" id="sp-classic-tabs">
+			<button class="sp-tab active" data-ctab="😊 Visages">😊 Visages</button>
+			<button class="sp-tab" data-ctab="🐾 Animaux">🐾 Animaux</button>
+			<button class="sp-tab" data-ctab="🍕 Nourriture">🍕 Nourrit.</button>
+			<button class="sp-tab" data-ctab="🎉 Fêtes">🎉 Fêtes</button>
+			<button class="sp-tab" data-ctab="🏫 École">🏫 École</button>
+			<button class="sp-tab" data-ctab="💡 Objets">💡 Objets</button>
+			<button class="sp-tab" data-ctab="🔣 Symboles">🔣 Symb.</button>
+			<button class="sp-tab" data-ctab="🌍 Nature">🌍 Nature</button>
+			<button class="sp-tab" data-ctab="👤 Personnes">👤 Pers.</button>
+		</div>
 	</div>
 	<input type="text" class="sp-search" id="sp-search" placeholder="🔍 Rechercher dans tous les émojis…" oninput="renderStickerPanel()">
 	<div id="sp-content"></div>
@@ -1380,6 +1415,7 @@
 </template>
 <template id="template-pdf">
     <div class="editor-container" style="height:500px;width:600px;">
+        <button class="exit-fs-btn" onclick="document.exitFullscreen()">✖ Quitter Plein Écran</button>
         <div class="editor-toolbar" style="gap:8px;">
             <label style="cursor:pointer;background:#4a90e2;color:white;padding:3px 8px;border-radius:5px;font-size:11px;">
                 📄 Ouvrir PDF
@@ -1387,7 +1423,7 @@
             </label>
             <button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶ Plein écran</button>
         </div>
-        <embed src="" type="application/pdf" style="flex-grow:1;width:100%;border:none;">
+        <iframe src="" style="flex-grow:1;width:100%;border:none;background:white;"></iframe>
     </div>
 </template>
 
@@ -1659,6 +1695,15 @@ function buildBoardState() {
         const lP = (w.offsetLeft / curW) * 100;
         const tP = (w.offsetTop  / curVH) * 100;
         Object.assign(w.dataset, { widthPercent: wP, contentHPercent: hP, leftPercent: lP, topPercent: tP });
+        // Données propres aux stickers
+        let stickerUrl = null, stickerEmoji = null, stickerSize = null;
+        if (w.dataset.type === 'sticker') {
+            const sImg = w.querySelector('img');
+            const sEmoji = w.querySelector('[data-sticker-type="emoji"]');
+            if (sImg) stickerUrl = sImg.src;
+            if (sEmoji) stickerEmoji = sEmoji.textContent;
+            stickerSize = { w: w.offsetWidth, h: w.offsetHeight };
+        }
         widgets.push({
 			type: w.dataset.type, topPercent: tP, leftPercent: lP, widthPercent: wP, contentHPercent: hP,
 			html, content: html, iframeSrc: iframe?.src || null,
@@ -1669,7 +1714,9 @@ function buildBoardState() {
 			pinned: w.dataset.pinned === "true",
 			background: w.dataset.background === "true",
 			groupId: w.dataset.groupId || null,
-			meteoCity: w.dataset.meteoCity || null
+			meteoCity: w.dataset.meteoCity || null,
+			stickerUrl, stickerEmoji, stickerSize,
+			transform: w.style.transform || null
 		});
     });
     const shapes = [];
@@ -1753,6 +1800,57 @@ function restoreBoardFromJSON(json) {
     }
     const curW = window.innerWidth, curVH = virtualH(curW);
     data.forEach(w => {
+        // Restauration spéciale des stickers (pas de template HTML)
+        if (w.type === 'sticker') {
+            const curWW = window.innerWidth, curVVH = virtualH(curWW);
+            const lx = (w.leftPercent / 100) * curWW;
+            const ty = (w.topPercent  / 100) * curVVH;
+            const sw = document.createElement('div');
+            sw.className = 'widget';
+            sw.dataset.type = 'sticker';
+            sw.dataset.transparent = 'true';
+            sw.tabIndex = 0;
+            const HANDLES = '<div class="drag-handle" title="Déplacer">✥</div>'
+                + '<div class="widget-rotate-handle" title="Faire pivoter">↻</div>'
+                + '<div class="widget-pin-handle" onclick="togglePin(this.closest(\'.widget\'))" title="Épingler">📌</div>'
+                + '<div class="widget-back-handle" onclick="sendToBack(this.closest(\'.widget\'))" title="Envoyer derrière">🔽</div>'
+                + '<div class="widget-close-handle" onclick="snapshotNow();this.closest(\'.widget\').remove();saveBoard();" title="Fermer">×</div>';
+            if (w.stickerEmoji) {
+                const sz = (w.stickerSize && w.stickerSize.w) ? w.stickerSize.w : 100;
+                sw.style.cssText = `left:${lx}px;top:${ty}px;width:${sz}px;height:${sz}px;min-height:0!important;overflow:visible;flex-direction:row;flex-shrink:0;`;
+                sw.style.setProperty('--sticker-h', sz + 'px');
+                const econtent = document.createElement('div');
+                econtent.dataset.stickerType = 'emoji';
+                econtent.style.cssText = `position:absolute;top:0;left:0;width:${sz}px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*0.62)}px;line-height:1;user-select:none;pointer-events:none;`;
+                econtent.textContent = w.stickerEmoji;
+                sw.innerHTML = HANDLES;
+                sw.appendChild(econtent);
+            } else if (w.stickerUrl) {
+                const szw = (w.stickerSize && w.stickerSize.w) ? w.stickerSize.w : 130;
+                const szh = (w.stickerSize && w.stickerSize.h) ? w.stickerSize.h : 130;
+                sw.style.cssText = `left:${lx}px;top:${ty}px;width:${szw}px;height:${szh}px;overflow:hidden;flex-direction:row;`;
+                sw.style.setProperty('--sticker-h', szh + 'px');
+                const simg = document.createElement('img');
+                simg.src = w.stickerUrl;
+                simg.alt = '';
+                simg.draggable = false;
+                simg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;pointer-events:none;padding:6px;box-sizing:border-box;';
+                sw.innerHTML = HANDLES;
+                sw.appendChild(simg);
+            } else {
+                return; // sticker sans données valides, on ignore
+            }
+            if (w.transform) sw.style.transform = w.transform;
+            if (w.pinned)    bringToFront(sw, true);
+            if (w.background) { sw.style.zIndex = 1; sw.dataset.background = 'true'; }
+            if (w.groupId)   sw.dataset.groupId = w.groupId;
+            sw.addEventListener('mousedown', () => bringToFront(sw));
+            board.appendChild(sw);
+            makeDraggable(sw);
+            makeDraggableRotate(sw);
+            _addStickerResizeHandle(sw, 40);
+            return; // widget sticker traité, on passe au suivant
+        }
         const widget = createWidget(w.type, '100px', '100px', false);
         const c = widget.querySelector('.editor-container');
         const hP = w.contentHPercent !== undefined ? w.contentHPercent : w.heightPercent;
@@ -1965,7 +2063,22 @@ document.addEventListener('keydown', (e) => {
 
 // Sortie fullscreen via Échap navigateur
 document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement && _presentationActive) togglePresentationMode();
+    if (!document.fullscreenElement) {
+        if (_presentationActive) togglePresentationMode();
+        // Restaurer les dimensions après sortie plein écran
+        if (_fsEl) {
+            const el = _fsEl;
+            const w  = _fsW, h = _fsH, ww = _fsWidgetW, wh = _fsWidgetH;
+            _fsEl = null; _fsW = ''; _fsH = ''; _fsWidgetW = ''; _fsWidgetH = '';
+            // Délai pour laisser le navigateur terminer la sortie fullscreen
+            setTimeout(() => {
+                el.style.width  = w;
+                el.style.height = h;
+                const widget = el.closest('.widget');
+                if (widget) { widget.style.width = ww; widget.style.height = wh; }
+            }, 50);
+        }
+    }
 });
 
 function helpShow(item) {
@@ -3141,8 +3254,8 @@ function flipStrokes(strokesList, axis) {
 function loadPdfWidget(input) {
     const file = input.files[0]; if (!file) return;
     const url = URL.createObjectURL(file);
-    const embed = input.closest('.editor-container').querySelector('embed');
-    embed.src = url;
+    const iframe = input.closest('.editor-container').querySelector('iframe');
+    iframe.src = url;
 }
 
 // =========================================================================
@@ -4672,9 +4785,18 @@ function applyTransparency(widget, isT) {
 // =========================================================================
 // PLEIN ÉCRAN, YOUTUBE, IFRAME
 // =========================================================================
+let _fsEl = null, _fsW = '', _fsH = '', _fsWidgetW = '', _fsWidgetH = '';
 function toggleFullScreen(el) {
-    if (!document.fullscreenElement) el.requestFullscreen().catch(err => console.log(err));
-    else document.exitFullscreen();
+    if (!document.fullscreenElement) {
+        _fsEl = el;
+        _fsW  = el.style.width;
+        _fsH  = el.style.height;
+        const widget = el.closest('.widget');
+        if (widget) { _fsWidgetW = widget.style.width; _fsWidgetH = widget.style.height; }
+        el.requestFullscreen().catch(err => console.log(err));
+    } else {
+        document.exitFullscreen();
+    }
 }
 function loadIframe(input) {
     const iframe = input.closest('.editor-container').querySelector('iframe');
@@ -4987,11 +5109,17 @@ document.addEventListener('click', (e) => {
 			btn.classList.add('active-tool');
 			document.body.style.cursor = 'none';
 			laserDot.classList.add('active');
-			// Couvrir toutes les iframes avec un overlay transparent
+			// Couvrir les iframes avec un overlay pour que le laser reste visible dessus
 			document.querySelectorAll('.widget iframe, .widget embed').forEach(el => {
 				const overlay = document.createElement('div');
 				overlay.className = 'laser-iframe-overlay';
 				overlay.style.cssText = 'position:absolute;inset:0;z-index:9999;cursor:none;background:transparent;';
+				// Double-clic sur l'overlay : désactiver le laser et entrer dans le widget
+				overlay.addEventListener('dblclick', (e) => {
+					toggleLaser();
+				});
+				// Afficher une petite info-bulle au survol
+				overlay.title = 'Double-clic pour entrer dans ce widget';
 				el.parentElement.style.position = 'relative';
 				el.parentElement.appendChild(overlay);
 			});
@@ -4999,7 +5127,6 @@ document.addEventListener('click', (e) => {
 			btn.classList.remove('active-tool');
 			document.body.style.cursor = '';
 			laserDot.classList.remove('active');
-			// Retirer tous les overlays
 			document.querySelectorAll('.laser-iframe-overlay').forEach(el => el.remove());
 		}
 	}
@@ -5231,6 +5358,84 @@ document.addEventListener('click', (e) => {
 //  CDN    : https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/512.webp
 // ══════════════════════════════════════════════════════
 
+// ══════════════════════════════════════════════════════
+//  ÉMOJIS CLASSIQUES — intégrés en dur, fonctionne hors-ligne
+// ══════════════════════════════════════════════════════
+const CLASSIC_DATA = {
+  "😊 Visages": ["😀","😃","😄","😁","😆","😅","🤣","😂","🙂","🙃","🫠","😉","😊","😇","🥰","😍","🤩","😘","😗","😚","😙","🥲","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🫢","🫣","🤫","🤔","🫡","🤐","🤨","😐","😑","😶","🫥","😏","😒","🙄","😬","🤥","🫨","😌","😔","😪","🤤","😴","😷","🤒","🤕","🤢","🤮","🤧","🥵","🥶","🥴","😵","🤯","🤠","🥳","🥸","😎","🤓","🧐","😕","🫤","😟","🙁","☹️","😮","😯","😲","😳","🥺","🥹","😦","😧","😨","😰","😥","😢","😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾","🤖","😺","😸","😹","😻","😼","😽","🙀","😿","😾","🙈","🙉","🙊"],
+  "🐾 Animaux": ["🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🐤","🦆","🦅","🦉","🦇","🐺","🐴","🦄","🐝","🦋","🐌","🐞","🐜","🐢","🐍","🦎","🦕","🦖","🐙","🦑","🦞","🦀","🐡","🐠","🐟","🐬","🐳","🐋","🦈","🦭","🐊","🐅","🐆","🦓","🦍","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🐃","🐄","🐎","🐖","🐑","🦙","🐐","🦌","🐕","🐩","🐈","🪶","🐓","🦃","🦚","🦜","🦢","🕊️","🐇","🦔","🌵","🌲","🌳","🌴","🌱","🌿","☘️","🍀","🍄","🌾","💐","🌷","🌹","🌺","🌸","🌼","🌻","🌞","🌝","🌙","⭐","✨","⚡","🌈","❄️","🔥","💧","🌊","🌪️","🪐"],
+  "🍕 Nourriture": ["🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🥦","🥒","🌶️","🌽","🥕","🥔","🍠","🥐","🍞","🥖","🧀","🥚","🍳","🥞","🧇","🥓","🍗","🍖","🌭","🍔","🍟","🍕","🌮","🌯","🥗","🍲","🍛","🍣","🍱","🥟","🍙","🍚","🍘","🍥","🎂","🍰","🧁","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🥜","🍯","🧃","🥤","🧋","☕","🍵","🍺","🍻","🥂","🍷","🍸","🍹","🧊"],
+  "🎉 Fêtes": ["🎉","🎊","🎈","🎁","🎀","🎗️","🎖️","🏆","🥇","🥈","🥉","🏅","🎠","🎡","🎢","🎪","🤹","🎭","🎨","🎬","🎤","🎧","🎼","🎹","🥁","🎷","🎺","🎸","🎻","🎲","🎯","🎱","🎳","⛳","🎣","🤿","🎽","🎿","🛷","🥌","🪃","🏹","🎮","🕹️","🎰","🧩","♟️","🪄","🎩","🪅","🪩","🪆","🎑","🎐","🎏","🧧","🎎","🎋","🎆","🎇","🧨"],
+  "🏫 École": ["📚","📖","📝","✏️","🖊️","🖋️","🖌️","📐","📏","🗂️","📁","📂","📊","📈","📉","🗒️","📋","📌","📍","📎","🖇️","✂️","🔒","🔓","🔑","🗝️","🔧","🪛","🔩","⚙️","🧮","💡","🔦","🔬","🔭","📡","🧪","🧫","🧬","💉","💊","🩹","🩺","⏰","⏱️","⏲️","⌛","⏳","📅","📆","🗓️","🌐","🗺️","🧭","💻","🖥️","⌨️","🖱️","📱","📷","📹","🎥","💾","📀","🔋","🔊","📢","📣","🔔","🏫","🚗","🚌","✈️","🚀","🎒","👓","🕶️","🥽","💼","👜","👝","🎓","📡"],
+  "💡 Objets": ["💻","🖥️","🖨️","⌨️","🖱️","💾","💿","📀","📱","☎️","📞","📺","📷","📸","📹","🎥","📽️","🔋","💡","🔦","🕯️","💵","💴","💶","💷","💸","💳","🪙","💎","⚖️","🧲","🪄","🎩","🧢","👑","💍","💄","👓","🕶️","🥽","🌂","☂️","🧵","🧶","🪢","🧸","🪆","🎀","🎁","🔑","🗝️","🔧","🪛","🔩","⚙️","🪜","🧰","🔬","🔭","📡","🧪","💊","🩹","🩺","⏰","🗺️","🧭","🎒","👜","💼","📚","📖","📝","✏️","🖊️","📐","📏","🪤","🧲","⚗️","🧯"],
+  "🔣 Symboles": ["❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","🩷","🩵","🩶","❤️‍🔥","❤️‍🩹","💔","💕","💞","💓","💗","💖","💘","💝","✅","☑️","❎","❌","⭕","🛑","⛔","📛","🚫","💯","⚠️","☢️","☣️","🔞","📵","🔕","🔇","🔊","📢","📣","🔔","▶️","⏩","⏭️","◀️","⏪","⏮️","🔼","🔽","⏸️","⏹️","⏺️","🎦","📶","🔅","🔆","➕","➖","✖️","➗","♾️","♻️","🔴","🟠","🟡","🟢","🔵","🟣","🟤","⚫","⚪","🟥","🟧","🟨","🟩","🟦","🟪","🟫","⬛","⬜","🔶","🔷","🔸","🔹","🔺","🔻","💠","🔘","⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️","↕️","↔️","↩️","↪️","⤴️","⤵️","🔃","🔄","🔙","🔚","🔛","🔜","🔝","✨","💫","⚡","💥","🔥","🌟"],
+  "🌍 Nature": ["🌍","🌎","🌏","🌐","🗺️","🧭","🌋","🗻","🏔️","⛰️","🏕️","🏖️","🏜️","🏝️","🏞️","🌃","🏙️","🌄","🌅","🌆","🌇","🌉","🌌","🎇","🎆","🌠","🌊","🌬️","🌀","🌈","🌂","☂️","☔","⛱️","⚡","❄️","🌨️","☃️","⛄","🔥","💧","🌵","🌴","🌲","🌳","🌱","🌿","☘️","🌾","🍂","🍁","🌺","🌸","🌼","🌻","🌹","🌷","🪷","💐","🍄","🌞","🌝","🌛","🌜","🌚","🌕","🌔","🌓","🌒","🌑","🌙","🌟","⭐","💫","✨","🪐","☄️","🌤️","⛅","🌥️","🌦️","🌧️","🌩️","🌪️","🌫️","🪸","🪨","🪵"],
+  "👤 Personnes": ["👶","🧒","👦","👧","🧑","👱","👨","🧔","👩","🧓","👴","👵","🙍","🙎","🙅","🙆","💁","🙋","🧏","🙇","🤦","🤷","💆","💇","🚶","🧍","🧎","🏃","💃","🕺","👯","🛀","🧖","🛌","👫","👬","👭","💑","💏","👪","👮","🕵️","💂","🥷","👷","🤴","👸","👳","👲","🧕","🤵","👰","🤰","🤱","🎅","🤶","🧙","🧝","🧛","🧟","🧞","🧜","🧚","🧌","👼","👍","👎","👋","🤚","🖐️","✋","🖖","🤙","👈","👉","👆","👇","☝️","✊","👊","🤛","🤜","👏","🙌","🤲","🫶","🤝","🙏","✍️","💅","💪","🫵","🫰","🫱","🫲"]
+};
+
+let spCurrentClassicTab = Object.keys(CLASSIC_DATA)[0];
+let spMode = 'animated'; // 'animated' | 'classic'
+
+function checkStickerConnectivity() {
+  var probe = new Image();
+  probe.onload = function() {
+    var b = document.getElementById('sp-offline-badge');
+    if (b) b.style.display = 'none';
+  };
+  probe.onerror = function() {
+    var b = document.getElementById('sp-offline-badge');
+    if (b) b.style.display = 'inline-block';
+    if (spMode === 'animated') setStickerMode('classic', true);
+  };
+  probe.src = NOTO_CDN + '/1f600/512.webp?_t=' + Date.now();
+}
+
+function setStickerMode(mode, auto) {
+  auto = auto || false;
+  spMode = mode;
+  var animSection  = document.getElementById('sp-animated-section');
+  var classSection = document.getElementById('sp-classic-section');
+  var btnAnim  = document.getElementById('sp-mode-animated');
+  var btnClass = document.getElementById('sp-mode-classic');
+  var search   = document.getElementById('sp-search');
+  if (mode === 'animated') {
+    if (animSection)  animSection.style.display  = '';
+    if (classSection) classSection.style.display = 'none';
+    if (btnAnim)  btnAnim.classList.add('active');
+    if (btnClass) btnClass.classList.remove('active');
+    if (search) search.placeholder = '🔍 Rechercher dans les émojis animés…';
+  } else {
+    if (animSection)  animSection.style.display  = 'none';
+    if (classSection) classSection.style.display = '';
+    if (btnAnim)  btnAnim.classList.remove('active');
+    if (btnClass) btnClass.classList.add('active');
+    if (search) search.placeholder = '🔍 Rechercher dans les émojis classiques…';
+    if (!auto) {
+      spCurrentClassicTab = Object.keys(CLASSIC_DATA)[0];
+      document.querySelectorAll('#sp-classic-tabs .sp-tab')
+        .forEach(function(b, i) { b.classList.toggle('active', i === 0); });
+    }
+  }
+  if (search) search.value = '';
+  renderStickerPanel();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var ctabs = document.getElementById('sp-classic-tabs');
+  if (!ctabs) return;
+  ctabs.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-ctab]');
+    if (!btn) return;
+    document.querySelectorAll('#sp-classic-tabs .sp-tab')
+      .forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    spCurrentClassicTab = btn.dataset.ctab;
+    var s = document.getElementById('sp-search');
+    if (s) s.value = '';
+    renderStickerPanel();
+  });
+});
+
 const NOTO_CDN = 'https://fonts.gstatic.com/s/e/notoemoji/latest';
 
 const NOTO_DATA = {
@@ -5270,51 +5475,94 @@ function toggleStickerPanel() {
 		document.getElementById('bg-submenu').classList.remove('active');
 		const sm = document.getElementById('scenes-menu');
 		if (sm) sm.style.display = 'none';
+		checkStickerConnectivity();
 		renderStickerPanel();
 	}
 }
 
 function renderStickerPanel() {
 	const container = document.getElementById('sp-content');
-	const filter    = document.getElementById('sp-search').value.trim().toLowerCase();
-	const tab       = spCurrentTab;
+	if (!container) return;
+	const filter = (document.getElementById('sp-search') || {value:''}).value.trim().toLowerCase();
 
-	const allItems = NOTO_DATA[tab] || [];
-	const items = filter
-		? Object.values(NOTO_DATA).flat().filter(i => i.n.toLowerCase().includes(filter))
-		: allItems;
+	if (spMode === 'classic') {
+		// ── Émojis classiques Unicode (hors-ligne) ──────────────
+		const allItems = CLASSIC_DATA[spCurrentClassicTab] || [];
+		const items = filter
+			? Object.values(CLASSIC_DATA).flat().filter(emoji => {
+				const notoAll = Object.values(NOTO_DATA).flat();
+				const cp = [...emoji].map(c => c.codePointAt(0).toString(16))
+				           .join('_').replace(/_fe0f/gi, '');
+				const match = notoAll.find(n => {
+					const nc = n.c.replace(/_fe0f/gi, '');
+					return nc === cp
+						|| nc.startsWith(cp.split('_')[0])
+						|| cp.startsWith(nc.split('_')[0]);
+				});
+				return match ? match.n.toLowerCase().includes(filter) : false;
+			  })
+			: allItems;
+		if (!items.length) {
+			container.innerHTML = '<div class="sp-empty">Aucun résultat</div>';
+			return;
+		}
+		const grid = document.createElement('div');
+		grid.className = 'sp-grid-anim';
+		items.forEach(emoji => {
+			const btn = document.createElement('div');
+			btn.className = 'sp-anim-btn';
+			btn.title = emoji;
+			btn.style.fontSize = '28px';
+			btn.style.lineHeight = '1';
+			btn.textContent = emoji;
+			btn.addEventListener('click', () => insertStickerEmoji(emoji));
+			grid.appendChild(btn);
+		});
+		container.innerHTML = '';
+		if (filter) {
+			const hint = document.createElement('div');
+			hint.style.cssText = 'color:#555;font-size:10px;text-align:center;padding:0 0 8px;font-style:italic;';
+			hint.textContent = items.length + ' résultat(s) dans toutes les catégories';
+			container.appendChild(hint);
+		}
+		container.appendChild(grid);
 
-	if (!items.length) {
-		container.innerHTML = '<div class="sp-empty">Aucun résultat</div>';
-		return;
+	} else {
+		// ── Émojis animés Noto (CDN WebP) ────────────────────────
+		const tab      = spCurrentTab;
+		const allItems = NOTO_DATA[tab] || [];
+		const items = filter
+			? Object.values(NOTO_DATA).flat().filter(i => i.n.toLowerCase().includes(filter))
+			: allItems;
+		if (!items.length) {
+			container.innerHTML = '<div class="sp-empty">Aucun résultat</div>';
+			return;
+		}
+		const grid = document.createElement('div');
+		grid.className = 'sp-grid-anim';
+		items.forEach(item => {
+			const webpUrl = NOTO_CDN + '/' + item.c + '/512.webp';
+			const btn = document.createElement('div');
+			btn.className = 'sp-anim-btn';
+			btn.title = item.n;
+			const img = document.createElement('img');
+			img.src = webpUrl;
+			img.alt = item.n;
+			img.loading = 'lazy';
+			img.onerror = () => { btn.style.display = 'none'; };
+			btn.appendChild(img);
+			btn.addEventListener('click', () => insertStickerImage(webpUrl, item.n));
+			grid.appendChild(btn);
+		});
+		container.innerHTML = '';
+		if (filter) {
+			const hint = document.createElement('div');
+			hint.style.cssText = 'color:#555;font-size:10px;text-align:center;padding:0 0 8px;font-style:italic;';
+			hint.textContent = items.length + ' résultat(s) dans toutes les catégories';
+			container.appendChild(hint);
+		}
+		container.appendChild(grid);
 	}
-
-	const grid = document.createElement('div');
-	grid.className = 'sp-grid-anim';
-
-	items.forEach(item => {
-		const webpUrl = `${NOTO_CDN}/${item.c}/512.webp`;
-		const btn = document.createElement('div');
-		btn.className = 'sp-anim-btn';
-		btn.title = item.n;
-		const img = document.createElement('img');
-		img.src = webpUrl;
-		img.alt = item.n;
-		img.loading = 'lazy';
-		img.onerror = () => btn.style.display = 'none';
-		btn.appendChild(img);
-		btn.addEventListener('click', () => insertStickerImage(webpUrl, item.n));
-		grid.appendChild(btn);
-	});
-
-	container.innerHTML = '';
-	if (filter) {
-		const hint = document.createElement('div');
-		hint.style.cssText = 'color:#555;font-size:10px;text-align:center;padding:0 0 8px;font-style:italic;';
-		hint.textContent = `${items.length} résultat(s) dans toutes les catégories`;
-		container.appendChild(hint);
-	}
-	container.appendChild(grid);
 }
 
 function _addStickerResizeHandle(w, minSize) {
