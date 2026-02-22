@@ -951,7 +951,7 @@
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FFD230;color:#222;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">💻 Fenêtre Web</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Navigateur intégré pour tout site web.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#FF692A;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🎒 OutilsProfs</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Ouvre directement ecolebernardet.github.io/outilsprofs.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Micro, caméra autorisés</td></tr>
           <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#480eb3;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">🧘 Défi Calme</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Outil de gestion du calme en classe.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Plein écran disponible</td></tr>
-          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#E74C3C;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📄 PDF</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Affiche un fichier PDF local.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Fichier non sauvegardé (ré-ouvrir à chaque session)</td></tr>
+          <tr><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;"><span style="background:#E74C3C;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">📄 PDF</span></td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Affiche un fichier PDF local.</td><td style="padding:8px 12px;border-bottom:1px solid #eef0f3;color:#444;">Sauvegardé automatiquement dans le navigateur ✅</td></tr>
           <tr><td style="padding:8px 12px;"><span style="background:#00AACC;color:white;border-radius:5px;padding:2px 8px;font-size:11.5px;font-weight:700;">⛅ Météo</span></td><td style="padding:8px 12px;color:#444;">Affiche la météo réelle de la ville de l'école.</td><td style="padding:8px 12px;color:#444;">Via Open-Meteo (gratuit, sans clé). Clic sur le nom de la ville pour changer. Rafraîchi toutes les 10 min.</td></tr>
         </table>
         <div style="font-size:0.97em;font-weight:700;color:#2B7FFF;margin:18px 0 8px 0;">⚙️ Contrôles communs à tous les widgets</div>
@@ -1162,7 +1162,7 @@
           <li style="font-size:13.5px;color:#444;line-height:1.65;">Les groupes de widgets</li>
         </ul>
         <div style="background:#eef7ff;border-left:4px solid #2B7FFF;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#1a4d8f;margin:10px 0 14px 0;">💡 <strong>Astuce :</strong> Exportez régulièrement un fichier .json comme sauvegarde externe en cas de suppression du cache du navigateur.</div>
-        <div style="background:#fff8e6;border-left:4px solid #f39c12;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#7a5000;margin:10px 0;">⚠️ Les fichiers PDF ouverts via le widget PDF <em>ne sont pas</em> sauvegardés. Il faudra les ré-ouvrir à chaque session.</div>
+        <div style="background:#e8f5e9;border-left:4px solid #4caf50;border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:#2e7d32;margin:10px 0;">✅ Les fichiers PDF ouverts via le widget PDF sont <strong>sauvegardés automatiquement</strong> dans votre navigateur et se rechargent à chaque session. <em>Note : les fichiers très volumineux (&gt;5 Mo) peuvent ne pas être sauvegardés selon la capacité du navigateur.</em></div>
       </div>
 
       <!-- ANNULER/REFAIRE -->
@@ -1421,9 +1421,18 @@
                 📄 Ouvrir PDF
                 <input type="file" accept=".pdf" style="display:none" onchange="loadPdfWidget(this)">
             </label>
+            <span class="pdf-filename" style="font-size:11px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;" title=""></span>
             <button onclick="toggleFullScreen(this.closest('.editor-container'))" title="Plein écran">⛶ Plein écran</button>
         </div>
-        <iframe src="" style="flex-grow:1;width:100%;border:none;background:white;"></iframe>
+        <div class="pdf-placeholder" style="flex-grow:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#aaa;font-size:13px;">
+            <span style="font-size:40px;">📄</span>
+            <span>Aucun PDF ouvert</span>
+            <label style="cursor:pointer;background:#f0f4fa;border:1px dashed #4a90e2;color:#4a90e2;padding:6px 14px;border-radius:8px;font-size:12px;">
+                Cliquez pour ouvrir un PDF
+                <input type="file" accept=".pdf" style="display:none" onchange="loadPdfWidget(this)">
+            </label>
+        </div>
+        <iframe src="" style="flex-grow:1;width:100%;border:none;background:white;display:none;"></iframe>
     </div>
 </template>
 
@@ -1716,7 +1725,9 @@ function buildBoardState() {
 			groupId: w.dataset.groupId || null,
 			meteoCity: w.dataset.meteoCity || null,
 			stickerUrl, stickerEmoji, stickerSize,
-			transform: w.style.transform || null
+			transform: w.style.transform || null,
+			pdfId: w.dataset.pdfId || null,
+			pdfName: w.dataset.pdfName || null
 		});
     });
     const shapes = [];
@@ -1912,6 +1923,16 @@ function restoreBoardFromJSON(json) {
             }
             const iframe = widget.querySelector('iframe');
             if (w.iframeSrc && iframe) iframe.src = w.iframeSrc;
+            // Restaurer le PDF depuis localStorage si disponible
+            if (w.type === 'pdf' && w.pdfId) {
+                widget.dataset.pdfId = w.pdfId;
+                if (w.pdfName) widget.dataset.pdfName = w.pdfName;
+                const base64 = localStorage.getItem(w.pdfId);
+                if (base64) {
+                    const container = widget.querySelector('.editor-container');
+                    if (container) _showPdfInWidget(container, base64, w.pdfName || '');
+                }
+            }
             applyEditorStyleFromConfig(widget, w.editorStyle);
             scaleFontSizesFromRef(widget, refW);
         }, 50);
@@ -2279,7 +2300,14 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
         <div class="widget-pin-handle" onclick="togglePin(this.closest('.widget, .shape-widget'))" title="Épingler">📌</div>
         <div class="widget-back-handle" onclick="sendToBack(this.closest('.widget, .shape-widget'))" title="Envoyer derrière">🔽</div>
         <div class="widget-menu-handle" onclick="toggleCtxMenu(this)" title="Menu">☰</div>
-        <div class="widget-close-handle" onclick="snapshotNow();closeCtxMenuAll();this.closest('.widget').remove();saveBoard();" title="Fermer">×</div>
+        <div class="widget-close-handle" onclick="
+            (function(w){
+                snapshotNow();
+                closeCtxMenuAll();
+                if(w.dataset.pdfId) localStorage.removeItem(w.dataset.pdfId);
+                w.remove();
+                saveBoard();
+            })(this.closest('.widget'))" title="Fermer">×</div>
         <div class="widget-ctx-menu"></div>
         <div class="widget-content"></div>`;
     const contentZone = widget.querySelector('.widget-content');
@@ -3257,9 +3285,57 @@ function flipStrokes(strokesList, axis) {
 // =========================================================================
 function loadPdfWidget(input) {
     const file = input.files[0]; if (!file) return;
-    const url = URL.createObjectURL(file);
-    const iframe = input.closest('.editor-container').querySelector('iframe');
-    iframe.src = url;
+    const widget = input.closest('.widget');
+    const container = input.closest('.editor-container');
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64 = e.target.result; // "data:application/pdf;base64,..."
+        // Générer un ID unique pour ce PDF si pas déjà défini
+        if (!widget.dataset.pdfId) {
+            widget.dataset.pdfId = 'pdf_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        }
+        const pdfId = widget.dataset.pdfId;
+        // Stocker en localStorage
+        try {
+            localStorage.setItem(pdfId, base64);
+        } catch(err) {
+            // localStorage plein : prévenir l'utilisateur
+            alert('⚠️ Le fichier PDF est trop volumineux pour être sauvegardé automatiquement. Il restera disponible jusqu\'à la fermeture de l\'onglet.');
+        }
+        // Stocker le nom du fichier
+        widget.dataset.pdfName = file.name;
+        // Afficher le PDF
+        _showPdfInWidget(container, base64, file.name);
+        saveBoard();
+    };
+    reader.readAsDataURL(file);
+}
+
+function _showPdfInWidget(container, base64OrUrl, filename) {
+    const iframe = container.querySelector('iframe');
+    const placeholder = container.querySelector('.pdf-placeholder');
+    const nameSpan = container.querySelector('.pdf-filename');
+    if (iframe) {
+        // Convertir base64 en blob URL pour l'iframe si nécessaire
+        let src = base64OrUrl;
+        if (base64OrUrl.startsWith('data:')) {
+            const arr = base64OrUrl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            const blob = new Blob([u8arr], { type: mime });
+            src = URL.createObjectURL(blob);
+        }
+        iframe.src = src;
+        iframe.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+    if (nameSpan && filename) {
+        nameSpan.textContent = filename;
+        nameSpan.title = filename;
+    }
 }
 
 // =========================================================================
