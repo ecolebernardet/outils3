@@ -410,9 +410,9 @@
 
         /* --- AGENDA --- */
         .agenda-container { display: flex; flex-direction: column; background: #fff; border-radius: 8px; border: 1px solid #eee; overflow: hidden; min-height: 200px; }
-        .agenda-header-title { background: #2b7fff; color: white; padding: 10px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', sans-serif; border-radius: 4px 4px 0 0; font-size: 1.6em; }
+        .agenda-header-title { background: #2b7fff; color: white; padding: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-family: 'Segoe UI', sans-serif; border-radius: 4px 4px 0 0; font-size: 1.6em; }
         .agenda-current-time { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.9em; }
-        .agenda-list { padding: 10px; flex-grow: 1; }
+        .agenda-list { padding: 1px; flex-grow: 1; }
         .agenda-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px dashed #eee; position: relative; }
         .agenda-item:last-child { border-bottom: none; }
         .agenda-item.dragging { opacity: 0.5; background: #f0f7ff; border: 1px dashed var(--primary-color); }
@@ -2434,14 +2434,18 @@ function createWidget(type, x = null, y = null, doSnapshot = true) {
         editor.addEventListener('mouseup', () => { syncFontSize(widget); syncFontSizeGlobal(); });
 		editor.addEventListener('keyup',   () => { syncFontSize(widget); syncFontSizeGlobal(); });
     }
-    const REF_W = 1920, factor = window.innerWidth / REF_W;
-    if (Math.abs(factor - 1) > 0.01) {
-        scaleFontSizesBy(widget, factor);
-        const c = widget.querySelector('.editor-container');
-        if (c?.style.width)  c.style.width  = (parseFloat(c.style.width)  * factor) + 'px';
-        if (c?.style.height) c.style.height = (parseFloat(c.style.height) * factor) + 'px';
+    // Ne pas scaler ici si on est en cours de chargement/restauration :
+    // scaleFontSizesFromRef sera appelé après coup avec les bonnes valeurs.
+    if (!isInitialLoading && !isRestoringState) {
+        const REF_W = 1920, factor = window.innerWidth / REF_W;
+        if (Math.abs(factor - 1) > 0.01) {
+            scaleFontSizesBy(widget, factor);
+            const c = widget.querySelector('.editor-container');
+            if (c?.style.width)  c.style.width  = (parseFloat(c.style.width)  * factor) + 'px';
+            if (c?.style.height) c.style.height = (parseFloat(c.style.height) * factor) + 'px';
+        }
+        saveBoard();
     }
-	if (!isInitialLoading && !isRestoringState) saveBoard();
 
 	// Focus automatique sur l'éditeur à la création
 	if (!isInitialLoading && !isRestoringState) {
