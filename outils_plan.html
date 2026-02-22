@@ -1127,12 +1127,18 @@ async function exportPDF() {
         // Préparation du SVG
         const svgElement = document.getElementById('plan-svg');
         const svgClone = svgElement.cloneNode(true);
+		// CORRECTION FIREFOX : forcer width/height explicites sur le SVG cloné
+		svgClone.setAttribute("width", "1800");
+		svgClone.setAttribute("height", "1800");
         
         // Correction de la bordure pour le PDF
-        const walls = svgClone.querySelector('rect[stroke="var(--column-border)"]');
-        if (walls) {
-            walls.setAttribute("stroke", "#999999");
-        }
+        // Remplacer toutes les variables CSS non résolues
+		const allRects = svgClone.querySelectorAll('rect');
+		allRects.forEach(r => {
+			if (r.getAttribute('stroke') && r.getAttribute('stroke').includes('var(')) {
+				r.setAttribute('stroke', '#999999');
+			}
+		});
 
         // Adaptation des tailles de texte
         const groups = svgClone.querySelectorAll('.desk-group');
@@ -1201,6 +1207,9 @@ async function exportPDF() {
 function ouvrirDansOnglet() {
     const svgElement = document.getElementById('plan-svg');
     const svgClone = svgElement.cloneNode(true);
+	// CORRECTION FIREFOX : forcer width/height explicites sur le SVG cloné
+	svgClone.setAttribute("width", "1800");
+	svgClone.setAttribute("height", "1800");
     
     svgClone.style.backgroundColor = "white";
     
